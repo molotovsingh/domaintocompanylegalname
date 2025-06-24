@@ -35,10 +35,12 @@ interface SessionResults {
 }
 
 export default function SessionResults({ batchId }: SessionResultsProps) {
-  const { data: sessionResults, isLoading } = useQuery<SessionResults>({
+  const { data: sessionResults, isLoading, error } = useQuery<SessionResults>({
     queryKey: ['/api/session-results', batchId],
     enabled: !!batchId,
   });
+
+  console.log('SessionResults debug:', { batchId, sessionResults, isLoading, error });
 
   if (isLoading) {
     return (
@@ -60,8 +62,14 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
     );
   }
 
-  if (!sessionResults || !sessionResults.qualityMetrics) {
-    return null;
+  if (!sessionResults) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        Select a batch to view session statistics
+        <br />
+        <span className="text-sm">Upload and process a file to see detailed metrics including duplicate detection stats</span>
+      </div>
+    );
   }
 
   const formatDuration = (ms: number) => {
