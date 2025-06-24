@@ -1,283 +1,368 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Globe, Building2, CheckCircle, AlertTriangle } from "lucide-react";
-
 export default function JurisdictionalGuide() {
-  const jurisdictions = [
-    {
-      region: "North America",
-      countries: [
-        {
-          name: "United States",
-          flag: "🇺🇸",
-          commonSuffixes: ["Inc.", "Corp.", "LLC", "Ltd."],
-          specializedSuffixes: ["P.C.", "PLLC", "LP", "LLP", "Co-op", "Trust"],
-          examples: ["Apple Inc.", "Microsoft Corporation", "Google LLC"],
-          notes: "Professional corporations (P.C.) common for lawyers/doctors"
-        },
-        {
-          name: "Canada",
-          flag: "🇨🇦",
-          commonSuffixes: ["Inc.", "Ltd.", "Corp."],
-          specializedSuffixes: ["LP", "LLP", "Co-op", "Trust", "Ltée"],
-          examples: ["Shopify Inc.", "Royal Bank of Canada", "Bombardier Inc."],
-          notes: "Quebec uses French variants like 'Ltée' for Limitée"
-        },
-        {
-          name: "Mexico",
-          flag: "🇲🇽",
-          commonSuffixes: ["S.A.", "S.A. de C.V.", "S. de R.L."],
-          specializedSuffixes: ["S.C.", "A.C.", "I.A.P.", "S.A.P.I."],
-          examples: ["CEMEX S.A.B. de C.V.", "Grupo Bimbo S.A.B. de C.V."],
-          notes: "C.V. = Capital Variable, A.C. = Asociación Civil (nonprofit)"
-        }
-      ]
-    },
-    {
-      region: "Europe",
-      countries: [
-        {
-          name: "Germany",
-          flag: "🇩🇪",
-          commonSuffixes: ["GmbH", "AG", "SE"],
-          specializedSuffixes: ["UG", "KG", "e.V.", "Stiftung", "eG"],
-          examples: ["SAP SE", "Volkswagen AG", "Siemens AG"],
-          notes: "e.V. = nonprofit association, Stiftung = foundation"
-        },
-        {
-          name: "France",
-          flag: "🇫🇷",
-          commonSuffixes: ["SA", "SARL", "SAS"],
-          specializedSuffixes: ["SNC", "EURL", "SCOP", "GIE", "Fondation"],
-          examples: ["LVMH SA", "Carrefour SA", "Total SE"],
-          notes: "SE = European company, SCOP = worker cooperative"
-        },
-        {
-          name: "Ireland",
-          flag: "🇮🇪",
-          commonSuffixes: ["Ltd", "DAC", "PLC"],
-          specializedSuffixes: ["CLG", "UC", "ULC", "Society", "Trust"],
-          examples: ["Ryanair DAC", "Allied Irish Banks PLC"],
-          notes: "DAC = Designated Activity Company, CLG = nonprofit limited by guarantee"
-        },
-        {
-          name: "Italy",
-          flag: "🇮🇹",
-          commonSuffixes: ["S.p.A.", "S.r.l.", "S.r.l.s."],
-          specializedSuffixes: ["S.n.c.", "S.a.s.", "Soc. Coop.", "Fondazione"],
-          examples: ["Eni S.p.A.", "Ferrari N.V.", "Telecom Italia S.p.A."],
-          notes: "S.r.l.s. = simplified startup version, Soc. Coop. = cooperative"
-        }
-      ]
-    },
-    {
-      region: "South America",
-      countries: [
-        {
-          name: "Brazil",
-          flag: "🇧🇷",
-          commonSuffixes: ["Ltda.", "S.A.", "SLU"],
-          specializedSuffixes: ["EIRELI", "MEI", "Cooperativa", "Fundação"],
-          examples: ["Petrobras S.A.", "Vale S.A.", "Itaú Unibanco S.A."],
-          notes: "SLU replaced EIRELI in 2019, MEI = micro-entrepreneur"
-        }
-      ]
-    },
-    {
-      region: "Asia",
-      countries: [
-        {
-          name: "India",
-          flag: "🇮🇳",
-          commonSuffixes: ["Ltd", "Pvt Ltd", "Private Limited"],
-          specializedSuffixes: ["LLP", "Trust", "Society"],
-          examples: ["Tata Consultancy Services Ltd", "Infosys Ltd", "Wipro Ltd"],
-          notes: "Pvt Ltd = private company, Public Ltd = publicly traded"
-        }
-      ]
-    }
-  ];
-
-  const validationRules = [
-    {
-      rule: "Legal Suffix Requirement",
-      description: "Corporate entities must have proper legal suffixes",
-      penalty: "-25% confidence penalty for missing suffixes",
-      examples: ["❌ Apple", "✅ Apple Inc.", "❌ Microsoft", "✅ Microsoft Corporation"]
-    },
-    {
-      rule: "Nonprofit Exemption",
-      description: "Legitimate nonprofits don't require corporate suffixes",
-      penalty: "No penalty applied",
-      examples: ["✅ Harvard University", "✅ Mayo Clinic", "✅ Red Cross"]
-    },
-    {
-      rule: "Domain Mapping Priority",
-      description: "Known companies use authoritative legal names",
-      penalty: "95% confidence for mapped companies",
-      examples: ["rewe.de → REWE Group", "bmw.com → BMW AG"]
-    },
-    {
-      rule: "Marketing Content Rejection",
-      description: "Descriptive phrases and taglines are blocked",
-      penalty: "Complete rejection of marketing content",
-      examples: ["❌ 'Our business is'", "❌ 'Leading provider'", "❌ 'Grocery Store'"]
-    }
-  ];
-
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-2">
-          <Globe className="h-8 w-8 text-blue-600" />
-          <h1 className="text-3xl font-bold">Jurisdictional Knowledge Guide</h1>
-        </div>
-        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-          Our system recognizes legal entity structures across 9 major jurisdictions, covering 170+ corporate suffixes 
-          and ensuring proper legal entity validation for international business names.
+    <div className="max-w-6xl mx-auto p-6 space-y-8">
+      <header className="border-b pb-4">
+        <h1 className="text-2xl font-bold">Jurisdictional Knowledge Reference</h1>
+        <p className="text-gray-600 mt-2">
+          Comprehensive legal entity recognition across 9 jurisdictions with 170+ corporate suffixes and validation rules.
         </p>
-      </div>
+      </header>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5" />
-            Supported Jurisdictions
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-8">
-            {jurisdictions.map((region) => (
-              <div key={region.region}>
-                <h3 className="text-xl font-semibold mb-4 text-blue-600">{region.region}</h3>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {region.countries.map((country) => (
-                    <Card key={country.name} className="border-l-4 border-l-blue-500">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-2 text-lg">
-                          <span className="text-2xl">{country.flag}</span>
-                          {country.name}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div>
-                          <p className="font-medium text-sm text-gray-600 mb-1">Common Suffixes</p>
-                          <div className="flex flex-wrap gap-1">
-                            {country.commonSuffixes.map((suffix) => (
-                              <Badge key={suffix} variant="default" className="text-xs">
-                                {suffix}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm text-gray-600 mb-1">Specialized</p>
-                          <div className="flex flex-wrap gap-1">
-                            {country.specializedSuffixes.map((suffix) => (
-                              <Badge key={suffix} variant="secondary" className="text-xs">
-                                {suffix}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm text-gray-600 mb-1">Examples</p>
-                          <div className="text-xs space-y-1">
-                            {country.examples.map((example) => (
-                              <div key={example} className="bg-gray-50 px-2 py-1 rounded">
-                                {example}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="pt-2 border-t">
-                          <p className="text-xs text-gray-500 italic">{country.notes}</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            ))}
+      <section>
+        <h2 className="text-xl font-semibold mb-4">United States</h2>
+        <div className="bg-gray-50 p-4 rounded mb-4">
+          <h3 className="font-medium mb-2">Corporate Entities</h3>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <strong>Corporations:</strong> Inc., Incorporated, Corp., Corporation, Company, Co.
+            </div>
+            <div>
+              <strong>Limited Liability:</strong> LLC, L.L.C., Limited
+            </div>
+            <div>
+              <strong>Professional:</strong> P.C., PC (Professional Corporation), PLLC, P.L.L.C. (Professional Limited Liability Company)
+            </div>
           </div>
-        </CardContent>
-      </Card>
+          <div className="grid grid-cols-3 gap-4 text-sm mt-3">
+            <div>
+              <strong>Partnerships:</strong> LP, L.P. (Limited Partnership), LLP, L.L.P. (Limited Liability Partnership), LLLP, L.L.L.P. (Limited Liability Limited Partnership)
+            </div>
+            <div>
+              <strong>Cooperatives:</strong> Co-op, Cooperative
+            </div>
+            <div>
+              <strong>Other:</strong> Trust, Holdings, Group
+            </div>
+          </div>
+        </div>
+        <div className="text-sm text-gray-600">
+          <strong>Key Rules:</strong> Professional corporations (P.C.) required for licensed professionals (lawyers, doctors, accountants). 
+          Nonprofits (universities, hospitals, foundations) exempt from corporate suffixes. State-specific variations exist.
+        </div>
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5" />
-            Validation Rules & Penalties
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {validationRules.map((rule, index) => (
-              <div key={index}>
-                <div className="flex items-start gap-3">
-                  <div className="mt-1">
-                    {rule.rule === "Legal Suffix Requirement" && <AlertTriangle className="h-4 w-4 text-orange-500" />}
-                    {rule.rule === "Nonprofit Exemption" && <CheckCircle className="h-4 w-4 text-green-500" />}
-                    {rule.rule === "Domain Mapping Priority" && <Building2 className="h-4 w-4 text-blue-500" />}
-                    {rule.rule === "Marketing Content Rejection" && <AlertTriangle className="h-4 w-4 text-red-500" />}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold">{rule.rule}</h4>
-                    <p className="text-gray-600 mb-2">{rule.description}</p>
-                    <Badge variant={rule.penalty.includes("penalty") ? "destructive" : "default"} className="mb-3">
-                      {rule.penalty}
-                    </Badge>
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="text-sm font-medium mb-2">Examples:</p>
-                      <div className="space-y-1">
-                        {rule.examples.map((example, i) => (
-                          <div key={i} className="text-sm font-mono">
-                            {example}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {index < validationRules.length - 1 && <Separator className="mt-6" />}
-              </div>
-            ))}
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Canada</h2>
+        <div className="bg-gray-50 p-4 rounded mb-4">
+          <h3 className="font-medium mb-2">Corporate Entities</h3>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <strong>Standard:</strong> Inc., Incorporated, Ltd., Limited, Corp., Corporation
+            </div>
+            <div>
+              <strong>Partnerships:</strong> LP, L.P., LLP, L.L.P.
+            </div>
+            <div>
+              <strong>Quebec (French):</strong> Ltée (Limitée), Inc. (Incorporée)
+            </div>
           </div>
-        </CardContent>
-      </Card>
+          <div className="grid grid-cols-3 gap-4 text-sm mt-3">
+            <div>
+              <strong>Professional:</strong> P.C. (Professional Corporation)
+            </div>
+            <div>
+              <strong>Cooperative:</strong> Co-op, Cooperative
+            </div>
+            <div>
+              <strong>Other:</strong> Trust, Society
+            </div>
+          </div>
+        </div>
+        <div className="text-sm text-gray-600">
+          <strong>Key Rules:</strong> Quebec uses French variants (Ltée). Federal vs. provincial incorporation affects suffix requirements. 
+          Professional corporations regulated by provincial law societies.
+        </div>
+      </section>
 
-      <Card className="bg-blue-50 border-blue-200">
-        <CardHeader>
-          <CardTitle className="text-blue-800">Key Principles</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-start gap-2">
-            <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5" />
-            <p className="text-sm text-blue-800">
-              <strong>Corporate entities require legal suffixes</strong> - Companies without proper suffixes appear incomplete and unprofessional
-            </p>
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Germany</h2>
+        <div className="bg-gray-50 p-4 rounded mb-4">
+          <h3 className="font-medium mb-2">Corporate Entities</h3>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <strong>Limited Liability:</strong> GmbH (Gesellschaft mit beschränkter Haftung), UG (Unternehmergesellschaft - mini-GmbH)
+            </div>
+            <div>
+              <strong>Stock Companies:</strong> AG (Aktiengesellschaft), SE (Societas Europaea - European Company)
+            </div>
+            <div>
+              <strong>Partnerships:</strong> KG (Kommanditgesellschaft), OHG (Offene Handelsgesellschaft), GbR (Gesellschaft bürgerlichen Rechts)
+            </div>
           </div>
-          <div className="flex items-start gap-2">
-            <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5" />
-            <p className="text-sm text-blue-800">
-              <strong>Nonprofits are exempt</strong> - Universities, hospitals, foundations legitimately don't use corporate suffixes
-            </p>
+          <div className="grid grid-cols-3 gap-4 text-sm mt-3">
+            <div>
+              <strong>Nonprofit:</strong> e.V. (eingetragener Verein), gGmbH (gemeinnützige GmbH), Stiftung (Foundation)
+            </div>
+            <div>
+              <strong>Cooperative:</strong> eG (eingetragene Genossenschaft)
+            </div>
+            <div>
+              <strong>Other:</strong> e.K. (eingetragener Kaufmann), gAG (gemeinnützige AG)
+            </div>
           </div>
-          <div className="flex items-start gap-2">
-            <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5" />
-            <p className="text-sm text-blue-800">
-              <strong>Domain mappings are authoritative</strong> - Known companies use verified legal entity names at 95% confidence
-            </p>
+        </div>
+        <div className="text-sm text-gray-600">
+          <strong>Key Rules:</strong> GmbH requires €25,000 minimum capital, UG allows €1 minimum (but profits must build reserves). 
+          SE allows European-wide operations. e.V. and Stiftung are tax-exempt nonprofits.
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-4">France</h2>
+        <div className="bg-gray-50 p-4 rounded mb-4">
+          <h3 className="font-medium mb-2">Corporate Entities</h3>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <strong>Stock Companies:</strong> SA (Société Anonyme), SAS (Société par Actions Simplifiée), SASU (SAS Unipersonnelle)
+            </div>
+            <div>
+              <strong>Limited Liability:</strong> SARL (Société à Responsabilité Limitée), EURL (Entreprise Unipersonnelle à Responsabilité Limitée)
+            </div>
+            <div>
+              <strong>Partnerships:</strong> SNC (Société en Nom Collectif), SCS (Société en Commandite Simple), SCA (Société en Commandite par Actions)
+            </div>
           </div>
-          <div className="flex items-start gap-2">
-            <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5" />
-            <p className="text-sm text-blue-800">
-              <strong>Marketing content is rejected</strong> - Descriptive phrases and taglines are completely blocked
-            </p>
+          <div className="grid grid-cols-3 gap-4 text-sm mt-3">
+            <div>
+              <strong>Professional:</strong> SEL (Société d'Exercice Libéral), SC (Société Civile)
+            </div>
+            <div>
+              <strong>Cooperative:</strong> SCOP (Société Coopérative de Production), SCIC (Société Coopérative d'Intérêt Collectif)
+            </div>
+            <div>
+              <strong>Other:</strong> GIE (Groupement d'Intérêt Économique), SEM (Société d'Économie Mixte), Fondation, SE
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div className="text-sm text-gray-600">
+          <strong>Key Rules:</strong> SA requires €37,000 minimum capital for public companies. SAS more flexible than SA. 
+          SCOP is worker-owned cooperative. SE allows European operations.
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Mexico</h2>
+        <div className="bg-gray-50 p-4 rounded mb-4">
+          <h3 className="font-medium mb-2">Corporate Entities</h3>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <strong>Stock Companies:</strong> S.A. (Sociedad Anónima), S.A. de C.V. (de Capital Variable), S.A.B. (Bursátil), S.A.P.I. (Promotora de Inversión)
+            </div>
+            <div>
+              <strong>Limited Liability:</strong> S. de R.L. (Sociedad de Responsabilidad Limitada), S. de R.L. de C.V.
+            </div>
+            <div>
+              <strong>Partnerships:</strong> S. en C. (Sociedad en Comandita), S. en C. por A. (por Acciones)
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4 text-sm mt-3">
+            <div>
+              <strong>Civil:</strong> S.C. (Sociedad Civil)
+            </div>
+            <div>
+              <strong>Nonprofit:</strong> A.C. (Asociación Civil), I.A.P. (Institución de Asistencia Privada)
+            </div>
+            <div>
+              <strong>Investment:</strong> S.A.P.I. de C.V.
+            </div>
+          </div>
+        </div>
+        <div className="text-sm text-gray-600">
+          <strong>Key Rules:</strong> C.V. (Capital Variable) allows flexible capital structure. S.A.B. for publicly traded companies. 
+          A.C. and I.A.P. are tax-exempt nonprofits with different regulatory requirements.
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-4">India</h2>
+        <div className="bg-gray-50 p-4 rounded mb-4">
+          <h3 className="font-medium mb-2">Corporate Entities</h3>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <strong>Private Companies:</strong> Pvt Ltd, Private Limited, (Pvt.) Ltd.
+            </div>
+            <div>
+              <strong>Public Companies:</strong> Ltd, Limited, Public Ltd
+            </div>
+            <div>
+              <strong>Partnerships:</strong> LLP (Limited Liability Partnership)
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4 text-sm mt-3">
+            <div>
+              <strong>Nonprofit:</strong> Trust, Society, Section 8 Company
+            </div>
+            <div>
+              <strong>Cooperative:</strong> Co-operative Society
+            </div>
+            <div>
+              <strong>Other:</strong> OPC (One Person Company), Producer Company
+            </div>
+          </div>
+        </div>
+        <div className="text-sm text-gray-600">
+          <strong>Key Rules:</strong> Pvt Ltd cannot trade shares publicly (max 200 shareholders). 
+          Public Ltd can list on stock exchanges. Section 8 companies are nonprofits under Companies Act 2013.
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Brazil</h2>
+        <div className="bg-gray-50 p-4 rounded mb-4">
+          <h3 className="font-medium mb-2">Corporate Entities</h3>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <strong>Limited Liability:</strong> Ltda. (Limitada), SLU (Sociedade Limitada Unipessoal), EIRELI (Empresa Individual - being phased out)
+            </div>
+            <div>
+              <strong>Stock Companies:</strong> S.A. (Sociedade Anônima)
+            </div>
+            <div>
+              <strong>Partnerships:</strong> SCA (Sociedade em Comandita por Ações)
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4 text-sm mt-3">
+            <div>
+              <strong>Micro:</strong> MEI (Microempreendedor Individual)
+            </div>
+            <div>
+              <strong>Cooperative:</strong> Cooperativa, Coop
+            </div>
+            <div>
+              <strong>Nonprofit:</strong> Fundação, Associação, OSC (Organização da Sociedade Civil)
+            </div>
+          </div>
+        </div>
+        <div className="text-sm text-gray-600">
+          <strong>Key Rules:</strong> SLU replaced EIRELI in 2019 for single-member companies. MEI for micro-entrepreneurs with simplified regulations. 
+          Fundação requires government approval and endowment.
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Ireland</h2>
+        <div className="bg-gray-50 p-4 rounded mb-4">
+          <h3 className="font-medium mb-2">Corporate Entities (Companies Act 2014)</h3>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <strong>Private:</strong> Ltd, Limited, DAC (Designated Activity Company)
+            </div>
+            <div>
+              <strong>Public:</strong> PLC, Public Limited Company
+            </div>
+            <div>
+              <strong>Nonprofit:</strong> CLG (Company Limited by Guarantee)
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4 text-sm mt-3">
+            <div>
+              <strong>Unlimited:</strong> UC, ULC (Unlimited Company)
+            </div>
+            <div>
+              <strong>Partnership:</strong> LP (Limited Partnership)
+            </div>
+            <div>
+              <strong>Other:</strong> Society, Trust, Cooperative
+            </div>
+          </div>
+        </div>
+        <div className="text-sm text-gray-600">
+          <strong>Key Rules:</strong> DAC has specific object clauses (replaced unlimited objects). CLG for nonprofits without share capital. 
+          ULC has unlimited liability but tax advantages for subsidiaries.
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Italy</h2>
+        <div className="bg-gray-50 p-4 rounded mb-4">
+          <h3 className="font-medium mb-2">Corporate Entities (Italian Civil Code)</h3>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <strong>Stock Companies:</strong> S.p.A. (Società per Azioni)
+            </div>
+            <div>
+              <strong>Limited Liability:</strong> S.r.l. (Società a Responsabilità Limitata), S.r.l.s. (Semplificata - simplified startup)
+            </div>
+            <div>
+              <strong>Partnerships:</strong> S.n.c. (Società in Nome Collettivo), S.a.s. (Società in Accomandita Semplice), S.a.p.a. (per Azioni)
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4 text-sm mt-3">
+            <div>
+              <strong>Cooperative:</strong> Soc. Coop., Società Cooperativa
+            </div>
+            <div>
+              <strong>Nonprofit:</strong> Fondazione, Associazione
+            </div>
+            <div>
+              <strong>Other:</strong> Trust (recognized under Hague Convention)
+            </div>
+          </div>
+        </div>
+        <div className="text-sm text-gray-600">
+          <strong>Key Rules:</strong> S.r.l.s. introduced in 2012 for startups with reduced capital requirements. 
+          Cooperatives often include "a r.l." (responsabilità limitata) for limited liability.
+        </div>
+      </section>
+
+      <section className="border-t pt-6">
+        <h2 className="text-xl font-semibold mb-4">Validation Algorithm</h2>
+        
+        <div className="space-y-4">
+          <div>
+            <h3 className="font-medium text-red-600">Global Penalty System (-25% confidence)</h3>
+            <p className="text-sm text-gray-600 mb-2">
+              Applied to any extracted company name lacking proper legal entity suffix. Principle: Missing suffixes indicate either extraction errors or nonprofit status.
+            </p>
+            <div className="bg-red-50 p-3 rounded text-sm">
+              <strong>Examples:</strong> "Apple" → Penalized | "Apple Inc." → Valid | "Microsoft" → Penalized | "Microsoft Corporation" → Valid
+            </div>
+          </div>
+
+          <div>
+            <h3 className="font-medium text-green-600">Nonprofit Exemptions (No penalty)</h3>
+            <p className="text-sm text-gray-600 mb-2">
+              Universities, hospitals, foundations, government agencies, religious organizations legitimately operate without corporate suffixes.
+            </p>
+            <div className="bg-green-50 p-3 rounded text-sm">
+              <strong>Examples:</strong> "Harvard University", "Mayo Clinic", "Red Cross", "Department of Commerce"
+            </div>
+          </div>
+
+          <div>
+            <h3 className="font-medium text-blue-600">Domain Mapping Priority (95% confidence)</h3>
+            <p className="text-sm text-gray-600 mb-2">
+              Known companies use pre-verified legal entity names, overriding all extraction methods and cached results.
+            </p>
+            <div className="bg-blue-50 p-3 rounded text-sm">
+              <strong>Examples:</strong> apple.com → "Apple Inc.", bmw.com → "BMW AG", toyota.com → "Toyota Motor Corporation"
+            </div>
+          </div>
+
+          <div>
+            <h3 className="font-medium text-orange-600">Marketing Content Rejection (Complete block)</h3>
+            <p className="text-sm text-gray-600 mb-2">
+              Descriptive phrases, taglines, and generic business descriptions are completely rejected as invalid extractions.
+            </p>
+            <div className="bg-orange-50 p-3 rounded text-sm">
+              <strong>Blocked patterns:</strong> "Our business is", "Leading provider", "Grocery Store", "Client Challenge", "Innovation Partner"
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 p-4 bg-gray-100 rounded">
+          <h3 className="font-medium mb-2">Processing Priority</h3>
+          <ol className="text-sm space-y-1">
+            <li>1. <strong>Domain Mappings</strong> - Authoritative legal names (95% confidence)</li>
+            <li>2. <strong>About Us/Company Pages</strong> - Structured corporate information</li>
+            <li>3. <strong>Legal/Terms Pages</strong> - Official legal entity names</li>
+            <li>4. <strong>Domain Parsing</strong> - Fallback extraction from domain name</li>
+          </ol>
+          <p className="text-xs text-gray-500 mt-2">
+            HTML title extraction completely removed due to marketing content contamination.
+          </p>
+        </div>
+      </section>
     </div>
   );
 }
