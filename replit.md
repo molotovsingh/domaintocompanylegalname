@@ -84,6 +84,8 @@ A production-scale web application for extracting company names from domain list
 - Unreachable domains now correctly show as "failed" with proper error messages instead of false domain parsing success
 - Streamlined UI by removing redundant elements: mock worker status, unused processing options, non-functional config selectors
 - Simplified interface focuses on essential functionality with clear extraction method hierarchy display
+- Enhanced SSL error handling to catch certificate issues (ERR_TLS_CERT_ALTNAME_INVALID, expired certs, etc.)
+- Fixed HTTP fallback logic to prevent broken SSL domains from appearing as successful extractions
 - Emergency fix: Restored proper validation logic to prevent extraction of marketing taglines and generic content
 - Enhanced invalid pattern detection to reject "Our business is", "Client Challenge", "Grocery Store", etc.
 - Added German company domain mappings to fix current bad extractions (Springer, RTL, Wirecard, etc.)

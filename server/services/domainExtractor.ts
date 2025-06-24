@@ -838,19 +838,24 @@ export class DomainExtractor {
         return 'unreachable';
       }
       
-      // SSL/Certificate errors - try HTTP fallback
-      try {
-        const httpResponse = await axios.head(`http://${domain}`, {
-          timeout: 2500,
-          headers: { 'User-Agent': this.userAgent },
-          validateStatus: () => true,
-          maxRedirects: 2
-        });
-        
-        return httpResponse.status < 500 ? 'reachable' : 'unreachable';
-      } catch (httpError: any) {
-        return 'unreachable';
+      // SSL/Certificate errors - try HTTP fallback only for specific SSL issues
+      if (error.code === 'CERT_HAS_EXPIRED' || error.code === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE') {
+        try {
+          const httpResponse = await axios.head(`http://${domain}`, {
+            timeout: 2500,
+            headers: { 'User-Agent': this.userAgent },
+            validateStatus: () => true,
+            maxRedirects: 2
+          });
+          
+          return httpResponse.status < 500 ? 'reachable' : 'unreachable';
+        } catch (httpError: any) {
+          return 'unreachable';
+        }
       }
+      
+      // All other SSL/TLS errors indicate truly unreachable domains
+      return 'unreachable';
     }
   }
 }
