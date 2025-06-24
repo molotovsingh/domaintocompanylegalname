@@ -75,6 +75,9 @@ A production-scale web application for extracting company names from domain list
 - Added 30+ German DAX company mappings with proper legal entity names and suffixes
 - CRITICAL FIX: Domain mappings now override cached results to prevent bad extractions from persisting
 - Updated database to correct all cached German company names to proper legal entity names
+- HTML title extraction identified as unreliable source - heavily penalized and deprioritized (June 24, 2025)
+- Added comprehensive Indian company mappings with proper legal entity names (Ltd, Pvt Ltd, etc.)
+- Restructured extraction priority: Domain mappings → About Us pages → Legal pages → HTML title (last resort)
 
 ## User Preferences
 - Professional interface without excessive technical jargon

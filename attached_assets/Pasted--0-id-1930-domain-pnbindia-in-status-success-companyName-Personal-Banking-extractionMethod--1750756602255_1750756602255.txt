@@ -1,0 +1,997 @@
+	
+0	
+id	1930
+domain	"pnbindia.in"
+status	"success"
+companyName	"Personal Banking"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.598Z"
+processedAt	null
+1	
+id	1929
+domain	"phonepe.com"
+status	"success"
+companyName	"PhonePe"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.596Z"
+processedAt	null
+2	
+id	1928
+domain	"ola.com"
+status	"success"
+companyName	"Knepper Time LLC"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.594Z"
+processedAt	null
+3	
+id	1926
+domain	"pidilite.com"
+status	"success"
+companyName	"Pidilite"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.591Z"
+processedAt	null
+4	
+id	1927
+domain	"nestleindia.com"
+status	"success"
+companyName	"Nestleindia"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.591Z"
+processedAt	null
+5	
+id	1925
+domain	"paytm.com"
+status	"success"
+companyName	"Paytm"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.590Z"
+processedAt	null
+6	
+id	1924
+domain	"persistentsys.com"
+status	"success"
+companyName	"Re(AI)magining the World"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.589Z"
+processedAt	null
+7	
+id	1923
+domain	"marutisuzuki.com"
+status	"success"
+companyName	"Maruti Suzuki Cars in India"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.589Z"
+processedAt	null
+8	
+id	1922
+domain	"nykaa.com"
+status	"success"
+companyName	"Buy Cosmetics Products & Beauty Products Online in India at Best Price"
+extractionMethod	"html_title"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.588Z"
+processedAt	null
+9	
+id	1921
+domain	"nseindia.com"
+status	"success"
+companyName	"NSE"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.585Z"
+processedAt	null
+10	
+id	1920
+domain	"mphasis.com"
+status	"success"
+companyName	"Mphasis"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.584Z"
+processedAt	null
+11	
+id	1919
+domain	"maxlife.com"
+status	"success"
+companyName	"Maxlife"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.580Z"
+processedAt	null
+12	
+id	1918
+domain	"licindia.in"
+status	"success"
+companyName	"Life Insurance Corporation of India | Official website of Life Insurance Corporation of India."
+extractionMethod	"html_title"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.578Z"
+processedAt	null
+13	
+id	1917
+domain	"motherson.com"
+status	"success"
+companyName	"Motherson GroupSamvardhana Motherson"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.577Z"
+processedAt	null
+14	
+id	1916
+domain	"mindtree.com"
+status	"success"
+companyName	"LTIMindtree"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.575Z"
+processedAt	null
+15	
+id	1915
+domain	"maxhealthcare.in"
+status	"success"
+companyName	"Maxhealthcare"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.573Z"
+processedAt	null
+16	
+id	1914
+domain	"marico.com"
+status	"success"
+companyName	"Marico"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.571Z"
+processedAt	null
+17	
+id	1913
+domain	"kotakmf.com"
+status	"success"
+companyName	"Kotak Mutual Fund"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.569Z"
+processedAt	null
+18	
+id	1912
+domain	"larsentoubro.com"
+status	"success"
+companyName	"L&T India"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.564Z"
+processedAt	null
+19	
+id	1910
+domain	"mahindraholidays.com"
+status	"success"
+companyName	"Mahindraholidays"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.564Z"
+processedAt	null
+20	
+id	1911
+domain	"mahindra.com"
+status	"success"
+companyName	"The Mahindra Group Official Website"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.564Z"
+processedAt	null
+21	
+id	1909
+domain	"ltts.com"
+status	"success"
+companyName	"L&T Technology Services (LTTS)"
+extractionMethod	"html_title"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.563Z"
+processedAt	null
+22	
+id	1908
+domain	"jswsteel.in"
+status	"success"
+companyName	"JSW"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.561Z"
+processedAt	null
+23	
+id	1907
+domain	"karurbank.com"
+status	"success"
+companyName	"Karurbank"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.557Z"
+processedAt	null
+24	
+id	1906
+domain	"justdial.com"
+status	"success"
+companyName	"Justdial"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.555Z"
+processedAt	null
+25	
+id	1905
+domain	"lupin.com"
+status	"success"
+companyName	"Leading global pharmaceutical company in India"
+extractionMethod	"html_title"
+confidenceScore	75
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.554Z"
+processedAt	null
+26	
+id	1904
+domain	"kotak.com"
+status	"success"
+companyName	"Savings Accounts, Personal Loans and Credit Cards - Kotak Mahindra Bank Personal Banking, Corporate Banking, NRI Banking"
+extractionMethod	"html_title"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.554Z"
+processedAt	null
+27	
+id	1903
+domain	"jkcement.com"
+status	"success"
+companyName	"JK Cement"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.542Z"
+processedAt	null
+28	
+id	1902
+domain	"indusind.com"
+status	"success"
+companyName	"IndusInd Bank"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.541Z"
+processedAt	null
+29	
+id	1901
+domain	"jspl.com"
+status	"success"
+companyName	"Jindal Steel"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.532Z"
+processedAt	null
+30	
+id	1900
+domain	"itc.in"
+status	"success"
+companyName	"Itc"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.531Z"
+processedAt	null
+31	
+id	1899
+domain	"heromotocorp.com"
+status	"success"
+companyName	"Hero MotoCorp"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.530Z"
+processedAt	null
+32	
+id	1898
+domain	"iocl.com"
+status	"success"
+companyName	"Iocl"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.527Z"
+processedAt	null
+33	
+id	1897
+domain	"infosys.com"
+status	"success"
+companyName	"Infosys"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.523Z"
+processedAt	null
+34	
+id	1896
+domain	"indianbank.in"
+status	"success"
+companyName	"Indianbank"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.522Z"
+processedAt	null
+35	
+id	1894
+domain	"grasim.com"
+status	"success"
+companyName	"Grasim"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.521Z"
+processedAt	null
+36	
+id	1895
+domain	"delhivery.com"
+status	"success"
+companyName	"Integrated Logistics, Express Parcel, Freight, Courier, Shipping, Supply Chain, eCommerce, Cross Border"
+extractionMethod	"html_title"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.520Z"
+processedAt	null
+37	
+id	1893
+domain	"indiamart.com"
+status	"success"
+companyName	"Indiamart"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.519Z"
+processedAt	null
+38	
+id	1891
+domain	"hdfcbank.com"
+status	"success"
+companyName	"Hdfcbank"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.517Z"
+processedAt	null
+39	
+id	1892
+domain	"icicibank.com"
+status	"success"
+companyName	"ICICI Bank"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.517Z"
+processedAt	null
+40	
+id	1890
+domain	"hdfcergo.com"
+status	"success"
+companyName	"HDFC ERGO General Insurance"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.515Z"
+processedAt	null
+41	
+id	1888
+domain	"iciciprulife.com"
+status	"success"
+companyName	"Iciciprulife"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.515Z"
+processedAt	null
+42	
+id	1889
+domain	"gmrinfra.com"
+status	"success"
+companyName	"GMR Aero"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.515Z"
+processedAt	null
+43	
+id	1887
+domain	"dixon.in"
+status	"success"
+companyName	"Dixon"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.509Z"
+processedAt	null
+44	
+id	1886
+domain	"hexaware.com"
+status	"success"
+companyName	"Hexaware Technologies"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.509Z"
+processedAt	null
+45	
+id	1885
+domain	"hdfclife.com"
+status	"success"
+companyName	"Life Insurance"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.508Z"
+processedAt	null
+46	
+id	1884
+domain	"fortishealthcare.com"
+status	"success"
+companyName	"Fortishealthcare"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.506Z"
+processedAt	null
+47	
+id	1883
+domain	"bajajfinance.com"
+status	"success"
+companyName	"Bajajfinance"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.506Z"
+processedAt	null
+48	
+id	1882
+domain	"hindalco.com"
+status	"success"
+companyName	"Hindalco Industries Limited"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.503Z"
+processedAt	null
+49	
+id	1881
+domain	"godrejcp.com"
+status	"success"
+companyName	"Godrej"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.502Z"
+processedAt	null
+50	
+id	1880
+domain	"godrej.com"
+status	"success"
+companyName	"Godrej"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.501Z"
+processedAt	null
+51	
+id	1878
+domain	"cipla.com"
+status	"success"
+companyName	"Cipla"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.500Z"
+processedAt	null
+52	
+id	1879
+domain	"axisbank.com"
+status	"success"
+companyName	"Personal Banking"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.499Z"
+processedAt	null
+53	
+id	1877
+domain	"biocon.com"
+status	"success"
+companyName	"Biocon"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.498Z"
+processedAt	null
+54	
+id	1876
+domain	"hcltech.com"
+status	"success"
+companyName	"HCLTech"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.497Z"
+processedAt	null
+55	
+id	1875
+domain	"cyient.com"
+status	"success"
+companyName	"Cyient"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.496Z"
+processedAt	null
+56	
+id	1874
+domain	"bankofbaroda.in"
+status	"success"
+companyName	"Bankofbaroda"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.492Z"
+processedAt	null
+57	
+id	1873
+domain	"emamiltd.com"
+status	"success"
+companyName	"Emamiltd"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.491Z"
+processedAt	null
+58	
+id	1872
+domain	"canarabank.com"
+status	"success"
+companyName	"Personal Banking"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.490Z"
+processedAt	null
+59	
+id	1870
+domain	"coalindia.in"
+status	"success"
+companyName	"Coalindia"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.488Z"
+processedAt	null
+60	
+id	1871
+domain	"drreddy.com"
+status	"success"
+companyName	"Drreddy"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.487Z"
+processedAt	null
+61	
+id	1868
+domain	"boschltd.com"
+status	"success"
+companyName	"porny爽片成人资源五区在线观看"
+extractionMethod	"html_title"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.486Z"
+processedAt	null
+62	
+id	1869
+domain	"asianpaints.com"
+status	"success"
+companyName	"Asianpaints"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.486Z"
+processedAt	null
+63	
+id	1867
+domain	"bajaj.com"
+status	"success"
+companyName	"bajaj.com"
+extractionMethod	"html_title"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.480Z"
+processedAt	null
+64	
+id	1865
+domain	"hdfc.com"
+status	"success"
+companyName	"Housing Finance"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.479Z"
+processedAt	null
+65	
+id	1866
+domain	"eichermotors.com"
+status	"success"
+companyName	"Eichermotors"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.479Z"
+processedAt	null
+66	
+id	1864
+domain	"bankofmaharashtra.in"
+status	"success"
+companyName	"Bank of Maharashtra"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.476Z"
+processedAt	null
+67	
+id	1863
+domain	"auropharma.com"
+status	"success"
+companyName	"Auropharma"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.474Z"
+processedAt	null
+68	
+id	1862
+domain	"dabur.com"
+status	"success"
+companyName	"World's Best Ayurvedic Brand"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.474Z"
+processedAt	null
+69	
+id	1861
+domain	"adanitransmission.com"
+status	"success"
+companyName	"Adanitransmission"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.471Z"
+processedAt	null
+70	
+id	1860
+domain	"cummins.com"
+status	"success"
+companyName	"Cummins"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.469Z"
+processedAt	null
+71	
+id	1859
+domain	"bergerpaintsco.in"
+status	"success"
+companyName	"Bergerpaintsco"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.467Z"
+processedAt	null
+72	
+id	1858
+domain	"bseindia.com"
+status	"success"
+companyName	"Bseindia"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.466Z"
+processedAt	null
+73	
+id	1857
+domain	"adanipower.com"
+status	"success"
+companyName	"Adanipower"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.466Z"
+processedAt	null
+74	
+id	1856
+domain	"bajajfinserv.in"
+status	"success"
+companyName	"Bajaj Finserv"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.464Z"
+processedAt	null
+75	
+id	1855
+domain	"bluedart.com"
+status	"success"
+companyName	"Blue Dart Express Limited"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.462Z"
+processedAt	null
+76	
+id	1854
+domain	"bajajcorp.com"
+status	"success"
+companyName	"Bajajcorp"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.461Z"
+processedAt	null
+77	
+id	1853
+domain	"ashokleyland.com"
+status	"success"
+companyName	"Ashok Leyland"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.460Z"
+processedAt	null
+78	
+id	1851
+domain	"bandhanbank.com"
+status	"success"
+companyName	"Bandhan Bank"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.457Z"
+processedAt	null
+79	
+id	1852
+domain	"ambujacements.com"
+status	"success"
+companyName	"Ambujacements"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.456Z"
+processedAt	null
+80	
+id	1850
+domain	"airtel.com"
+status	"success"
+companyName	"airtel global presence"
+extractionMethod	"html_title"
+confidenceScore	75
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.454Z"
+processedAt	null
+81	
+id	1848
+domain	"adaniports.com"
+status	"success"
+companyName	"Adaniports"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.402Z"
+processedAt	null
+82	
+id	1849
+domain	"adanigreen.com"
+status	"success"
+companyName	"Adanigreen"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"ZrX7v1_YSYNhepdyUdLNc"
+createdAt	"2025-06-24T09:14:44.400Z"
+processedAt	null

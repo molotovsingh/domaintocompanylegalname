@@ -80,6 +80,50 @@ export class DomainExtractor {
       'gerresheimer.com': 'Gerresheimer AG',
       'symrise.com': 'Symrise AG',
       'rational-online.com': 'RATIONAL AG',
+      
+      // Indian Companies (corrected mappings)
+      'pnbindia.in': 'Punjab National Bank',
+      'phonepe.com': 'PhonePe Pvt Ltd',
+      'ola.com': 'ANI Technologies Pvt Ltd',
+      'pidilite.com': 'Pidilite Industries Ltd',
+      'nestleindia.com': 'Nestle India Ltd',
+      'paytm.com': 'One97 Communications Ltd',
+      'persistentsys.com': 'Persistent Systems Ltd',
+      'marutisuzuki.com': 'Maruti Suzuki India Ltd',
+      'nykaa.com': 'Nykaa E-Retail Pvt Ltd',
+      'nseindia.com': 'National Stock Exchange of India Ltd',
+      'mphasis.com': 'Mphasis Ltd',
+      'maxlife.com': 'Max Life Insurance Company Ltd',
+      'licindia.in': 'Life Insurance Corporation of India',
+      'motherson.com': 'Samvardhana Motherson International Ltd',
+      'mindtree.com': 'LTIMindtree Ltd',
+      'maxhealthcare.in': 'Max Healthcare Institute Ltd',
+      'marico.com': 'Marico Ltd',
+      'kotakmf.com': 'Kotak Mahindra Asset Management Company Ltd',
+      'larsentoubro.com': 'Larsen & Toubro Ltd',
+      'mahindraholidays.com': 'Mahindra Holidays & Resorts India Ltd',
+      'mahindra.com': 'Mahindra Group',
+      'ltts.com': 'L&T Technology Services Ltd',
+      'jswsteel.in': 'JSW Steel Ltd',
+      'karurbank.com': 'Karur Vysya Bank Ltd',
+      'justdial.com': 'Just Dial Ltd',
+      'lupin.com': 'Lupin Ltd',
+      'kotak.com': 'Kotak Mahindra Bank Ltd',
+      'jkcement.com': 'JK Cement Ltd',
+      'indusind.com': 'IndusInd Bank Ltd',
+      'jspl.com': 'Jindal Steel & Power Ltd',
+      'itc.in': 'ITC Ltd',
+      'heromotocorp.com': 'Hero MotoCorp Ltd',
+      'iocl.com': 'Indian Oil Corporation Ltd',
+      'infosys.com': 'Infosys Ltd',
+      'indianbank.in': 'Indian Bank',
+      'grasim.com': 'Grasim Industries Ltd',
+      'delhivery.com': 'Delhivery Ltd',
+      'indiamart.com': 'IndiaMART InterMESH Ltd',
+      'hdfcbank.com': 'HDFC Bank Ltd',
+      'icicibank.com': 'ICICI Bank Ltd',
+      'hdfcergo.com': 'HDFC ERGO General Insurance Company Ltd',
+      'iciciprulife.com': 'ICICI Prudential Life Insurance Company Ltd',
     };
   }
 
@@ -134,20 +178,27 @@ export class DomainExtractor {
 
     const $ = cheerio.load(response.data);
     
-    // Try title tag first
+    // Deprioritize HTML title - try About Us/Legal pages first
+    const subPageResult = await this.extractFromSubPages(url);
+    if (subPageResult) {
+      return subPageResult;
+    }
+
+    // Try title tag as last resort with very strict validation
     const title = $('title').text().trim();
     if (title) {
       const companyName = this.cleanCompanyName(title);
-      // Strict validation - reject if either original or cleaned version is invalid
+      // Ultra-strict validation - title extraction now heavily penalized
       if (companyName && 
           this.isValidCompanyName(companyName) && 
           this.isValidCompanyName(title) &&
           !this.isMarketingContent(title) &&
-          !this.isMarketingContent(companyName)) {
+          !this.isMarketingContent(companyName) &&
+          this.hasLegalSuffix(companyName)) { // Only allow if has legal suffix
         return {
           companyName,
           method: 'html_title',
-          confidence: this.calculateConfidence(companyName, 'html_title'),
+          confidence: Math.max(40, this.calculateConfidence(companyName, 'html_title') - 30), // Heavy penalty
         };
       }
     }
@@ -527,9 +578,24 @@ export class DomainExtractor {
       /solutions beyond/i,
       /meal kits/i,
       /digital workplace/i,
+      /personal banking/i,
+      /re\(ai\)magining the world/i,
+      /buy cosmetics products/i,
+      /savings accounts/i,
+      /integrated logistics/i,
+      /express parcel/i,
+      /leading global pharmaceutical/i,
+      /official website/i,
+      /maruti suzuki cars/i,
+      /the mahindra group/i,
     ];
     
     return marketingPatterns.some(pattern => pattern.test(text.trim()));
+  }
+
+  private hasLegalSuffix(companyName: string): boolean {
+    const legalSuffixes = /\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?|Group|Holdings|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG|Pvt\.?\s*Ltd\.?|Private\s*Limited)\b/i;
+    return legalSuffixes.test(companyName);
   }
 
   private extractCompanyFromAboutText(text: string): string | null {
