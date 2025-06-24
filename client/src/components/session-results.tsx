@@ -94,7 +94,7 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-green-600">
-              {sessionResults.successfulDomains}
+              {sessionResults?.successfulDomains || 0}
             </div>
             <div className="text-sm text-gray-600 flex items-center justify-center gap-1">
               <CheckCircle className="h-4 w-4" />
@@ -103,7 +103,7 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-red-600">
-              {sessionResults.failedDomains}
+              {sessionResults?.failedDomains || 0}
             </div>
             <div className="text-sm text-gray-600 flex items-center justify-center gap-1">
               <XCircle className="h-4 w-4" />
@@ -112,13 +112,13 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">
-              {sessionResults.successRate}%
+              {sessionResults?.successRate || 0}%
             </div>
             <div className="text-sm text-gray-600">Success Rate</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-600">
-              {sessionResults.averageConfidence}%
+              {sessionResults?.averageConfidence || 0}%
             </div>
             <div className="text-sm text-gray-600">Avg Confidence</div>
           </div>
