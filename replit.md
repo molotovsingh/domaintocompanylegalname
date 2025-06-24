@@ -29,6 +29,9 @@ A production-scale web application for extracting company names from domain list
 - Confirmed real-time processing updates and company name extraction
 - Fixed results table query function to properly display extraction results
 - Removed debugging console logs for cleaner production code
+- Enhanced company name extraction with proper legal entity names (June 24, 2025)
+- Added known company mappings for accurate Fortune 500 entity names
+- Improved extraction patterns to filter out error messages and generic content
 
 ## User Preferences
 - Professional interface without excessive technical jargon
