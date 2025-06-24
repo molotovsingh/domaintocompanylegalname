@@ -182,6 +182,50 @@ export class CompanyNameExtractor {
       'netflix': 'Netflix, Inc.',
       'adobe': 'Adobe Inc.',
       'paypal': 'PayPal Holdings, Inc.',
+      // Additional companies from your data
+      'gehealthcare': 'GE HealthCare Technologies Inc.',
+      'kraftheinzcompany': 'The Kraft Heinz Company',
+      'dexcom': 'DexCom, Inc.',
+      'ansys': 'ANSYS, Inc.',
+      'lululemon': 'lululemon athletica inc.',
+      'wbd': 'Warner Bros. Discovery, Inc.',
+      'cdw': 'CDW Corporation',
+      'onsemi': 'onsemi',
+      'biogen': 'Biogen Inc.',
+      'rossstores': 'Ross Stores, Inc.',
+      'diamondbackenergy': 'Diamondback Energy, Inc.',
+      'xcelenergy': 'Xcel Energy Inc.',
+      'ea': 'Electronic Arts Inc.',
+      'cognizant': 'Cognizant Technology Solutions Corporation',
+      'bakerhughes': 'Baker Hughes Company',
+      'microchip': 'Microchip Technology Incorporated',
+      'odfl': 'Old Dominion Freight Line, Inc.',
+      'thetradedesk': 'The Trade Desk, Inc.',
+      'costargroup': 'CoStar Group, Inc.',
+      'paccar': 'PACCAR Inc',
+      'fastenal': 'Fastenal Company',
+      'copart': 'Copart, Inc.',
+      'keurigdrpepper': 'Keurig Dr Pepper Inc.',
+      'datadoghq': 'Datadog, Inc.',
+      'take2games': 'Take-Two Interactive Software, Inc.',
+      'exeloncorp': 'Exelon Corporation',
+      'verisk': 'Verisk Analytics, Inc.',
+      'idexx': 'IDEXX Laboratories, Inc.',
+      'axon': 'Axon Enterprise, Inc.',
+      'csx': 'CSX Corporation',
+      'ropertech': 'Roper Technologies, Inc.',
+      'regeneron': 'Regeneron Pharmaceuticals, Inc.',
+      'aep': 'American Electric Power Company, Inc.',
+      'paychex': 'Paychex, Inc.',
+      'charter': 'Charter Communications, Inc.',
+      'nxp': 'NXP Semiconductors N.V.',
+      'atlassian': 'Atlassian Corporation',
+      'zscaler': 'Zscaler, Inc.',
+      'cadence': 'Cadence Design Systems, Inc.',
+      'fortinet': 'Fortinet, Inc.',
+      'oreillyauto': "O'Reilly Automotive, Inc.",
+      'synopsys': 'Synopsys, Inc.',
+      'marriott': 'Marriott International, Inc.',
       // INSTITUTIONS (no legal suffixes)
       'harvard': 'Harvard University',
       'mit': 'Massachusetts Institute of Technology',
@@ -226,10 +270,15 @@ export class CompanyNameExtractor {
       .replace(/\s*:.*$/, '') // Remove everything after colon
       .replace(/^\s*Welcome to\s*/i, '')
       .replace(/^\s*Home\s*[-|]\s*/i, '')
-      // Remove descriptive phrases
-      .replace(/\s*,\s*(the\s+)?(world|global|leading|trusted)\s+.*/i, '')
-      .replace(/\s*-\s*(the\s+)?(world|global|leading|trusted)\s+.*/i, '')
-      // Clean up whitespace
+      // Remove descriptive phrases and marketing content
+      .replace(/\s*,\s*(the\s+)?(world|global|leading|trusted|premier|top|best)\s+.*/i, '')
+      .replace(/\s*-\s*(the\s+)?(world|global|leading|trusted|premier|top|best)\s+.*/i, '')
+      .replace(/\s+(home\s+page|homepage)$/i, '')
+      .replace(/\s+(inc|corp|corporation|company|co\.?)$/i, ' $1')
+      // Remove navigation elements and UI text
+      .replace(/(searchopen|go back|follow link|read icon|previous|pause|play|next|country selector)/gi, '')
+      // Clean up excessive whitespace
+      .replace(/\s+/g, ' ')
       .trim();
   }
   
@@ -252,20 +301,40 @@ export class CompanyNameExtractor {
       /pay, send and save money/i,
       /ai infrastructure/i,
       /secure networking/i,
-      /software solutions/i
+      /software solutions/i,
+      /home page/i,
+      /empowering innovation/i,
+      /intuition engineered/i,
+      /superhuman speed/i,
+      /continuous glucose monitoring/i,
+      /leading game publisher/i,
+      /cloud monitoring as a service/i,
+      /leading source of information/i,
+      /enhancing the health/i,
+      /collaboration software/i,
+      /leading cloud enterprise/i,
+      /zero trust/i,
+      /objectively better way/i,
+      /homepage.*country.*selector/i,
+      /searchopen/i,
+      /^go back/i,
+      /follow link/i,
+      /read icon/i,
+      /previous.*pause.*play.*next/i
     ];
     
     return invalidPatterns.some(pattern => pattern.test(text));
   }
   
   private calculateTitleConfidence(companyName: string): number {
-    let confidence = 75;
+    // Start with very low confidence for HTML titles
+    let confidence = 30;
     
-    if (companyName.length < 3) confidence = 20;
-    else if (companyName.length < 10) confidence = 60;
+    if (companyName.length < 3) return 10;
+    if (companyName.length > 100) return 10; // Too long, likely garbled
     
-    // FOR-PROFIT COMPANIES: Higher confidence for proper legal entity suffixes
-    const forProfitSuffixes = /\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?|PVT\.?\s+LTD\.?|Pvt\.?\s+Ltd\.?|L\.?L\.?C\.?)\b/i;
+    // FOR-PROFIT COMPANIES: Only high confidence for proper legal entity suffixes
+    const forProfitSuffixes = /\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?|PVT\.?\s+LTD\.?|Pvt\.?\s+Ltd\.?)\b/i;
     if (forProfitSuffixes.test(companyName)) {
       confidence = 95;
     }
@@ -276,11 +345,21 @@ export class CompanyNameExtractor {
       confidence = 85;
     }
     
-    // Lower confidence for generic descriptive text or marketing language
-    if (/\b(leader|world|global|best|top|premier|innovative|solutions|services|products)\b/i.test(companyName)) {
-      confidence = Math.max(30, confidence - 40);
+    // Completely reject marketing language and generic content
+    if (/\b(leader|world|global|best|top|premier|innovative|solutions|services|products|empowering|engineered|monitoring|collaboration|enhancing|leading|cloud|enterprise|security|provider|software|platform|intelligence|artificial|continuous|glucose|game|publisher|source|information|insurance|risk|objectively|better|way|advertise)\b/i.test(companyName)) {
+      return 10;
     }
     
-    return confidence;
+    // Completely reject UI/navigation text
+    if (/\b(home\s+page|homepage|search|selector|icon|pause|play|next|previous|strategy|collection|teamwork)\b/i.test(companyName)) {
+      return 5;
+    }
+    
+    // Reject taglines and descriptive phrases
+    if (companyName.includes('—') || companyName.includes('as a Service') || companyName.includes('for Zero Trust')) {
+      return 10;
+    }
+    
+    return Math.max(confidence, 15);
   }
 }

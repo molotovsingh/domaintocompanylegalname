@@ -36,6 +36,8 @@ A production-scale web application for extracting company names from domain list
 - Added confidence scoring based on legal suffixes and institutional patterns
 - Added intelligent duplicate domain handling with high-confidence result caching
 - System now reuses existing results with 85%+ confidence to avoid redundant processing
+- Implemented stricter confidence thresholds to prioritize domain mappings over HTML extraction
+- Enhanced filtering to completely reject marketing taglines and descriptive content
 
 ## User Preferences
 - Professional interface without excessive technical jargon
