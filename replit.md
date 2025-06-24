@@ -57,6 +57,8 @@ A production-scale web application for extracting company names from domain list
 - Session Stats now automatically populates with latest session data without requiring manual batch selection
 - Enhanced Session Stats flow to show most recent session by default with fallback to specific batch selection
 - Fixed Session Stats empty display issue by optimizing session results API query performance
+- Fixed Analytics Dashboard outdated data by correcting batch completion timestamp recording
+- Updated analytics to use actual completion times instead of synthetic timestamps
 
 ## User Preferences
 - Professional interface without excessive technical jargon

@@ -348,9 +348,9 @@ export class PostgreSQLStorage implements IStorage {
       analyticsData.push({
         batchId: batch.id,
         fileName: batch.fileName,
-        completedAt: batch.completedAt || new Date().toISOString(),
+        completedAt: batch.completedAt || batch.uploadedAt,
         totalDomains: batch.totalDomains,
-        successRate: Math.round((successful.length / batch.totalDomains) * 100),
+        successRate: Math.round((successful.length / batchDomains.length) * 100),
         medianConfidence,
         averageConfidence: avgConfidence,
         domainMappingPercentage,
