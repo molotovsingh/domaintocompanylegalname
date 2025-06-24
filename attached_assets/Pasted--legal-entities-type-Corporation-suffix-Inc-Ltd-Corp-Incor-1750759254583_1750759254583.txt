@@ -1,0 +1,78 @@
+{
+  "legal_entities": [
+    {
+      "type": "Corporation",
+      "suffix": "Inc., Ltd., Corp., Incorporated, Limited, Corporation",
+      "description": "Business corporation with limited liability, used for various sizes of companies."
+    },
+    {
+      "type": "Professional Corporation",
+      "suffix": "P.C., PC, Professional Corporation",
+      "description": "Corporation for licensed professionals (e.g., doctors, lawyers), regulated by provincial professional bodies."
+    },
+    {
+      "type": "Limited Partnership",
+      "suffix": "LP, L.P.",
+      "description": "Partnership with general and limited partners, general partners have unlimited liability."
+    },
+    {
+      "type": "General Partnership",
+      "suffix": "(No specific suffix, often 'GP' or none)",
+      "description": "Partnership with unlimited liability for all partners, often informal."
+    },
+    {
+      "type": "Limited Liability Partnership",
+      "suffix": "LLP, L.L.P.",
+      "description": "Partnership for professionals, offering limited liability, common in law or accounting firms."
+    },
+    {
+      "type": "Sole Proprietorship",
+      "suffix": "(No specific suffix)",
+      "description": "Business owned by one individual, no separate legal entity, unlimited liability."
+    },
+    {
+      "type": "Non-Profit Corporation",
+      "suffix": "(No specific suffix, often 'Inc.' or none)",
+      "description": "Corporation for charitable, cultural, or community purposes, often tax-exempt."
+    },
+    {
+      "type": "Cooperative",
+      "suffix": "Co-op, Cooperative",
+      "description": "Member-owned organization for mutual benefit, common in agriculture, housing, or retail."
+    },
+    {
+      "type": "Trust",
+      "suffix": "(No specific suffix, often 'Trust' in name)",
+      "description": "Legal arrangement for asset management, estate planning, or charitable purposes, not a standalone entity."
+    },
+    {
+      "type": "Business Trust",
+      "suffix": "(No specific suffix, often 'Trust' or 'Business Trust')",
+      "description": "Trust used for business purposes, treated as a separate entity in some contexts."
+    },
+    {
+      "type": "Unincorporated Association",
+      "suffix": "(No specific suffix, often 'Association')",
+      "description": "Informal group for nonprofit purposes, e.g., clubs or community organizations."
+    },
+    {
+      "type": "Crown Corporation",
+      "suffix": "(No specific suffix, often descriptive name)",
+      "description": "Government-owned entity, operating commercially or for public service, e.g., Canada Post."
+    },
+    {
+      "type": "Public Institution",
+      "suffix": "(No specific suffix, often descriptive name)",
+      "description": "Government-run entities, e.g., universities, hospitals, or public agencies."
+    }
+  ],
+  "notes": [
+    "Suffixes for corporations (e.g., Inc., Ltd., Corp.) are regulated by federal or provincial/territorial laws, with variations across jurisdictions (e.g., Ontario, Quebec).",
+    "Trusts, such as inter vivos or testamentary trusts, are not legal entities but legal arrangements; 'Trust' is typically included in the name.",
+    "Non-profit corporations may lack a specific suffix but are often incorporated under federal (Canada Not-for-profit Corporations Act) or provincial laws.",
+    "Limited Liability Partnerships (LLPs) are available in some provinces (e.g., Ontario, British Columbia) primarily for professionals.",
+    "Crown Corporations and public institutions are identified by name or context, without standardized suffixes.",
+    "In Quebec, French-language equivalents may be used, e.g., 'Ltée' for Ltd., 'S.A.' for Inc., or 'Coopérative' for Co-op.",
+    "Business trusts are less common but recognized in specific contexts, such as real estate investment trusts (REITs)."
+  ]
+}

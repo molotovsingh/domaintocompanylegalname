@@ -81,6 +81,7 @@ A production-scale web application for extracting company names from domain list
 - Added French legal entity recognition: SARL, SA, SAS, SNC, SCS, SCA, EURL, SC, SCOP, GIE, SEM, Fondation
 - Added Mexican legal entity recognition: S.A., S.A. de C.V., S. de R.L., S. de R.L. de C.V., S.C., A.C., I.A.P., S.A.P.I.
 - Enhanced US legal entity recognition: Added professional entities (P.C., PLLC), partnerships (LP, LLP, LLLP), cooperatives, trusts
+- Added Canadian legal entity recognition: Inc., Ltd., Corp., P.C., LP, LLP, Co-op, Trust, Ltée (Quebec French variants)
 - CRITICAL FIX: Implemented global penalty system for missing legal suffixes (-25% confidence penalty)
 - Added 55+ French company domain mappings with proper legal entity names (SA, SE suffixes)
 - Fixed all false positives: Credit Agricole → Crédit Agricole SA, Saint-Gobain SA, etc.
