@@ -132,6 +132,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get session results for QC and feedback
+  app.get("/api/session-results/:batchId", async (req, res) => {
+    try {
+      const { batchId } = req.params;
+      const sessionResults = await storage.getSessionResults(batchId);
+      
+      if (!sessionResults) {
+        return res.status(404).json({ error: "Session results not found" });
+      }
+
+      res.json(sessionResults);
+    } catch (error) {
+      console.error('Session results error:', error);
+      res.status(500).json({ error: "Failed to get session results" });
+    }
+  });
+
+  // Get all session results for QC dashboard
+  app.get("/api/session-results", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const offset = parseInt(req.query.offset as string) || 0;
+      
+      const sessionResults = await storage.getAllSessionResults(limit, offset);
+      res.json(sessionResults);
+    } catch (error) {
+      console.error('All session results error:', error);
+      res.status(500).json({ error: "Failed to get session results" });
+    }
+  });
+
   // Export results
   app.get("/api/export/:batchId", async (req, res) => {
     try {

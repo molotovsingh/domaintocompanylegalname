@@ -67,4 +67,26 @@ export const processingStatsSchema = z.object({
   eta: z.string(),
 });
 
+export const sessionResultsSchema = z.object({
+  batchId: z.string(),
+  fileName: z.string(),
+  totalDomains: z.number(),
+  successfulDomains: z.number(),
+  failedDomains: z.number(),
+  successRate: z.number(),
+  averageConfidence: z.number(),
+  extractionMethods: z.record(z.number()),
+  processingTime: z.number(),
+  completedAt: z.string(),
+  qualityMetrics: z.object({
+    highConfidenceCount: z.number(),
+    mediumConfidenceCount: z.number(),
+    lowConfidenceCount: z.number(),
+    domainParseCount: z.number(),
+    htmlExtractionCount: z.number(),
+  }),
+  failureReasons: z.record(z.number()),
+});
+
 export type ProcessingStats = z.infer<typeof processingStatsSchema>;
+export type SessionResults = z.infer<typeof sessionResultsSchema>;
