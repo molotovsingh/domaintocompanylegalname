@@ -72,14 +72,33 @@ export default function Dashboard() {
           <ProcessingStatus currentBatchId={currentBatchId} />
         </div>
 
-        {/* Session Results for QC */}
-        {currentBatchId && <SessionResults batchId={currentBatchId} />}
-
-        {/* Results Section */}
-        <ResultsTable currentBatchId={currentBatchId} />
-
-        {/* Activity Feed */}
-        <ActivityFeed />
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="results" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="results">Results & Export</TabsTrigger>
+            <TabsTrigger value="session">Session Stats</TabsTrigger>
+            <TabsTrigger value="activity">Activity Feed</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="results" className="mt-0">
+            <ResultsTable currentBatchId={currentBatchId} />
+          </TabsContent>
+          
+          <TabsContent value="session" className="mt-0">
+            {currentBatchId ? (
+              <SessionResults batchId={currentBatchId} />
+            ) : (
+              <div className="bg-white rounded-lg shadow-sm border p-8 text-center text-gray-500">
+                <p className="text-lg">Select a batch to view session statistics</p>
+                <p className="text-sm mt-2">Upload and process a file to see detailed metrics including duplicate detection stats</p>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="activity" className="mt-0">
+            <ActivityFeed />
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
