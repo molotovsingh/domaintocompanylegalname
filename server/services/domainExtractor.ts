@@ -249,6 +249,48 @@ export class DomainExtractor {
     return !invalidPatterns.some(pattern => pattern.test(name.trim()));
   }
 
+  private extractCompanyFromAboutText(text: string): string | null {
+    // Look for patterns like "We are XYZ Company" or "XYZ Corp is a leading..."
+    const patterns = [
+      /(?:we are|about)\s+([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i,
+      /^([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))\s+(?:is|was|provides|offers|specializes)/i,
+      /(?:founded|established|created)\s+([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i
+    ];
+
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match && match[1]) {
+        const companyName = match[1].trim();
+        if (companyName.length > 3 && companyName.length < 80) {
+          return companyName;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private extractCompanyFromLegalText(text: string): string | null {
+    // Look for legal entity mentions in terms/legal text
+    const patterns = [
+      /(?:this agreement|these terms).*?(?:between you and|with)\s+([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i,
+      /(?:copyright|©|all rights reserved).*?(\d{4}).*?([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i,
+      /^([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc)).*?(?:owns|operates|maintains)/i
+    ];
+
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match) {
+        const companyName = match[match.length - 1].trim(); // Get the last capture group (company name)
+        if (companyName && companyName.length > 3 && companyName.length < 80) {
+          return companyName;
+        }
+      }
+    }
+
+    return null;
+  }
+
   private calculateConfidence(companyName: string, method: string): number {
     let confidence = 50; // Base confidence
     
