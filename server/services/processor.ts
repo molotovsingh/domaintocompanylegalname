@@ -121,7 +121,7 @@ export class BatchProcessor {
       // Extract company name using web scraping
       const result = await this.extractor.extractCompanyName(domain.domain);
 
-      if (result.companyName && result.confidence >= 70) {
+      if (result.companyName && result.confidence >= 60) {
         const processingTime = Date.now() - startTime;
         
         await storage.updateDomain(domain.id, {
