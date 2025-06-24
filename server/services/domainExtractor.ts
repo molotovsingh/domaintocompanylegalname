@@ -808,4 +808,38 @@ export class DomainExtractor {
     
     return Math.min(confidence, 100);
   }
+
+  private async checkConnectivity(domain: string): Promise<'reachable' | 'unreachable' | 'unknown'> {
+    try {
+      // Quick HTTP HEAD request (faster than GET, saves bandwidth)
+      const response = await axios.head(`https://${domain}`, {
+        timeout: 2500, // 2.5 second timeout for early triage
+        headers: { 'User-Agent': this.userAgent },
+        validateStatus: () => true, // Accept any status code
+        maxRedirects: 2 // Limit redirects for speed
+      });
+      
+      return response.status < 500 ? 'reachable' : 'unreachable';
+    } catch (error: any) {
+      // Common network errors indicate unreachable domain
+      if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED' || 
+          error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
+        return 'unreachable';
+      }
+      
+      // SSL/Certificate errors - try HTTP fallback
+      try {
+        const httpResponse = await axios.head(`http://${domain}`, {
+          timeout: 2500,
+          headers: { 'User-Agent': this.userAgent },
+          validateStatus: () => true,
+          maxRedirects: 2
+        });
+        
+        return httpResponse.status < 500 ? 'reachable' : 'unreachable';
+      } catch {
+        return 'unreachable';
+      }
+    }
+  }
 }
