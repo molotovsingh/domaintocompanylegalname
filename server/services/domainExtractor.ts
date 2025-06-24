@@ -832,7 +832,9 @@ export class DomainExtractor {
     } catch (error: any) {
       // Common network errors indicate unreachable domain
       if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED' || 
-          error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
+          error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED' ||
+          error.code === 'ERR_TLS_CERT_ALTNAME_INVALID' || error.code === 'CERT_HAS_EXPIRED' ||
+          error.code === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE' || error.code === 'SELF_SIGNED_CERT_IN_CHAIN') {
         return 'unreachable';
       }
       
