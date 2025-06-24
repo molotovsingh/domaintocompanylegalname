@@ -1,0 +1,1201 @@
+	
+0	
+id	2130
+domain	"cic.fr"
+status	"success"
+companyName	"CIC SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.616Z"
+processedAt	null
+1	
+id	2129
+domain	"bottega-veneta.com"
+status	"success"
+companyName	"Bottega Veneta SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.600Z"
+processedAt	null
+2	
+id	2128
+domain	"stellantis.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.599Z"
+processedAt	null
+3	
+id	2127
+domain	"getlink.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.596Z"
+processedAt	null
+4	
+id	2126
+domain	"gucci.com"
+status	"success"
+companyName	"Gucci SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.592Z"
+processedAt	null
+5	
+id	2125
+domain	"atos.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.589Z"
+processedAt	null
+6	
+id	2124
+domain	"lcl.fr"
+status	"success"
+companyName	"LCL SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.568Z"
+processedAt	null
+7	
+id	2123
+domain	"macif.fr"
+status	"success"
+companyName	"Macif SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.552Z"
+processedAt	null
+8	
+id	2122
+domain	"citroen.com"
+status	"success"
+companyName	"Citroën SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.551Z"
+processedAt	null
+9	
+id	2121
+domain	"bollore.com"
+status	"success"
+companyName	"Bolloré SE"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.548Z"
+processedAt	null
+10	
+id	2119
+domain	"maif.fr"
+status	"success"
+companyName	"Maif SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.542Z"
+processedAt	null
+11	
+id	2120
+domain	"matmut.fr"
+status	"success"
+companyName	"Matmut SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.541Z"
+processedAt	null
+12	
+id	2117
+domain	"peugeot.com"
+status	"success"
+companyName	"Peugeot SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.537Z"
+processedAt	null
+13	
+id	2116
+domain	"amundi.com"
+status	"success"
+companyName	"Amundi SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.536Z"
+processedAt	null
+14	
+id	2118
+domain	"natixis.com"
+status	"success"
+companyName	"Natixis SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.534Z"
+processedAt	null
+15	
+id	2115
+domain	"groupama.com"
+status	"success"
+companyName	"Groupama SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.533Z"
+processedAt	null
+16	
+id	2114
+domain	"bpifrance.fr"
+status	"success"
+companyName	"Bpifrance SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.530Z"
+processedAt	null
+17	
+id	2113
+domain	"bred.fr"
+status	"success"
+companyName	"BRED SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.528Z"
+processedAt	null
+18	
+id	2112
+domain	"conforama.com"
+status	"success"
+companyName	"Conforama SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.521Z"
+processedAt	null
+19	
+id	2111
+domain	"eurofins.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.521Z"
+processedAt	null
+20	
+id	2110
+domain	"darty.com"
+status	"success"
+companyName	"Darty SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.514Z"
+processedAt	null
+21	
+id	2109
+domain	"caisse-epargne.fr"
+status	"success"
+companyName	"Caisse d'Épargne SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.512Z"
+processedAt	null
+22	
+id	2108
+domain	"banque-populaire.fr"
+status	"success"
+companyName	"Banque Populaire SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.511Z"
+processedAt	null
+23	
+id	2107
+domain	"credit-mutuel.fr"
+status	"success"
+companyName	"Crédit Mutuel SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.509Z"
+processedAt	null
+24	
+id	2106
+domain	"franprix.fr"
+status	"success"
+companyName	"Franprix SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.507Z"
+processedAt	null
+25	
+id	2105
+domain	"bureau-veritas.com"
+status	"success"
+companyName	"Bureau Veritas"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.502Z"
+processedAt	null
+26	
+id	2104
+domain	"brico-depot.fr"
+status	"success"
+companyName	"Brico Dépôt SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.501Z"
+processedAt	null
+27	
+id	2103
+domain	"monoprix.fr"
+status	"success"
+companyName	"Monoprix SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.499Z"
+processedAt	null
+28	
+id	2102
+domain	"leroy-merlin.fr"
+status	"success"
+companyName	"Leroy Merlin SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.497Z"
+processedAt	null
+29	
+id	2101
+domain	"casino.fr"
+status	"success"
+companyName	"Casino SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.493Z"
+processedAt	null
+30	
+id	2099
+domain	"castorama.fr"
+status	"success"
+companyName	"Castorama SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.489Z"
+processedAt	null
+31	
+id	2097
+domain	"but.fr"
+status	"success"
+companyName	"BUT SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.486Z"
+processedAt	null
+32	
+id	2096
+domain	"fnac.com"
+status	"success"
+companyName	"Fnac SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.483Z"
+processedAt	null
+33	
+id	2095
+domain	"spie.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.482Z"
+processedAt	null
+34	
+id	2094
+domain	"loccitane.com"
+status	"success"
+companyName	"L'Occitane SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.481Z"
+processedAt	null
+35	
+id	2092
+domain	"lacoste.com"
+status	"success"
+companyName	"Lacoste SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.477Z"
+processedAt	null
+36	
+id	2093
+domain	"sephora.com"
+status	"success"
+companyName	"Sephora SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.477Z"
+processedAt	null
+37	
+id	2091
+domain	"tag-heuer.com"
+status	"success"
+companyName	"TAG Heuer SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.473Z"
+processedAt	null
+38	
+id	2090
+domain	"balenciaga.com"
+status	"success"
+companyName	"Balenciaga SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.472Z"
+processedAt	null
+39	
+id	2089
+domain	"dassault-systemes.com"
+status	"success"
+companyName	"Dassault Systemes"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.471Z"
+processedAt	null
+40	
+id	2088
+domain	"bulgari.com"
+status	"success"
+companyName	"Bulgari SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.469Z"
+processedAt	null
+41	
+id	2087
+domain	"tiffany.com"
+status	"success"
+companyName	"Tiffany SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.468Z"
+processedAt	null
+42	
+id	2086
+domain	"yves-saint-laurent.com"
+status	"success"
+companyName	"Yves Saint Laurent SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.464Z"
+processedAt	null
+43	
+id	2085
+domain	"alexander-mcqueen.com"
+status	"success"
+companyName	"Alexander McQueen SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.462Z"
+processedAt	null
+44	
+id	2084
+domain	"chanel.com"
+status	"success"
+companyName	"Chanel SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.459Z"
+processedAt	null
+45	
+id	2083
+domain	"thales.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.457Z"
+processedAt	null
+46	
+id	2082
+domain	"dassault-aviation.com"
+status	"success"
+companyName	"Dassault Aviation"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.456Z"
+processedAt	null
+47	
+id	2081
+domain	"worldline.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.454Z"
+processedAt	null
+48	
+id	2080
+domain	"rexel.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.452Z"
+processedAt	null
+49	
+id	2079
+domain	"gecina.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.450Z"
+processedAt	null
+50	
+id	2078
+domain	"neoen.com"
+status	"success"
+companyName	"Neoen SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.450Z"
+processedAt	null
+51	
+id	2077
+domain	"christian-dior.com"
+status	"success"
+companyName	"Christian Dior SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.448Z"
+processedAt	null
+52	
+id	2076
+domain	"soitec.com"
+status	"success"
+companyName	"Soitec SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.447Z"
+processedAt	null
+53	
+id	2075
+domain	"arcelormittal.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.446Z"
+processedAt	null
+54	
+id	2074
+domain	"unibail-rodamco.com"
+status	"success"
+companyName	"Unibail Rodamco"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.443Z"
+processedAt	null
+55	
+id	2073
+domain	"covivio.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.441Z"
+processedAt	null
+56	
+id	2072
+domain	"faurecia.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.440Z"
+processedAt	null
+57	
+id	2071
+domain	"bouygues.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.439Z"
+processedAt	null
+58	
+id	2070
+domain	"arkema.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.437Z"
+processedAt	null
+59	
+id	2069
+domain	"valeo.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.436Z"
+processedAt	null
+60	
+id	2068
+domain	"renault.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.435Z"
+processedAt	null
+61	
+id	2066
+domain	"veolia.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.431Z"
+processedAt	null
+62	
+id	2067
+domain	"nexity.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.430Z"
+processedAt	null
+63	
+id	2065
+domain	"legrand.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.429Z"
+processedAt	null
+64	
+id	2064
+domain	"alstom.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.426Z"
+processedAt	null
+65	
+id	2063
+domain	"accor.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.425Z"
+processedAt	null
+66	
+id	2098
+domain	"elis.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.424Z"
+processedAt	null
+67	
+id	2062
+domain	"publicis.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.423Z"
+processedAt	null
+68	
+id	2060
+domain	"teleperformance.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.420Z"
+processedAt	null
+69	
+id	2061
+domain	"sodexo.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.419Z"
+processedAt	null
+70	
+id	2059
+domain	"air-france-klm.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.419Z"
+processedAt	null
+71	
+id	2058
+domain	"icade.com"
+status	"success"
+companyName	"Icade SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.417Z"
+processedAt	null
+72	
+id	2057
+domain	"michelin.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.416Z"
+processedAt	null
+73	
+id	2056
+domain	"suez.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.414Z"
+processedAt	null
+74	
+id	2055
+domain	"carrefour.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.414Z"
+processedAt	null
+75	
+id	2054
+domain	"vinci.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.412Z"
+processedAt	null
+76	
+id	2053
+domain	"totalenergies.com"
+status	"success"
+companyName	"TotalEnergies SE"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.409Z"
+processedAt	null
+77	
+id	2052
+domain	"klepierre.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.409Z"
+processedAt	null
+78	
+id	2051
+domain	"pernod-ricard.com"
+status	"success"
+companyName	"Pernod Ricard"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.408Z"
+processedAt	null
+79	
+id	2050
+domain	"societe-generale.com"
+status	"success"
+companyName	"Societe Generale"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.406Z"
+processedAt	null
+80	
+id	2049
+domain	"eiffage.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.404Z"
+processedAt	null
+81	
+id	2048
+domain	"stmicroelectronics.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.403Z"
+processedAt	null
+82	
+id	2047
+domain	"kering.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.401Z"
+processedAt	null
+83	
+id	2046
+domain	"capgemini.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.399Z"
+processedAt	null
+84	
+id	2045
+domain	"safran.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.398Z"
+processedAt	null
+85	
+id	2044
+domain	"airliquide.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.397Z"
+processedAt	null
+86	
+id	2043
+domain	"airbus.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.396Z"
+processedAt	null
+87	
+id	2042
+domain	"essilorluxottica.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.394Z"
+processedAt	null
+88	
+id	2041
+domain	"engie.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.393Z"
+processedAt	null
+89	
+id	2040
+domain	"orange.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.392Z"
+processedAt	null
+90	
+id	2039
+domain	"saint-gobain.com"
+status	"success"
+companyName	"Saint Gobain"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.391Z"
+processedAt	null
+91	
+id	2100
+domain	"schneider-electric.com"
+status	"success"
+companyName	"Schneider Electric"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.390Z"
+processedAt	null
+92	
+id	2038
+domain	"axa.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.388Z"
+processedAt	null
+93	
+id	2037
+domain	"credit-agricole.com"
+status	"success"
+companyName	"Credit Agricole"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.386Z"
+processedAt	null
+94	
+id	2036
+domain	"danone.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.385Z"
+processedAt	null
+95	
+id	2035
+domain	"bnpparibas.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.384Z"
+processedAt	null
+96	
+id	2034
+domain	"sanofi.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.383Z"
+processedAt	null
+97	
+id	2033
+domain	"loreal.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.381Z"
+processedAt	null
+98	
+id	2032
+domain	"hermes.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.342Z"
+processedAt	null
+99	
+id	2031
+domain	"lvmh.com"
+status	"success"
+companyName	"LVMH SA"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"WKfQy_-04BWaTraxr_akE"
+createdAt	"2025-06-24T09:41:00.335Z"
+processedAt	null

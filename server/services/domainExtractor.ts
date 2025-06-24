@@ -171,6 +171,15 @@ export class DomainExtractor {
       'lvmh.com': 'LVMH SA',
       'total.com': 'TotalEnergies SE',
       'totalenergies.com': 'TotalEnergies SE',
+      'bureau-veritas.com': 'Bureau Veritas SA',
+      'dassault-systemes.com': 'Dassault Systèmes SE',
+      'credit-agricole.com': 'Crédit Agricole SA',
+      'saint-gobain.com': 'Saint-Gobain SA',
+      'societe-generale.com': 'Société Générale SA',
+      'pernod-ricard.com': 'Pernod Ricard SA',
+      'unibail-rodamco.com': 'Unibail-Rodamco SE',
+      'dassault-aviation.com': 'Dassault Aviation SA',
+      'schneider-electric.com': 'Schneider Electric SE',
       
       // Mexican Companies (when needed)
       // Major Mexican companies can be added here with proper legal entity suffixes
@@ -716,6 +725,7 @@ export class DomainExtractor {
       
       if (!isNonprofit && !isPersonalName && companyName.length > 2) {
         // Major penalty for missing legal suffix in corporate entities
+        // Apply regardless of extraction method - this is a universal quality requirement
         confidence -= 25; // Severe penalty - this is a critical quality issue
       }
     }
