@@ -911,7 +911,15 @@ export class DomainExtractor {
             !companyName.includes('=') &&
             !companyName.includes(':') &&
             !/^\d+$/.test(companyName) &&
-            !/^[a-z\s]+$/.test(companyName.toLowerCase()) &&
+            companyName.length >= 8 &&
+            !companyName.match(/^[a-z]{3,10}$/) &&
+            !companyName.toLowerCase().includes('fluid') &&
+            !companyName.toLowerCase().includes('legacy') &&
+            !companyName.toLowerCase().includes('backg') &&
+            !companyName.toLowerCase().includes('auto') &&
+            !companyName.includes("'") &&
+            !companyName.includes('(') &&
+            !companyName.includes(')') &&
             this.isValidCompanyName(companyName) && 
             !this.isMarketingContent(companyName)) {
           
