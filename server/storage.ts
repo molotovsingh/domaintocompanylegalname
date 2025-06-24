@@ -26,6 +26,10 @@ export interface IStorage {
   getDomainCount(): Promise<number>;
   getProcessedCount(): Promise<number>;
   getSuccessRate(): Promise<number>;
+  
+  // Session Results
+  getSessionResults(batchId: string): Promise<SessionResults | undefined>;
+  getAllSessionResults(limit?: number, offset?: number): Promise<SessionResults[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -204,6 +208,90 @@ export class MemStorage implements IStorage {
       .sort((a, b) => (b.confidenceScore || 0) - (a.confidenceScore || 0));
     
     return existing[0];
+  }
+
+  async getSessionResults(batchId: string): Promise<SessionResults | undefined> {
+    const batch = await this.getBatch(batchId);
+    if (!batch) return undefined;
+
+    const domains = await this.getDomainsByBatch(batchId, 1000);
+    const successful = domains.filter(d => d.status === 'success');
+    const failed = domains.filter(d => d.status === 'failed');
+
+    const extractionMethods: Record<string, number> = {};
+    const failureReasons: Record<string, number> = {};
+    let totalConfidence = 0;
+    let confidenceCount = 0;
+
+    // Quality metrics
+    let highConfidenceCount = 0;
+    let mediumConfidenceCount = 0;
+    let lowConfidenceCount = 0;
+    let domainParseCount = 0;
+    let htmlExtractionCount = 0;
+
+    successful.forEach(domain => {
+      const method = domain.extractionMethod || 'unknown';
+      extractionMethods[method] = (extractionMethods[method] || 0) + 1;
+
+      if (domain.confidenceScore) {
+        totalConfidence += domain.confidenceScore;
+        confidenceCount++;
+
+        if (domain.confidenceScore >= 90) highConfidenceCount++;
+        else if (domain.confidenceScore >= 70) mediumConfidenceCount++;
+        else lowConfidenceCount++;
+      }
+
+      if (method.includes('domain_parse')) domainParseCount++;
+      else if (method.includes('html')) htmlExtractionCount++;
+    });
+
+    failed.forEach(domain => {
+      const reason = domain.errorMessage || 'Unknown error';
+      failureReasons[reason] = (failureReasons[reason] || 0) + 1;
+    });
+
+    const processingTime = batch.completedAt && batch.uploadedAt 
+      ? new Date(batch.completedAt).getTime() - new Date(batch.uploadedAt).getTime()
+      : 0;
+
+    return {
+      batchId: batch.id,
+      fileName: batch.fileName,
+      totalDomains: batch.totalDomains,
+      successfulDomains: successful.length,
+      failedDomains: failed.length,
+      successRate: Math.round((successful.length / batch.totalDomains) * 100),
+      averageConfidence: confidenceCount > 0 ? Math.round(totalConfidence / confidenceCount) : 0,
+      extractionMethods,
+      processingTime,
+      completedAt: batch.completedAt || new Date().toISOString(),
+      qualityMetrics: {
+        highConfidenceCount,
+        mediumConfidenceCount,
+        lowConfidenceCount,
+        domainParseCount,
+        htmlExtractionCount,
+      },
+      failureReasons,
+    };
+  }
+
+  async getAllSessionResults(limit = 10, offset = 0): Promise<SessionResults[]> {
+    const batches = await this.getBatches(limit, offset);
+    const results: SessionResults[] = [];
+
+    for (const batch of batches) {
+      if (batch.status === 'completed') {
+        const sessionResult = await this.getSessionResults(batch.id);
+        if (sessionResult) {
+          results.push(sessionResult);
+        }
+      }
+    }
+
+    return results;
   }
 }
 

@@ -6,6 +6,7 @@ import FileUpload from "@/components/file-upload";
 import ProcessingStatus from "@/components/processing-status";
 import ResultsTable from "@/components/results-table";
 import ActivityFeed from "@/components/activity-feed";
+import SessionResults from "@/components/session-results";
 
 export default function Dashboard() {
   const [currentBatchId, setCurrentBatchId] = useState<string | null>(null);

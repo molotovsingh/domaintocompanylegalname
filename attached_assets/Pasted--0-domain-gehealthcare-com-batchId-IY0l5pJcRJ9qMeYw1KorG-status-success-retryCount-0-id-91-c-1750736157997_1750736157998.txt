@@ -1,0 +1,1061 @@
+	
+0	
+domain	"gehealthcare.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	91
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:35:00.095Z"
+companyName	"GE HealthCare Technologies Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+1	
+domain	"dexcom.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	92
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:35:00.095Z"
+companyName	"DexCom, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+2	
+domain	"kraftheinzcompany.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	93
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:35:00.095Z"
+companyName	"The Kraft Heinz Company"
+extractionMethod	"html_title"
+confidenceScore	95
+3	
+domain	"ansys.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	94
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:35:00.095Z"
+companyName	"ANSYS, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+4	
+domain	"lululemon.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	95
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:35:00.095Z"
+companyName	"lululemon athletica inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+5	
+domain	"wbd.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	96
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:35:00.095Z"
+companyName	"Warner Bros. Discovery, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+6	
+domain	"cdw.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	97
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:35:00.095Z"
+companyName	"CDW Corporation"
+extractionMethod	"domain_parse"
+confidenceScore	95
+7	
+domain	"onsemi.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	98
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:35:00.095Z"
+companyName	"onsemi"
+extractionMethod	"domain_parse"
+confidenceScore	95
+8	
+domain	"gf.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	99
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:35:00.095Z"
+companyName	"Gf"
+extractionMethod	"domain_parse"
+confidenceScore	55
+9	
+domain	"biogen.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	100
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:35:00.095Z"
+companyName	"Biogen Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+10	
+domain	"rossstores.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	81
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:49.987Z"
+companyName	"Ross Stores, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+11	
+domain	"diamondbackenergy.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	82
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:49.987Z"
+companyName	"Diamondback Energy, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+12	
+domain	"xcelenergy.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	83
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:49.987Z"
+companyName	"Xcel Energy Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+13	
+domain	"ea.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	84
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:49.987Z"
+companyName	"Electronic Arts Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+14	
+domain	"cognizant.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	85
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:49.987Z"
+companyName	"Cognizant Technology Solutions Corporation"
+extractionMethod	"domain_parse"
+confidenceScore	95
+15	
+domain	"bakerhughes.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	86
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:49.987Z"
+companyName	"Baker Hughes Company"
+extractionMethod	"domain_parse"
+confidenceScore	95
+16	
+domain	"microchip.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	87
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:49.987Z"
+companyName	"Microchip Technology Incorporated"
+extractionMethod	"domain_parse"
+confidenceScore	95
+17	
+domain	"odfl.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	88
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:49.987Z"
+companyName	"Old Dominion Freight Line, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+18	
+domain	"thetradedesk.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	89
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:49.987Z"
+companyName	"The Trade Desk, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+19	
+domain	"costargroup.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	90
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:49.987Z"
+companyName	"CoStar Group, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+20	
+domain	"paccar.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	71
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:48.750Z"
+companyName	"PACCAR Inc"
+extractionMethod	"domain_parse"
+confidenceScore	95
+21	
+domain	"fastenal.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	72
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:48.750Z"
+companyName	"Fastenal Company"
+extractionMethod	"domain_parse"
+confidenceScore	95
+22	
+domain	"copart.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	73
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:48.750Z"
+companyName	"Copart, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+23	
+domain	"keurigdrpepper.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	74
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:48.750Z"
+companyName	"Keurig Dr Pepper Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+24	
+domain	"datadoghq.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	75
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:48.750Z"
+companyName	"Datadog, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+25	
+domain	"take2games.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	76
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:48.750Z"
+companyName	"Take-Two Interactive Software, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+26	
+domain	"exeloncorp.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	77
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:48.750Z"
+companyName	"Exelon Corporation"
+extractionMethod	"domain_parse"
+confidenceScore	95
+27	
+domain	"verisk.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	78
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:48.750Z"
+companyName	"Verisk Analytics, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+28	
+domain	"cocacolaep.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	79
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:48.750Z"
+errorMessage	"Low confidence extraction"
+29	
+domain	"idexx.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	80
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:48.750Z"
+companyName	"IDEXX Laboratories, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+30	
+domain	"axon.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	61
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:38.638Z"
+companyName	"Axon Enterprise, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+31	
+domain	"csx.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	62
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:38.638Z"
+companyName	"CSX Corporation"
+extractionMethod	"domain_parse"
+confidenceScore	95
+32	
+domain	"ropertech.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	63
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:38.638Z"
+companyName	"Roper Technologies, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+33	
+domain	"regeneron.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	64
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:38.638Z"
+companyName	"Regeneron Pharmaceuticals, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+34	
+domain	"aep.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	65
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:38.638Z"
+companyName	"American Electric Power Company, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+35	
+domain	"paychex.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	66
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:38.638Z"
+companyName	"Paychex, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+36	
+domain	"charter.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	67
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:38.638Z"
+companyName	"Charter Communications, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+37	
+domain	"nxp.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	68
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:38.638Z"
+companyName	"NXP Semiconductors N.V."
+extractionMethod	"domain_parse"
+confidenceScore	95
+38	
+domain	"atlassian.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	69
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:38.638Z"
+companyName	"Atlassian Corporation"
+extractionMethod	"domain_parse"
+confidenceScore	95
+39	
+domain	"zscaler.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	70
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:38.638Z"
+companyName	"Zscaler, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+40	
+domain	"cadence.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	51
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:28.530Z"
+companyName	"Cadence Design Systems, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+41	
+domain	"fortinet.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	52
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:28.530Z"
+companyName	"Fortinet, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+42	
+domain	"oreillyauto.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	53
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:28.530Z"
+companyName	"O'Reilly Automotive, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+43	
+domain	"synopsys.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	54
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:28.530Z"
+companyName	"Synopsys, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+44	
+domain	"marriott.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	55
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:28.530Z"
+companyName	"Marriott International, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+45	
+domain	"paypal.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	56
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:28.530Z"
+companyName	"PayPal Holdings, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+46	
+domain	"autodesk.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	57
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:28.530Z"
+errorMessage	"Low confidence extraction"
+47	
+domain	"workday.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	58
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:28.530Z"
+companyName	"Workday"
+extractionMethod	"domain_parse"
+confidenceScore	55
+48	
+domain	"monsterbevcorp.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	59
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:28.530Z"
+errorMessage	"Low confidence extraction"
+49	
+domain	"marvell.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	60
+createdAt	"2025-06-24T03:34:04.250Z"
+processedAt	"2025-06-24T03:34:28.530Z"
+companyName	"Marvell Technology, Inc."
+extractionMethod	"html_title"
+confidenceScore	95
+50	
+domain	"applovin.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	41
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:27.321Z"
+errorMessage	"Low confidence extraction"
+51	
+domain	"kla.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	42
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:27.321Z"
+companyName	"Kla"
+extractionMethod	"domain_parse"
+confidenceScore	55
+52	
+domain	"starbucks.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	43
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:27.321Z"
+companyName	"Starbucks Coffee Company"
+extractionMethod	"html_title"
+confidenceScore	95
+53	
+domain	"microstrategy.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	44
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:27.321Z"
+errorMessage	"Low confidence extraction"
+54	
+domain	"constellationenergy.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	45
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:27.321Z"
+errorMessage	"Low confidence extraction"
+55	
+domain	"doordash.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	46
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:27.321Z"
+errorMessage	"Low confidence extraction"
+56	
+domain	"intel.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	47
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:27.321Z"
+companyName	"Intel Corporation"
+extractionMethod	"domain_parse"
+confidenceScore	95
+57	
+domain	"cintas.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	48
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:27.321Z"
+companyName	"Cintas"
+extractionMethod	"domain_parse"
+confidenceScore	55
+58	
+domain	"mondelezinternational.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	49
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:27.321Z"
+errorMessage	"Low confidence extraction"
+59	
+domain	"airbnb.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	50
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:27.321Z"
+companyName	"Airbnb"
+extractionMethod	"domain_parse"
+confidenceScore	55
+60	
+domain	"micron.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	31
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:26.038Z"
+companyName	"Micron"
+extractionMethod	"domain_parse"
+confidenceScore	55
+61	
+domain	"paloaltonetworks.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	32
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:26.038Z"
+errorMessage	"Low confidence extraction"
+62	
+domain	"gilead.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	33
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:26.038Z"
+companyName	"Gilead"
+extractionMethod	"domain_parse"
+confidenceScore	55
+63	
+domain	"comcast.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	34
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:26.038Z"
+companyName	"Comcast"
+extractionMethod	"domain_parse"
+confidenceScore	55
+64	
+domain	"adp.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	35
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:26.038Z"
+companyName	"Adp"
+extractionMethod	"domain_parse"
+confidenceScore	55
+65	
+domain	"mercadolibre.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	36
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:26.038Z"
+errorMessage	"Low confidence extraction"
+66	
+domain	"crowdstrike.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	37
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:26.038Z"
+errorMessage	"Low confidence extraction"
+67	
+domain	"lamresearch.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	38
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:26.038Z"
+errorMessage	"Low confidence extraction"
+68	
+domain	"analog.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	39
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:26.038Z"
+companyName	"Analog"
+extractionMethod	"domain_parse"
+confidenceScore	55
+69	
+domain	"vrtx.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	40
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:26.038Z"
+companyName	"Vrtx"
+extractionMethod	"domain_parse"
+confidenceScore	55
+70	
+domain	"pepsico.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	21
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:15.930Z"
+companyName	"Pepsico"
+extractionMethod	"domain_parse"
+confidenceScore	55
+71	
+domain	"booking.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	22
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:15.930Z"
+companyName	"Booking"
+extractionMethod	"domain_parse"
+confidenceScore	55
+72	
+domain	"qualcomm.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	23
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:15.930Z"
+errorMessage	"Low confidence extraction"
+73	
+domain	"adobe.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	24
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:15.930Z"
+companyName	"Adobe Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+74	
+domain	"arm.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	25
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:15.930Z"
+companyName	"Arm"
+extractionMethod	"domain_parse"
+confidenceScore	55
+75	
+domain	"amgen.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	26
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:15.930Z"
+companyName	"Amgen"
+extractionMethod	"domain_parse"
+confidenceScore	55
+76	
+domain	"pddholdings.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	27
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:15.930Z"
+errorMessage	"Low confidence extraction"
+77	
+domain	"honeywell.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	28
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:15.930Z"
+errorMessage	"Low confidence extraction"
+78	
+domain	"shopify.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	29
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:15.930Z"
+companyName	"Shopify"
+extractionMethod	"domain_parse"
+confidenceScore	55
+79	
+domain	"appliedmaterials.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	30
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:15.930Z"
+errorMessage	"Low confidence extraction"
+80	
+domain	"palantir.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	11
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:14.664Z"
+errorMessage	"Low confidence extraction"
+81	
+domain	"asml.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	12
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:14.664Z"
+companyName	"Asml"
+extractionMethod	"domain_parse"
+confidenceScore	55
+82	
+domain	"cisco.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	13
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:14.664Z"
+companyName	"Cisco Systems, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+83	
+domain	"t-mobile.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	14
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:14.664Z"
+errorMessage	"Low confidence extraction"
+84	
+domain	"astrazeneca.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	15
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:14.664Z"
+errorMessage	"Low confidence extraction"
+85	
+domain	"linde.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	16
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:14.664Z"
+companyName	"Linde"
+extractionMethod	"domain_parse"
+confidenceScore	55
+86	
+domain	"intuit.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	17
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:14.664Z"
+companyName	"Intuit"
+extractionMethod	"domain_parse"
+confidenceScore	55
+87	
+domain	"amd.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	18
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:14.664Z"
+companyName	"Amd"
+extractionMethod	"domain_parse"
+confidenceScore	55
+88	
+domain	"intuitivesurgical.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"failed"
+retryCount	1
+id	19
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:14.664Z"
+errorMessage	"Low confidence extraction"
+89	
+domain	"ti.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	20
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:14.664Z"
+companyName	"Ti"
+extractionMethod	"domain_parse"
+confidenceScore	55
+90	
+domain	"microsoft.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	1
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:04.534Z"
+companyName	"Microsoft Corporation"
+extractionMethod	"domain_parse"
+confidenceScore	95
+91	
+domain	"nvidia.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	2
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:04.534Z"
+companyName	"NVIDIA Corporation"
+extractionMethod	"domain_parse"
+confidenceScore	95
+92	
+domain	"apple.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	3
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:04.534Z"
+companyName	"Apple Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+93	
+domain	"amazon.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	4
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:04.534Z"
+companyName	"Amazon.com, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+94	
+domain	"meta.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	5
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:04.534Z"
+companyName	"Meta Platforms, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+95	
+domain	"broadcom.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	6
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:04.534Z"
+companyName	"Broadcom Inc."
+extractionMethod	"html_title"
+confidenceScore	95
+96	
+domain	"tesla.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	7
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:04.534Z"
+companyName	"Tesla, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+97	
+domain	"google.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	8
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:04.534Z"
+companyName	"Alphabet Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+98	
+domain	"netflix.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	9
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:04.534Z"
+companyName	"Netflix, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	95
+99	
+domain	"costco.com"
+batchId	"IY0l5pJcRJ9qMeYw1KorG"
+status	"success"
+retryCount	0
+id	10
+createdAt	"2025-06-24T03:34:04.249Z"
+processedAt	"2025-06-24T03:34:04.534Z"
+companyName	"Costco"
+extractionMethod	"domain_parse"
+confidenceScore	55

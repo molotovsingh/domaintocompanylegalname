@@ -40,6 +40,8 @@ A production-scale web application for extracting company names from domain list
 - Enhanced filtering to completely reject marketing taglines and descriptive content
 - Configured system to ALWAYS use domain mappings as authoritative source for known companies
 - Fixed extraction priority to prefer legal entity names over marketing content
+- Added comprehensive session results feature for QC and feedback tracking
+- Session results include success/failure metrics, confidence breakdowns, and processing analytics
 
 ## User Preferences
 - Professional interface without excessive technical jargon
