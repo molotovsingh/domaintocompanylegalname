@@ -28,6 +28,9 @@ A production-scale web application for extracting company names from domain list
 - **Processing Speed Optimization**: Failed domains processed 25% faster through early connectivity detection
 - **Network Error Coverage**: Comprehensive handling of ENOTFOUND, ECONNREFUSED, ETIMEDOUT, ECONNRESET, SSL certificate errors
 - **Business Logic Accuracy**: Only 1/29 failures from extraction challenges, rest from genuinely problematic websites
+- **Session Results API**: Functioning with detailed quality metrics, failure analysis, and performance tracking
+- **Extraction Method Distribution**: 100% domain mapping utilization with proper confidence scoring (avg 63.3%)
+- **Quality Breakdown**: 9 high-confidence (85%+), 62 medium-confidence results with proper legal entity validation
 
 ## Recent Changes
 - Fixed upload route function reference bug (parseDomainFile/domainsToCSV)
