@@ -28,6 +28,10 @@ interface SessionResults {
     htmlExtractionCount: number;
   };
   failureReasons: Record<string, number>;
+  duplicatesDetected?: number;
+  duplicatesSkipped?: number;
+  newDomainsProcessed?: number;
+  duplicatesSavingsPercentage?: number;
 }
 
 export default function SessionResults({ batchId }: SessionResultsProps) {

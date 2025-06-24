@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { Globe, User, BarChart3 } from "lucide-react";
 import { Link } from "wouter";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatsCards from "@/components/stats-cards";
 import FileUpload from "@/components/file-upload";
 import ProcessingStatus from "@/components/processing-status";

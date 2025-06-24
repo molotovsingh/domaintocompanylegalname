@@ -177,6 +177,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Export batch results in CSV or JSON format
+  app.get("/api/export/:batchId", async (req, res) => {
+    try {
+      const { batchId } = req.params;
+      const format = req.query.format as string || 'csv';
+      
+      const domains = await storage.getDomainsByBatch(batchId, 10000); // Get all domains
+      
+      if (format === 'json') {
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename="batch_${batchId}_results.json"`);
+        res.json(domains);
+      } else {
+        // CSV format
+        const csvContent = domainsToCSV(domains);
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="batch_${batchId}_results.csv"`);
+        res.send(csvContent);
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      res.status(500).json({ error: "Failed to export batch results" });
+    }
+  });
+
   // Export results
   app.get("/api/export/:batchId", async (req, res) => {
     try {

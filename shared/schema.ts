@@ -86,6 +86,10 @@ export const sessionResultsSchema = z.object({
     htmlExtractionCount: z.number(),
   }),
   failureReasons: z.record(z.number()),
+  duplicatesDetected: z.number().optional(),
+  duplicatesSkipped: z.number().optional(),
+  newDomainsProcessed: z.number().optional(),
+  duplicatesSavingsPercentage: z.number().optional(),
 });
 
 export const analyticsDataSchema = z.object({

@@ -192,6 +192,35 @@ export class PostgreSQLStorage implements IStorage {
     let domainParseCount = 0;
     let htmlExtractionCount = 0;
 
+    // Duplicate detection stats
+    let duplicatesDetected = 0;
+    let duplicatesSkipped = 0;
+    let newDomainsProcessed = 0;
+
+    // Check for duplicates and reused results
+    for (const domain of batchDomains) {
+      // Check if this domain existed before this batch
+      const existingDomain = await db.select()
+        .from(domains)
+        .where(
+          and(
+            eq(domains.domain, domain.domain),
+            sql`${domains.createdAt} < ${domain.createdAt}`
+          )
+        )
+        .limit(1);
+
+      if (existingDomain.length > 0) {
+        duplicatesDetected++;
+        // Check if result was reused (high confidence from previous processing)
+        if (domain.confidenceScore && domain.confidenceScore >= 85) {
+          duplicatesSkipped++;
+        }
+      } else {
+        newDomainsProcessed++;
+      }
+    }
+
     successful.forEach(domain => {
       const method = domain.extractionMethod || 'unknown';
       extractionMethods[method] = (extractionMethods[method] || 0) + 1;
@@ -237,6 +266,12 @@ export class PostgreSQLStorage implements IStorage {
         htmlExtractionCount,
       },
       failureReasons,
+      duplicatesDetected,
+      duplicatesSkipped,
+      newDomainsProcessed,
+      duplicatesSavingsPercentage: duplicatesDetected > 0 
+        ? Math.round((duplicatesSkipped / duplicatesDetected) * 100)
+        : 0,
     };
   }
 
