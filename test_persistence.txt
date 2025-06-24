@@ -1,5 +1,0 @@
-microsoft.com
-apple.com
-google.com
-amazon.com
-meta.com

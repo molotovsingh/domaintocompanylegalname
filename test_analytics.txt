@@ -1,5 +1,0 @@
-tesla.com
-nvidia.com
-salesforce.com
-adobe.com
-oracle.com
