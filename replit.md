@@ -34,6 +34,8 @@ A production-scale web application for extracting company names from domain list
 - Improved extraction patterns to filter out error messages and generic content
 - Implemented for-profit vs institutional entity distinction per user guidance
 - Added confidence scoring based on legal suffixes and institutional patterns
+- Added intelligent duplicate domain handling with high-confidence result caching
+- System now reuses existing results with 85%+ confidence to avoid redundant processing
 
 ## User Preferences
 - Professional interface without excessive technical jargon

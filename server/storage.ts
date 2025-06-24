@@ -8,6 +8,8 @@ export interface IStorage {
   updateDomain(id: number, updates: Partial<Domain>): Promise<Domain | undefined>;
   getDomainsByStatus(status: string): Promise<Domain[]>;
   searchDomains(query: string, limit?: number, offset?: number): Promise<Domain[]>;
+  findExistingDomain(domain: string): Promise<Domain | undefined>;
+  getHighConfidenceResult(domain: string): Promise<Domain | undefined>;
   
   // Batches
   getBatch(id: string): Promise<Batch | undefined>;
