@@ -24,10 +24,11 @@ A production-scale web application for extracting company names from domain list
 - Enhanced error handling in file upload component
 - Added automatic processing start after successful upload
 - Improved user feedback with toast notifications
-- Created sample domain file for testing
 - Fixed FormData handling in apiRequest function for file uploads
 - Successfully tested upload and processing workflow (June 24, 2025)
 - Confirmed real-time processing updates and company name extraction
+- Fixed results table query function to properly display extraction results
+- Removed debugging console logs for cleaner production code
 
 ## User Preferences
 - Professional interface without excessive technical jargon

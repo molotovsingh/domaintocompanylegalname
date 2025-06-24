@@ -27,10 +27,8 @@ export default function FileUpload({ onBatchUploaded }: FileUploadProps) {
   const { toast } = useToast();
 
   const handleFileSelect = (files: FileList | null) => {
-    console.log('File selection triggered:', files?.length || 0, 'files');
     if (files && files.length > 0) {
       const file = files[0];
-      console.log('Selected file:', file.name, 'Type:', file.type, 'Size:', file.size);
       
       if (file.size > 100 * 1024 * 1024) {
         toast({
@@ -68,8 +66,6 @@ export default function FileUpload({ onBatchUploaded }: FileUploadProps) {
     try {
       const formData = new FormData();
       formData.append('file', selectedFile);
-      
-      console.log('Uploading file:', selectedFile.name, 'Size:', selectedFile.size);
 
       // Simulate progress updates
       const progressInterval = setInterval(() => {

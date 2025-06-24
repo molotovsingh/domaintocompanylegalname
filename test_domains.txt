@@ -1,5 +1,0 @@
-github.com
-stackoverflow.com
-reddit.com
-youtube.com
-twitter.com

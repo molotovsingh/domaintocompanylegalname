@@ -23,6 +23,22 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
 
   const { data: resultsData, isLoading } = useQuery({
     queryKey: ["/api/results", currentBatchId, page, statusFilter, searchQuery],
+    queryFn: () => {
+      if (!currentBatchId) return null;
+      
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: "50",
+        ...(statusFilter !== "all" && { status: statusFilter }),
+        ...(searchQuery && { search: searchQuery })
+      });
+      
+      return fetch(`/api/results/${currentBatchId}?${params}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch results');
+          return res.json();
+        });
+    },
     enabled: !!currentBatchId && currentBatchId !== null,
     refetchInterval: 5000,
   });
