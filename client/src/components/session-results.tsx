@@ -63,7 +63,7 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
       : null;
   }
 
-  console.log('SessionResults debug:', { batchId, allSessionResults: allSessionResults?.length, sessionResults: !!sessionResults, isLoading });
+
 
   if (isLoading) {
     return (
