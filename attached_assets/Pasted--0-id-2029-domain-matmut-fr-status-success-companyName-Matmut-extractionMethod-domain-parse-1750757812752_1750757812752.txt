@@ -1,0 +1,1201 @@
+	
+0	
+id	2029
+domain	"matmut.fr"
+status	"success"
+companyName	"Matmut"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.025Z"
+processedAt	null
+1	
+id	2030
+domain	"bollore.com"
+status	"success"
+companyName	"Bollore"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.024Z"
+processedAt	null
+2	
+id	2028
+domain	"citroen.com"
+status	"success"
+companyName	"Citroen"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.023Z"
+processedAt	null
+3	
+id	2026
+domain	"peugeot.com"
+status	"success"
+companyName	"Peugeot"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.021Z"
+processedAt	null
+4	
+id	2027
+domain	"groupama.com"
+status	"success"
+companyName	"Groupama"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.020Z"
+processedAt	null
+5	
+id	2025
+domain	"macif.fr"
+status	"success"
+companyName	"Macif"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.019Z"
+processedAt	null
+6	
+id	2023
+domain	"maif.fr"
+status	"success"
+companyName	"Maif"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.017Z"
+processedAt	null
+7	
+id	2022
+domain	"amundi.com"
+status	"success"
+companyName	"Amundi"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.017Z"
+processedAt	null
+8	
+id	2024
+domain	"cic.fr"
+status	"success"
+companyName	"Cic"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.016Z"
+processedAt	null
+9	
+id	2021
+domain	"bpifrance.fr"
+status	"success"
+companyName	"Bpifrance"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.014Z"
+processedAt	null
+10	
+id	2020
+domain	"natixis.com"
+status	"success"
+companyName	"Natixis"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.010Z"
+processedAt	null
+11	
+id	2019
+domain	"bred.fr"
+status	"success"
+companyName	"Bred"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.009Z"
+processedAt	null
+12	
+id	2017
+domain	"caisse-epargne.fr"
+status	"success"
+companyName	"Caisse Epargne"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.007Z"
+processedAt	null
+13	
+id	2018
+domain	"lcl.fr"
+status	"success"
+companyName	"Lcl"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.007Z"
+processedAt	null
+14	
+id	2016
+domain	"monoprix.fr"
+status	"success"
+companyName	"Monoprix"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.006Z"
+processedAt	null
+15	
+id	2015
+domain	"franprix.fr"
+status	"success"
+companyName	"Franprix"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.005Z"
+processedAt	null
+16	
+id	2014
+domain	"brico-depot.fr"
+status	"success"
+companyName	"Brico Depot"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.004Z"
+processedAt	null
+17	
+id	2013
+domain	"credit-mutuel.fr"
+status	"success"
+companyName	"Credit Mutuel"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.002Z"
+processedAt	null
+18	
+id	2012
+domain	"casino.fr"
+status	"success"
+companyName	"Casino"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:34.001Z"
+processedAt	null
+19	
+id	2011
+domain	"banque-populaire.fr"
+status	"success"
+companyName	"Banque Populaire"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.999Z"
+processedAt	null
+20	
+id	2010
+domain	"castorama.fr"
+status	"success"
+companyName	"Castorama"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.998Z"
+processedAt	null
+21	
+id	2009
+domain	"conforama.com"
+status	"success"
+companyName	"Conforama"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.996Z"
+processedAt	null
+22	
+id	2007
+domain	"leroy-merlin.fr"
+status	"success"
+companyName	"Leroy Merlin"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.994Z"
+processedAt	null
+23	
+id	2008
+domain	"fnac.com"
+status	"success"
+companyName	"Fnac"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.994Z"
+processedAt	null
+24	
+id	2006
+domain	"but.fr"
+status	"success"
+companyName	"But"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.991Z"
+processedAt	null
+25	
+id	2005
+domain	"darty.com"
+status	"success"
+companyName	"Darty"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.989Z"
+processedAt	null
+26	
+id	2004
+domain	"tag-heuer.com"
+status	"success"
+companyName	"Tag Heuer"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.979Z"
+processedAt	null
+27	
+id	2003
+domain	"lacoste.com"
+status	"success"
+companyName	"Lacoste"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.977Z"
+processedAt	null
+28	
+id	2002
+domain	"neoen.com"
+status	"success"
+companyName	"Neoen"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.965Z"
+processedAt	null
+29	
+id	2001
+domain	"sephora.com"
+status	"success"
+companyName	"Sephora"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.963Z"
+processedAt	null
+30	
+id	2000
+domain	"loccitane.com"
+status	"success"
+companyName	"Loccitane"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.961Z"
+processedAt	null
+31	
+id	1999
+domain	"bulgari.com"
+status	"success"
+companyName	"Bulgari"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.958Z"
+processedAt	null
+32	
+id	1998
+domain	"tiffany.com"
+status	"success"
+companyName	"Tiffany"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.956Z"
+processedAt	null
+33	
+id	1997
+domain	"alexander-mcqueen.com"
+status	"success"
+companyName	"Alexander Mcqueen"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.955Z"
+processedAt	null
+34	
+id	1995
+domain	"gucci.com"
+status	"success"
+companyName	"Gucci"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.952Z"
+processedAt	null
+35	
+id	1996
+domain	"bottega-veneta.com"
+status	"success"
+companyName	"Bottega Veneta"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.951Z"
+processedAt	null
+36	
+id	1994
+domain	"balenciaga.com"
+status	"success"
+companyName	"Balenciaga"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.951Z"
+processedAt	null
+37	
+id	1993
+domain	"christian-dior.com"
+status	"success"
+companyName	"Christian Dior"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.947Z"
+processedAt	null
+38	
+id	1992
+domain	"chanel.com"
+status	"success"
+companyName	"Chanel"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.945Z"
+processedAt	null
+39	
+id	1991
+domain	"yves-saint-laurent.com"
+status	"success"
+companyName	"Yves Saint Laurent"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.944Z"
+processedAt	null
+40	
+id	1990
+domain	"soitec.com"
+status	"success"
+companyName	"Soitec"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.933Z"
+processedAt	null
+41	
+id	1989
+domain	"icade.com"
+status	"success"
+companyName	"Icade"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.907Z"
+processedAt	null
+42	
+id	1988
+domain	"worldline.com"
+status	"success"
+companyName	"Worldline"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.907Z"
+processedAt	null
+43	
+id	1987
+domain	"suez.com"
+status	"success"
+companyName	"Suez"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.904Z"
+processedAt	null
+44	
+id	1986
+domain	"arkema.com"
+status	"success"
+companyName	"Arkema"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.902Z"
+processedAt	null
+45	
+id	1985
+domain	"air-france-klm.com"
+status	"success"
+companyName	"Air France Klm"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.900Z"
+processedAt	null
+46	
+id	1984
+domain	"faurecia.com"
+status	"success"
+companyName	"Faurecia"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.899Z"
+processedAt	null
+47	
+id	1983
+domain	"alstom.com"
+status	"success"
+companyName	"Alstom"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.897Z"
+processedAt	null
+48	
+id	1981
+domain	"nexity.com"
+status	"success"
+companyName	"Nexity"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.897Z"
+processedAt	null
+49	
+id	1982
+domain	"valeo.com"
+status	"success"
+companyName	"Valeo"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.896Z"
+processedAt	null
+50	
+id	1980
+domain	"gecina.com"
+status	"success"
+companyName	"Gecina"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.880Z"
+processedAt	null
+51	
+id	1979
+domain	"covivio.com"
+status	"success"
+companyName	"Covivio"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.878Z"
+processedAt	null
+52	
+id	1978
+domain	"sodexo.com"
+status	"success"
+companyName	"Sodexo"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.877Z"
+processedAt	null
+53	
+id	1977
+domain	"arcelormittal.com"
+status	"success"
+companyName	"Arcelormittal"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.876Z"
+processedAt	null
+54	
+id	1976
+domain	"renault.com"
+status	"success"
+companyName	"Renault"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.875Z"
+processedAt	null
+55	
+id	1975
+domain	"carrefour.com"
+status	"success"
+companyName	"Carrefour"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.871Z"
+processedAt	null
+56	
+id	1972
+domain	"stellantis.com"
+status	"success"
+companyName	"Stellantis"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.869Z"
+processedAt	null
+57	
+id	1974
+domain	"airbus.com"
+status	"success"
+companyName	"Airbus"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.868Z"
+processedAt	null
+58	
+id	1973
+domain	"dassault-aviation.com"
+status	"success"
+companyName	"Dassault Aviation"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.868Z"
+processedAt	null
+59	
+id	1971
+domain	"accor.com"
+status	"success"
+companyName	"Accor"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.867Z"
+processedAt	null
+60	
+id	1968
+domain	"elis.com"
+status	"success"
+companyName	"Elis"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.867Z"
+processedAt	null
+61	
+id	1970
+domain	"eurofins.com"
+status	"success"
+companyName	"Eurofins"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.867Z"
+processedAt	null
+62	
+id	1969
+domain	"klepierre.com"
+status	"success"
+companyName	"Klepierre"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.867Z"
+processedAt	null
+63	
+id	1966
+domain	"eiffage.com"
+status	"success"
+companyName	"Eiffage"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.864Z"
+processedAt	null
+64	
+id	1967
+domain	"spie.com"
+status	"success"
+companyName	"Spie"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.864Z"
+processedAt	null
+65	
+id	1965
+domain	"getlink.com"
+status	"success"
+companyName	"Getlink"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.858Z"
+processedAt	null
+66	
+id	1963
+domain	"bouygues.com"
+status	"success"
+companyName	"Bouygues"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.857Z"
+processedAt	null
+67	
+id	1962
+domain	"teleperformance.com"
+status	"success"
+companyName	"Teleperformance"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.855Z"
+processedAt	null
+68	
+id	1964
+domain	"michelin.com"
+status	"success"
+companyName	"Michelin"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.855Z"
+processedAt	null
+69	
+id	1961
+domain	"capgemini.com"
+status	"success"
+companyName	"Capgemini"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.854Z"
+processedAt	null
+70	
+id	1960
+domain	"rexel.com"
+status	"success"
+companyName	"Rexel"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.851Z"
+processedAt	null
+71	
+id	1959
+domain	"bureau-veritas.com"
+status	"success"
+companyName	"Bureau Veritas"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.849Z"
+processedAt	null
+72	
+id	1958
+domain	"legrand.com"
+status	"success"
+companyName	"Legrand"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.846Z"
+processedAt	null
+73	
+id	1957
+domain	"airliquide.com"
+status	"success"
+companyName	"Airliquide"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.846Z"
+processedAt	null
+74	
+id	1956
+domain	"stmicroelectronics.com"
+status	"success"
+companyName	"Stmicroelectronics"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.844Z"
+processedAt	null
+75	
+id	1955
+domain	"vinci.com"
+status	"success"
+companyName	"Vinci"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.844Z"
+processedAt	null
+76	
+id	1954
+domain	"orange.com"
+status	"success"
+companyName	"Orange"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.842Z"
+processedAt	null
+77	
+id	1953
+domain	"publicis.com"
+status	"success"
+companyName	"Publicis"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.842Z"
+processedAt	null
+78	
+id	1952
+domain	"thales.com"
+status	"success"
+companyName	"Thales"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.842Z"
+processedAt	null
+79	
+id	1951
+domain	"dassault-systemes.com"
+status	"success"
+companyName	"Dassault Systemes"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.840Z"
+processedAt	null
+80	
+id	1950
+domain	"danone.com"
+status	"success"
+companyName	"Danone"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.839Z"
+processedAt	null
+81	
+id	1949
+domain	"safran.com"
+status	"success"
+companyName	"Safran"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.837Z"
+processedAt	null
+82	
+id	1948
+domain	"pernod-ricard.com"
+status	"success"
+companyName	"Pernod Ricard"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.837Z"
+processedAt	null
+83	
+id	1945
+domain	"unibail-rodamco.com"
+status	"success"
+companyName	"Unibail Rodamco"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.835Z"
+processedAt	null
+84	
+id	1946
+domain	"societe-generale.com"
+status	"success"
+companyName	"Societe Generale"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.835Z"
+processedAt	null
+85	
+id	1947
+domain	"atos.com"
+status	"success"
+companyName	"Atos"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.834Z"
+processedAt	null
+86	
+id	1944
+domain	"engie.com"
+status	"success"
+companyName	"Engie"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.833Z"
+processedAt	null
+87	
+id	1943
+domain	"veolia.com"
+status	"success"
+companyName	"Veolia"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.831Z"
+processedAt	null
+88	
+id	1941
+domain	"bnpparibas.com"
+status	"success"
+companyName	"Bnpparibas"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.827Z"
+processedAt	null
+89	
+id	1942
+domain	"axa.com"
+status	"success"
+companyName	"Axa"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.827Z"
+processedAt	null
+90	
+id	1939
+domain	"saint-gobain.com"
+status	"success"
+companyName	"Saint Gobain"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.826Z"
+processedAt	null
+91	
+id	1938
+domain	"kering.com"
+status	"success"
+companyName	"Kering"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.826Z"
+processedAt	null
+92	
+id	1940
+domain	"lvmh.com"
+status	"success"
+companyName	"Lvmh"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.826Z"
+processedAt	null
+93	
+id	1937
+domain	"credit-agricole.com"
+status	"success"
+companyName	"Credit Agricole"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.822Z"
+processedAt	null
+94	
+id	1936
+domain	"essilorluxottica.com"
+status	"success"
+companyName	"Essilorluxottica"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.821Z"
+processedAt	null
+95	
+id	1935
+domain	"totalenergies.com"
+status	"success"
+companyName	"Totalenergies"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.817Z"
+processedAt	null
+96	
+id	1933
+domain	"sanofi.com"
+status	"success"
+companyName	"Sanofi"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.815Z"
+processedAt	null
+97	
+id	1934
+domain	"schneider-electric.com"
+status	"success"
+companyName	"Schneider Electric"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.815Z"
+processedAt	null
+98	
+id	1932
+domain	"loreal.com"
+status	"success"
+companyName	"Loreal"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.808Z"
+processedAt	null
+99	
+id	1931
+domain	"hermes.com"
+status	"success"
+companyName	"Hermes"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"OSdpPHUmLj-xmpjLZegyY"
+createdAt	"2025-06-24T09:32:33.797Z"
+processedAt	null

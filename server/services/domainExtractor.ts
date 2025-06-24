@@ -125,9 +125,52 @@ export class DomainExtractor {
       'hdfcergo.com': 'HDFC ERGO General Insurance Company Ltd',
       'iciciprulife.com': 'ICICI Prudential Life Insurance Company Ltd',
       
-      // French Companies (when needed)
-      // Major French companies can be added here with proper legal entity suffixes
-      // Examples: 'total.com': 'TotalEnergies SE', 'lvmh.com': 'LVMH SA', etc.
+      // French Companies with proper legal entity suffixes
+      'matmut.fr': 'Matmut SA',
+      'bollore.com': 'Bolloré SE',
+      'citroen.com': 'Citroën SA',
+      'peugeot.com': 'Peugeot SA', 
+      'groupama.com': 'Groupama SA',
+      'macif.fr': 'Macif SA',
+      'maif.fr': 'Maif SA',
+      'amundi.com': 'Amundi SA',
+      'cic.fr': 'CIC SA',
+      'bpifrance.fr': 'Bpifrance SA',
+      'natixis.com': 'Natixis SA',
+      'bred.fr': 'BRED SA',
+      'caisse-epargne.fr': 'Caisse d\'Épargne SA',
+      'lcl.fr': 'LCL SA',
+      'monoprix.fr': 'Monoprix SA',
+      'franprix.fr': 'Franprix SA',
+      'brico-depot.fr': 'Brico Dépôt SA',
+      'credit-mutuel.fr': 'Crédit Mutuel SA',
+      'casino.fr': 'Casino SA',
+      'banque-populaire.fr': 'Banque Populaire SA',
+      'castorama.fr': 'Castorama SA',
+      'conforama.com': 'Conforama SA',
+      'leroy-merlin.fr': 'Leroy Merlin SA',
+      'fnac.com': 'Fnac SA',
+      'but.fr': 'BUT SA',
+      'darty.com': 'Darty SA',
+      'tag-heuer.com': 'TAG Heuer SA',
+      'lacoste.com': 'Lacoste SA',
+      'neoen.com': 'Neoen SA',
+      'sephora.com': 'Sephora SA',
+      'loccitane.com': 'L\'Occitane SA',
+      'bulgari.com': 'Bulgari SA',
+      'tiffany.com': 'Tiffany SA',
+      'alexander-mcqueen.com': 'Alexander McQueen SA',
+      'gucci.com': 'Gucci SA',
+      'bottega-veneta.com': 'Bottega Veneta SA',
+      'balenciaga.com': 'Balenciaga SA',
+      'christian-dior.com': 'Christian Dior SA',
+      'chanel.com': 'Chanel SA',
+      'yves-saint-laurent.com': 'Yves Saint Laurent SA',
+      'soitec.com': 'Soitec SA',
+      'icade.com': 'Icade SA',
+      'lvmh.com': 'LVMH SA',
+      'total.com': 'TotalEnergies SE',
+      'totalenergies.com': 'TotalEnergies SE',
       
       // Mexican Companies (when needed)
       // Major Mexican companies can be added here with proper legal entity suffixes
@@ -662,6 +705,19 @@ export class DomainExtractor {
     // Legal suffix bonus (strong indicator of proper company name)
     if (/\b(Inc\.?|Incorporated|LLC|L\.L\.C\.|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?|Group|Holdings|P\.C\.|PC|PLLC|P\.L\.L\.C\.|LP|L\.P\.|LLP|L\.L\.P\.|LLLP|L\.L\.L\.P\.|Co-op|Cooperative|Trust|Association|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG|SARL|SA|SAS|SNC|SCS|SCA|EURL|SC|SCOP|GIE|SEM|Fondation|S\.A\.|S\.A\.\s*de\s*C\.V\.|S\.\s*de\s*R\.L\.|S\.\s*de\s*R\.L\.\s*de\s*C\.V\.|S\.\s*en\s*C\.|S\.\s*en\s*C\.\s*por\s*A\.|S\.C\.|A\.C\.|I\.A\.P\.|S\.A\.P\.I\.|S\.A\.P\.I\.\s*de\s*C\.V\.)\b/i.test(companyName)) {
       confidence += 15;
+    }
+    
+    // CRITICAL PENALTY: Missing legal suffix for corporate entities (global issue)
+    // Absence of suffix either indicates extraction error or nonprofit status
+    if (!this.hasLegalSuffix(companyName)) {
+      // Check if this appears to be a for-profit corporate entity
+      const isNonprofit = /\b(foundation|institute|university|hospital|school|college|museum|library|charity|association|society|council|federation|union|ministry|department|agency|bureau|commission|authority|board|center|centre)\b/i.test(companyName);
+      const isPersonalName = /^[A-Z][a-z]+\s+[A-Z][a-z]+$/i.test(companyName);
+      
+      if (!isNonprofit && !isPersonalName && companyName.length > 2) {
+        // Major penalty for missing legal suffix in corporate entities
+        confidence -= 25; // Severe penalty - this is a critical quality issue
+      }
     }
     
     // Length-based confidence
