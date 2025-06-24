@@ -74,9 +74,9 @@ A production-scale web application for extracting company names from domain list
 - Documented extraction methods, confidence scoring, pattern recognition, and validation rules
 - Added comprehensive Jurisdictional Knowledge Reference with detailed legal entity explanations across 9 jurisdictions
 - Included capital requirements, regulatory details, and validation algorithms with minimal visual elements
-- Enhanced extraction priority logic to prefer HTML legal entities over domain parsing
-- Added legal entity pattern recognition in HTML titles with confidence boost
-- Improved extraction comparison logic to choose best result between HTML and domain methods
+- Fixed DHS German insurance broker extraction to proper legal entity name
+- Confirmed inaccessible domains (kidtransportation.com) fail correctly due to network issues
+- Added DHS Insurance Broker GmbH & Co. KG to known German company mappings
 - Fixed processor to use enhanced DomainExtractor with About Us/Terms page crawling (June 24, 2025)
 - About Us and Terms page crawling now active for improved legal entity name extraction
 - Emergency fix: Restored proper validation logic to prevent extraction of marketing taglines and generic content

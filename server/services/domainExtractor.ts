@@ -63,6 +63,7 @@ export class DomainExtractor {
       'leica-microsystems.com': 'Leica Microsystems GmbH',
       'evotec.com': 'Evotec SE',
       'carl-zeiss.com': 'Carl Zeiss AG',
+      'dhs-versicherungsmakler.de': 'DHS Insurance Broker GmbH & Co. KG',
       'morphosys.com': 'MorphoSys AG',
       'heidelberg.com': 'Heidelberger Druckmaschinen AG',
       'qiagen.com': 'QIAGEN GmbH',
