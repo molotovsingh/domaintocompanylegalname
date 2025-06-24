@@ -32,13 +32,11 @@ export class DomainExtractor {
       }
 
       // Early triage: Quick connectivity check before expensive HTML extraction
-      console.log(`[TRIAGE] Starting connectivity check for: ${cleanDomain}`);
+      // Early triage: Quick connectivity check before expensive HTML extraction
       const connectivity = await this.checkConnectivity(cleanDomain);
-      console.log(`[TRIAGE] Connectivity result: ${connectivity}`);
       
       if (connectivity === 'unreachable') {
         // Skip HTML extraction for unreachable domains - save time
-        console.log(`[TRIAGE] Marking ${cleanDomain} as unreachable, skipping HTML extraction`);
         const domainResult = this.extractFromDomain(cleanDomain);
         return {
           ...domainResult,
@@ -833,9 +831,10 @@ export class DomainExtractor {
       });
       return response.status < 500 ? 'reachable' : 'unreachable';
     } catch (error: any) {
-      // Only true network failures indicate unreachable domains
+      // Network failures indicate unreachable domains
       if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED' || 
-          error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
+          error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED' || 
+          error.code === 'ECONNRESET') {
         return 'unreachable';
       }
       
@@ -858,7 +857,8 @@ export class DomainExtractor {
       } catch (httpError: any) {
         // If HTTP also fails with network errors, mark unreachable
         if (httpError.code === 'ENOTFOUND' || httpError.code === 'ECONNREFUSED' || 
-            httpError.code === 'ETIMEDOUT' || httpError.code === 'ECONNABORTED') {
+            httpError.code === 'ETIMEDOUT' || httpError.code === 'ECONNABORTED' ||
+            httpError.code === 'ECONNRESET') {
           return 'unreachable';
         }
         
