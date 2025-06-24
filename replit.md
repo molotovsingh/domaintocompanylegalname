@@ -61,6 +61,8 @@ A production-scale web application for extracting company names from domain list
 - Updated analytics to use actual completion times instead of synthetic timestamps
 - Enhanced HTML extraction to scrape About Us and Terms pages for better company name detection
 - Added intelligent sub-page crawling for /about, /company, /terms paths where legal entity names appear
+- Created comprehensive Parsing Rules documentation page for developers
+- Documented extraction methods, confidence scoring, pattern recognition, and validation rules
 
 ## User Preferences
 - Professional interface without excessive technical jargon
