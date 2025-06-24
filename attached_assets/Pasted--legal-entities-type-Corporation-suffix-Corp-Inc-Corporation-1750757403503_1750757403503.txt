@@ -1,0 +1,87 @@
+{
+  "legal_entities": [
+    {
+      "type": "Corporation",
+      "suffix": "Corp., Inc., Corporation, Incorporated",
+      "description": "General corporation, often used for businesses with shareholders, offering limited liability."
+    },
+    {
+      "type": "Limited Liability Company",
+      "suffix": "LLC, L.L.C.",
+      "description": "Flexible business structure with limited liability, popular for small to medium businesses."
+    },
+    {
+      "type": "Professional Corporation",
+      "suffix": "P.C., PC, Professional Corporation",
+      "description": "Corporation for licensed professionals (e.g., doctors, lawyers), with limited liability."
+    },
+    {
+      "type": "Professional Limited Liability Company",
+      "suffix": "PLLC, P.L.L.C.",
+      "description": "LLC for licensed professionals, combining LLC flexibility with professional requirements."
+    },
+    {
+      "type": "Limited Partnership",
+      "suffix": "LP, L.P.",
+      "description": "Partnership with general and limited partners, general partners have unlimited liability."
+    },
+    {
+      "type": "Limited Liability Partnership",
+      "suffix": "LLP, L.L.P.",
+      "description": "Partnership for professionals, offering limited liability to all partners."
+    },
+    {
+      "type": "Limited Liability Limited Partnership",
+      "suffix": "LLLP, L.L.L.P.",
+      "description": "LP with limited liability for general partners, less common."
+    },
+    {
+      "type": "General Partnership",
+      "suffix": "(No specific suffix, often 'GP' or none)",
+      "description": "Partnership with unlimited liability for all partners, often informal."
+    },
+    {
+      "type": "Sole Proprietorship",
+      "suffix": "(No specific suffix)",
+      "description": "Business owned by one individual, no formal entity, unlimited liability."
+    },
+    {
+      "type": "Nonprofit Corporation",
+      "suffix": "(No specific suffix, often 'Inc.' or none)",
+      "description": "Corporation for charitable, educational, or religious purposes, often tax-exempt."
+    },
+    {
+      "type": "Trust",
+      "suffix": "(No specific suffix, often 'Trust' in name)",
+      "description": "Legal arrangement for asset management, estate planning, or charitable purposes, not a standalone entity."
+    },
+    {
+      "type": "Business Trust",
+      "suffix": "(No specific suffix, often 'Trust' or 'Business Trust')",
+      "description": "Trust used for business purposes, treated as a corporation in some states."
+    },
+    {
+      "type": "Unincorporated Association",
+      "suffix": "(No specific suffix, often 'Association')",
+      "description": "Informal group for nonprofit purposes, e.g., clubs or community organizations."
+    },
+    {
+      "type": "Cooperative",
+      "suffix": "Co-op, Cooperative",
+      "description": "Member-owned business for mutual benefit, common in agriculture or housing."
+    },
+    {
+      "type": "Public Entity",
+      "suffix": "(No specific suffix, often descriptive name)",
+      "description": "Government-run institutions, e.g., universities, agencies, or public authorities."
+    }
+  ],
+  "notes": [
+    "Suffixes vary by state; for example, 'Inc.' is common in many states, but some require 'Corporation' or allow 'Co.'",
+    "Trusts, such as revocable living trusts or charitable trusts, are not legal entities but legal arrangements; 'Trust' is often included in the name.",
+    "Nonprofit corporations may not have a specific suffix but are often designated as '501(c)(3)' for tax-exempt status under IRS rules.",
+    "Unincorporated associations and sole proprietorships typically lack formal suffixes and are not registered as separate entities.",
+    "Public entities (e.g., state universities or municipal authorities) are identified by name or context, without standardized suffixes.",
+    "Business trusts are rare but recognized in some states (e.g., Massachusetts) as a corporate-like entity."
+  ]
+}
