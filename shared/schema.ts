@@ -69,6 +69,8 @@ export const processingStatsSchema = z.object({
   successRate: z.number(),
   processingRate: z.number(),
   eta: z.string(),
+  networkFailedDomains: z.number().optional(),
+  extractionFailedDomains: z.number().optional(),
 });
 
 export const sessionResultsSchema = z.object({
