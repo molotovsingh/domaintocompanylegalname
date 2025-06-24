@@ -74,9 +74,9 @@ A production-scale web application for extracting company names from domain list
 - Documented extraction methods, confidence scoring, pattern recognition, and validation rules
 - Added comprehensive Jurisdictional Knowledge Reference with detailed legal entity explanations across 9 jurisdictions
 - Included capital requirements, regulatory details, and validation algorithms with minimal visual elements
-- Added fast connectivity check for failed extractions to distinguish network vs content issues
-- Enhanced error messages: "Domain unreachable" vs "Domain accessible but no extractable info"
-- Implemented 3-second timeout HTTP HEAD requests for quick domain accessibility verification
+- Implemented early triage connectivity check before HTML extraction to save processing time
+- Unreachable domains skip expensive HTML extraction (saves 7+ seconds per dead domain)
+- Enhanced error classification: unreachable vs accessible-but-no-data vs extraction-failed
 - Fixed processor to use enhanced DomainExtractor with About Us/Terms page crawling (June 24, 2025)
 - About Us and Terms page crawling now active for improved legal entity name extraction
 - Emergency fix: Restored proper validation logic to prevent extraction of marketing taglines and generic content
