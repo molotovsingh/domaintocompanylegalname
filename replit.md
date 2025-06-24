@@ -49,6 +49,9 @@ A production-scale web application for extracting company names from domain list
 - Refactored Analytics Dashboard for faster performance and real-time updates
 - Simplified interface with key metrics, batch history, and summary statistics
 - Increased refresh rate to 5 seconds with manual refresh capability for immediate updates
+- Added per-domain processing time tracking with millisecond precision in database schema
+- Enhanced analytics to show actual processing times instead of estimated batch averages
+- Results table now displays individual domain processing times (ms/s format)
 - Enhanced Chinese company domain mappings with proper Fortune 500 entities and state-owned enterprises
 - Fixed confidence scoring for known global companies (95% for domain mapping vs 55% for generic parsing)
 - Added comprehensive Chinese corporate structure recognition (Co. Ltd., Group Ltd., etc.)

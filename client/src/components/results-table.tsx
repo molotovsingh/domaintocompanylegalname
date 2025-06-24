@@ -238,6 +238,9 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
                   Status
                 </th>
                 <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Time
+                </th>
+                <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Processed
                 </th>
               </tr>
@@ -281,6 +284,13 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
                   </td>
                   <td className="py-4 px-6">
                     {getStatusBadge(domain.status)}
+                  </td>
+                  <td className="py-4 px-6 text-sm text-gray-500">
+                    {domain.processingTimeMs ? (
+                      domain.processingTimeMs > 1000 
+                        ? `${Math.round(domain.processingTimeMs / 1000)}s`
+                        : `${domain.processingTimeMs}ms`
+                    ) : '-'}
                   </td>
                   <td className="py-4 px-6 text-sm text-gray-500">
                     {domain.processedAt ? new Date(domain.processedAt).toLocaleString() : '-'}
