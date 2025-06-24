@@ -89,7 +89,7 @@ export class DomainExtractor {
             return {
               companyName,
               method: 'html_title',
-              confidence: this.calculateConfidence(companyName, 'html_title') - 10,
+              confidence: this.calculateConfidence(companyName, 'html_title', url.replace(/^https?:\/\//, '')) - 10,
             };
           }
         }
@@ -111,16 +111,15 @@ export class DomainExtractor {
     const cleanDomain = domain
       .replace(/^https?:\/\//, '')
       .replace(/^www\./, '')
-      .split('/')[0]
-      .split('.')[0];
+      .split('/')[0];
     
-    // Convert to company name format
+    // Convert to company name format using our known mappings
     const companyName = this.domainToCompanyName(cleanDomain);
     
     return {
       companyName,
       method: 'domain_parse',
-      confidence: this.calculateConfidence(companyName, 'domain_parse'),
+      confidence: this.calculateConfidence(companyName, 'domain_parse', cleanDomain),
     };
   }
 
@@ -152,8 +151,85 @@ export class DomainExtractor {
   }
 
   private domainToCompanyName(domain: string): string {
-    // Convert domain to readable company name
-    return domain
+    // Known Fortune 500 and major global company mappings
+    const knownCompanies: Record<string, string> = {
+      // US Tech Giants
+      'microsoft.com': 'Microsoft Corp.',
+      'apple.com': 'Apple Inc.',
+      'google.com': 'Alphabet Inc.',
+      'alphabet.com': 'Alphabet Inc.',
+      'amazon.com': 'Amazon.com Inc.',
+      'meta.com': 'Meta Platforms Inc.',
+      'facebook.com': 'Meta Platforms Inc.',
+      'tesla.com': 'Tesla Inc.',
+      'netflix.com': 'Netflix Inc.',
+      'nvidia.com': 'NVIDIA Corp.',
+      'salesforce.com': 'Salesforce Inc.',
+      'oracle.com': 'Oracle Corp.',
+      'adobe.com': 'Adobe Inc.',
+      
+      // Chinese Companies - Fortune 500 & Major Global Companies
+      'bytedance.com': 'ByteDance Ltd.',
+      'huawei.com': 'Huawei Technologies Co. Ltd.',
+      'lenovo.com': 'Lenovo Group Ltd.',
+      'geely.com': 'Zhejiang Geely Holding Group',
+      'haier.com': 'Haier Smart Home Co. Ltd.',
+      'pingan.com': 'Ping An Insurance Group',
+      'sinopec.com': 'China Petroleum & Chemical Corp.',
+      'catl.com': 'Contemporary Amperex Technology Co. Ltd.',
+      'mindray.com': 'Mindray Medical International Ltd.',
+      'anta.com': 'Anta Sports Products Ltd.',
+      'gree.com': 'Gree Electric Appliances Inc.',
+      'hengrui.com': 'Jiangsu Hengrui Medicine Co. Ltd.',
+      
+      // Chinese State-Owned Enterprises (Abbreviations)
+      'crcc.cn': 'China Railway Construction Corp.',
+      'ccccltd.cn': 'China Communications Construction Corp.',
+      'cr.cn': 'China Railway Group Ltd.',
+      'cscec.com': 'China State Construction Engineering Corp.',
+      'chinaunicom.com': 'China United Network Communications Group',
+      'chinatowercom.com': 'China Tower Corp. Ltd.',
+      'coscoshipping.com': 'COSCO Shipping Holdings Co. Ltd.',
+      'csair.com': 'China Southern Airlines Co. Ltd.',
+      'ceair.com': 'China Eastern Airlines Corp. Ltd.',
+      'cebbank.com': 'China Everbright Bank Co. Ltd.',
+      'conch.cn': 'Anhui Conch Cement Co. Ltd.',
+      'sxcoal.com': 'Shanxi Coking Coal Group',
+      'smics.com': 'Semiconductor Manufacturing International Corp.',
+      'crrcgc.cc': 'China Railway Rolling Stock Corp.',
+      'whchem.com': 'Wanhua Chemical Group Co. Ltd.',
+      'cmhk.com': 'China Mobile Hong Kong Co. Ltd.',
+      'jxcc.com': 'Jiangxi Copper Co. Ltd.',
+      'cqbeer.com': 'Chongqing Brewery Co. Ltd.',
+      
+      // Previously failing Chinese companies
+      'sf-express.com': 'SF Holding Co. Ltd.',
+      'fuyaogroup.com': 'Fuyao Glass Industry Group Co. Ltd.',
+      'kuaishou.com': 'Kuaishou Technology',
+      'hikvision.com': 'Hangzhou Hikvision Digital Technology Co. Ltd.',
+      'zijinmining.com': 'Zijin Mining Group Co. Ltd.',
+      'eastmoney.com': 'East Money Information Co. Ltd.',
+      'wuxiapptec.com': 'WuXi AppTec Co. Ltd.',
+      'muyuanfoods.com': 'Muyuan Foods Co. Ltd.',
+      'jsbchina.cn': 'Jiangsu Bank Co. Ltd.',
+      'citicbank.com': 'China CITIC Bank Corp. Ltd.',
+      'haitian.com': 'Haitian International Holdings Ltd.',
+    };
+
+    // Check if we have a known mapping for this domain
+    const fullDomain = domain.toLowerCase();
+    if (knownCompanies[fullDomain]) {
+      return knownCompanies[fullDomain];
+    }
+
+    // Fallback to generic domain parsing
+    const cleanDomain = domain
+      .replace(/^https?:\/\//, '')
+      .replace(/^www\./, '')
+      .split('/')[0]
+      .split('.')[0];
+    
+    return cleanDomain
       .replace(/[-_]/g, ' ')
       .replace(/\b\w/g, l => l.toUpperCase())
       .trim();
