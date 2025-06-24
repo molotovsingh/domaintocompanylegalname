@@ -202,13 +202,22 @@ export class DomainExtractor {
   }
 
   private cleanCompanyName(text: string): string {
-    // Remove common suffixes and prefixes
     return text
-      .replace(/\s*-\s*.*$/, '') // Remove everything after dash
-      .replace(/\s*\|\s*.*$/, '') // Remove everything after pipe
+      // Remove common website patterns
+      .replace(/\s*[-|–]\s*.*$/, '') // Remove everything after dash or pipe
+      .replace(/\s*\|\s*.*$/, '')
       .replace(/\s*:.*$/, '') // Remove everything after colon
-      .replace(/^(Home|Welcome to|About)\s*/i, '') // Remove common prefixes
-      .replace(/\s*(Inc|LLC|Ltd|Corp|Corporation|Company|Co)\.?$/i, '') // Remove company suffixes
+      .replace(/^\s*Welcome to\s*/i, '')
+      .replace(/^\s*Home\s*[-|]\s*/i, '')
+      // Remove descriptive phrases and marketing content
+      .replace(/\s*,\s*(the\s+)?(world|global|leading|trusted|premier|top|best)\s+.*/i, '')
+      .replace(/\s*-\s*(the\s+)?(world|global|leading|trusted|premier|top|best)\s+.*/i, '')
+      .replace(/\s+(home\s+page|homepage)$/i, '')
+      .replace(/\s+(inc|corp|corporation|company|co\.?)$/i, ' $1')
+      // Remove navigation elements and UI text
+      .replace(/(searchopen|go back|follow link|read icon|previous|pause|play|next|country selector)/gi, '')
+      // Clean up excessive whitespace
+      .replace(/\s+/g, ' ')
       .trim();
   }
 
@@ -362,14 +371,39 @@ export class DomainExtractor {
   }
 
   private isValidCompanyName(name: string): boolean {
-    if (!name || name.length < 2 || name.length > 100) return false;
+    if (!name || name.length < 2) return false;
     
-    // Check for common invalid patterns
     const invalidPatterns = [
-      /^(home|about|contact|login|register|sign|error|404|403|500)$/i,
+      /due to several reasons/i,
+      /access denied/i,
+      /blocked/i,
+      /error/i,
+      /page not found/i,
+      /404/i,
+      /403/i,
+      /unauthorized/i,
+      /world leader in/i,
+      /global leader in/i,
+      /spend less\. smile more/i,
+      /investor relations/i,
+      /pay, send and save/i,
+      /^(home|about|contact|login|register|sign|error|404|403|500|page)$/i,
       /^(the|a|an|and|or|but|in|on|at|to|for|of|with|by)$/i,
       /^\d+$/,
       /^[^\w\s]+$/,
+      /our business is/i,
+      /client challenge/i,
+      /grocery store/i,
+      /industrial intelligence/i,
+      /microscopes and imaging/i,
+      /together for medicines/i,
+      /print and packaging/i,
+      /sample to insight/i,
+      /drug packaging/i,
+      /vacuum technology/i,
+      /technology partner/i,
+      /deine brille/i,
+      /europas internet/i,
     ];
     
     return !invalidPatterns.some(pattern => pattern.test(name.trim()));
@@ -461,6 +495,11 @@ export class DomainExtractor {
     // Capitalization confidence
     if (/^[A-Z]/.test(companyName)) {
       confidence += 5;
+    }
+    
+    // Penalty for non-company-like content
+    if (/\b(solutions|technology|systems|services|platform|global|worldwide|leading|premier)\b/i.test(companyName)) {
+      confidence -= 20;
     }
     
     return Math.min(confidence, 100);

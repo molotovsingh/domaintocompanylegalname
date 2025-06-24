@@ -1,0 +1,1237 @@
+	
+0	
+id	1538
+domain	"springer.com"
+status	"success"
+companyName	"Our business is publishing"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.076Z"
+processedAt	null
+1	
+id	1537
+domain	"rossmann.de"
+status	"success"
+companyName	"Client Challenge"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.076Z"
+processedAt	null
+2	
+id	1536
+domain	"rewe.de"
+status	"success"
+companyName	"Rewe"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.074Z"
+processedAt	null
+3	
+id	1535
+domain	"dm.de"
+status	"success"
+companyName	"dm"
+extractionMethod	"html_title"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.073Z"
+processedAt	null
+4	
+id	1534
+domain	"aldi.com"
+status	"success"
+companyName	"ALDI"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.070Z"
+processedAt	null
+5	
+id	1533
+domain	"lidl.com"
+status	"success"
+companyName	"Grocery Store"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.066Z"
+processedAt	null
+6	
+id	1532
+domain	"otto.de"
+status	"success"
+companyName	"OTTO"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.064Z"
+processedAt	null
+7	
+id	1530
+domain	"rtl.com"
+status	"success"
+companyName	"page"
+extractionMethod	"html_title"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.062Z"
+processedAt	null
+8	
+id	1531
+domain	"metro-ag.de"
+status	"success"
+companyName	"Metro Ag"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.062Z"
+processedAt	null
+9	
+id	1529
+domain	"bertelsmann.com"
+status	"success"
+companyName	"Bertelsmann SE & Co. KGaA"
+extractionMethod	"html_title_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.060Z"
+processedAt	null
+10	
+id	1528
+domain	"rocket-internet.com"
+status	"success"
+companyName	"Rocket Internet SE"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.055Z"
+processedAt	null
+11	
+id	1527
+domain	"prosiebensat1.com"
+status	"success"
+companyName	"ProSiebenSat.1 Media SE – Homepage"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.054Z"
+processedAt	null
+12	
+id	1526
+domain	"wirecard.com"
+status	"success"
+companyName	"page"
+extractionMethod	"html_title"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.052Z"
+processedAt	null
+13	
+id	1525
+domain	"united-internet.de"
+status	"success"
+companyName	"Europas Internet"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.042Z"
+processedAt	null
+14	
+id	1524
+domain	"1und1.com"
+status	"success"
+companyName	"1&1 Internet und Mobilfunk > Alles aus einer Hand"
+extractionMethod	"html_title"
+confidenceScore	75
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.039Z"
+processedAt	null
+15	
+id	1523
+domain	"software-ag.com"
+status	"success"
+companyName	"Software Ag"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.036Z"
+processedAt	null
+16	
+id	1522
+domain	"zf.com"
+status	"success"
+companyName	"page ZF Friedrichshafen AG"
+extractionMethod	"html_title"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.035Z"
+processedAt	null
+17	
+id	1521
+domain	"trumpf.com"
+status	"success"
+companyName	"TRUMPF SE + Co. KG"
+extractionMethod	"html_title_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.029Z"
+processedAt	null
+18	
+id	1520
+domain	"osram.com"
+status	"success"
+companyName	"OSRAM Americas"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.025Z"
+processedAt	null
+19	
+id	1519
+domain	"kuka.com"
+status	"success"
+companyName	"industrial intelligence 4.0_beyond automation"
+extractionMethod	"html_title"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.024Z"
+processedAt	null
+20	
+id	1518
+domain	"leica-microsystems.com"
+status	"success"
+companyName	"Microscopes and Imaging Systems"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.023Z"
+processedAt	null
+21	
+id	1517
+domain	"evotec.com"
+status	"success"
+companyName	"Together for Medicines That Matter"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.022Z"
+processedAt	null
+22	
+id	1516
+domain	"carl-zeiss.com"
+status	"success"
+companyName	"Carl Zeiss"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.021Z"
+processedAt	null
+23	
+id	1515
+domain	"morphosys.com"
+status	"success"
+companyName	"Novartis"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.019Z"
+processedAt	null
+24	
+id	1514
+domain	"heidelberg.com"
+status	"success"
+companyName	"Print and Packaging Solutions"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.018Z"
+processedAt	null
+25	
+id	1513
+domain	"qiagen.com"
+status	"success"
+companyName	"Sample to Insight"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.008Z"
+processedAt	null
+26	
+id	1512
+domain	"teamviewer.com"
+status	"success"
+companyName	"TeamViewer—The Digital Workplace Platform"
+extractionMethod	"html_title"
+confidenceScore	90
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.002Z"
+processedAt	null
+27	
+id	1511
+domain	"puma.com"
+status	"success"
+companyName	"PUMA.com"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:56.001Z"
+processedAt	null
+28	
+id	1510
+domain	"hellofresh.com"
+status	"success"
+companyName	"HelloFresh® Meal Kits"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.999Z"
+processedAt	null
+29	
+id	1509
+domain	"zalando.com"
+status	"success"
+companyName	"Zalando"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.998Z"
+processedAt	null
+30	
+id	1508
+domain	"varta-ag.com"
+status	"success"
+companyName	"VARTA"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.998Z"
+processedAt	null
+31	
+id	1507
+domain	"jenoptik.com"
+status	"success"
+companyName	"Technology Partner for Optics, Photonics and Optoelectronics"
+extractionMethod	"html_title"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.995Z"
+processedAt	null
+32	
+id	1506
+domain	"delivery-hero.com"
+status	"success"
+companyName	"Delivery Hero"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.994Z"
+processedAt	null
+33	
+id	1505
+domain	"fielmann.com"
+status	"success"
+companyName	"Deine Brille"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.994Z"
+processedAt	null
+34	
+id	1504
+domain	"evonik.com"
+status	"success"
+companyName	"Evonik"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.993Z"
+processedAt	null
+35	
+id	1503
+domain	"hugo-boss.com"
+status	"success"
+companyName	"Hugo Boss"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.991Z"
+processedAt	null
+36	
+id	1502
+domain	"krones.com"
+status	"success"
+companyName	"Krones – Solutions beyond tomorrow"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.990Z"
+processedAt	null
+37	
+id	1501
+domain	"pfeiffer-vacuum.com"
+status	"success"
+companyName	"Vacuum Technology and Vacuum Pumps from the Leader"
+extractionMethod	"html_title"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.989Z"
+processedAt	null
+38	
+id	1500
+domain	"gerresheimer.com"
+status	"success"
+companyName	"Drug packaging and drug delivery systems"
+extractionMethod	"html_title"
+confidenceScore	90
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.987Z"
+processedAt	null
+39	
+id	1499
+domain	"symrise.com"
+status	"success"
+companyName	"Symrise"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.986Z"
+processedAt	null
+40	
+id	1498
+domain	"rational-online.com"
+status	"success"
+companyName	"RATIONAL AG"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.985Z"
+processedAt	null
+41	
+id	1497
+domain	"fuchs.com"
+status	"success"
+companyName	"Global lubrication solutions"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.984Z"
+processedAt	null
+42	
+id	1496
+domain	"siltronic.com"
+status	"success"
+companyName	"Siltronic / perfect silicon solutions"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.983Z"
+processedAt	null
+43	
+id	1495
+domain	"brenntag.com"
+status	"success"
+companyName	"Brenntag"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.982Z"
+processedAt	null
+44	
+id	1494
+domain	"wacker.com"
+status	"success"
+companyName	"Wacker Chemie AG – an international chemical company for highly developed specialty chemicals"
+extractionMethod	"meta_description"
+confidenceScore	90
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.981Z"
+processedAt	null
+45	
+id	1493
+domain	"mtumaintenance.com"
+status	"success"
+companyName	"Mtumaintenance"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.978Z"
+processedAt	null
+46	
+id	1492
+domain	"schaeffler.com"
+status	"success"
+companyName	"Schaeffler"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.978Z"
+processedAt	null
+47	
+id	1491
+domain	"jungheinrich.com"
+status	"success"
+companyName	"Jungheinrich"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.976Z"
+processedAt	null
+48	
+id	1490
+domain	"dzbank.de"
+status	"success"
+companyName	"DZ BANK"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.975Z"
+processedAt	null
+49	
+id	1489
+domain	"aixtron.com"
+status	"success"
+companyName	"AIXTRON – Anlagenbau mit Liebe zum Detail."
+extractionMethod	"html_title"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.973Z"
+processedAt	null
+50	
+id	1487
+domain	"fresenius-kabi.com"
+status	"success"
+companyName	"Fresenius Kabi"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.971Z"
+processedAt	null
+51	
+id	1488
+domain	"hochtief.com"
+status	"success"
+companyName	"HOCHTIEF is an engineering"
+extractionMethod	"meta_description"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.971Z"
+processedAt	null
+52	
+id	1486
+domain	"gea.com"
+status	"success"
+companyName	"GEA – engineering for a better world"
+extractionMethod	"html_title"
+confidenceScore	90
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.970Z"
+processedAt	null
+53	
+id	1485
+domain	"knorr-bremse.com"
+status	"success"
+companyName	"Knorr Bremse"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.968Z"
+processedAt	null
+54	
+id	1484
+domain	"uniper.energy"
+status	"success"
+companyName	"Uniper"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.967Z"
+processedAt	null
+55	
+id	1483
+domain	"bosch.com"
+status	"success"
+companyName	"Invented for life"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.966Z"
+processedAt	null
+56	
+id	1480
+domain	"kion-group.com"
+status	"success"
+companyName	"Kion Group"
+extractionMethod	"domain_parse"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.963Z"
+processedAt	null
+57	
+id	1482
+domain	"fresenius.com"
+status	"success"
+companyName	"Fresenius"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.963Z"
+processedAt	null
+58	
+id	1481
+domain	"talanx.com"
+status	"success"
+companyName	"Talanx"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.963Z"
+processedAt	null
+59	
+id	1479
+domain	"lanxess.com"
+status	"success"
+companyName	"▷ Specialty Chemicals"
+extractionMethod	"html_title"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.960Z"
+processedAt	null
+60	
+id	1478
+domain	"sartorius.com"
+status	"success"
+companyName	"Sartorius"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.959Z"
+processedAt	null
+61	
+id	1477
+domain	"covestro.com"
+status	"success"
+companyName	"Discover Covestro"
+extractionMethod	"meta_description"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.958Z"
+processedAt	null
+62	
+id	1475
+domain	"enbw.com"
+status	"success"
+companyName	"Ihr Energieanbieter für Strom, Gas und Elektromobilität"
+extractionMethod	"html_title"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.957Z"
+processedAt	null
+63	
+id	1476
+domain	"phoenix-pharmahandel.de"
+status	"success"
+companyName	"Phoenix Pharmahandel"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.957Z"
+processedAt	null
+64	
+id	1474
+domain	"metro.de"
+status	"success"
+companyName	"Metro"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.955Z"
+processedAt	null
+65	
+id	1473
+domain	"lbbw.de"
+status	"success"
+companyName	"Die LBBW"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.954Z"
+processedAt	null
+66	
+id	1472
+domain	"heidelbergmaterials.com"
+status	"success"
+companyName	"Making a material difference"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.953Z"
+processedAt	null
+67	
+id	1471
+domain	"nemetschek.com"
+status	"success"
+companyName	"NEMETSCHEK"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.951Z"
+processedAt	null
+68	
+id	1470
+domain	"deutsche-bahn.com"
+status	"success"
+companyName	"Deutsche Bahn"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.950Z"
+processedAt	null
+69	
+id	1469
+domain	"thyssenkrupp.com"
+status	"success"
+companyName	"thyssenkrupp"
+extractionMethod	"html_title"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.949Z"
+processedAt	null
+70	
+id	1468
+domain	"bayer.com"
+status	"success"
+companyName	"Bayer"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.948Z"
+processedAt	null
+71	
+id	1467
+domain	"rwe.com"
+status	"success"
+companyName	"RWE"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.946Z"
+processedAt	null
+72	
+id	1466
+domain	"daimlertruck.com"
+status	"success"
+companyName	"Daimlertruck"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.945Z"
+processedAt	null
+73	
+id	1465
+domain	"edeka.de"
+status	"success"
+companyName	"Edeka"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.943Z"
+processedAt	null
+74	
+id	1463
+domain	"beiersdorf.com"
+status	"success"
+companyName	"Beiersdorf – We are skin care."
+extractionMethod	"html_title"
+confidenceScore	90
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.942Z"
+processedAt	null
+75	
+id	1464
+domain	"vonovia.com"
+status	"success"
+companyName	"Vonovia KonzernwebsiteVonovia Konzernwebsite"
+extractionMethod	"html_title"
+confidenceScore	90
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.941Z"
+processedAt	null
+76	
+id	1462
+domain	"hannover-re.com"
+status	"success"
+companyName	"One of the World's Leading Reinsurers"
+extractionMethod	"html_title"
+confidenceScore	90
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.940Z"
+processedAt	null
+77	
+id	1461
+domain	"deutsche-boerse.com"
+status	"success"
+companyName	"Deutsche Börse Group"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.939Z"
+processedAt	null
+78	
+id	1460
+domain	"lufthansa.com"
+status	"success"
+companyName	"Lufthansa"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.937Z"
+processedAt	null
+79	
+id	1459
+domain	"infineon.com"
+status	"success"
+companyName	"Semiconductor & System Solutions"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.936Z"
+processedAt	null
+80	
+id	1458
+domain	"continental.com"
+status	"success"
+companyName	"Our heart beats for this"
+extractionMethod	"meta_description"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.935Z"
+processedAt	null
+81	
+id	1456
+domain	"commerzbank.com"
+status	"success"
+companyName	"Commerzbank Group"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.933Z"
+processedAt	null
+82	
+id	1457
+domain	"henkel.com"
+status	"success"
+companyName	"INNOVATIONUNDERSTANDING CHANGE, SHAPING THE FUTURE"
+extractionMethod	"html_title"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.933Z"
+processedAt	null
+83	
+id	1455
+domain	"eon.com"
+status	"success"
+companyName	"Eon"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.932Z"
+processedAt	null
+84	
+id	1454
+domain	"hapag-lloyd.com"
+status	"success"
+companyName	"Hapag Lloyd"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.932Z"
+processedAt	null
+85	
+id	1453
+domain	"porsche.com"
+status	"success"
+companyName	"Porsche United States"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.930Z"
+processedAt	null
+86	
+id	1452
+domain	"rheinmetall.com"
+status	"success"
+companyName	"Der integrierte internationale Technologiekonzern"
+extractionMethod	"html_title"
+confidenceScore	90
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.929Z"
+processedAt	null
+87	
+id	1451
+domain	"siemens-energy.com"
+status	"success"
+companyName	"Siemens Energy – A global leader in energy technology"
+extractionMethod	"html_title"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.927Z"
+processedAt	null
+88	
+id	1449
+domain	"biontech.de"
+status	"success"
+companyName	"BioNTech"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.925Z"
+processedAt	null
+89	
+id	1450
+domain	"adidas.com"
+status	"success"
+companyName	"Adidas"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.925Z"
+processedAt	null
+90	
+id	1448
+domain	"basf.com"
+status	"success"
+companyName	"BASF – United States"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.923Z"
+processedAt	null
+91	
+id	1447
+domain	"allianz.com"
+status	"success"
+companyName	"Allianz"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.923Z"
+processedAt	null
+92	
+id	1446
+domain	"dhl.com"
+status	"success"
+companyName	"Dhl"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.922Z"
+processedAt	null
+93	
+id	1445
+domain	"db.com"
+status	"success"
+companyName	"Deutsche Bank"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.920Z"
+processedAt	null
+94	
+id	1444
+domain	"merckgroup.com"
+status	"success"
+companyName	"Merckgroup"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.919Z"
+processedAt	null
+95	
+id	1443
+domain	"siemens-healthineers.com"
+status	"success"
+companyName	"Siemens Healthineers"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.916Z"
+processedAt	null
+96	
+id	1442
+domain	"mercedes-benz.com"
+status	"success"
+companyName	"Mercedes Benz"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.915Z"
+processedAt	null
+97	
+id	1441
+domain	"volkswagen.com"
+status	"success"
+companyName	"Startseite"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.913Z"
+processedAt	null
+98	
+id	1440
+domain	"munichre.com"
+status	"success"
+companyName	"Munichre"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.912Z"
+processedAt	null
+99	
+id	1439
+domain	"bmw.com"
+status	"success"
+companyName	"Bmw"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.912Z"
+processedAt	null
+100	
+id	1438
+domain	"telekom.com"
+status	"success"
+companyName	"Corporate Website"
+extractionMethod	"html_title"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.910Z"
+processedAt	null
+101	
+id	1437
+domain	"siemens.com"
+status	"success"
+companyName	"Siemens"
+extractionMethod	"meta_description"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.866Z"
+processedAt	null
+102	
+id	1436
+domain	"sap.com"
+status	"success"
+companyName	"Sap"
+extractionMethod	"domain_parse"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"DHCb0RMQRIWodFqhGUahw"
+createdAt	"2025-06-24T08:47:55.865Z"
+processedAt	null

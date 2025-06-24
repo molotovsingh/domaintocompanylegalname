@@ -67,6 +67,8 @@ A production-scale web application for extracting company names from domain list
 - 50-69% confidence results now routed to sophisticated processing pipeline
 - Fixed processor to use enhanced DomainExtractor with About Us/Terms page crawling (June 24, 2025)
 - About Us and Terms page crawling now active for improved legal entity name extraction
+- Emergency fix: Restored proper validation logic to prevent extraction of marketing taglines and generic content
+- Enhanced invalid pattern detection to reject "Our business is", "Client Challenge", "Grocery Store", etc.
 
 ## User Preferences
 - Professional interface without excessive technical jargon
