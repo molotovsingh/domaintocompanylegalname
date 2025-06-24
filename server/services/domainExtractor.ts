@@ -178,30 +178,13 @@ export class DomainExtractor {
 
     const $ = cheerio.load(response.data);
     
-    // Deprioritize HTML title - try About Us/Legal pages first
+    // Try About Us/Legal pages for unknown domains
     const subPageResult = await this.extractFromSubPages(url);
     if (subPageResult) {
       return subPageResult;
     }
 
-    // Try title tag as last resort with very strict validation
-    const title = $('title').text().trim();
-    if (title) {
-      const companyName = this.cleanCompanyName(title);
-      // Ultra-strict validation - title extraction now heavily penalized
-      if (companyName && 
-          this.isValidCompanyName(companyName) && 
-          this.isValidCompanyName(title) &&
-          !this.isMarketingContent(title) &&
-          !this.isMarketingContent(companyName) &&
-          this.hasLegalSuffix(companyName)) { // Only allow if has legal suffix
-        return {
-          companyName,
-          method: 'html_title',
-          confidence: Math.max(40, this.calculateConfidence(companyName, 'html_title') - 30), // Heavy penalty
-        };
-      }
-    }
+    // HTML title extraction removed - proven unreliable source of marketing content
     
     // Try about section extraction (high-confidence legal entities)
     const aboutSelectors = [
