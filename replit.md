@@ -72,7 +72,8 @@ A production-scale web application for extracting company names from domain list
 - Added German company domain mappings to fix current bad extractions (Springer, RTL, Wirecard, etc.)
 - Implemented dual-layer validation with marketing content detection to completely block descriptive phrases
 - Enhanced German legal entity recognition: GmbH, AG, UG, KG, SE, Stiftung, e.V., etc. (June 24, 2025)
-- Added 30+ German DAX company mappings with proper legal entity names and suffixes
+- Added 37+ German company mappings with proper legal entity names and suffixes
+- Fixed major German retailer/media failures: REWE Group, Bertelsmann SE & Co. KGaA, ALDI Group, ProSiebenSat.1 Media SE
 - CRITICAL FIX: Domain mappings now override cached results to prevent bad extractions from persisting
 - Updated database to correct all cached German company names to proper legal entity names
 - HTML title extraction identified as unreliable source - heavily penalized and deprioritized (June 24, 2025)

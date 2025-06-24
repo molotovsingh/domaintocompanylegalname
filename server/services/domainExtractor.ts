@@ -181,6 +181,15 @@ export class DomainExtractor {
       'dassault-aviation.com': 'Dassault Aviation SA',
       'schneider-electric.com': 'Schneider Electric SE',
       
+      // Additional German Companies (addressing failures)
+      'rewe.de': 'REWE Group',
+      'bertelsmann.com': 'Bertelsmann SE & Co. KGaA',
+      'aldi.com': 'ALDI Group',
+      'prosiebensat1.com': 'ProSiebenSat.1 Media SE',
+      '1und1.com': '1&1 AG',
+      'aixtron.com': 'AIXTRON SE',
+      'gea.com': 'GEA Group AG',
+      
       // Mexican Companies (when needed)
       // Major Mexican companies can be added here with proper legal entity suffixes
       // Examples: 'cemex.com': 'CEMEX S.A.B. de C.V.', 'femsa.com': 'FEMSA S.A. de C.V.', etc.
