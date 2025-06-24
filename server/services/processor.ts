@@ -1,14 +1,14 @@
 import { storage } from '../storage';
-import { CompanyNameExtractor } from './scraper';
+import { DomainExtractor } from './domainExtractor';
 import type { Domain } from '@shared/schema';
 
 export class BatchProcessor {
-  private extractor: CompanyNameExtractor;
+  private extractor: DomainExtractor;
   private isProcessing: boolean = false;
   private processedCount: number = 0;
 
   constructor() {
-    this.extractor = new CompanyNameExtractor();
+    this.extractor = new DomainExtractor();
   }
 
   async processBatch(batchId: string): Promise<void> {

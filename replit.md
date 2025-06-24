@@ -65,6 +65,8 @@ A production-scale web application for extracting company names from domain list
 - Documented extraction methods, confidence scoring, pattern recognition, and validation rules
 - Raised confidence threshold from 50% to 70% for success declaration
 - 50-69% confidence results now routed to sophisticated processing pipeline
+- Fixed processor to use enhanced DomainExtractor with About Us/Terms page crawling (June 24, 2025)
+- About Us and Terms page crawling now active for improved legal entity name extraction
 
 ## User Preferences
 - Professional interface without excessive technical jargon
