@@ -84,10 +84,32 @@ export class BatchProcessor {
 
   private async processDomain(domain: Domain): Promise<void> {
     try {
+      // Skip if already processed successfully (from cache)
+      if (domain.status === 'success') {
+        this.processedCount++;
+        return;
+      }
+
       // Mark as processing
       await storage.updateDomain(domain.id, { status: 'processing' });
 
-      // Extract company name
+      // Check if we already have a high-confidence result for this domain
+      const existingHighConfidence = await storage.getHighConfidenceResult(domain.domain);
+      
+      if (existingHighConfidence && existingHighConfidence.id !== domain.id) {
+        // Use existing high-confidence result
+        await storage.updateDomain(domain.id, {
+          status: 'success',
+          companyName: existingHighConfidence.companyName,
+          extractionMethod: existingHighConfidence.extractionMethod + '_cached',
+          confidenceScore: existingHighConfidence.confidenceScore,
+        });
+        
+        this.processedCount++;
+        return;
+      }
+
+      // Extract company name using web scraping
       const result = await this.extractor.extractCompanyName(domain.domain);
 
       if (result.companyName && result.confidence > 30) {
@@ -97,6 +119,7 @@ export class BatchProcessor {
           extractionMethod: result.method,
           confidenceScore: result.confidence,
         });
+        this.processedCount++;
       } else {
         await storage.updateDomain(domain.id, {
           status: 'failed',

@@ -192,4 +192,20 @@ export class MemStorage implements IStorage {
   }
 }
 
+  async findExistingDomain(domain: string): Promise<Domain | undefined> {
+    return Array.from(this.domains.values())
+      .find(d => d.domain.toLowerCase() === domain.toLowerCase());
+  }
+
+  async getHighConfidenceResult(domain: string): Promise<Domain | undefined> {
+    const existing = Array.from(this.domains.values())
+      .filter(d => d.domain.toLowerCase() === domain.toLowerCase() && 
+                   d.status === 'success' && 
+                   d.confidenceScore && d.confidenceScore >= 85)
+      .sort((a, b) => (b.confidenceScore || 0) - (a.confidenceScore || 0));
+    
+    return existing[0];
+  }
+}
+
 export const storage = new MemStorage();
