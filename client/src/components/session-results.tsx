@@ -246,13 +246,35 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
 
         <Separator />
 
-        {/* Processing Info */}
-        <div className="flex items-center justify-between text-sm text-gray-600">
-          <div className="flex items-center gap-1">
-            <Clock className="h-4 w-4" />
-            Processing Time: {formatDuration(sessionResults?.processingTime || 0)}
+        {/* Processing Performance */}
+        <div>
+          <h4 className="font-semibold mb-3">Processing Performance</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-lg font-bold text-blue-600">
+                {formatDuration(sessionResults?.processingTime || 0)}
+              </div>
+              <div className="text-sm text-gray-600">Total Processing Time</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-green-600">
+                {sessionResults?.totalDomains > 0 
+                  ? Math.round((sessionResults?.processingTime || 0) / sessionResults.totalDomains)
+                  : 0}ms
+              </div>
+              <div className="text-sm text-gray-600">Avg Time Per Domain</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-purple-600">
+                {sessionResults?.totalDomains > 0 
+                  ? Math.round(sessionResults.totalDomains / Math.max((sessionResults?.processingTime || 1) / 1000, 0.001))
+                  : 0}
+              </div>
+              <div className="text-sm text-gray-600">Domains/Second</div>
+            </div>
           </div>
-          <div>
+          <div className="mt-4 text-sm text-gray-600 text-center">
+            <Clock className="h-4 w-4 inline mr-1" />
             Completed: {sessionResults?.completedAt ? new Date(sessionResults.completedAt).toLocaleString() : 'N/A'}
           </div>
         </div>
