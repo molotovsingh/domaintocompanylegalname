@@ -38,6 +38,8 @@ A production-scale web application for extracting company names from domain list
 - System now reuses existing results with 85%+ confidence to avoid redundant processing
 - Implemented stricter confidence thresholds to prioritize domain mappings over HTML extraction
 - Enhanced filtering to completely reject marketing taglines and descriptive content
+- Configured system to ALWAYS use domain mappings as authoritative source for known companies
+- Fixed extraction priority to prefer legal entity names over marketing content
 
 ## User Preferences
 - Professional interface without excessive technical jargon

@@ -23,14 +23,11 @@ export class CompanyNameExtractor {
 
   async extractCompanyName(domain: string): Promise<ExtractionResult> {
     try {
-      // ALWAYS try domain mapping first - this is the most reliable method
+      // ALWAYS prioritize domain mapping first - this is the authoritative source
       const domainResult = this.extractFromDomain(domain);
-      if (domainResult.companyName && domainResult.confidence >= 85) {
-        return domainResult;
-      }
-
-      // For domains with known mappings (even lower confidence), strongly prefer them
-      if (domainResult.companyName && domainResult.confidence >= 45) {
+      
+      // For ANY known domain mapping, use it regardless of confidence
+      if (domainResult.companyName && domainResult.confidence >= 35) {
         // Only try HTML if we might get a legal entity name
         try {
           const url = domain.startsWith('http') ? domain : `https://${domain}`;
