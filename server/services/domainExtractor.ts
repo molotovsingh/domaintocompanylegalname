@@ -17,9 +17,10 @@ export class DomainExtractor {
   private userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
 
   async extractCompanyName(domain: string): Promise<ExtractionResult> {
+    const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].toLowerCase();
+    
     try {
       // ALWAYS check domain mappings first (overrides cache)
-      const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].toLowerCase();
       const knownMappings = this.getKnownCompanyMappings();
       
       if (knownMappings[cleanDomain]) {
@@ -30,23 +31,44 @@ export class DomainExtractor {
         };
       }
 
-      // Try HTML extraction for unknown domains
-      const url = domain.startsWith('http') ? domain : `https://${domain}`;
+      // Early triage: Quick connectivity check before expensive HTML extraction
+      const connectivity = await this.checkConnectivity(cleanDomain);
+      
+      if (connectivity === 'unreachable') {
+        // Skip HTML extraction for unreachable domains - save time
+        const domainResult = this.extractFromDomain(cleanDomain);
+        return {
+          ...domainResult,
+          connectivity: 'unreachable',
+          error: 'Domain unreachable - network/DNS issue'
+        };
+      }
+
+      // Domain is reachable - proceed with HTML extraction
+      const url = `https://${cleanDomain}`;
       const htmlResult = await this.extractFromHTML(url);
-      if (htmlResult.companyName) {
-        return htmlResult;
+      
+      if (htmlResult.companyName && this.isValidCompanyName(htmlResult.companyName)) {
+        return {
+          ...htmlResult,
+          connectivity: 'reachable'
+        };
       }
       
-      // Fallback to domain parsing
-      return this.extractFromDomain(domain);
-    } catch (error) {
-      // Quick connectivity check for failed extractions
-      const connectivityResult = await this.checkConnectivity(cleanDomain);
+      // HTML extraction failed but domain is reachable - fallback to domain parsing
       const domainResult = this.extractFromDomain(cleanDomain);
-      
       return {
         ...domainResult,
-        connectivity: connectivityResult,
+        connectivity: 'reachable',
+        error: 'Domain accessible but no extractable company information'
+      };
+      
+    } catch (error) {
+      // Unexpected error - fallback to domain parsing
+      const domainResult = this.extractFromDomain(cleanDomain);
+      return {
+        ...domainResult,
+        connectivity: 'unknown',
         error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
