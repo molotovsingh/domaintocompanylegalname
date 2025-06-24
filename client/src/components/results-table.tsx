@@ -108,24 +108,18 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
     }
   };
 
-  const getMethodBadge = (method: string) => {
-    const colors = {
-      'html_title': 'bg-blue-100 text-blue-800',
-      'meta_description': 'bg-purple-100 text-purple-800',
-      'domain_parse': 'bg-orange-100 text-orange-800',
+  const getSourceLabel = (method: string) => {
+    const sourceMap = {
+      'domain_parse': 'Domain',
+      'footer_copyright': 'Footer',
+      'html_about': 'About Page',
+      'html_legal': 'Legal Page',
+      'html_subpage': 'Sub-page',
+      'meta_description': 'Meta Tag',
+      'html_title': 'Title'
     };
 
-    const labels = {
-      'html_title': 'HTML Title',
-      'meta_description': 'Meta Description',
-      'domain_parse': 'Domain Parse',
-    };
-
-    return (
-      <Badge className={`${colors[method as keyof typeof colors] || 'bg-gray-100 text-gray-800'} hover:bg-opacity-80`}>
-        {labels[method as keyof typeof labels] || method}
-      </Badge>
-    );
+    return sourceMap[method as keyof typeof sourceMap] || method;
   };
 
   if (!currentBatchId) {
@@ -229,7 +223,7 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
                   Company Name
                 </th>
                 <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Method
+                  Source
                 </th>
                 <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Confidence
@@ -265,7 +259,9 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
                     )}
                   </td>
                   <td className="py-4 px-6">
-                    {domain.extractionMethod ? getMethodBadge(domain.extractionMethod) : '-'}
+                    <span className="text-sm text-gray-900">
+                      {domain.extractionMethod ? getSourceLabel(domain.extractionMethod) : '-'}
+                    </span>
                   </td>
                   <td className="py-4 px-6">
                     {domain.confidenceScore ? (
