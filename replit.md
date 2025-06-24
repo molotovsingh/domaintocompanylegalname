@@ -46,8 +46,9 @@ A production-scale web application for extracting company names from domain list
 - Domain mapping now always enabled with 95% confidence, HTML extraction as backup only
 - Migrated from in-memory storage to PostgreSQL for data persistence and production readiness
 - Database provides duplicate detection, cross-batch intelligence, and permanent session results
-- Added comprehensive Analytics Dashboard with time-based performance tracking
-- Multi-metric visualization showing confidence trends, success rates, processing efficiency, and extraction method usage
+- Refactored Analytics Dashboard for faster performance and real-time updates
+- Simplified interface with key metrics, batch history, and summary statistics
+- Increased refresh rate to 5 seconds with manual refresh capability for immediate updates
 - Enhanced Chinese company domain mappings with proper Fortune 500 entities and state-owned enterprises
 - Fixed confidence scoring for known global companies (95% for domain mapping vs 55% for generic parsing)
 - Added comprehensive Chinese corporate structure recognition (Co. Ltd., Group Ltd., etc.)
