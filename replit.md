@@ -54,6 +54,8 @@ A production-scale web application for extracting company names from domain list
 - Fixed Session Stats component to properly display session results including duplicate detection metrics
 - Session Stats now shows comprehensive failure analysis confirming Chinese company web scraping resistance
 - Auto-batch selection ensures most recent processing results are always visible in UI
+- Session Stats now automatically populates with latest session data without requiring manual batch selection
+- Enhanced Session Stats flow to show most recent session by default with fallback to specific batch selection
 
 ## User Preferences
 - Professional interface without excessive technical jargon

@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle, XCircle, Clock, BarChart3 } from "lucide-react";
 
 interface SessionResultsProps {
-  batchId: string;
+  batchId?: string | null;
 }
 
 interface SessionResults {
@@ -35,15 +35,28 @@ interface SessionResults {
 }
 
 export default function SessionResults({ batchId }: SessionResultsProps) {
-  const { data: sessionResultsData, isLoading, error } = useQuery<SessionResults>({
+  // If no specific batchId provided, get all session results and show the latest
+  const { data: allSessionResults, isLoading: loadingAll } = useQuery<SessionResults[]>({
+    queryKey: ['/api/session-results'],
+    enabled: !batchId,
+  });
+
+  // If specific batchId provided, get that specific session
+  const { data: specificSessionResult, isLoading: loadingSpecific } = useQuery<SessionResults>({
     queryKey: ['/api/session-results', batchId],
     enabled: !!batchId,
   });
 
-  // Handle both single object and array responses
-  const sessionResults = Array.isArray(sessionResultsData) 
-    ? sessionResultsData.find(result => result.batchId === batchId)
-    : sessionResultsData;
+  const isLoading = batchId ? loadingSpecific : loadingAll;
+  
+  // Determine which session results to display
+  const sessionResults = batchId 
+    ? (Array.isArray(specificSessionResult) 
+        ? specificSessionResult.find(result => result.batchId === batchId)
+        : specificSessionResult)
+    : (allSessionResults && allSessionResults.length > 0 
+        ? allSessionResults[0] // Show the most recent session
+        : null);
 
   if (isLoading) {
     return (
@@ -68,9 +81,19 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
   if (!sessionResults) {
     return (
       <div className="text-center py-8 text-gray-500">
-        Select a batch to view session statistics
-        <br />
-        <span className="text-sm">Upload and process a file to see detailed metrics including duplicate detection stats</span>
+        {batchId ? (
+          <>
+            No session data found for this batch
+            <br />
+            <span className="text-sm">This batch may still be processing or encountered an error</span>
+          </>
+        ) : (
+          <>
+            No session data available
+            <br />
+            <span className="text-sm">Upload and process a file to see detailed metrics including duplicate detection stats</span>
+          </>
+        )}
       </div>
     );
   }
@@ -86,7 +109,7 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <BarChart3 className="h-5 w-5" />
-          Session Results: {sessionResults?.fileName || 'Loading...'}
+          {batchId ? `Session Results: ${sessionResults?.fileName || 'Loading...'}` : `Latest Session: ${sessionResults?.fileName || 'Loading...'}`}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
