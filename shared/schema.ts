@@ -14,6 +14,8 @@ export const domains = pgTable("domains", {
   batchId: text("batch_id").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   processedAt: timestamp("processed_at"),
+  processingStartedAt: timestamp("processing_started_at"),
+  processingTimeMs: integer("processing_time_ms"), // Time taken to process this domain in milliseconds
 });
 
 export const batches = pgTable("batches", {
@@ -40,6 +42,8 @@ export const insertDomainSchema = createInsertSchema(domains).omit({
   id: true,
   createdAt: true,
   processedAt: true,
+  processingStartedAt: true,
+  processingTimeMs: true,
 });
 
 export const insertBatchSchema = createInsertSchema(batches).omit({

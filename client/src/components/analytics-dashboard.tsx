@@ -138,7 +138,12 @@ export default function AnalyticsDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-gray-600">Processing Time</p>
-                <p className="text-xl font-bold text-orange-600">{Math.round(latestBatch.avgProcessingTimePerDomain / 1000)}s</p>
+                <p className="text-xl font-bold text-orange-600">
+                  {latestBatch.avgProcessingTimePerDomain > 1000 
+                    ? `${Math.round(latestBatch.avgProcessingTimePerDomain / 1000)}s`
+                    : `${latestBatch.avgProcessingTimePerDomain}ms`
+                  }
+                </p>
                 <p className="text-xs text-gray-500">Per domain</p>
               </div>
               <Clock className="h-6 w-6 text-orange-600" />
@@ -179,6 +184,15 @@ export default function AnalyticsDashboard() {
                   <div className="text-center">
                     <p className="font-medium text-purple-600">{batch.domainMappingPercentage}%</p>
                     <p className="text-xs text-gray-500">mapped</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-medium text-orange-600">
+                      {batch.avgProcessingTimePerDomain > 1000 
+                        ? `${Math.round(batch.avgProcessingTimePerDomain / 1000)}s`
+                        : `${batch.avgProcessingTimePerDomain}ms`
+                      }
+                    </p>
+                    <p className="text-xs text-gray-500">time</p>
                   </div>
                 </div>
               </div>

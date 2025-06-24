@@ -83,6 +83,8 @@ export class BatchProcessor {
   }
 
   private async processDomain(domain: Domain): Promise<void> {
+    const startTime = Date.now();
+    
     try {
       // Skip if already processed successfully (from cache)
       if (domain.status === 'success') {
@@ -90,19 +92,26 @@ export class BatchProcessor {
         return;
       }
 
-      // Mark as processing
-      await storage.updateDomain(domain.id, { status: 'processing' });
+      // Mark as processing and record start time
+      await storage.updateDomain(domain.id, { 
+        status: 'processing',
+        processingStartedAt: new Date()
+      });
 
       // Check if we already have a high-confidence result for this domain
       const existingHighConfidence = await storage.getHighConfidenceResult(domain.domain);
       
       if (existingHighConfidence && existingHighConfidence.id !== domain.id) {
+        const processingTime = Date.now() - startTime;
+        
         // Use existing high-confidence result
         await storage.updateDomain(domain.id, {
           status: 'success',
           companyName: existingHighConfidence.companyName,
           extractionMethod: existingHighConfidence.extractionMethod + '_cached',
           confidenceScore: existingHighConfidence.confidenceScore,
+          processedAt: new Date(),
+          processingTimeMs: processingTime,
         });
         
         this.processedCount++;
@@ -113,26 +122,38 @@ export class BatchProcessor {
       const result = await this.extractor.extractCompanyName(domain.domain);
 
       if (result.companyName && result.confidence >= 70) {
+        const processingTime = Date.now() - startTime;
+        
         await storage.updateDomain(domain.id, {
           status: 'success',
           companyName: result.companyName,
           extractionMethod: result.method,
           confidenceScore: result.confidence,
+          processedAt: new Date(),
+          processingTimeMs: processingTime,
         });
         this.processedCount++;
       } else {
+        const processingTime = Date.now() - startTime;
+        
         await storage.updateDomain(domain.id, {
           status: 'failed',
           errorMessage: result.error || 'Low confidence extraction',
           retryCount: domain.retryCount + 1,
+          processedAt: new Date(),
+          processingTimeMs: processingTime,
         });
       }
 
     } catch (error: any) {
+      const processingTime = Date.now() - startTime;
+      
       await storage.updateDomain(domain.id, {
         status: 'failed',
         errorMessage: error.message,
         retryCount: domain.retryCount + 1,
+        processedAt: new Date(),
+        processingTimeMs: processingTime,
       });
     }
   }

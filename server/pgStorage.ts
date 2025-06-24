@@ -330,12 +330,10 @@ export class PostgreSQLStorage implements IStorage {
         ? Math.round((domainMappingCount / successful.length) * 100)
         : 0;
 
-      // Processing time per domain
-      const processingTime = batch.completedAt && batch.uploadedAt 
-        ? new Date(batch.completedAt).getTime() - new Date(batch.uploadedAt).getTime()
-        : 0;
-      const avgProcessingTimePerDomain = batch.totalDomains > 0 
-        ? Math.round(processingTime / batch.totalDomains)
+      // Processing time per domain (using actual recorded times)
+      const domainsWithTiming = batchDomains.filter(d => d.processingTimeMs && d.processingTimeMs > 0);
+      const avgProcessingTimePerDomain = domainsWithTiming.length > 0
+        ? Math.round(domainsWithTiming.reduce((sum, d) => sum + (d.processingTimeMs || 0), 0) / domainsWithTiming.length)
         : 0;
 
       // High confidence percentage (90%+)
