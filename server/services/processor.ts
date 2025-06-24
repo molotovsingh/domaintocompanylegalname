@@ -136,20 +136,16 @@ export class BatchProcessor {
       } else {
         const processingTime = Date.now() - startTime;
         
-        // Classify failure type for better KPI tracking
-        let status = 'failed';
+        // Enhanced error message with connectivity info - but all count as failures
         let errorMessage = result.error || 'Low confidence extraction';
-        
         if (result.connectivity === 'unreachable') {
-          status = 'network_failed'; // Separate category for network issues
-          errorMessage = 'Domain unreachable - network/DNS issue';
+          errorMessage = 'Domain unreachable - bad website/network issue';
         } else if (result.connectivity === 'reachable') {
-          status = 'extraction_failed'; // Pure extraction failure
           errorMessage = 'Domain accessible but no extractable company information';
         }
         
         await storage.updateDomain(domain.id, {
-          status,
+          status: 'failed', // All failures count equally
           errorMessage,
           retryCount: domain.retryCount + 1,
           processedAt: new Date(),

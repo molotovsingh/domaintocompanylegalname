@@ -120,7 +120,7 @@ export class PostgreSQLStorage implements IStorage {
 
     const processedDomainsResult = await db.select({ count: count() })
       .from(domains)
-      .where(sql`${domains.status} IN ('success', 'failed', 'extraction_failed', 'network_failed')`);
+      .where(sql`${domains.status} IN ('success', 'failed')`);
     const processedDomains = processedDomainsResult[0]?.count || 0;
 
     const successfulDomainsResult = await db.select({ count: count() })
@@ -128,15 +128,8 @@ export class PostgreSQLStorage implements IStorage {
       .where(eq(domains.status, 'success'));
     const successfulDomains = successfulDomainsResult[0]?.count || 0;
 
-    const networkFailedResult = await db.select({ count: count() })
-      .from(domains)
-      .where(eq(domains.status, 'network_failed'));
-    const networkFailedDomains = networkFailedResult[0]?.count || 0;
-
-    // Calculate success rate excluding network failures (infrastructure issues)
-    const extractionAttempts = processedDomains - networkFailedDomains;
-    const successRate = extractionAttempts > 0 
-      ? Math.round((successfulDomains / extractionAttempts) * 1000) / 10 
+    const successRate = processedDomains > 0 
+      ? Math.round((successfulDomains / processedDomains) * 1000) / 10 
       : 0;
 
     // Calculate processing rate and ETA
@@ -162,30 +155,20 @@ export class PostgreSQLStorage implements IStorage {
   async getProcessedCount(): Promise<number> {
     const result = await db.select({ count: count() })
       .from(domains)
-      .where(sql`${domains.status} IN ('success', 'failed', 'extraction_failed', 'network_failed')`);
+      .where(sql`${domains.status} IN ('success', 'failed')`);
     return result[0]?.count || 0;
   }
 
   async getSuccessRate(): Promise<number> {
-    const processedResult = await db.select({ count: count() })
-      .from(domains)
-      .where(sql`${domains.status} IN ('success', 'failed', 'extraction_failed', 'network_failed')`);
-    const processed = processedResult[0]?.count || 0;
-
-    const networkFailedResult = await db.select({ count: count() })
-      .from(domains)
-      .where(eq(domains.status, 'network_failed'));
-    const networkFailed = networkFailedResult[0]?.count || 0;
-
-    const extractionAttempts = processed - networkFailed;
-    if (extractionAttempts === 0) return 0;
+    const processed = await this.getProcessedCount();
+    if (processed === 0) return 0;
 
     const successfulResult = await db.select({ count: count() })
       .from(domains)
       .where(eq(domains.status, 'success'));
     const successful = successfulResult[0]?.count || 0;
 
-    return Math.round((successful / extractionAttempts) * 1000) / 10;
+    return Math.round((successful / processed) * 1000) / 10;
   }
 
   // Session Results
