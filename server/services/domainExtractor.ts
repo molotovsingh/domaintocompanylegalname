@@ -184,7 +184,8 @@ export class DomainExtractor {
       return subPageResult;
     }
 
-    // HTML title extraction removed - proven unreliable source of marketing content
+    // HTML title extraction completely removed - proven unreliable source of marketing content
+    // Now only uses authoritative sources: Domain mappings → About Us → Legal pages → Domain parsing
     
     // Try about section extraction (high-confidence legal entities)
     const aboutSelectors = [
@@ -641,9 +642,7 @@ export class DomainExtractor {
       case 'html_subpage':
         confidence += 30; // Good confidence for sub-pages
         break;
-      case 'html_title':
-        confidence += 25;
-        break;
+      // html_title method removed - unreliable source
       case 'meta_description':
         confidence += 20;
         break;
