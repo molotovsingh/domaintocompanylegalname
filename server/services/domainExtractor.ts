@@ -900,6 +900,12 @@ export class DomainExtractor {
             !companyName.toLowerCase().includes('menu') &&
             !companyName.toLowerCase().includes('button') &&
             !companyName.toLowerCase().includes('click') &&
+            !companyName.toLowerCase().includes('loading') &&
+            !companyName.toLowerCase().includes('class') &&
+            !companyName.toLowerCase().includes('forminator') &&
+            !companyName.toLowerCase().includes('message') &&
+            !companyName.includes('""') &&
+            !companyName.includes('=') &&
             this.isValidCompanyName(companyName) && 
             !this.isMarketingContent(companyName)) {
           
