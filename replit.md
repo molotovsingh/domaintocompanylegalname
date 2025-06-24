@@ -84,6 +84,7 @@ A production-scale web application for extracting company names from domain list
 - Added Canadian legal entity recognition: Inc., Ltd., Corp., P.C., LP, LLP, Co-op, Trust, Ltée (Quebec French variants)
 - Added Brazilian legal entity recognition: Ltda., S.A., SLU, EIRELI, MEI, Cooperativa, Fundação, Associação
 - Added Irish legal entity recognition: Ltd, DAC, PLC, CLG, UC, ULC, LP, Society, Trust (comprehensive Companies Act 2014 compliance)
+- Added Italian legal entity recognition: S.p.A., S.r.l., S.r.l.s., S.n.c., S.a.s., S.a.p.a., Soc. Coop., Fondazione (Italian Civil Code compliance)
 - CRITICAL FIX: Implemented global penalty system for missing legal suffixes (-25% confidence penalty)
 - Added 55+ French company domain mappings with proper legal entity names (SA, SE suffixes)
 - Fixed all false positives: Credit Agricole → Crédit Agricole SA, Saint-Gobain SA, etc.
