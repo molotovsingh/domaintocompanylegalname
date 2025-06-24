@@ -32,7 +32,6 @@ export class DomainExtractor {
       }
 
       // Early triage: Quick connectivity check before expensive HTML extraction
-      // Early triage: Quick connectivity check before expensive HTML extraction
       const connectivity = await this.checkConnectivity(cleanDomain);
       
       if (connectivity === 'unreachable') {
