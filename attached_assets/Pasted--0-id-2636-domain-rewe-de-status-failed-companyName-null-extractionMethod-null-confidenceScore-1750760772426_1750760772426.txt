@@ -1,0 +1,1237 @@
+	
+0	
+id	2636
+domain	"rewe.de"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.805Z"
+processedAt	null
+1	
+id	2635
+domain	"lidl.com"
+status	"success"
+companyName	"Lidl Stiftung & Co. KG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.804Z"
+processedAt	null
+2	
+id	2634
+domain	"bertelsmann.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.804Z"
+processedAt	null
+3	
+id	2633
+domain	"dm.de"
+status	"success"
+companyName	"Dm"
+extractionMethod	"domain_parse"
+confidenceScore	75
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.800Z"
+processedAt	null
+4	
+id	2632
+domain	"aldi.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.798Z"
+processedAt	null
+5	
+id	2631
+domain	"rossmann.de"
+status	"success"
+companyName	"Dirk Rossmann GmbH"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.797Z"
+processedAt	null
+6	
+id	2630
+domain	"metro-ag.de"
+status	"success"
+companyName	"Metro AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.796Z"
+processedAt	null
+7	
+id	2627
+domain	"otto.de"
+status	"success"
+companyName	"Otto GmbH & Co KG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.794Z"
+processedAt	null
+8	
+id	2628
+domain	"heidelberg.com"
+status	"success"
+companyName	"Heidelberger Druckmaschinen AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.793Z"
+processedAt	null
+9	
+id	2629
+domain	"united-internet.de"
+status	"success"
+companyName	"United Internet"
+extractionMethod	"domain_parse_cached"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.792Z"
+processedAt	null
+10	
+id	2626
+domain	"rtl.com"
+status	"success"
+companyName	"RTL Group"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.789Z"
+processedAt	null
+11	
+id	2625
+domain	"wirecard.com"
+status	"success"
+companyName	"Wirecard AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.787Z"
+processedAt	null
+12	
+id	2624
+domain	"prosiebensat1.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.785Z"
+processedAt	null
+13	
+id	2623
+domain	"evotec.com"
+status	"success"
+companyName	"Evotec SE"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.783Z"
+processedAt	null
+14	
+id	2622
+domain	"morphosys.com"
+status	"success"
+companyName	"MorphoSys AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.783Z"
+processedAt	null
+15	
+id	2620
+domain	"springer.com"
+status	"success"
+companyName	"Springer Nature"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.783Z"
+processedAt	null
+16	
+id	2619
+domain	"rocket-internet.com"
+status	"success"
+companyName	"Rocket Internet"
+extractionMethod	"domain_parse_cached"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.783Z"
+processedAt	null
+17	
+id	2621
+domain	"kuka.com"
+status	"success"
+companyName	"KUKA AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.783Z"
+processedAt	null
+18	
+id	2618
+domain	"trumpf.com"
+status	"success"
+companyName	"TRUMPF SE + Co. KG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.781Z"
+processedAt	null
+19	
+id	2616
+domain	"osram.com"
+status	"success"
+companyName	"OSRAM GmbH"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.779Z"
+processedAt	null
+20	
+id	2615
+domain	"carl-zeiss.com"
+status	"success"
+companyName	"Carl Zeiss AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.777Z"
+processedAt	null
+21	
+id	2617
+domain	"1und1.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.776Z"
+processedAt	null
+22	
+id	2612
+domain	"qiagen.com"
+status	"success"
+companyName	"QIAGEN GmbH"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.774Z"
+processedAt	null
+23	
+id	2611
+domain	"leica-microsystems.com"
+status	"success"
+companyName	"Leica Microsystems GmbH"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.773Z"
+processedAt	null
+24	
+id	2614
+domain	"hellofresh.com"
+status	"success"
+companyName	"HelloFresh SE"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.770Z"
+processedAt	null
+25	
+id	2613
+domain	"delivery-hero.com"
+status	"success"
+companyName	"Delivery Hero SE"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.770Z"
+processedAt	null
+26	
+id	2610
+domain	"teamviewer.com"
+status	"success"
+companyName	"TeamViewer SE"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.768Z"
+processedAt	null
+27	
+id	2609
+domain	"software-ag.com"
+status	"success"
+companyName	"Software AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.765Z"
+processedAt	null
+28	
+id	2608
+domain	"gerresheimer.com"
+status	"success"
+companyName	"Gerresheimer AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.763Z"
+processedAt	null
+29	
+id	2607
+domain	"puma.com"
+status	"success"
+companyName	"PUMA SE"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.762Z"
+processedAt	null
+30	
+id	2605
+domain	"zalando.com"
+status	"success"
+companyName	"Zalando SE"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.761Z"
+processedAt	null
+31	
+id	2606
+domain	"jenoptik.com"
+status	"success"
+companyName	"JENOPTIK AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.760Z"
+processedAt	null
+32	
+id	2604
+domain	"hugo-boss.com"
+status	"success"
+companyName	"HUGO BOSS AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.760Z"
+processedAt	null
+33	
+id	2603
+domain	"fielmann.com"
+status	"success"
+companyName	"Fielmann AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.755Z"
+processedAt	null
+34	
+id	2602
+domain	"pfeiffer-vacuum.com"
+status	"success"
+companyName	"Pfeiffer Vacuum Technology AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.753Z"
+processedAt	null
+35	
+id	2601
+domain	"varta-ag.com"
+status	"success"
+companyName	"VARTA AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.751Z"
+processedAt	null
+36	
+id	2600
+domain	"fuchs.com"
+status	"success"
+companyName	"Fuchs Petrolub SE"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.750Z"
+processedAt	null
+37	
+id	2599
+domain	"siltronic.com"
+status	"success"
+companyName	"Siltronic AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.748Z"
+processedAt	null
+38	
+id	2598
+domain	"krones.com"
+status	"success"
+companyName	"Krones AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.747Z"
+processedAt	null
+39	
+id	2597
+domain	"rational-online.com"
+status	"success"
+companyName	"RATIONAL AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.745Z"
+processedAt	null
+40	
+id	2596
+domain	"aixtron.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.744Z"
+processedAt	null
+41	
+id	2595
+domain	"gea.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.725Z"
+processedAt	null
+42	
+id	2594
+domain	"kion-group.com"
+status	"success"
+companyName	"Kion Group"
+extractionMethod	"domain_parse_cached"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.721Z"
+processedAt	null
+43	
+id	2593
+domain	"wacker.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.717Z"
+processedAt	null
+44	
+id	2592
+domain	"covestro.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.713Z"
+processedAt	null
+45	
+id	2591
+domain	"mtumaintenance.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.711Z"
+processedAt	null
+46	
+id	2590
+domain	"jungheinrich.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.708Z"
+processedAt	null
+47	
+id	2589
+domain	"schaeffler.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.706Z"
+processedAt	null
+48	
+id	2588
+domain	"edeka.de"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.693Z"
+processedAt	null
+49	
+id	2587
+domain	"deutsche-boerse.com"
+status	"success"
+companyName	"Deutsche Boerse"
+extractionMethod	"domain_parse_cached"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.691Z"
+processedAt	null
+50	
+id	2585
+domain	"lanxess.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.687Z"
+processedAt	null
+51	
+id	2586
+domain	"brenntag.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.687Z"
+processedAt	null
+52	
+id	2584
+domain	"evonik.com"
+status	"success"
+companyName	"Evonik Industries AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.684Z"
+processedAt	null
+53	
+id	2583
+domain	"symrise.com"
+status	"success"
+companyName	"Symrise AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.684Z"
+processedAt	null
+54	
+id	2582
+domain	"fresenius-kabi.com"
+status	"success"
+companyName	"Fresenius Kabi"
+extractionMethod	"domain_parse_cached"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.683Z"
+processedAt	null
+55	
+id	2581
+domain	"hochtief.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.682Z"
+processedAt	null
+56	
+id	2580
+domain	"metro.de"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.679Z"
+processedAt	null
+57	
+id	2579
+domain	"knorr-bremse.com"
+status	"success"
+companyName	"Knorr Bremse"
+extractionMethod	"domain_parse_cached"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.677Z"
+processedAt	null
+58	
+id	2578
+domain	"sartorius.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.676Z"
+processedAt	null
+59	
+id	2576
+domain	"fresenius.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.674Z"
+processedAt	null
+60	
+id	2577
+domain	"nemetschek.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.673Z"
+processedAt	null
+61	
+id	2575
+domain	"rwe.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.671Z"
+processedAt	null
+62	
+id	2573
+domain	"zf.com"
+status	"success"
+companyName	"ZF Friedrichshafen AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.669Z"
+processedAt	null
+63	
+id	2574
+domain	"talanx.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.669Z"
+processedAt	null
+64	
+id	2572
+domain	"bosch.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.666Z"
+processedAt	null
+65	
+id	2571
+domain	"heidelbergmaterials.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.665Z"
+processedAt	null
+66	
+id	2570
+domain	"daimlertruck.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.663Z"
+processedAt	null
+67	
+id	2569
+domain	"dzbank.de"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.663Z"
+processedAt	null
+68	
+id	2567
+domain	"dhl.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.660Z"
+processedAt	null
+69	
+id	2566
+domain	"biontech.de"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.660Z"
+processedAt	null
+70	
+id	2568
+domain	"phoenix-pharmahandel.de"
+status	"success"
+companyName	"Phoenix Pharmahandel"
+extractionMethod	"domain_parse_cached"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.660Z"
+processedAt	null
+71	
+id	2565
+domain	"vonovia.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.658Z"
+processedAt	null
+72	
+id	2564
+domain	"enbw.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.658Z"
+processedAt	null
+73	
+id	2562
+domain	"continental.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.656Z"
+processedAt	null
+74	
+id	2561
+domain	"rheinmetall.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.654Z"
+processedAt	null
+75	
+id	2563
+domain	"uniper.energy"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.653Z"
+processedAt	null
+76	
+id	2560
+domain	"lbbw.de"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.650Z"
+processedAt	null
+77	
+id	2558
+domain	"deutsche-bahn.com"
+status	"success"
+companyName	"Deutsche Bahn"
+extractionMethod	"domain_parse_cached"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.649Z"
+processedAt	null
+78	
+id	2559
+domain	"db.com"
+status	"success"
+companyName	"Db"
+extractionMethod	"domain_parse"
+confidenceScore	75
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.648Z"
+processedAt	null
+79	
+id	2557
+domain	"commerzbank.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.648Z"
+processedAt	null
+80	
+id	2555
+domain	"hannover-re.com"
+status	"success"
+companyName	"Hannover Re"
+extractionMethod	"domain_parse_cached"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.646Z"
+processedAt	null
+81	
+id	2556
+domain	"lufthansa.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.645Z"
+processedAt	null
+82	
+id	2554
+domain	"merckgroup.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.644Z"
+processedAt	null
+83	
+id	2553
+domain	"thyssenkrupp.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.642Z"
+processedAt	null
+84	
+id	2552
+domain	"siemens.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.642Z"
+processedAt	null
+85	
+id	2551
+domain	"siemens-energy.com"
+status	"success"
+companyName	"Siemens Energy AG"
+extractionMethod	"domain_parse_cached"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.641Z"
+processedAt	null
+86	
+id	2550
+domain	"beiersdorf.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.640Z"
+processedAt	null
+87	
+id	2549
+domain	"henkel.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.639Z"
+processedAt	null
+88	
+id	2548
+domain	"volkswagen.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.636Z"
+processedAt	null
+89	
+id	2547
+domain	"basf.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.636Z"
+processedAt	null
+90	
+id	2546
+domain	"allianz.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.635Z"
+processedAt	null
+91	
+id	2545
+domain	"bayer.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.631Z"
+processedAt	null
+92	
+id	2544
+domain	"eon.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.630Z"
+processedAt	null
+93	
+id	2543
+domain	"hapag-lloyd.com"
+status	"success"
+companyName	"Hapag Lloyd"
+extractionMethod	"domain_parse_cached"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.630Z"
+processedAt	null
+94	
+id	2542
+domain	"infineon.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.629Z"
+processedAt	null
+95	
+id	2541
+domain	"mercedes-benz.com"
+status	"success"
+companyName	"Mercedes Benz"
+extractionMethod	"domain_parse_cached"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.627Z"
+processedAt	null
+96	
+id	2540
+domain	"telekom.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.626Z"
+processedAt	null
+97	
+id	2539
+domain	"adidas.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.624Z"
+processedAt	null
+98	
+id	2538
+domain	"siemens-healthineers.com"
+status	"success"
+companyName	"Siemens Healthineers"
+extractionMethod	"domain_parse_cached"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.622Z"
+processedAt	null
+99	
+id	2537
+domain	"bmw.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.621Z"
+processedAt	null
+100	
+id	2536
+domain	"porsche.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.619Z"
+processedAt	null
+101	
+id	2535
+domain	"munichre.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.618Z"
+processedAt	null
+102	
+id	2534
+domain	"sap.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Low confidence extraction"
+batchId	"VlaCynyA5Tum2S91NmtNn"
+createdAt	"2025-06-24T09:59:16.573Z"
+processedAt	null

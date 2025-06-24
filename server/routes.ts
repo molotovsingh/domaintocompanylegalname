@@ -256,25 +256,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
 function parseDomainFile(content: string, filename: string): string[] {
   const isCSV = filename.toLowerCase().endsWith('.csv');
   
+  console.log(`Parsing file: ${filename}, isCSV: ${isCSV}, content length: ${content.length}`);
+  
+  let lines: string[];
   if (isCSV) {
-    return content
+    lines = content
       .split('\n')
       .map(line => line.split(',')[0]?.trim()) // Take first column
-      .filter(domain => domain && isValidDomain(domain));
+      .filter(line => line && line.length > 0);
   } else {
     // Text file - one domain per line
-    return content
+    lines = content
       .split('\n')
       .map(line => line.trim())
-      .filter(domain => domain && isValidDomain(domain));
+      .filter(line => line && line.length > 0);
   }
+  
+  console.log(`Found ${lines.length} non-empty lines`);
+  
+  const validDomains = lines.filter(domain => isValidDomain(domain));
+  console.log(`${validDomains.length} domains passed validation out of ${lines.length} total lines`);
+  
+  // Log first few invalid domains for debugging
+  const invalidDomains = lines.filter(domain => !isValidDomain(domain)).slice(0, 5);
+  if (invalidDomains.length > 0) {
+    console.log(`First few invalid domains:`, invalidDomains);
+  }
+  
+  return validDomains;
 }
 
 // Helper function to validate domain
 function isValidDomain(domain: string): boolean {
-  const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}$/;
-  const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
-  return domainRegex.test(cleanDomain);
+  if (!domain || typeof domain !== 'string') return false;
+  
+  // Clean the domain first
+  const cleanDomain = domain
+    .replace(/^https?:\/\//, '')     // Remove protocol
+    .replace(/^www\./, '')           // Remove www
+    .split('/')[0]                   // Take only domain part
+    .trim()                          // Remove whitespace
+    .toLowerCase();                  // Normalize case
+  
+  // More permissive regex - allow single character domains and broader TLDs
+  const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.([a-zA-Z]{2,}|[a-zA-Z]{2,}\.[a-zA-Z]{2,})$/;
+  const isValid = domainRegex.test(cleanDomain);
+  
+  // Debug logging for domain validation issues
+  if (!isValid && domain.trim().length > 0) {
+    console.log(`Domain validation failed for: "${domain}" -> cleaned: "${cleanDomain}"`);
+  }
+  
+  return isValid;
 }
 
 // Helper function to convert domains to CSV
