@@ -67,6 +67,12 @@ export default function FileUpload({ onBatchUploaded }: FileUploadProps) {
       }, 200);
 
       const response = await apiRequest('POST', '/api/upload', formData);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
+      }
+      
       const result = await response.json();
 
       clearInterval(progressInterval);
@@ -79,6 +85,21 @@ export default function FileUpload({ onBatchUploaded }: FileUploadProps) {
 
       onBatchUploaded(result.batchId);
       setSelectedFile(null);
+      
+      // Start processing automatically
+      try {
+        await apiRequest('POST', `/api/process/${result.batchId}`);
+        toast({
+          title: "Processing started",
+          description: "Domain extraction has begun",
+        });
+      } catch (processError: any) {
+        toast({
+          title: "Processing start failed",
+          description: processError.message,
+          variant: "destructive",
+        });
+      }
 
     } catch (error: any) {
       toast({

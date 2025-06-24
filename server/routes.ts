@@ -31,7 +31,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const content = req.file.buffer.toString('utf-8');
-      const domains = this.parseDomainFile(content, req.file.originalname);
+      const domains = parseDomainFile(content, req.file.originalname);
       
       if (domains.length === 0) {
         return res.status(400).json({ error: 'No valid domains found in file' });
@@ -146,7 +146,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(domains);
       } else {
         // CSV format
-        const csvContent = this.domainsToCSV(domains);
+        const csvContent = domainsToCSV(domains);
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', `attachment; filename="domains_${batchId}.csv"`);
         res.send(csvContent);
