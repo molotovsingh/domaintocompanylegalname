@@ -48,6 +48,9 @@ A production-scale web application for extracting company names from domain list
 - Database provides duplicate detection, cross-batch intelligence, and permanent session results
 - Added comprehensive Analytics Dashboard with time-based performance tracking
 - Multi-metric visualization showing confidence trends, success rates, processing efficiency, and extraction method usage
+- Enhanced Chinese company domain mappings with proper Fortune 500 entities and state-owned enterprises
+- Fixed confidence scoring for known global companies (95% for domain mapping vs 55% for generic parsing)
+- Added comprehensive Chinese corporate structure recognition (Co. Ltd., Group Ltd., etc.)
 
 ## User Preferences
 - Professional interface without excessive technical jargon
