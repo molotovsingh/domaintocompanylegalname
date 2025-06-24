@@ -33,69 +33,34 @@ export class DomainExtractor {
 
   private async extractFromHTML(url: string): Promise<ExtractionResult> {
     try {
-      const response = await axios.get(url, {
-        timeout: this.timeout,
-        headers: {
-          'User-Agent': this.userAgent,
-        },
-        maxRedirects: 5,
-      });
-
-      const $ = cheerio.load(response.data);
-      
-      // Try title tag first
-      const title = $('title').text().trim();
-      if (title) {
-        const companyName = this.cleanCompanyName(title);
-        if (companyName && this.isValidCompanyName(companyName)) {
-          return {
-            companyName,
-            method: 'html_title',
-            confidence: this.calculateConfidence(companyName, 'html_title'),
-          };
-        }
+      // First try the main page
+      const mainResult = await this.extractFromPage(url);
+      if (mainResult.companyName && this.isValidCompanyName(mainResult.companyName)) {
+        return mainResult;
       }
       
-      // Try meta description
-      const metaDescription = $('meta[name="description"]').attr('content');
-      if (metaDescription) {
-        const companyName = this.extractCompanyFromText(metaDescription);
-        if (companyName && this.isValidCompanyName(companyName)) {
-          return {
-            companyName,
-            method: 'meta_description',
-            confidence: this.calculateConfidence(companyName, 'meta_description'),
-          };
-        }
-      }
+      // If main page didn't work, try sub-pages
+      const baseUrl = url.replace(/\/$/, '');
+      const subPages = ['/about', '/about-us', '/company', '/terms', '/legal'];
       
-      // Try other common selectors
-      const selectors = [
-        'h1',
-        '.company-name',
-        '#company-name',
-        '.brand',
-        '.logo',
-        'header h1',
-        'nav .brand',
-      ];
-      
-      for (const selector of selectors) {
-        const element = $(selector).first();
-        if (element.length) {
-          const text = element.text().trim();
-          const companyName = this.cleanCompanyName(text);
-          if (companyName && this.isValidCompanyName(companyName)) {
-            return {
-              companyName,
-              method: 'html_title',
-              confidence: this.calculateConfidence(companyName, 'html_title', url.replace(/^https?:\/\//, '')) - 10,
-            };
+      for (const subPath of subPages) {
+        try {
+          const subPageUrl = `${baseUrl}${subPath}`;
+          const subResult = await this.extractFromPage(subPageUrl);
+          if (subResult.companyName && this.isValidCompanyName(subResult.companyName)) {
+            // Mark as sub-page extraction for confidence adjustment
+            subResult.method = 'html_subpage';
+            subResult.confidence = Math.min(subResult.confidence + 10, 95); // Bonus for sub-page legal content
+            return subResult;
           }
+        } catch {
+          // Continue to next sub-page if this one fails
+          continue;
         }
       }
       
-      return { companyName: null, method: 'html_title', confidence: 0 };
+      // Return main page result even if low quality
+      return mainResult;
     } catch (error) {
       return { 
         companyName: null, 
@@ -104,6 +69,119 @@ export class DomainExtractor {
         error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
+  }
+
+  private async extractFromPage(url: string): Promise<ExtractionResult> {
+    const response = await axios.get(url, {
+      timeout: this.timeout,
+      headers: {
+        'User-Agent': this.userAgent,
+      },
+      maxRedirects: 5,
+    });
+
+    const $ = cheerio.load(response.data);
+    
+    // Try title tag first
+    const title = $('title').text().trim();
+    if (title) {
+      const companyName = this.cleanCompanyName(title);
+      if (companyName && this.isValidCompanyName(companyName)) {
+        return {
+          companyName,
+          method: 'html_title',
+          confidence: this.calculateConfidence(companyName, 'html_title'),
+        };
+      }
+    }
+    
+    // Try about section extraction (high-confidence legal entities)
+    const aboutSelectors = [
+      'section[class*="about"] p:first-of-type',
+      '.about-section p:first-of-type',
+      '#about p:first-of-type',
+      '[class*="company-info"] p:first-of-type',
+      '[class*="about"] h1',
+      '[class*="company"] h1'
+    ];
+    
+    for (const selector of aboutSelectors) {
+      const element = $(selector).first();
+      if (element.length) {
+        const text = element.text().trim();
+        const companyName = this.extractCompanyFromAboutText(text);
+        if (companyName && this.isValidCompanyName(companyName)) {
+          return {
+            companyName,
+            method: 'html_about',
+            confidence: this.calculateConfidence(companyName, 'html_about'),
+          };
+        }
+      }
+    }
+    
+    // Try legal/terms content extraction
+    const legalSelectors = [
+      '[class*="legal"] p:first-of-type',
+      '[class*="terms"] p:first-of-type',
+      'footer p:first-of-type'
+    ];
+    
+    for (const selector of legalSelectors) {
+      const element = $(selector).first();
+      if (element.length) {
+        const text = element.text().trim();
+        const companyName = this.extractCompanyFromLegalText(text);
+        if (companyName && this.isValidCompanyName(companyName)) {
+          return {
+            companyName,
+            method: 'html_legal',
+            confidence: this.calculateConfidence(companyName, 'html_legal'),
+          };
+        }
+      }
+    }
+    
+    // Try meta description
+    const metaDescription = $('meta[name="description"]').attr('content');
+    if (metaDescription) {
+      const companyName = this.extractCompanyFromText(metaDescription);
+      if (companyName && this.isValidCompanyName(companyName)) {
+        return {
+          companyName,
+          method: 'meta_description',
+          confidence: this.calculateConfidence(companyName, 'meta_description'),
+        };
+      }
+    }
+    
+    // Try other common selectors
+    const selectors = [
+      'h1',
+      '.company-name',
+      '#company-name',
+      '.brand',
+      '.logo',
+      'header h1',
+      'nav .brand',
+    ];
+    
+    for (const selector of selectors) {
+      const element = $(selector).first();
+      if (element.length) {
+        const text = element.text().trim();
+        const companyName = this.cleanCompanyName(text);
+        if (companyName && this.isValidCompanyName(companyName)) {
+          return {
+            companyName,
+            method: 'html_title',
+            confidence: this.calculateConfidence(companyName, 'html_title') - 10,
+          };
+        }
+      }
+    }
+    
+    return { companyName: null, method: 'html_title', confidence: 0 };
   }
 
   private extractFromDomain(domain: string): ExtractionResult {
@@ -344,8 +422,17 @@ export class DomainExtractor {
     
     // Method-based confidence
     switch (method) {
+      case 'html_about':
+        confidence += 35; // High confidence for about sections
+        break;
+      case 'html_legal':
+        confidence += 40; // Highest confidence for legal content
+        break;
+      case 'html_subpage':
+        confidence += 30; // Good confidence for sub-pages
+        break;
       case 'html_title':
-        confidence += 30;
+        confidence += 25;
         break;
       case 'meta_description':
         confidence += 20;
@@ -355,14 +442,19 @@ export class DomainExtractor {
         break;
     }
     
+    // Legal suffix bonus (strong indicator of proper company name)
+    if (/\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?|Group|Holdings)\b/i.test(companyName)) {
+      confidence += 15;
+    }
+    
     // Length-based confidence
-    if (companyName.length >= 3 && companyName.length <= 30) {
+    if (companyName.length >= 3 && companyName.length <= 40) {
       confidence += 10;
     }
     
     // Word count confidence
     const wordCount = companyName.split(/\s+/).length;
-    if (wordCount >= 1 && wordCount <= 4) {
+    if (wordCount >= 1 && wordCount <= 5) {
       confidence += 10;
     }
     
