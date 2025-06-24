@@ -48,7 +48,7 @@ export class DomainExtractor {
       const url = `https://${cleanDomain}`;
       const htmlResult = await this.extractFromHTML(url);
       
-      if (htmlResult.companyName && this.isValidCompanyName(htmlResult.companyName)) {
+      if (htmlResult.companyName && htmlResult.confidence >= 60 && this.isValidCompanyName(htmlResult.companyName)) {
         return {
           ...htmlResult,
           connectivity: 'reachable'
@@ -254,9 +254,9 @@ export class DomainExtractor {
 
   private async extractFromHTML(url: string): Promise<ExtractionResult> {
     try {
-      // First try the main page
+      // First try the main page (includes footer extraction)
       const mainResult = await this.extractFromPage(url);
-      if (mainResult.companyName && this.isValidCompanyName(mainResult.companyName)) {
+      if (mainResult.companyName && mainResult.confidence >= 60 && this.isValidCompanyName(mainResult.companyName)) {
         return mainResult;
       }
       
@@ -268,7 +268,7 @@ export class DomainExtractor {
         try {
           const subPageUrl = `${baseUrl}${subPath}`;
           const subResult = await this.extractFromPage(subPageUrl);
-          if (subResult.companyName && this.isValidCompanyName(subResult.companyName)) {
+          if (subResult.companyName && subResult.confidence >= 60 && this.isValidCompanyName(subResult.companyName)) {
             // Mark as sub-page extraction for confidence adjustment
             subResult.method = 'html_subpage';
             subResult.confidence = Math.min(subResult.confidence + 10, 95); // Bonus for sub-page legal content
@@ -305,7 +305,7 @@ export class DomainExtractor {
     
     // Priority 1: Try enhanced footer copyright extraction first
     const footerResult = this.extractFromFooterCopyright($);
-    if (footerResult.companyName && footerResult.confidence >= 75) {
+    if (footerResult.companyName && footerResult.confidence >= 60) {
       return footerResult;
     }
     
