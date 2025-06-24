@@ -32,6 +32,8 @@ A production-scale web application for extracting company names from domain list
 - Enhanced company name extraction with proper legal entity names (June 24, 2025)
 - Added known company mappings for accurate Fortune 500 entity names
 - Improved extraction patterns to filter out error messages and generic content
+- Implemented for-profit vs institutional entity distinction per user guidance
+- Added confidence scoring based on legal suffixes and institutional patterns
 
 ## User Preferences
 - Professional interface without excessive technical jargon

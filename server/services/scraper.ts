@@ -150,6 +150,7 @@ export class CompanyNameExtractor {
 
     // Enhanced domain-to-company mapping for known entities
     const knownMappings: Record<string, string> = {
+      // FOR-PROFIT COMPANIES (with legal suffixes)
       'jnj': 'Johnson & Johnson',
       'jpmorganchase': 'JPMorgan Chase & Co.',
       'pg': 'The Procter & Gamble Company',
@@ -172,7 +173,21 @@ export class CompanyNameExtractor {
       'walmart': 'Walmart Inc.',
       'abc': 'Alphabet Inc.',
       'merck': 'Merck & Co., Inc.',
-      'visa': 'Visa Inc.'
+      'ge': 'General Electric Company',
+      'ibm': 'International Business Machines Corporation',
+      'intel': 'Intel Corporation',
+      'cisco': 'Cisco Systems, Inc.',
+      'oracle': 'Oracle Corporation',
+      'salesforce': 'Salesforce, Inc.',
+      'netflix': 'Netflix, Inc.',
+      'adobe': 'Adobe Inc.',
+      'paypal': 'PayPal Holdings, Inc.',
+      // INSTITUTIONS (no legal suffixes)
+      'harvard': 'Harvard University',
+      'mit': 'Massachusetts Institute of Technology',
+      'stanford': 'Stanford University',
+      'yale': 'Yale University',
+      'princeton': 'Princeton University'
     };
 
     // Check for known mapping first
@@ -233,7 +248,11 @@ export class CompanyNameExtractor {
       /world leader in/i,
       /global leader in/i,
       /spend less\. smile more/i,
-      /investor relations/i
+      /investor relations/i,
+      /pay, send and save money/i,
+      /ai infrastructure/i,
+      /secure networking/i,
+      /software solutions/i
     ];
     
     return invalidPatterns.some(pattern => pattern.test(text));
