@@ -44,7 +44,7 @@ export class DomainExtractor {
         };
       }
 
-      // Domain is reachable - proceed with HTML extraction
+      // Domain is reachable - proceed with HTML extraction (includes footer extraction)
       const url = `https://${cleanDomain}`;
       const htmlResult = await this.extractFromHTML(url);
       
