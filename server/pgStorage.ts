@@ -276,18 +276,23 @@ export class PostgreSQLStorage implements IStorage {
   }
 
   async getAllSessionResults(limit = 10, offset = 0): Promise<SessionResults[]> {
+    console.log('Getting all session results...');
     const allBatches = await this.getBatches(limit, offset);
+    console.log('Found batches:', allBatches.length);
     const results: SessionResults[] = [];
 
     for (const batch of allBatches) {
+      console.log('Processing batch:', batch.id, 'status:', batch.status);
       if (batch.status === 'completed') {
         const sessionResult = await this.getSessionResults(batch.id);
         if (sessionResult) {
           results.push(sessionResult);
+          console.log('Added session result for batch:', batch.id);
         }
       }
     }
 
+    console.log('Returning session results:', results.length);
     return results;
   }
 

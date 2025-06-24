@@ -35,10 +35,9 @@ interface SessionResults {
 }
 
 export default function SessionResults({ batchId }: SessionResultsProps) {
-  // If no specific batchId provided, get all session results and show the latest
+  // Always get all session results first
   const { data: allSessionResults, isLoading: loadingAll } = useQuery<SessionResults[]>({
     queryKey: ['/api/session-results'],
-    enabled: !batchId,
   });
 
   // If specific batchId provided, get that specific session
@@ -50,13 +49,21 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
   const isLoading = batchId ? loadingSpecific : loadingAll;
   
   // Determine which session results to display
-  const sessionResults = batchId 
-    ? (Array.isArray(specificSessionResult) 
-        ? specificSessionResult.find(result => result.batchId === batchId)
-        : specificSessionResult)
-    : (allSessionResults && allSessionResults.length > 0 
-        ? allSessionResults[0] // Show the most recent session
-        : null);
+  let sessionResults = null;
+  
+  if (batchId) {
+    // Show specific batch session
+    sessionResults = Array.isArray(specificSessionResult) 
+      ? specificSessionResult.find(result => result.batchId === batchId)
+      : specificSessionResult;
+  } else {
+    // Show the most recent session from all results
+    sessionResults = allSessionResults && allSessionResults.length > 0 
+      ? allSessionResults[0] 
+      : null;
+  }
+
+  console.log('SessionResults debug:', { batchId, allSessionResults: allSessionResults?.length, sessionResults: !!sessionResults, isLoading });
 
   if (isLoading) {
     return (
