@@ -28,6 +28,13 @@ export default function Dashboard() {
     refetchStats();
   };
 
+  // Auto-select the most recent batch if none is selected
+  useEffect(() => {
+    if (!currentBatchId && batches && batches.length > 0) {
+      setCurrentBatchId(batches[0].id);
+    }
+  }, [batches, currentBatchId]);
+
   return (
     <div className="min-h-screen bg-background font-sans">
       {/* Header */}
@@ -48,6 +55,11 @@ export default function Dashboard() {
                 <BarChart3 className="h-4 w-4" />
                 Analytics
               </Link>
+              {currentBatchId && (
+                <div className="text-xs text-gray-600">
+                  Current: {currentBatchId.substring(0, 8)}...
+                </div>
+              )}
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">Admin User</p>
                 <p className="text-xs text-gray-600">Administrator</p>
