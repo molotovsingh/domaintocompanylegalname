@@ -136,9 +136,17 @@ export class BatchProcessor {
       } else {
         const processingTime = Date.now() - startTime;
         
+        // Enhanced error message with connectivity info
+        let errorMessage = result.error || 'Low confidence extraction';
+        if (result.connectivity === 'unreachable') {
+          errorMessage = 'Domain unreachable - network/DNS issue';
+        } else if (result.connectivity === 'reachable') {
+          errorMessage = 'Domain accessible but no extractable company information';
+        }
+        
         await storage.updateDomain(domain.id, {
           status: 'failed',
-          errorMessage: result.error || 'Low confidence extraction',
+          errorMessage,
           retryCount: domain.retryCount + 1,
           processedAt: new Date(),
           processingTimeMs: processingTime,
@@ -150,7 +158,7 @@ export class BatchProcessor {
       
       await storage.updateDomain(domain.id, {
         status: 'failed',
-        errorMessage: error.message,
+        errorMessage: `Processing error: ${error.message}`,
         retryCount: domain.retryCount + 1,
         processedAt: new Date(),
         processingTimeMs: processingTime,

@@ -1,11 +1,15 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import { promisify } from 'util';
+import { exec } from 'child_process';
+const execAsync = promisify(exec);
 
 export interface ExtractionResult {
   companyName: string | null;
   method: 'html_title' | 'meta_description' | 'domain_parse';
   confidence: number;
   error?: string;
+  connectivity?: 'reachable' | 'unreachable' | 'unknown';
 }
 
 export class DomainExtractor {
@@ -36,8 +40,15 @@ export class DomainExtractor {
       // Fallback to domain parsing
       return this.extractFromDomain(domain);
     } catch (error) {
-      // Fallback to domain parsing on any error
-      return this.extractFromDomain(domain);
+      // Quick connectivity check for failed extractions
+      const connectivityResult = await this.checkConnectivity(cleanDomain);
+      const domainResult = this.extractFromDomain(cleanDomain);
+      
+      return {
+        ...domainResult,
+        connectivity: connectivityResult,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
     }
   }
 
