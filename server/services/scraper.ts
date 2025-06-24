@@ -23,38 +23,70 @@ export class CompanyNameExtractor {
 
   async extractCompanyName(domain: string): Promise<ExtractionResult> {
     try {
-      const url = domain.startsWith('http') ? domain : `https://${domain}`;
-      const response = await this.session.get(url);
-      const html = response.data;
-      
-      // Try HTML title extraction first
-      const titleResult = this.extractFromTitle(html);
-      if (titleResult.companyName && titleResult.confidence > 70) {
-        return titleResult;
+      // ALWAYS try domain mapping first - this is the most reliable method
+      const domainResult = this.extractFromDomain(domain);
+      if (domainResult.companyName && domainResult.confidence >= 85) {
+        return domainResult;
       }
 
-      // Try meta description extraction
-      const metaResult = this.extractFromMeta(html);
-      if (metaResult.companyName && metaResult.confidence > 60) {
-        return metaResult;
+      // For domains with known mappings (even lower confidence), strongly prefer them
+      if (domainResult.companyName && domainResult.confidence >= 45) {
+        // Only try HTML if we might get a legal entity name
+        try {
+          const url = domain.startsWith('http') ? domain : `https://${domain}`;
+          const response = await this.session.get(url);
+          const html = response.data;
+          
+          const titleResult = this.extractFromTitle(html);
+          // Only use HTML if it contains legal suffixes and very high confidence
+          if (titleResult.companyName && 
+              titleResult.confidence >= 95 && 
+              /\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?)\b/i.test(titleResult.companyName)) {
+            return titleResult;
+          }
+        } catch {
+          // Ignore HTML errors, use domain result
+        }
+        
+        return domainResult;
       }
 
-      // Fallback to domain parsing
-      const domainResult = this.extractFromDomain(domain);
-      return domainResult;
+      // For unknown domains, try HTML extraction with very strict validation
+      try {
+        const url = domain.startsWith('http') ? domain : `https://${domain}`;
+        const response = await this.session.get(url);
+        const html = response.data;
+        
+        const titleResult = this.extractFromTitle(html);
+        // Only accept HTML with legal suffixes
+        if (titleResult.companyName && 
+            titleResult.confidence >= 90 && 
+            /\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?)\b/i.test(titleResult.companyName)) {
+          return titleResult;
+        }
 
-    } catch (error: any) {
-      // Fallback to domain parsing on error
-      const domainResult = this.extractFromDomain(domain);
+        const metaResult = this.extractFromMeta(html);
+        if (metaResult.companyName && 
+            metaResult.confidence >= 85 && 
+            /\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?)\b/i.test(metaResult.companyName)) {
+          return metaResult;
+        }
+      } catch {
+        // HTML extraction failed, continue to domain fallback
+      }
+
+      // Return domain result even if low confidence
       if (domainResult.companyName) {
         return domainResult;
       }
 
+      return { companyName: null, method: 'none', confidence: 0 };
+    } catch (error) {
       return {
         companyName: null,
-        method: 'failed',
+        method: 'error',
         confidence: 0,
-        error: error.message || 'Failed to extract company name'
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
@@ -234,12 +266,12 @@ export class CompanyNameExtractor {
       'princeton': 'Princeton University'
     };
 
-    // Check for known mapping first
+    // Check for known mapping first - this is ALWAYS the preferred method
     if (knownMappings[cleanDomain.toLowerCase()]) {
       return {
         companyName: knownMappings[cleanDomain.toLowerCase()],
         method: 'domain_parse',
-        confidence: 90
+        confidence: 95
       };
     }
 

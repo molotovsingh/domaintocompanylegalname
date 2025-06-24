@@ -190,7 +190,6 @@ export class MemStorage implements IStorage {
     
     return Math.round((successful / processed) * 1000) / 10;
   }
-}
 
   async findExistingDomain(domain: string): Promise<Domain | undefined> {
     return Array.from(this.domains.values())
