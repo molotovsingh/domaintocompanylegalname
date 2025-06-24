@@ -1,0 +1,207 @@
+	
+0	
+domain	"jnj.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	11
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:15.800Z"
+companyName	"Johnson & Johnson"
+extractionMethod	"html_title"
+confidenceScore	85
+1	
+domain	"jpmorganchase.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	12
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:15.800Z"
+companyName	"JPMorgan Chase & Co."
+extractionMethod	"domain_parse"
+confidenceScore	90
+2	
+domain	"walmart.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	13
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:15.800Z"
+companyName	"Walmart Inc."
+extractionMethod	"domain_parse"
+confidenceScore	90
+3	
+domain	"pg.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	14
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:15.800Z"
+companyName	"Procter & Gamble"
+extractionMethod	"html_title"
+confidenceScore	85
+4	
+domain	"mastercard.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	15
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:15.800Z"
+companyName	"Mastercard Incorporated"
+extractionMethod	"domain_parse"
+confidenceScore	90
+5	
+domain	"broadcom.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	16
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:15.800Z"
+companyName	"Broadcom Inc."
+extractionMethod	"html_title"
+confidenceScore	95
+6	
+domain	"homedepot.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"processing"
+retryCount	0
+id	17
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:15.800Z"
+7	
+domain	"chevron.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	18
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:15.800Z"
+companyName	"Chevron Corporation"
+extractionMethod	"html_title"
+confidenceScore	95
+8	
+domain	"merck.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	19
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:15.800Z"
+companyName	"Merck"
+extractionMethod	"meta_description"
+confidenceScore	80
+9	
+domain	"apple.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	1
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:05.672Z"
+companyName	"Apple Inc."
+extractionMethod	"domain_parse"
+confidenceScore	90
+10	
+domain	"microsoft.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	2
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:05.672Z"
+companyName	"Microsoft Corporation"
+extractionMethod	"domain_parse"
+confidenceScore	90
+11	
+domain	"abc.xyz"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	3
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:05.672Z"
+companyName	"Alphabet Investor Relations"
+extractionMethod	"html_title"
+confidenceScore	85
+12	
+domain	"amazon.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	4
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:05.672Z"
+companyName	"Amazon.com, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	90
+13	
+domain	"nvidia.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	5
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:05.672Z"
+companyName	"NVIDIA Corporation"
+extractionMethod	"domain_parse"
+confidenceScore	90
+14	
+domain	"meta.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	6
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:05.672Z"
+companyName	"Meta Platforms, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	90
+15	
+domain	"berkshirehathaway.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	7
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:05.672Z"
+companyName	"BERKSHIRE HATHAWAY INC."
+extractionMethod	"html_title"
+confidenceScore	95
+16	
+domain	"tesla.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	8
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:05.672Z"
+companyName	"Tesla, Inc."
+extractionMethod	"domain_parse"
+confidenceScore	90
+17	
+domain	"lilly.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	9
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:05.672Z"
+companyName	"Eli Lilly and Company"
+extractionMethod	"domain_parse"
+confidenceScore	90
+18	
+domain	"visa.com"
+batchId	"vGo2xTS7iB9M2nf-DPhG9"
+status	"success"
+retryCount	0
+id	10
+createdAt	"2025-06-24T03:01:05.390Z"
+processedAt	"2025-06-24T03:01:05.672Z"
+companyName	"Visa"
+extractionMethod	"meta_description"
+confidenceScore	80

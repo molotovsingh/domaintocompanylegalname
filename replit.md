@@ -37,6 +37,7 @@ A production-scale web application for extracting company names from domain list
 - Professional interface without excessive technical jargon
 - Clear feedback on upload success/failure status
 - Real-time updates for processing progress
+- Focus on proper legal entity names: for-profit companies have suffixes (Inc., Corp., LLC, Ltd.) while institutions don't
 
 ## Technical Stack
 - React 18 with TypeScript

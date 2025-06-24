@@ -104,8 +104,10 @@ export class CompanyNameExtractor {
 
     // Enhanced patterns for legal entity extraction
     const companyPatterns = [
-      // Exact legal entity patterns
-      /^([A-Z][a-zA-Z\s&,.]+?(?:\s+Inc\.?|\s+LLC|\s+Corp\.?|\s+Corporation|\s+Ltd\.?|\s+Limited|\s+Company|\s+Co\.?))/,
+      // FOR-PROFIT: Exact legal entity patterns with suffixes
+      /^([A-Z][a-zA-Z\s&,.]+?(?:\s+Inc\.?|\s+LLC|\s+Corp\.?|\s+Corporation|\s+Ltd\.?|\s+Limited|\s+Company|\s+Co\.?|\s+PVT\.?\s+LTD\.?|\s+Pvt\.?\s+Ltd\.?))/,
+      // INSTITUTIONS: Educational and institutional patterns
+      /^([A-Z][a-zA-Z\s&,.]+?(?:\s+University|\s+College|\s+Institute|\s+Foundation|\s+School|\s+Hospital|\s+Medical\s+Center))/,
       // Company is/was patterns  
       /^([A-Z][a-zA-Z\s&,.]+?)\s+(?:is|was)\s+(?:a|an|the)/,
       // Welcome to patterns
@@ -168,7 +170,9 @@ export class CompanyNameExtractor {
       'mastercard': 'Mastercard Incorporated',
       'broadcom': 'Broadcom Inc.',
       'walmart': 'Walmart Inc.',
-      'abc': 'The Walt Disney Company'
+      'abc': 'Alphabet Inc.',
+      'merck': 'Merck & Co., Inc.',
+      'visa': 'Visa Inc.'
     };
 
     // Check for known mapping first
@@ -228,25 +232,33 @@ export class CompanyNameExtractor {
       /unauthorized/i,
       /world leader in/i,
       /global leader in/i,
-      /spend less\. smile more/i
+      /spend less\. smile more/i,
+      /investor relations/i
     ];
     
     return invalidPatterns.some(pattern => pattern.test(text));
   }
   
   private calculateTitleConfidence(companyName: string): number {
-    let confidence = 85;
+    let confidence = 75;
     
     if (companyName.length < 3) confidence = 20;
     else if (companyName.length < 10) confidence = 60;
     
-    // Higher confidence for proper legal entity suffixes
-    if (/\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?)\b/i.test(companyName)) {
+    // FOR-PROFIT COMPANIES: Higher confidence for proper legal entity suffixes
+    const forProfitSuffixes = /\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?|PVT\.?\s+LTD\.?|Pvt\.?\s+Ltd\.?|L\.?L\.?C\.?)\b/i;
+    if (forProfitSuffixes.test(companyName)) {
       confidence = 95;
     }
     
-    // Lower confidence for generic descriptive text
-    if (/\b(leader|world|global|best|top|premier|innovative)\b/i.test(companyName)) {
+    // INSTITUTIONS: Moderate confidence for educational/institutional patterns
+    const institutionalPatterns = /\b(University|College|Institute|Foundation|School|Hospital|Medical|Center|Association|Society|Department|Agency|Bureau|Commission)\b/i;
+    if (institutionalPatterns.test(companyName)) {
+      confidence = 85;
+    }
+    
+    // Lower confidence for generic descriptive text or marketing language
+    if (/\b(leader|world|global|best|top|premier|innovative|solutions|services|products)\b/i.test(companyName)) {
       confidence = Math.max(30, confidence - 40);
     }
     
