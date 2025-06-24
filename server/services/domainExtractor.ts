@@ -819,6 +819,63 @@ export class DomainExtractor {
     return Math.min(confidence, 100);
   }
 
+  private extractFromFooterCopyright($: any): ExtractionResult {
+    // Enhanced footer extraction focusing on copyright and legal entity patterns
+    const footerSelectors = [
+      'footer',
+      '.footer',
+      '#footer',
+      '[class*="footer"]',
+      '[id*="footer"]',
+      '.site-footer',
+      '.page-footer',
+      '.copyright',
+      '[class*="copyright"]',
+      '[id*="copyright"]'
+    ];
+    
+    let footerText = '';
+    for (const selector of footerSelectors) {
+      footerText += ' ' + $(selector).text();
+    }
+    
+    // Also check bottom of page content for copyright notices
+    const bodyText = $('body').text();
+    const bottomText = bodyText.slice(-2000); // Last 2000 characters
+    const combinedText = (footerText + ' ' + bottomText).toLowerCase();
+    
+    // Look for copyright patterns with legal entity suffixes
+    const copyrightPatterns = [
+      /copyright\s*©?\s*\d{4}[^a-z]*([^.]+?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg)[^.]*)/i,
+      /©\s*\d{4}[^a-z]*([^.]+?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg)[^.]*)/i,
+      /\d{4}[^a-z]+([^.]+?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg)[^.]*)/i
+    ];
+    
+    for (const pattern of copyrightPatterns) {
+      const match = combinedText.match(pattern);
+      if (match && match[1]) {
+        let companyName = match[1].trim()
+          .replace(/^\s*-\s*/, '')
+          .replace(/\s*all rights reserved.*$/i, '')
+          .replace(/\s*\.\s*$/, '')
+          .trim();
+        
+        // Clean up the extracted name
+        companyName = this.cleanCompanyName(companyName);
+        
+        if (companyName && this.isValidCompanyName(companyName) && companyName.length >= 3) {
+          return {
+            companyName,
+            method: 'footer_copyright',
+            confidence: this.calculateConfidence(companyName, 'footer_copyright')
+          };
+        }
+      }
+    }
+    
+    return { companyName: null, method: 'footer_copyright', confidence: 0 };
+  }
+
   private async checkConnectivity(domain: string): Promise<'reachable' | 'unreachable' | 'unknown'> {
     try {
       // Quick HTTP HEAD request (faster than GET, saves bandwidth)
