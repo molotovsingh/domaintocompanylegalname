@@ -863,7 +863,9 @@ export class DomainExtractor {
       /\d{4}[^a-z]+([^.]+?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg|apc|p\.c\.|pc|pllc)[^.]*)/i,
       // Direct legal entity patterns (law offices, etc.)
       /(law offices? of [^,]+?,?\s*(?:inc|corp|corporation|ltd|limited|llc|co\.|apc|p\.c\.|pc|pllc))/i,
-      /([^,]+?\s+(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg|apc|p\.c\.|pc|pllc))\s*(?:\d{4}|all rights)/i
+      /([^,]+?\s+(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg|apc|p\.c\.|pc|pllc))\s*(?:\d{4}|all rights)/i,
+      // Enhanced pattern for law offices without comma separator  
+      /(law offices? of [^0-9]+(?:inc|corp|corporation|ltd|limited|llc|co\.|apc|p\.c\.|pc|pllc))/i
     ];
     
     for (const pattern of legalEntityPatterns) {
