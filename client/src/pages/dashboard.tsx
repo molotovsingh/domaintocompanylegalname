@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Globe, User } from "lucide-react";
+import { Globe, User, BarChart3 } from "lucide-react";
+import { Link } from "wouter";
 import StatsCards from "@/components/stats-cards";
 import FileUpload from "@/components/file-upload";
 import ProcessingStatus from "@/components/processing-status";
@@ -42,6 +43,10 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <Link href="/analytics" className="flex items-center gap-2 px-3 py-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors">
+                <BarChart3 className="h-4 w-4" />
+                Analytics
+              </Link>
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">Admin User</p>
                 <p className="text-xs text-gray-600">Administrator</p>

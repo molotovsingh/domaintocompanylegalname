@@ -163,6 +163,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get analytics data for time-based performance tracking
+  app.get("/api/analytics", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = parseInt(req.query.offset as string) || 0;
+      
+      const analyticsData = await storage.getAnalyticsData(limit, offset);
+      res.json(analyticsData);
+    } catch (error) {
+      console.error('Analytics data error:', error);
+      res.status(500).json({ error: "Failed to get analytics data" });
+    }
+  });
+
   // Export results
   app.get("/api/export/:batchId", async (req, res) => {
     try {

@@ -88,5 +88,19 @@ export const sessionResultsSchema = z.object({
   failureReasons: z.record(z.number()),
 });
 
+export const analyticsDataSchema = z.object({
+  batchId: z.string(),
+  fileName: z.string(),
+  completedAt: z.string(),
+  totalDomains: z.number(),
+  successRate: z.number(),
+  medianConfidence: z.number(),
+  averageConfidence: z.number(),
+  domainMappingPercentage: z.number(),
+  avgProcessingTimePerDomain: z.number(),
+  highConfidencePercentage: z.number(),
+});
+
 export type ProcessingStats = z.infer<typeof processingStatsSchema>;
 export type SessionResults = z.infer<typeof sessionResultsSchema>;
+export type AnalyticsData = z.infer<typeof analyticsDataSchema>;

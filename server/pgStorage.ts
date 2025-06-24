@@ -3,7 +3,7 @@ import { db } from './db';
 import { domains, batches, activities } from '../shared/schema';
 import type { 
   InsertDomain, Domain, InsertBatch, Batch, InsertActivity, Activity, 
-  ProcessingStats, SessionResults 
+  ProcessingStats, SessionResults, AnalyticsData 
 } from '../shared/schema';
 import type { IStorage } from './storage';
 
@@ -254,6 +254,77 @@ export class PostgreSQLStorage implements IStorage {
     }
 
     return results;
+  }
+
+  // Analytics
+  async getAnalyticsData(limit = 50, offset = 0): Promise<AnalyticsData[]> {
+    const completedBatches = await db.select()
+      .from(batches)
+      .where(eq(batches.status, 'completed'))
+      .orderBy(desc(batches.completedAt))
+      .limit(limit)
+      .offset(offset);
+
+    const analyticsData: AnalyticsData[] = [];
+
+    for (const batch of completedBatches) {
+      const batchDomains = await this.getDomainsByBatch(batch.id, 1000);
+      const successful = batchDomains.filter(d => d.status === 'success');
+      
+      if (batchDomains.length === 0) continue;
+
+      // Calculate median confidence
+      const confidenceScores = successful
+        .map(d => d.confidenceScore || 0)
+        .filter(score => score > 0)
+        .sort((a, b) => a - b);
+      
+      const medianConfidence = confidenceScores.length > 0 
+        ? confidenceScores[Math.floor(confidenceScores.length / 2)]
+        : 0;
+
+      // Calculate average confidence
+      const avgConfidence = confidenceScores.length > 0
+        ? Math.round(confidenceScores.reduce((sum, score) => sum + score, 0) / confidenceScores.length)
+        : 0;
+
+      // Domain mapping percentage
+      const domainMappingCount = successful.filter(d => 
+        d.extractionMethod?.includes('domain_parse')).length;
+      const domainMappingPercentage = successful.length > 0 
+        ? Math.round((domainMappingCount / successful.length) * 100)
+        : 0;
+
+      // Processing time per domain
+      const processingTime = batch.completedAt && batch.uploadedAt 
+        ? new Date(batch.completedAt).getTime() - new Date(batch.uploadedAt).getTime()
+        : 0;
+      const avgProcessingTimePerDomain = batch.totalDomains > 0 
+        ? Math.round(processingTime / batch.totalDomains)
+        : 0;
+
+      // High confidence percentage (90%+)
+      const highConfidenceCount = successful.filter(d => 
+        d.confidenceScore && d.confidenceScore >= 90).length;
+      const highConfidencePercentage = successful.length > 0
+        ? Math.round((highConfidenceCount / successful.length) * 100)
+        : 0;
+
+      analyticsData.push({
+        batchId: batch.id,
+        fileName: batch.fileName,
+        completedAt: batch.completedAt || new Date().toISOString(),
+        totalDomains: batch.totalDomains,
+        successRate: Math.round((successful.length / batch.totalDomains) * 100),
+        medianConfidence,
+        averageConfidence: avgConfidence,
+        domainMappingPercentage,
+        avgProcessingTimePerDomain,
+        highConfidencePercentage,
+      });
+    }
+
+    return analyticsData;
   }
 }
 

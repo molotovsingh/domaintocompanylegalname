@@ -30,6 +30,9 @@ export interface IStorage {
   // Session Results
   getSessionResults(batchId: string): Promise<SessionResults | undefined>;
   getAllSessionResults(limit?: number, offset?: number): Promise<SessionResults[]>;
+  
+  // Analytics
+  getAnalyticsData(limit?: number, offset?: number): Promise<AnalyticsData[]>;
 }
 
 export class MemStorage implements IStorage {
