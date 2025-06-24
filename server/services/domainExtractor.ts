@@ -32,10 +32,13 @@ export class DomainExtractor {
       }
 
       // Early triage: Quick connectivity check before expensive HTML extraction
+      console.log(`[TRIAGE] Starting connectivity check for: ${cleanDomain}`);
       const connectivity = await this.checkConnectivity(cleanDomain);
+      console.log(`[TRIAGE] Connectivity result: ${connectivity}`);
       
       if (connectivity === 'unreachable') {
         // Skip HTML extraction for unreachable domains - save time
+        console.log(`[TRIAGE] Marking ${cleanDomain} as unreachable, skipping HTML extraction`);
         const domainResult = this.extractFromDomain(cleanDomain);
         return {
           ...domainResult,
@@ -823,39 +826,45 @@ export class DomainExtractor {
     try {
       // Quick HTTP HEAD request (faster than GET, saves bandwidth)
       const response = await axios.head(`https://${domain}`, {
-        timeout: 2500, // 2.5 second timeout for early triage
+        timeout: 5000, // Increased timeout for more accurate results
         headers: { 'User-Agent': this.userAgent },
         validateStatus: () => true, // Accept any status code
-        maxRedirects: 2 // Limit redirects for speed
+        maxRedirects: 5 // Allow more redirects for proper validation
       });
       return response.status < 500 ? 'reachable' : 'unreachable';
     } catch (error: any) {
-      // Common network errors indicate unreachable domain
+      // Only true network failures indicate unreachable domains
       if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED' || 
-          error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED' ||
-          error.code === 'ERR_TLS_CERT_ALTNAME_INVALID' || error.code === 'CERT_HAS_EXPIRED' ||
+          error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
+        return 'unreachable';
+      }
+      
+      // SSL certificate errors - mark as unreachable for bad certificates
+      if (error.code === 'ERR_TLS_CERT_ALTNAME_INVALID' || error.code === 'CERT_HAS_EXPIRED' ||
           error.code === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE' || error.code === 'SELF_SIGNED_CERT_IN_CHAIN') {
         return 'unreachable';
       }
       
-      // SSL/Certificate errors - try HTTP fallback only for specific SSL issues
-      if (error.code === 'CERT_HAS_EXPIRED' || error.code === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE') {
-        try {
-          const httpResponse = await axios.head(`http://${domain}`, {
-            timeout: 2500,
-            headers: { 'User-Agent': this.userAgent },
-            validateStatus: () => true,
-            maxRedirects: 2
-          });
-          
-          return httpResponse.status < 500 ? 'reachable' : 'unreachable';
-        } catch (httpError: any) {
+      // For other errors (like HTTP method not allowed), try HTTP fallback
+      try {
+        const httpResponse = await axios.head(`http://${domain}`, {
+          timeout: 5000,
+          headers: { 'User-Agent': this.userAgent },
+          validateStatus: () => true,
+          maxRedirects: 5
+        });
+        
+        return httpResponse.status < 500 ? 'reachable' : 'unreachable';
+      } catch (httpError: any) {
+        // If HTTP also fails with network errors, mark unreachable
+        if (httpError.code === 'ENOTFOUND' || httpError.code === 'ECONNREFUSED' || 
+            httpError.code === 'ETIMEDOUT' || httpError.code === 'ECONNABORTED') {
           return 'unreachable';
         }
+        
+        // If it's just method issues, assume reachable
+        return 'reachable';
       }
-      
-      // All other SSL/TLS errors indicate truly unreachable domains
-      return 'unreachable';
     }
   }
 }
