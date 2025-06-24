@@ -44,6 +44,8 @@ A production-scale web application for extracting company names from domain list
 - Session results include success/failure metrics, confidence breakdowns, and processing analytics
 - Restructured processing options to prioritize domain mapping as primary method (not fallback)
 - Domain mapping now always enabled with 95% confidence, HTML extraction as backup only
+- Migrated from in-memory storage to PostgreSQL for data persistence and production readiness
+- Database provides duplicate detection, cross-batch intelligence, and permanent session results
 
 ## User Preferences
 - Professional interface without excessive technical jargon
