@@ -51,6 +51,9 @@ A production-scale web application for extracting company names from domain list
 - Enhanced Chinese company domain mappings with proper Fortune 500 entities and state-owned enterprises
 - Fixed confidence scoring for known global companies (95% for domain mapping vs 55% for generic parsing)
 - Added comprehensive Chinese corporate structure recognition (Co. Ltd., Group Ltd., etc.)
+- Fixed Session Stats component to properly display session results including duplicate detection metrics
+- Session Stats now shows comprehensive failure analysis confirming Chinese company web scraping resistance
+- Auto-batch selection ensures most recent processing results are always visible in UI
 
 ## User Preferences
 - Professional interface without excessive technical jargon

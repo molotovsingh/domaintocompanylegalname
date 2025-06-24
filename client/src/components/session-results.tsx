@@ -171,6 +171,41 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
 
         <Separator />
 
+        {/* Duplicate Detection Stats */}
+        {(sessionResults?.duplicatesDetected !== undefined && sessionResults?.duplicatesDetected > 0) && (
+          <div>
+            <h4 className="font-semibold mb-3">Duplicate Detection</h4>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-xl font-bold text-orange-600">
+                  {sessionResults?.duplicatesDetected || 0}
+                </div>
+                <div className="text-sm text-gray-600">Duplicates Found</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-purple-600">
+                  {sessionResults?.duplicatesSkipped || 0}
+                </div>
+                <div className="text-sm text-gray-600">Reused Results</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-green-600">
+                  {sessionResults?.newDomainsProcessed || 0}
+                </div>
+                <div className="text-sm text-gray-600">New Domains</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-blue-600">
+                  {sessionResults?.duplicatesSavingsPercentage || 0}%
+                </div>
+                <div className="text-sm text-gray-600">Time Saved</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <Separator />
+
         {/* Extraction Methods */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
