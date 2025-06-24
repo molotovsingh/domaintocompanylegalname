@@ -71,6 +71,8 @@ A production-scale web application for extracting company names from domain list
 - Enhanced invalid pattern detection to reject "Our business is", "Client Challenge", "Grocery Store", etc.
 - Added German company domain mappings to fix current bad extractions (Springer, RTL, Wirecard, etc.)
 - Implemented dual-layer validation with marketing content detection to completely block descriptive phrases
+- Enhanced German legal entity recognition: GmbH, AG, UG, KG, SE, Stiftung, e.V., etc. (June 24, 2025)
+- Added 30+ German DAX company mappings with proper legal entity names and suffixes
 
 ## User Preferences
 - Professional interface without excessive technical jargon

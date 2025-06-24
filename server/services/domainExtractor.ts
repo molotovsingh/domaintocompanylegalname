@@ -255,6 +255,33 @@ export class DomainExtractor {
       'rossmann.de': 'Dirk Rossmann GmbH',
       'lidl.com': 'Lidl Stiftung & Co. KG',
       'fielmann.com': 'Fielmann AG',
+      'otto.de': 'Otto GmbH & Co KG',
+      'metro-ag.de': 'Metro AG',
+      'software-ag.com': 'Software AG',
+      'zf.com': 'ZF Friedrichshafen AG',
+      'trumpf.com': 'TRUMPF SE + Co. KG',
+      'osram.com': 'OSRAM GmbH',
+      'kuka.com': 'KUKA AG',
+      'leica-microsystems.com': 'Leica Microsystems GmbH',
+      'evotec.com': 'Evotec SE',
+      'carl-zeiss.com': 'Carl Zeiss AG',
+      'morphosys.com': 'MorphoSys AG',
+      'heidelberg.com': 'Heidelberger Druckmaschinen AG',
+      'qiagen.com': 'QIAGEN GmbH',
+      'teamviewer.com': 'TeamViewer SE',
+      'puma.com': 'PUMA SE',
+      'hellofresh.com': 'HelloFresh SE',
+      'zalando.com': 'Zalando SE',
+      'varta-ag.com': 'VARTA AG',
+      'jenoptik.com': 'JENOPTIK AG',
+      'delivery-hero.com': 'Delivery Hero SE',
+      'evonik.com': 'Evonik Industries AG',
+      'hugo-boss.com': 'HUGO BOSS AG',
+      'krones.com': 'Krones AG',
+      'pfeiffer-vacuum.com': 'Pfeiffer Vacuum Technology AG',
+      'gerresheimer.com': 'Gerresheimer AG',
+      'symrise.com': 'Symrise AG',
+      'rational-online.com': 'RATIONAL AG',
       
       // US Tech Giants
       'microsoft.com': 'Microsoft Corp.',
@@ -455,10 +482,12 @@ export class DomainExtractor {
 
   private extractCompanyFromAboutText(text: string): string | null {
     // Look for patterns like "We are XYZ Company" or "XYZ Corp is a leading..."
+    // Include German legal entity suffixes
+    const legalSuffixes = "Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG";
     const patterns = [
-      /(?:we are|about)\s+([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i,
-      /^([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))\s+(?:is|was|provides|offers|specializes)/i,
-      /(?:founded|established|created)\s+([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i
+      new RegExp(`(?:we are|about)\\s+([A-Z][a-zA-Z\\s&.,'-]+(?:${legalSuffixes}))`, 'i'),
+      new RegExp(`^([A-Z][a-zA-Z\\s&.,'-]+(?:${legalSuffixes}))\\s+(?:is|was|provides|offers|specializes)`, 'i'),
+      new RegExp(`(?:founded|established|created)\\s+([A-Z][a-zA-Z\\s&.,'-]+(?:${legalSuffixes}))`, 'i')
     ];
 
     for (const pattern of patterns) {
@@ -476,10 +505,12 @@ export class DomainExtractor {
 
   private extractCompanyFromLegalText(text: string): string | null {
     // Look for legal entity mentions in terms/legal text
+    // Include German legal entity suffixes
+    const legalSuffixes = "Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG";
     const patterns = [
-      /(?:this agreement|these terms).*?(?:between you and|with)\s+([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i,
-      /(?:copyright|©|all rights reserved).*?(\d{4}).*?([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i,
-      /^([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc)).*?(?:owns|operates|maintains)/i
+      new RegExp(`(?:this agreement|these terms).*?(?:between you and|with)\\s+([A-Z][a-zA-Z\\s&.,'-]+(?:${legalSuffixes}))`, 'i'),
+      new RegExp(`(?:copyright|©|all rights reserved).*?(\\d{4}).*?([A-Z][a-zA-Z\\s&.,'-]+(?:${legalSuffixes}))`, 'i'),
+      new RegExp(`^([A-Z][a-zA-Z\\s&.,'-]+(?:${legalSuffixes})).*?(?:owns|operates|maintains)`, 'i')
     ];
 
     for (const pattern of patterns) {
@@ -521,7 +552,7 @@ export class DomainExtractor {
     }
     
     // Legal suffix bonus (strong indicator of proper company name)
-    if (/\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?|Group|Holdings)\b/i.test(companyName)) {
+    if (/\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?|Group|Holdings|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG)\b/i.test(companyName)) {
       confidence += 15;
     }
     
