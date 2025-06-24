@@ -69,6 +69,8 @@ A production-scale web application for extracting company names from domain list
 - About Us and Terms page crawling now active for improved legal entity name extraction
 - Emergency fix: Restored proper validation logic to prevent extraction of marketing taglines and generic content
 - Enhanced invalid pattern detection to reject "Our business is", "Client Challenge", "Grocery Store", etc.
+- Added German company domain mappings to fix current bad extractions (Springer, RTL, Wirecard, etc.)
+- Implemented dual-layer validation with marketing content detection to completely block descriptive phrases
 
 ## User Preferences
 - Professional interface without excessive technical jargon

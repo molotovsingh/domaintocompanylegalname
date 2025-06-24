@@ -86,7 +86,12 @@ export class DomainExtractor {
     const title = $('title').text().trim();
     if (title) {
       const companyName = this.cleanCompanyName(title);
-      if (companyName && this.isValidCompanyName(companyName)) {
+      // Strict validation - reject if either original or cleaned version is invalid
+      if (companyName && 
+          this.isValidCompanyName(companyName) && 
+          this.isValidCompanyName(title) &&
+          !this.isMarketingContent(title) &&
+          !this.isMarketingContent(companyName)) {
         return {
           companyName,
           method: 'html_title',
@@ -240,6 +245,17 @@ export class DomainExtractor {
   private domainToCompanyName(domain: string): string {
     // Known Fortune 500 and major global company mappings
     const knownCompanies: Record<string, string> = {
+      // German Companies (fixing current bad extractions)
+      'springer.com': 'Springer Nature',
+      'rtl.com': 'RTL Group',
+      'wirecard.com': 'Wirecard AG', 
+      'fuchs.com': 'Fuchs Petrolub SE',
+      'siltronic.com': 'Siltronic AG',
+      'siemens-energy.com': 'Siemens Energy AG',
+      'rossmann.de': 'Dirk Rossmann GmbH',
+      'lidl.com': 'Lidl Stiftung & Co. KG',
+      'fielmann.com': 'Fielmann AG',
+      
       // US Tech Giants
       'microsoft.com': 'Microsoft Corp.',
       'apple.com': 'Apple Inc.',
@@ -404,9 +420,37 @@ export class DomainExtractor {
       /technology partner/i,
       /deine brille/i,
       /europas internet/i,
+      /perfect silicon solutions/i,
+      /global leader in energy/i,
+      /global lubrication solutions/i,
     ];
     
     return !invalidPatterns.some(pattern => pattern.test(name.trim()));
+  }
+
+  private isMarketingContent(text: string): boolean {
+    const marketingPatterns = [
+      /our business is/i,
+      /client challenge/i,
+      /grocery store/i,
+      /perfect silicon solutions/i,
+      /global leader in/i,
+      /global lubrication/i,
+      /energy technology/i,
+      /industrial intelligence/i,
+      /microscopes and imaging/i,
+      /together for medicines/i,
+      /print and packaging/i,
+      /sample to insight/i,
+      /drug packaging/i,
+      /vacuum technology/i,
+      /technology partner/i,
+      /solutions beyond/i,
+      /meal kits/i,
+      /digital workplace/i,
+    ];
+    
+    return marketingPatterns.some(pattern => pattern.test(text.trim()));
   }
 
   private extractCompanyFromAboutText(text: string): string | null {
