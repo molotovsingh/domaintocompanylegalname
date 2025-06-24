@@ -30,10 +30,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'No file uploaded' });
       }
 
+      console.log(`Upload received: ${req.file.originalname}, size: ${req.file.size} bytes`);
       const content = req.file.buffer.toString('utf-8');
-      const domains = parseDomainFile(content, req.file.originalname);
+      console.log(`File content preview (first 200 chars): ${content.substring(0, 200)}`);
       
-      if (domains.length === 0) {
+      const domains = parseDomainFile(content, req.file.originalname);
+      console.log(`Parsed domains count before deduplication: ${domains.length}`);
+      
+      // Remove duplicates while preserving order
+      const uniqueDomains = [...new Set(domains)];
+      console.log(`Unique domains count after deduplication: ${uniqueDomains.length}`);
+      console.log(`First 10 unique domains: ${uniqueDomains.slice(0, 10).join(', ')}`);
+      
+      if (uniqueDomains.length === 0) {
         return res.status(400).json({ error: 'No valid domains found in file' });
       }
 
@@ -43,12 +52,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const batch = await storage.createBatch({
         id: batchId,
         fileName: req.file.originalname || 'unknown',
-        totalDomains: domains.length,
+        totalDomains: uniqueDomains.length,
         status: 'pending'
       });
 
       // Create domain records
-      await Promise.all(domains.map(domain => 
+      console.log(`Creating ${uniqueDomains.length} domain records...`);
+      await Promise.all(uniqueDomains.map(domain => 
         storage.createDomain({
           domain: domain.trim(),
           batchId,
@@ -61,17 +71,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.createActivity({
         type: 'batch_upload',
         message: `New file uploaded: ${req.file.originalname}`,
-        details: JSON.stringify({ batchId, domainCount: domains.length })
+        details: JSON.stringify({ batchId, domainCount: uniqueDomains.length, duplicatesRemoved: domains.length - uniqueDomains.length })
       });
 
+      console.log(`Upload complete: ${uniqueDomains.length} unique domains stored in batch ${batchId}`);
       res.json({ 
         batchId, 
         fileName: req.file.originalname,
-        domainCount: domains.length,
+        domainCount: uniqueDomains.length,
+        duplicatesRemoved: domains.length - uniqueDomains.length,
         message: 'File uploaded successfully' 
       });
 
     } catch (error: any) {
+      console.error('Upload error:', error);
       res.status(500).json({ error: error.message });
     }
   });
