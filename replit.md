@@ -25,6 +25,9 @@ A production-scale web application for extracting company names from domain list
 - Added automatic processing start after successful upload
 - Improved user feedback with toast notifications
 - Created sample domain file for testing
+- Fixed FormData handling in apiRequest function for file uploads
+- Successfully tested upload and processing workflow (June 24, 2025)
+- Confirmed real-time processing updates and company name extraction
 
 ## User Preferences
 - Professional interface without excessive technical jargon
