@@ -303,7 +303,13 @@ export class DomainExtractor {
 
     const $ = cheerio.load(response.data);
     
-    // Try About Us/Legal pages for unknown domains
+    // Priority 1: Try enhanced footer copyright extraction first
+    const footerResult = this.extractFromFooterCopyright($);
+    if (footerResult.companyName && footerResult.confidence >= 75) {
+      return footerResult;
+    }
+    
+    // Priority 2: Try About Us/Legal pages for unknown domains
     const subPageResult = await this.extractFromSubPages(url);
     if (subPageResult) {
       return subPageResult;
@@ -844,20 +850,25 @@ export class DomainExtractor {
     const bottomText = bodyText.slice(-2000); // Last 2000 characters
     const combinedText = (footerText + ' ' + bottomText).toLowerCase();
     
-    // Look for copyright patterns with legal entity suffixes
-    const copyrightPatterns = [
-      /copyright\s*©?\s*\d{4}[^a-z]*([^.]+?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg)[^.]*)/i,
-      /©\s*\d{4}[^a-z]*([^.]+?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg)[^.]*)/i,
-      /\d{4}[^a-z]+([^.]+?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg)[^.]*)/i
+    // Look for copyright and legal entity patterns in footer
+    const legalEntityPatterns = [
+      // Copyright patterns with legal suffixes
+      /copyright\s*©?\s*\d{4}[^a-z]*([^.]+?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg|apc|p\.c\.|pc|pllc)[^.]*)/i,
+      /©\s*\d{4}[^a-z]*([^.]+?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg|apc|p\.c\.|pc|pllc)[^.]*)/i,
+      /\d{4}[^a-z]+([^.]+?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg|apc|p\.c\.|pc|pllc)[^.]*)/i,
+      // Direct legal entity patterns (law offices, etc.)
+      /(law offices? of [^,]+?,?\s*(?:inc|corp|corporation|ltd|limited|llc|co\.|apc|p\.c\.|pc|pllc))/i,
+      /([^,]+?\s+(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg|apc|p\.c\.|pc|pllc))\s*(?:\d{4}|all rights)/i
     ];
     
-    for (const pattern of copyrightPatterns) {
+    for (const pattern of legalEntityPatterns) {
       const match = combinedText.match(pattern);
       if (match && match[1]) {
         let companyName = match[1].trim()
           .replace(/^\s*-\s*/, '')
           .replace(/\s*all rights reserved.*$/i, '')
           .replace(/\s*\.\s*$/, '')
+          .replace(/\s*,\s*$/, '')
           .trim();
         
         // Clean up the extracted name
