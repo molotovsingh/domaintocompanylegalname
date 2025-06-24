@@ -64,11 +64,21 @@ export class DomainExtractor {
       };
       
     } catch (error) {
-      // Unexpected error - fallback to domain parsing
+      // Unexpected error - check connectivity before fallback
+      const connectivity = await this.checkConnectivity(cleanDomain);
       const domainResult = this.extractFromDomain(cleanDomain);
+      
+      if (connectivity === 'unreachable') {
+        return {
+          ...domainResult,
+          connectivity: 'unreachable',
+          error: 'Domain unreachable - bad website/network issue'
+        };
+      }
+      
       return {
         ...domainResult,
-        connectivity: 'unknown',
+        connectivity: connectivity,
         error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
