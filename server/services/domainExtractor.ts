@@ -32,13 +32,10 @@ export class DomainExtractor {
       }
 
       // Early triage: Quick connectivity check before expensive HTML extraction
-      console.log(`[TRIAGE] Checking connectivity for: ${cleanDomain}`);
       const connectivity = await this.checkConnectivity(cleanDomain);
-      console.log(`[TRIAGE] Result: ${connectivity}`);
       
       if (connectivity === 'unreachable') {
         // Skip HTML extraction for unreachable domains - save time
-        console.log(`[TRIAGE] Skipping HTML extraction for unreachable domain: ${cleanDomain}`);
         const domainResult = this.extractFromDomain(cleanDomain);
         return {
           ...domainResult,
@@ -824,7 +821,6 @@ export class DomainExtractor {
 
   private async checkConnectivity(domain: string): Promise<'reachable' | 'unreachable' | 'unknown'> {
     try {
-      console.log(`[CONNECTIVITY] Testing HTTPS for: ${domain}`);
       // Quick HTTP HEAD request (faster than GET, saves bandwidth)
       const response = await axios.head(`https://${domain}`, {
         timeout: 2500, // 2.5 second timeout for early triage
@@ -832,11 +828,8 @@ export class DomainExtractor {
         validateStatus: () => true, // Accept any status code
         maxRedirects: 2 // Limit redirects for speed
       });
-      
-      console.log(`[CONNECTIVITY] HTTPS response: ${response.status}`);
       return response.status < 500 ? 'reachable' : 'unreachable';
     } catch (error: any) {
-      console.log(`[CONNECTIVITY] HTTPS failed: ${error.code}`);
       // Common network errors indicate unreachable domain
       if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED' || 
           error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
@@ -845,7 +838,6 @@ export class DomainExtractor {
       
       // SSL/Certificate errors - try HTTP fallback
       try {
-        console.log(`[CONNECTIVITY] Trying HTTP fallback for: ${domain}`);
         const httpResponse = await axios.head(`http://${domain}`, {
           timeout: 2500,
           headers: { 'User-Agent': this.userAgent },
@@ -853,10 +845,8 @@ export class DomainExtractor {
           maxRedirects: 2
         });
         
-        console.log(`[CONNECTIVITY] HTTP response: ${httpResponse.status}`);
         return httpResponse.status < 500 ? 'reachable' : 'unreachable';
       } catch (httpError: any) {
-        console.log(`[CONNECTIVITY] HTTP also failed: ${httpError.code}`);
         return 'unreachable';
       }
     }
