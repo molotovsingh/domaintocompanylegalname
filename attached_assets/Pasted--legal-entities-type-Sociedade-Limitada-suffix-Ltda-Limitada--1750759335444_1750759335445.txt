@@ -1,0 +1,88 @@
+{
+  "legal_entities": [
+    {
+      "type": "Sociedade Limitada",
+      "suffix": "Ltda., Limitada",
+      "description": "Limited liability company, the most common form for small to medium businesses."
+    },
+    {
+      "type": "Sociedade Anônima",
+      "suffix": "S.A.",
+      "description": "Stock corporation, used for larger or publicly traded companies."
+    },
+    {
+      "type": "Sociedade Simples",
+      "suffix": "(No specific suffix, often 'SS' or none)",
+      "description": "Simple partnership, typically for professional or small-scale activities."
+    },
+    {
+      "type": "Sociedade em Nome Coletivo",
+      "suffix": "(No specific suffix, often 'SNC' or none)",
+      "description": "General partnership with unlimited liability for all partners."
+    },
+    {
+      "type": "Sociedade em Comandita Simples",
+      "suffix": "(No specific suffix, often 'SCS' or none)",
+      "description": "Limited partnership with general and limited partners."
+    },
+    {
+      "type": "Sociedade em Comandita por Ações",
+      "suffix": "SCA",
+      "description": "Partnership limited by shares, combining partnership and corporate features."
+    },
+    {
+      "type": "Empresa Individual de Responsabilidade Limitada",
+      "suffix": "EIRELI",
+      "description": "Single-member limited liability company, now largely replaced by SLU."
+    },
+    {
+      "type": "Sociedade Limitada Unipessoal",
+      "suffix": "SLU",
+      "description": "Single-member limited liability company, introduced to replace EIRELI."
+    },
+    {
+      "type": "Microempreendedor Individual",
+      "suffix": "MEI",
+      "description": "Individual micro-entrepreneur, for small-scale sole proprietors with simplified regulations."
+    },
+    {
+      "type": "Cooperativa",
+      "suffix": "Coop, Cooperativa",
+      "description": "Cooperative, member-owned for mutual benefit, common in agriculture or services."
+    },
+    {
+      "type": "Associação",
+      "suffix": "(No specific suffix, often 'Associação')",
+      "description": "Nonprofit association for cultural, social, or charitable purposes."
+    },
+    {
+      "type": "Fundação",
+      "suffix": "Fundação",
+      "description": "Foundation, used for charitable or public-benefit purposes, similar to a trust."
+    },
+    {
+      "type": "Fideicomisso",
+      "suffix": "(No specific suffix, often 'Fideicomisso' in name)",
+      "description": "Trust-like arrangement for estate planning, not a standalone legal entity."
+    },
+    {
+      "type": "Organização da Sociedade Civil",
+      "suffix": "OSC",
+      "description": "Civil society organization, a nonprofit entity for public-benefit activities."
+    },
+    {
+      "type": "Entidade Pública",
+      "suffix": "(No specific suffix, often descriptive name)",
+      "description": "Public entity, such as government agencies, universities, or state-owned enterprises."
+    }
+  ],
+  "notes": [
+    "The 'Ltda.' suffix is the most common for small and medium businesses, analogous to LLCs in other countries.",
+    "The 'Fideicomisso' is a trust-like mechanism in Brazilian law, primarily used in inheritance or estate planning, but it is not a legal entity and lacks a specific suffix.",
+    "Foundations ('Fundação') serve purposes similar to trusts, often for charitable or family asset management, and are registered as legal entities.",
+    "Nonprofit entities like 'Associação' and 'OSC' are common for community or charitable purposes, similar to Canada’s nonprofit corporations or Mexico’s A.C.",
+    "The 'EIRELI' structure has been largely phased out in favor of 'SLU' since 2019, offering simpler rules for single-owner businesses.",
+    "Public entities, such as state-owned enterprises (e.g., Petrobras), typically lack standardized suffixes and are identified by name or context.",
+    "Suffixes like Ltda., S.A., or SLU are mandatory in the entity’s name to indicate its legal structure."
+  ]
+}
