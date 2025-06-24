@@ -416,7 +416,7 @@ export default function ParsingRules() {
                     <div>/(?:this agreement|these terms).*?(?:between you and|with)\s+([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i</div>
                     <br />
                     <div className="text-blue-600">// Match: "© 2024 XYZ Corporation"</div>
-                    <div>/(?:copyright|©|all rights reserved).*?(\d{`{4}`).*?([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i</div>
+                    <div>/(?:copyright|©|all rights reserved).*?(\d{"{4}"}).*?([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i</div>
                   </div>
                 </div>
 
