@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "@/pages/dashboard";
 import Analytics from "@/pages/analytics";
 import ParsingRules from "@/pages/parsing-rules";
+import JurisdictionalGuide from "@/pages/jurisdictional-guide";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -14,6 +15,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/parsing-rules" component={ParsingRules} />
+      <Route path="/jurisdictional-guide" component={JurisdictionalGuide} />
       <Route component={NotFound} />
     </Switch>
   );

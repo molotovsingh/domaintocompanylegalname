@@ -55,6 +55,12 @@ export default function Dashboard() {
                 <BarChart3 className="h-4 w-4" />
                 Analytics
               </Link>
+              <Link href="/parsing-rules" className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors">
+                Parsing Rules
+              </Link>
+              <Link href="/jurisdictional-guide" className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors">
+                Jurisdictions
+              </Link>
               {currentBatchId && (
                 <div className="text-xs text-gray-600">
                   Current: {currentBatchId.substring(0, 8)}...

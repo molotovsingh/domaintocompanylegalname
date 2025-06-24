@@ -63,6 +63,7 @@ A production-scale web application for extracting company names from domain list
 - Added intelligent sub-page crawling for /about, /company, /terms paths where legal entity names appear
 - Created comprehensive Parsing Rules documentation page for developers
 - Documented extraction methods, confidence scoring, pattern recognition, and validation rules
+- Added Jurisdictional Knowledge Guide page for user reference covering 9 jurisdictions with 170+ legal suffixes
 - Raised confidence threshold from 50% to 70% for success declaration
 - 50-69% confidence results now routed to sophisticated processing pipeline
 - Fixed processor to use enhanced DomainExtractor with About Us/Terms page crawling (June 24, 2025)
