@@ -121,7 +121,7 @@ export class BatchProcessor {
       // Extract company name using web scraping
       const result = await this.extractor.extractCompanyName(domain.domain);
 
-      if (result.companyName && result.confidence >= 60) {
+      if (result.companyName && result.confidence >= 60 && result.connectivity !== 'unreachable') {
         const processingTime = Date.now() - startTime;
         
         await storage.updateDomain(domain.id, {
@@ -142,6 +142,11 @@ export class BatchProcessor {
           errorMessage = 'Domain unreachable - bad website/network issue';
         } else if (result.connectivity === 'reachable') {
           errorMessage = 'Domain accessible but no extractable company information';
+        }
+        
+        // Special case: if domain parsed but unreachable, override with connectivity error
+        if (result.companyName && result.connectivity === 'unreachable') {
+          errorMessage = 'Domain unreachable - bad website/network issue';
         }
         
         await storage.updateDomain(domain.id, {
