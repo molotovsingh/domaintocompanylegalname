@@ -79,6 +79,9 @@ A production-scale web application for extracting company names from domain list
 - Enhanced error classification provides diagnostic clarity while maintaining accurate success rate metrics
 - Fixed processor to use enhanced DomainExtractor with About Us/Terms page crawling (June 24, 2025)
 - About Us and Terms page crawling now active for improved legal entity name extraction
+- CRITICAL FIX: Early triage connectivity check now properly prevents success classification for unreachable domains (June 24, 2025)
+- Enhanced processor logic to reject domain parsing results when connectivity check indicates "unreachable" status
+- Unreachable domains now correctly show as "failed" with proper error messages instead of false domain parsing success
 - Emergency fix: Restored proper validation logic to prevent extraction of marketing taglines and generic content
 - Enhanced invalid pattern detection to reject "Our business is", "Client Challenge", "Grocery Store", etc.
 - Added German company domain mappings to fix current bad extractions (Springer, RTL, Wirecard, etc.)
