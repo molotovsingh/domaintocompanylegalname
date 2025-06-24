@@ -124,6 +124,10 @@ export class DomainExtractor {
       'icicibank.com': 'ICICI Bank Ltd',
       'hdfcergo.com': 'HDFC ERGO General Insurance Company Ltd',
       'iciciprulife.com': 'ICICI Prudential Life Insurance Company Ltd',
+      
+      // French Companies (when needed)
+      // Major French companies can be added here with proper legal entity suffixes
+      // Examples: 'total.com': 'TotalEnergies SE', 'lvmh.com': 'LVMH SA', etc.
     };
   }
 
@@ -578,14 +582,14 @@ export class DomainExtractor {
   }
 
   private hasLegalSuffix(companyName: string): boolean {
-    const legalSuffixes = /\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?|Group|Holdings|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG|Pvt\.?\s*Ltd\.?|Private\s*Limited)\b/i;
+    const legalSuffixes = /\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?|Group|Holdings|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG|Pvt\.?\s*Ltd\.?|Private\s*Limited|SARL|SA|SAS|SNC|SCS|SCA|EURL|SC|SCOP|GIE|SEM|Fondation)\b/i;
     return legalSuffixes.test(companyName);
   }
 
   private extractCompanyFromAboutText(text: string): string | null {
     // Look for patterns like "We are XYZ Company" or "XYZ Corp is a leading..."
-    // Include German legal entity suffixes
-    const legalSuffixes = "Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG";
+    // Include German and French legal entity suffixes
+    const legalSuffixes = "Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG|SARL|SA|SAS|SNC|SCS|SCA|EURL|SC|SCOP|GIE|SEM|Fondation";
     const patterns = [
       new RegExp(`(?:we are|about)\\s+([A-Z][a-zA-Z\\s&.,'-]+(?:${legalSuffixes}))`, 'i'),
       new RegExp(`^([A-Z][a-zA-Z\\s&.,'-]+(?:${legalSuffixes}))\\s+(?:is|was|provides|offers|specializes)`, 'i'),
@@ -607,8 +611,8 @@ export class DomainExtractor {
 
   private extractCompanyFromLegalText(text: string): string | null {
     // Look for legal entity mentions in terms/legal text
-    // Include German legal entity suffixes
-    const legalSuffixes = "Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG";
+    // Include German and French legal entity suffixes
+    const legalSuffixes = "Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG|SARL|SA|SAS|SNC|SCS|SCA|EURL|SC|SCOP|GIE|SEM|Fondation";
     const patterns = [
       new RegExp(`(?:this agreement|these terms).*?(?:between you and|with)\\s+([A-Z][a-zA-Z\\s&.,'-]+(?:${legalSuffixes}))`, 'i'),
       new RegExp(`(?:copyright|©|all rights reserved).*?(\\d{4}).*?([A-Z][a-zA-Z\\s&.,'-]+(?:${legalSuffixes}))`, 'i'),
@@ -652,7 +656,7 @@ export class DomainExtractor {
     }
     
     // Legal suffix bonus (strong indicator of proper company name)
-    if (/\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?|Group|Holdings|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG)\b/i.test(companyName)) {
+    if (/\b(Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?|Group|Holdings|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG|SARL|SA|SAS|SNC|SCS|SCA|EURL|SC|SCOP|GIE|SEM|Fondation)\b/i.test(companyName)) {
       confidence += 15;
     }
     

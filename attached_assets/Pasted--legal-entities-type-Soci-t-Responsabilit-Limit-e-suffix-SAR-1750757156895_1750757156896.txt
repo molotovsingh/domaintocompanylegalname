@@ -1,0 +1,85 @@
+{
+  "legal_entities": [
+    {
+      "type": "Société à Responsabilité Limitée",
+      "suffix": "SARL",
+      "description": "Limited liability company, common for small to medium-sized businesses."
+    },
+    {
+      "type": "Société Anonyme",
+      "suffix": "SA",
+      "description": "Public limited company, often for larger or publicly traded firms."
+    },
+    {
+      "type": "Société par Actions Simplifiée",
+      "suffix": "SAS",
+      "description": "Simplified joint-stock company, flexible structure for startups and SMEs."
+    },
+    {
+      "type": "Société en Nom Collectif",
+      "suffix": "SNC",
+      "description": "General partnership with unlimited liability for all partners."
+    },
+    {
+      "type": "Société en Commandite Simple",
+      "suffix": "SCS",
+      "description": "Limited partnership with general and limited partners."
+    },
+    {
+      "type": "Société en Commandite par Actions",
+      "suffix": "SCA",
+      "description": "Partnership limited by shares, combining partnership and corporate features."
+    },
+    {
+      "type": "Entreprise Unipersonnelle à Responsabilité Limitée",
+      "suffix": "EURL",
+      "description": "Single-member limited liability company, similar to SARL but with one owner."
+    },
+    {
+      "type": "Société Civile",
+      "suffix": "SC",
+      "description": "Civil company, often used for real estate or professional partnerships."
+    },
+    {
+      "type": "Société Coopérative",
+      "suffix": "SCOP",
+      "description": "Cooperative society, often worker-owned, e.g., SCOP SARL."
+    },
+    {
+      "type": "Groupement d'Intérêt Économique",
+      "suffix": "GIE",
+      "description": "Economic interest grouping, for collaboration between businesses."
+    },
+    {
+      "type": "Association Loi 1901",
+      "suffix": "(No specific suffix, often 'Association')",
+      "description": "Nonprofit association, common for clubs, charities, or community groups."
+    },
+    {
+      "type": "Fondation",
+      "suffix": "Fondation",
+      "description": "Foundation, used for charitable or public-benefit purposes, similar to a trust."
+    },
+    {
+      "type": "Fiducie",
+      "suffix": "(No specific suffix)",
+      "description": "Trust-like arrangement, used for asset management or estate planning, not a legal entity."
+    },
+    {
+      "type": "Établissement Public",
+      "suffix": "(No specific suffix, often 'EP' or descriptive name)",
+      "description": "Public institution, e.g., state-run entities like universities or hospitals."
+    },
+    {
+      "type": "Société d'Économie Mixte",
+      "suffix": "SEM",
+      "description": "Mixed-economy company, combining public and private ownership."
+    }
+  ],
+  "notes": [
+    "The 'Fiducie' is France's trust-like mechanism, introduced in 2007, but it is a contractual arrangement, not a legal entity with a suffix.",
+    "Nonprofit status in France is often indicated by 'Loi 1901' for associations or specific tax designations for foundations.",
+    "Some public institutions (e.g., Établissement Public) may not have a standardized suffix but are identified by their name or context.",
+    "Suffixes like SARL, SA, or SAS are mandatory in the company name to indicate legal structure."
+  ]
+}

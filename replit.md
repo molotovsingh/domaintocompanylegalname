@@ -78,6 +78,7 @@ A production-scale web application for extracting company names from domain list
 - HTML title extraction identified as unreliable source - heavily penalized and deprioritized (June 24, 2025)
 - **COMPLETE REMOVAL**: HTML title extraction eliminated entirely due to marketing content contamination
 - Added comprehensive Indian company mappings with proper legal entity names (Ltd, Pvt Ltd, etc.)
+- Added French legal entity recognition: SARL, SA, SAS, SNC, SCS, SCA, EURL, SC, SCOP, GIE, SEM, Fondation
 - Final extraction priority: Domain mappings → About Us pages → Legal pages → Domain parsing (fallback)
 
 ## User Preferences
