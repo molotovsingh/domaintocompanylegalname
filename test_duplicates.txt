@@ -1,0 +1,4 @@
+microsoft.com
+apple.com
+netflix.com
+salesforce.com
