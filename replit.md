@@ -79,6 +79,7 @@ A production-scale web application for extracting company names from domain list
 - **COMPLETE REMOVAL**: HTML title extraction eliminated entirely due to marketing content contamination
 - Added comprehensive Indian company mappings with proper legal entity names (Ltd, Pvt Ltd, etc.)
 - Added French legal entity recognition: SARL, SA, SAS, SNC, SCS, SCA, EURL, SC, SCOP, GIE, SEM, Fondation
+- Added Mexican legal entity recognition: S.A., S.A. de C.V., S. de R.L., S. de R.L. de C.V., S.C., A.C., I.A.P., S.A.P.I.
 - Final extraction priority: Domain mappings → About Us pages → Legal pages → Domain parsing (fallback)
 
 ## User Preferences

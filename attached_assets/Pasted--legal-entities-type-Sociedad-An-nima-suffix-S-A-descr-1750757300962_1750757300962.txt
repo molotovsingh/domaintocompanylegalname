@@ -1,0 +1,81 @@
+{
+  "legal_entities": [
+    {
+      "type": "Sociedad Anónima",
+      "suffix": "S.A.",
+      "description": "Stock corporation, typically for larger businesses, with shareholders."
+    },
+    {
+      "type": "Sociedad Anónima de Capital Variable",
+      "suffix": "S.A. de C.V.",
+      "description": "Variable capital stock corporation, widely used for businesses of all sizes."
+    },
+    {
+      "type": "Sociedad de Responsabilidad Limitada",
+      "suffix": "S. de R.L.",
+      "description": "Limited liability company, similar to an LLC, for smaller businesses."
+    },
+    {
+      "type": "Sociedad de Responsabilidad Limitada de Capital Variable",
+      "suffix": "S. de R.L. de C.V.",
+      "description": "Variable capital limited liability company, combining flexibility of S. de R.L. and variable capital."
+    },
+    {
+      "type": "Sociedad en Nombre Colectivo",
+      "suffix": "(No specific suffix, often 'S. en N.C.')",
+      "description": "General partnership with unlimited liability for all partners."
+    },
+    {
+      "type": "Sociedad en Comandita Simple",
+      "suffix": "S. en C.",
+      "description": "Limited partnership with general and limited partners."
+    },
+    {
+      "type": "Sociedad en Comandita por Acciones",
+      "suffix": "S. en C. por A.",
+      "description": "Partnership limited by shares, combining partnership and corporate features."
+    },
+    {
+      "type": "Sociedad Cooperativa",
+      "suffix": "S.C.",
+      "description": "Cooperative society, often used for worker-owned or community-based organizations."
+    },
+    {
+      "type": "Asociación Civil",
+      "suffix": "A.C.",
+      "description": "Civil association, commonly used for nonprofit organizations, clubs, or charities."
+    },
+    {
+      "type": "Fideicomiso",
+      "suffix": "(No specific suffix, often 'Fideicomiso' in name)",
+      "description": "Trust, used for asset management, real estate, or estate planning, not a standalone legal entity."
+    },
+    {
+      "type": "Institución de Asistencia Privada",
+      "suffix": "I.A.P.",
+      "description": "Private assistance institution, a nonprofit entity for charitable purposes."
+    },
+    {
+      "type": "Sociedad Anónima Promotora de Inversión",
+      "suffix": "S.A.P.I.",
+      "description": "Investment promotion stock corporation, designed for attracting investment."
+    },
+    {
+      "type": "Sociedad Anónima Promotora de Inversión de Capital Variable",
+      "suffix": "S.A.P.I. de C.V.",
+      "description": "Variable capital version of S.A.P.I., offering flexibility for investors."
+    },
+    {
+      "type": "Institución Pública",
+      "suffix": "(No specific suffix, often descriptive name)",
+      "description": "Public institution, typically government-run entities like universities or hospitals."
+    }
+  ],
+  "notes": [
+    "The 'Fideicomiso' is Mexico's trust mechanism, widely used for real estate (e.g., foreign ownership in restricted zones) and asset management, but it is a contractual arrangement, not a legal entity.",
+    "Nonprofit entities like A.C. and I.A.P. are common for charitable or community purposes, similar to France's Association Loi 1901 or Germany's e.V.",
+    "The 'de C.V.' suffix indicates variable capital, allowing companies to adjust capital without complex formalities.",
+    "Public institutions in Mexico typically do not have a standardized suffix but are identified by their name or context.",
+    "Suffixes like S.A., S. de R.L., or A.C. are mandatory in the entity’s name to indicate its legal structure."
+  ]
+}
