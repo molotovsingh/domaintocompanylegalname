@@ -904,8 +904,14 @@ export class DomainExtractor {
             !companyName.toLowerCase().includes('class') &&
             !companyName.toLowerCase().includes('forminator') &&
             !companyName.toLowerCase().includes('message') &&
+            !companyName.toLowerCase().includes('elementor') &&
+            !companyName.toLowerCase().includes('copyright') &&
+            !companyName.toLowerCase().includes('copy right') &&
             !companyName.includes('""') &&
             !companyName.includes('=') &&
+            !companyName.includes(':') &&
+            !/^\d+$/.test(companyName) &&
+            !/^[a-z\s]+$/.test(companyName.toLowerCase()) &&
             this.isValidCompanyName(companyName) && 
             !this.isMarketingContent(companyName)) {
           

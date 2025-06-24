@@ -53,8 +53,8 @@ export class BatchProcessor {
           failedDomains: processed - successful
         });
 
-        // Small delay to prevent overwhelming
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Small delay to prevent overwhelming and show processing status
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
 
       // Mark batch as completed

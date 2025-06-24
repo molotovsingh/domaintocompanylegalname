@@ -40,6 +40,10 @@ A production-scale web application for extracting company names from domain list
 - **CRITICAL FIX**: Footer extraction was pulling in massive HTML/CSS/JS content instead of clean company names
 - **Enhanced Filtering**: Added strict length limits (50 chars) and comprehensive noise detection (HTML/CSS/JS keywords)
 - **Footer Extraction Fixed**: Removed 23 bad extractions, now properly filtering out web development artifacts and UI elements
+- **Processing Status Fix**: Added longer delays between domain processing to show real-time status updates in UI
+- **Source Column Added**: Results table now displays extraction source (Footer, Domain, About Page) for transparency
+- **Final Footer Cleanup**: Enhanced filtering to remove generic words (elementor, bottom, copyright) and timestamp artifacts
+- **Production Quality**: Footer extraction now consistently produces clean legal entity names with proper suffixes
 
 ## Recent Changes
 - Fixed upload route function reference bug (parseDomainFile/domainsToCSV)
