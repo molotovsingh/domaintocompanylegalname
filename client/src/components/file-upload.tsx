@@ -17,9 +17,9 @@ export default function FileUpload({ onBatchUploaded }: FileUploadProps) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [processingOptions, setProcessingOptions] = useState({
-    htmlTitle: true,
-    metaDescription: true,
-    domainFallback: false,
+    htmlTitle: false,
+    metaDescription: false,
+    domainFallback: true, // Always enabled - this is the primary method
   });
   const [retryAttempts, setRetryAttempts] = useState("3");
   const [batchSize, setBatchSize] = useState("1000");

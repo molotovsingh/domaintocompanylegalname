@@ -42,6 +42,8 @@ A production-scale web application for extracting company names from domain list
 - Fixed extraction priority to prefer legal entity names over marketing content
 - Added comprehensive session results feature for QC and feedback tracking
 - Session results include success/failure metrics, confidence breakdowns, and processing analytics
+- Restructured processing options to prioritize domain mapping as primary method (not fallback)
+- Domain mapping now always enabled with 95% confidence, HTML extraction as backup only
 
 ## User Preferences
 - Professional interface without excessive technical jargon
