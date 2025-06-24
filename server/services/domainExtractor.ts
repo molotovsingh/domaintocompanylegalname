@@ -14,10 +14,20 @@ export class DomainExtractor {
 
   async extractCompanyName(domain: string): Promise<ExtractionResult> {
     try {
-      // Ensure domain has protocol
-      const url = domain.startsWith('http') ? domain : `https://${domain}`;
+      // ALWAYS check domain mappings first (overrides cache)
+      const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].toLowerCase();
+      const knownMappings = this.getKnownCompanyMappings();
       
-      // Try HTML extraction first
+      if (knownMappings[cleanDomain]) {
+        return {
+          companyName: knownMappings[cleanDomain],
+          method: 'domain_parse',
+          confidence: 95,
+        };
+      }
+
+      // Try HTML extraction for unknown domains
+      const url = domain.startsWith('http') ? domain : `https://${domain}`;
       const htmlResult = await this.extractFromHTML(url);
       if (htmlResult.companyName) {
         return htmlResult;
@@ -29,6 +39,48 @@ export class DomainExtractor {
       // Fallback to domain parsing on any error
       return this.extractFromDomain(domain);
     }
+  }
+
+  private getKnownCompanyMappings(): Record<string, string> {
+    return {
+      // German Companies (corrected mappings)
+      'springer.com': 'Springer Nature',
+      'rtl.com': 'RTL Group',
+      'wirecard.com': 'Wirecard AG', 
+      'fuchs.com': 'Fuchs Petrolub SE',
+      'siltronic.com': 'Siltronic AG',
+      'siemens-energy.com': 'Siemens Energy AG',
+      'rossmann.de': 'Dirk Rossmann GmbH',
+      'lidl.com': 'Lidl Stiftung & Co. KG',
+      'fielmann.com': 'Fielmann AG',
+      'otto.de': 'Otto GmbH & Co KG',
+      'metro-ag.de': 'Metro AG',
+      'software-ag.com': 'Software AG',
+      'zf.com': 'ZF Friedrichshafen AG',
+      'trumpf.com': 'TRUMPF SE + Co. KG',
+      'osram.com': 'OSRAM GmbH',
+      'kuka.com': 'KUKA AG',
+      'leica-microsystems.com': 'Leica Microsystems GmbH',
+      'evotec.com': 'Evotec SE',
+      'carl-zeiss.com': 'Carl Zeiss AG',
+      'morphosys.com': 'MorphoSys AG',
+      'heidelberg.com': 'Heidelberger Druckmaschinen AG',
+      'qiagen.com': 'QIAGEN GmbH',
+      'teamviewer.com': 'TeamViewer SE',
+      'puma.com': 'PUMA SE',
+      'hellofresh.com': 'HelloFresh SE',
+      'zalando.com': 'Zalando SE',
+      'varta-ag.com': 'VARTA AG',
+      'jenoptik.com': 'JENOPTIK AG',
+      'delivery-hero.com': 'Delivery Hero SE',
+      'evonik.com': 'Evonik Industries AG',
+      'hugo-boss.com': 'HUGO BOSS AG',
+      'krones.com': 'Krones AG',
+      'pfeiffer-vacuum.com': 'Pfeiffer Vacuum Technology AG',
+      'gerresheimer.com': 'Gerresheimer AG',
+      'symrise.com': 'Symrise AG',
+      'rational-online.com': 'RATIONAL AG',
+    };
   }
 
   private async extractFromHTML(url: string): Promise<ExtractionResult> {

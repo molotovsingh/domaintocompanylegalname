@@ -73,6 +73,8 @@ A production-scale web application for extracting company names from domain list
 - Implemented dual-layer validation with marketing content detection to completely block descriptive phrases
 - Enhanced German legal entity recognition: GmbH, AG, UG, KG, SE, Stiftung, e.V., etc. (June 24, 2025)
 - Added 30+ German DAX company mappings with proper legal entity names and suffixes
+- CRITICAL FIX: Domain mappings now override cached results to prevent bad extractions from persisting
+- Updated database to correct all cached German company names to proper legal entity names
 
 ## User Preferences
 - Professional interface without excessive technical jargon
