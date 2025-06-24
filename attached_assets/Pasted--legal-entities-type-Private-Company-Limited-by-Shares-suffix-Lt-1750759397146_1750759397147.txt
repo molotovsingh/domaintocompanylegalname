@@ -1,0 +1,84 @@
+{
+  "legal_entities": [
+    {
+      "type": "Private Company Limited by Shares",
+      "suffix": "Ltd, Limited",
+      "description": "Most common business form, with limited liability for shareholders."
+    },
+    {
+      "type": "Designated Activity Company",
+      "suffix": "DAC, Designated Activity Company",
+      "description": "Private company with a specific purpose, limited by shares or guarantee."
+    },
+    {
+      "type": "Public Limited Company",
+      "suffix": "PLC, Public Limited Company",
+      "description": "Company with shares that can be publicly traded, limited liability."
+    },
+    {
+      "type": "Company Limited by Guarantee",
+      "suffix": "CLG, Company Limited by Guarantee",
+      "description": "Nonprofit company without shares, often for charitable or community purposes."
+    },
+    {
+      "type": "Unlimited Company",
+      "suffix": "UC, ULC, Unlimited Company",
+      "description": "Company with unlimited liability for shareholders, rare, can be private or public."
+    },
+    {
+      "type": "Limited Partnership",
+      "suffix": "LP, Limited Partnership",
+      "description": "Partnership with general and limited partners, general partners have unlimited liability."
+    },
+    {
+      "type": "General Partnership",
+      "suffix": "(No specific suffix, often none)",
+      "description": "Partnership with unlimited liability for all partners, often informal."
+    },
+    {
+      "type": "Sole Proprietorship",
+      "suffix": "(No specific suffix)",
+      "description": "Business owned by one individual, no separate legal entity, unlimited liability."
+    },
+    {
+      "type": "Cooperative Society",
+      "suffix": "(No specific suffix, often 'Co-op' or 'Society')",
+      "description": "Member-owned organization for mutual benefit, common in agriculture or credit unions."
+    },
+    {
+      "type": "Trust",
+      "suffix": "(No specific suffix, often 'Trust' in name)",
+      "description": "Legal arrangement for asset management, estate planning, or charitable purposes, not a standalone entity."
+    },
+    {
+      "type": "Charitable Trust",
+      "suffix": "(No specific suffix, often 'Trust' or 'Charitable Trust')",
+      "description": "Trust established for charitable purposes, often registered with the Charities Regulator."
+    },
+    {
+      "type": "Incorporated Association",
+      "suffix": "(No specific suffix, often 'Association' or none)",
+      "description": "Nonprofit association, often for community or cultural purposes, may be a CLG."
+    },
+    {
+      "type": "Unincorporated Association",
+      "suffix": "(No specific suffix, often 'Association')",
+      "description": "Informal nonprofit group, e.g., clubs or societies, not a legal entity."
+    },
+    {
+      "type": "Public Body",
+      "suffix": "(No specific suffix, often descriptive name)",
+      "description": "Government-run entities, e.g., universities, public agencies, or state-owned enterprises."
+    }
+  ],
+  "notes": [
+    "Suffixes like Ltd, DAC, PLC, or CLG are mandatory under the Companies Act 2014 and must appear in the company name to indicate its legal structure.",
+    "Trusts, such as discretionary or charitable trusts, are not legal entities but legal arrangements; 'Trust' is typically included in the name.",
+    "Charitable trusts and nonprofit entities (e.g., CLGs) are often registered with the Charities Regulator for tax-exempt status.",
+    "Ireland’s common law system allows for trusts similar to those in the USA or Canada, unlike civil law systems in Brazil or Germany.",
+    "Limited Partnerships (LPs) are regulated under the Limited Partnerships Act 1907, often used for investment funds.",
+    "Public bodies, such as state-owned enterprises (e.g., ESB) or public institutions, lack standardized suffixes and are identified by name or context.",
+    "Cooperatives in Ireland are often registered under the Industrial and Provident Societies Acts, with 'Co-op' or 'Society' in the name.",
+    "Foreign companies operating in Ireland may use EU designations like 'SE' (Societas Europaea) or retain their original suffixes."
+  ]
+}

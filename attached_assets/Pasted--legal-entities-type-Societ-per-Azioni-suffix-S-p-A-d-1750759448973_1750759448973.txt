@@ -1,0 +1,78 @@
+{
+  "legal_entities": [
+    {
+      "type": "Società per Azioni",
+      "suffix": "S.p.A.",
+      "description": "Joint-stock company, used for larger or publicly traded businesses with limited liability."
+    },
+    {
+      "type": "Società a Responsabilità Limitata",
+      "suffix": "S.r.l.",
+      "description": "Limited liability company, common for small to medium businesses."
+    },
+    {
+      "type": "Società a Responsabilità Limitata Semplificata",
+      "suffix": "S.r.l.s.",
+      "description": "Simplified limited liability company, with lower capital requirements for startups."
+    },
+    {
+      "type": "Società in Nome Collettivo",
+      "suffix": "S.n.c.",
+      "description": "General partnership with unlimited liability for all partners."
+    },
+    {
+      "type": "Società in Accomandita Semplice",
+      "suffix": "S.a.s.",
+      "description": "Limited partnership with general and limited partners."
+    },
+    {
+      "type": "Società in Accomandita per Azioni",
+      "suffix": "S.a.p.a.",
+      "description": "Partnership limited by shares, combining partnership and corporate features."
+    },
+    {
+      "type": "Società Semplice",
+      "suffix": "(No specific suffix, often 'S.s.' or none)",
+      "description": "Simple partnership, used for small-scale or professional activities, unlimited liability."
+    },
+    {
+      "type": "Impresa Individuale",
+      "suffix": "(No specific suffix)",
+      "description": "Sole proprietorship, no separate legal entity, unlimited liability."
+    },
+    {
+      "type": "Cooperativa",
+      "suffix": "Soc. Coop., Società Cooperativa",
+      "description": "Cooperative, member-owned for mutual benefit, common in agriculture, services, or housing."
+    },
+    {
+      "type": "Associazione",
+      "suffix": "(No specific suffix, often 'Associazione')",
+      "description": "Nonprofit association, used for cultural, social, or charitable purposes."
+    },
+    {
+      "type": "Fondazione",
+      "suffix": "Fondazione",
+      "description": "Foundation, used for charitable, cultural, or public-benefit purposes, similar to a trust."
+    },
+    {
+      "type": "Trust",
+      "suffix": "(No specific suffix, often 'Trust' in name)",
+      "description": "Trust-like arrangement, recognized in Italy for international or estate planning, not a standalone entity."
+    },
+    {
+      "type": "Ente Pubblico",
+      "suffix": "(No specific suffix, often descriptive name)",
+      "description": "Public entity, such as government agencies, universities, or state-owned enterprises."
+    }
+  ],
+  "notes": [
+    "Suffixes like S.p.A., S.r.l., or S.r.l.s. are mandatory in the entity’s name to indicate its legal structure, as per the Italian Civil Code.",
+    "Trusts are not native to Italy’s civil law system but are recognized under the Hague Convention (ratified in 1990) for international or estate planning purposes; 'Trust' is included in the name.",
+    "Foundations ('Fondazione') serve purposes similar to trusts, often for charitable, cultural, or family asset management, and are registered as legal entities.",
+    "Nonprofit entities like 'Associazione' are common for community or charitable purposes, similar to Ireland’s unincorporated associations or Brazil’s Associações.",
+    "Cooperatives often include 'a r.l.' (responsabilità limitata) in their suffix, e.g., 'Soc. Coop. a r.l.', indicating limited liability.",
+    "Public entities, such as state-owned enterprises (e.g., Eni) or universities, lack standardized suffixes and are identified by name or context.",
+    "The 'S.r.l.s.' was introduced in 2012 to facilitate startups with simplified requirements and lower capital."
+  ]
+}
