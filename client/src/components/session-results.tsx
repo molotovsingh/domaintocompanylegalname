@@ -56,7 +56,7 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
     );
   }
 
-  if (!sessionResults) {
+  if (!sessionResults || !sessionResults.qualityMetrics) {
     return null;
   }
 
@@ -119,11 +119,11 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
               <span className="text-sm">High Confidence (90%+)</span>
               <div className="flex items-center gap-2">
                 <Progress 
-                  value={(sessionResults.qualityMetrics.highConfidenceCount / sessionResults.totalDomains) * 100} 
+                  value={sessionResults.totalDomains > 0 ? (sessionResults.qualityMetrics.highConfidenceCount / sessionResults.totalDomains) * 100 : 0} 
                   className="w-20 h-2" 
                 />
                 <Badge variant="secondary" className="bg-green-100 text-green-800">
-                  {sessionResults.qualityMetrics.highConfidenceCount}
+                  {sessionResults.qualityMetrics.highConfidenceCount || 0}
                 </Badge>
               </div>
             </div>
@@ -131,11 +131,11 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
               <span className="text-sm">Medium Confidence (70-89%)</span>
               <div className="flex items-center gap-2">
                 <Progress 
-                  value={(sessionResults.qualityMetrics.mediumConfidenceCount / sessionResults.totalDomains) * 100} 
+                  value={sessionResults.totalDomains > 0 ? (sessionResults.qualityMetrics.mediumConfidenceCount / sessionResults.totalDomains) * 100 : 0} 
                   className="w-20 h-2" 
                 />
                 <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                  {sessionResults.qualityMetrics.mediumConfidenceCount}
+                  {sessionResults.qualityMetrics.mediumConfidenceCount || 0}
                 </Badge>
               </div>
             </div>
@@ -143,11 +143,11 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
               <span className="text-sm">Low Confidence (&lt;70%)</span>
               <div className="flex items-center gap-2">
                 <Progress 
-                  value={(sessionResults.qualityMetrics.lowConfidenceCount / sessionResults.totalDomains) * 100} 
+                  value={sessionResults.totalDomains > 0 ? (sessionResults.qualityMetrics.lowConfidenceCount / sessionResults.totalDomains) * 100 : 0} 
                   className="w-20 h-2" 
                 />
                 <Badge variant="secondary" className="bg-red-100 text-red-800">
-                  {sessionResults.qualityMetrics.lowConfidenceCount}
+                  {sessionResults.qualityMetrics.lowConfidenceCount || 0}
                 </Badge>
               </div>
             </div>
@@ -164,20 +164,20 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
               <div className="flex justify-between">
                 <span className="text-sm">Domain Mapping</span>
                 <Badge variant="outline" className="bg-blue-50">
-                  {sessionResults.qualityMetrics.domainParseCount}
+                  {sessionResults.qualityMetrics.domainParseCount || 0}
                 </Badge>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">HTML Extraction</span>
                 <Badge variant="outline" className="bg-gray-50">
-                  {sessionResults.qualityMetrics.htmlExtractionCount}
+                  {sessionResults.qualityMetrics.htmlExtractionCount || 0}
                 </Badge>
               </div>
             </div>
           </div>
 
           {/* Failure Analysis */}
-          {sessionResults.failedDomains > 0 && (
+          {sessionResults.failedDomains > 0 && sessionResults.failureReasons && (
             <div>
               <h4 className="font-semibold mb-3">Failure Reasons</h4>
               <div className="space-y-2">
