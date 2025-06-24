@@ -66,6 +66,9 @@ export default function Dashboard() {
           <ProcessingStatus currentBatchId={currentBatchId} />
         </div>
 
+        {/* Session Results for QC */}
+        {currentBatchId && <SessionResults batchId={currentBatchId} />}
+
         {/* Results Section */}
         <ResultsTable currentBatchId={currentBatchId} />
 
