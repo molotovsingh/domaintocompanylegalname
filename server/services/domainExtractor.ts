@@ -48,7 +48,7 @@ export class DomainExtractor {
       const url = `https://${cleanDomain}`;
       const htmlResult = await this.extractFromHTML(url);
       
-      if (htmlResult.companyName && htmlResult.confidence >= 60 && this.isValidCompanyName(htmlResult.companyName)) {
+      if (htmlResult.companyName && this.isValidCompanyName(htmlResult.companyName)) {
         return {
           ...htmlResult,
           connectivity: 'reachable'
@@ -305,7 +305,7 @@ export class DomainExtractor {
     
     // Priority 1: Try enhanced footer copyright extraction first
     const footerResult = this.extractFromFooterCopyright($);
-    if (footerResult.companyName && footerResult.confidence >= 60) {
+    if (footerResult.companyName) {
       return footerResult;
     }
     
@@ -764,6 +764,12 @@ export class DomainExtractor {
     
     // Method-based confidence
     switch (method) {
+      case 'domain_parse':
+        confidence = 95; // Always high confidence for domain mappings
+        break;
+      case 'footer_copyright':
+        confidence = 85; // High confidence for footer copyright extraction
+        break;
       case 'html_about':
         confidence += 35; // High confidence for about sections
         break;
@@ -773,11 +779,10 @@ export class DomainExtractor {
       case 'html_subpage':
         confidence += 30; // Good confidence for sub-pages
         break;
-      // html_title method removed - unreliable source
       case 'meta_description':
         confidence += 20;
         break;
-      case 'domain_parse':
+      default:
         confidence += 10;
         break;
     }
