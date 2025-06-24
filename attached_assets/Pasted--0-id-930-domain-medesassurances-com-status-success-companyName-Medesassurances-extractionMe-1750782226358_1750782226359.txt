@@ -1,0 +1,1401 @@
+	
+0	
+id	930
+domain	"medesassurances.com"
+status	"success"
+companyName	"Medesassurances"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.419Z"
+processedAt	"2025-06-24T16:22:31.729Z"
+processingStartedAt	"2025-06-24T16:22:26.983Z"
+processingTimeMs	4746
+1	
+id	929
+domain	"midasglitter.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.419Z"
+processedAt	"2025-06-24T16:22:27.739Z"
+processingStartedAt	"2025-06-24T16:22:26.983Z"
+processingTimeMs	756
+2	
+id	928
+domain	"mmi-deco.com"
+status	"success"
+companyName	"paris mmi déco bordeaux3 rue lafayette, 33000 bordeaux nous suivre facebook instagram linkedin pinterest youtube tiktok se rencontrer événements équipe contact s'informer le mag' mmi faq financement avis mmi déco guide des métiers qualiopi certificat qualiopi tous nos campus paris bordeaux lille lyon rennes ©2025 mmi deco mentions légales mentions légales l > li"
+extractionMethod	"footer_copyright"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.414Z"
+processedAt	"2025-06-24T16:22:28.944Z"
+processingStartedAt	"2025-06-24T16:22:26.983Z"
+processingTimeMs	1961
+3	
+id	927
+domain	"lexusofrichmond.com"
+status	"success"
+companyName	"Lexusofrichmond"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.412Z"
+processedAt	"2025-06-24T16:22:27.859Z"
+processingStartedAt	"2025-06-24T16:22:26.983Z"
+processingTimeMs	876
+4	
+id	926
+domain	"cficontrols.com"
+status	"success"
+companyName	"concepts for industry, inc"
+extractionMethod	"footer_copyright"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.407Z"
+processedAt	"2025-06-24T16:22:27.844Z"
+processingStartedAt	"2025-06-24T16:22:26.983Z"
+processingTimeMs	861
+5	
+id	925
+domain	"mainettigroup.com.cn"
+status	"success"
+companyName	'id"'
+extractionMethod	"footer_copyright"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.406Z"
+processedAt	"2025-06-24T16:22:36.315Z"
+processingStartedAt	"2025-06-24T16:22:26.983Z"
+processingTimeMs	9332
+6	
+id	924
+domain	"taiyo-gcon.com"
+status	"success"
+companyName	"Taiyo Gcon"
+extractionMethod	"domain_parse"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.397Z"
+processedAt	"2025-06-24T16:22:29.629Z"
+processingStartedAt	"2025-06-24T16:22:26.983Z"
+processingTimeMs	2646
+7	
+id	923
+domain	"gmbcrealestate.com"
+status	"success"
+companyName	'gmbc real estate toggle sliding bar area page load link {"prefetch"'
+extractionMethod	"footer_copyright"
+confidenceScore	60
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.395Z"
+processedAt	"2025-06-24T16:22:28.149Z"
+processingStartedAt	"2025-06-24T16:22:26.983Z"
+processingTimeMs	1166
+8	
+id	922
+domain	"australfisheries.com.au"
+status	"success"
+companyName	"po box 42 mt hawthorn western australia 6915 privacy terms & conditions whistleblower about us contact us shop now © copyright austral 2025 made by monk wild caught with care instagram facebook linkedin austral@australfisheries"
+extractionMethod	"footer_copyright"
+confidenceScore	60
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.387Z"
+processedAt	"2025-06-24T16:22:30.836Z"
+processingStartedAt	"2025-06-24T16:22:26.983Z"
+processingTimeMs	3853
+9	
+id	920
+domain	"cityofroma.net"
+status	"success"
+companyName	"city of roma city of romaresidentsdevelopement servicesemployee'sresourcesparks and recreationcomplaintscity of roma formsaboutcity of roma201 w"
+extractionMethod	"footer_copyright"
+confidenceScore	60
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.384Z"
+processedAt	"2025-06-24T16:15:09.697Z"
+processingStartedAt	"2025-06-24T16:15:08.496Z"
+processingTimeMs	1201
+10	
+id	919
+domain	"gcbcfw.org"
+status	"success"
+companyName	"bottom"
+extractionMethod	"footer_copyright"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.383Z"
+processedAt	"2025-06-24T16:15:09.493Z"
+processingStartedAt	"2025-06-24T16:15:08.496Z"
+processingTimeMs	997
+11	
+id	918
+domain	"kosmos.de"
+status	"success"
+companyName	"Kosmos"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.380Z"
+processedAt	"2025-06-24T16:22:25.599Z"
+processingStartedAt	"2025-06-24T16:15:08.496Z"
+processingTimeMs	437103
+12	
+id	921
+domain	"ufsdebtrecovery.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.380Z"
+processedAt	"2025-06-24T16:22:27.854Z"
+processingStartedAt	"2025-06-24T16:22:26.983Z"
+processingTimeMs	871
+13	
+id	917
+domain	"shipinforsure.com"
+status	"success"
+companyName	"location ifs inforsure inc"
+extractionMethod	"footer_copyright"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.373Z"
+processedAt	"2025-06-24T16:15:08.962Z"
+processingStartedAt	"2025-06-24T16:15:08.496Z"
+processingTimeMs	466
+14	
+id	916
+domain	"arwen.ai"
+status	"success"
+companyName	"Arwen"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.370Z"
+processedAt	"2025-06-24T16:22:25.611Z"
+processingStartedAt	"2025-06-24T16:15:08.496Z"
+processingTimeMs	437115
+15	
+id	915
+domain	"koizumi-web.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.368Z"
+processedAt	"2025-06-24T16:15:08.620Z"
+processingStartedAt	"2025-06-24T16:15:08.496Z"
+processingTimeMs	124
+16	
+id	913
+domain	"ourstate.com"
+status	"success"
+companyName	"Ourstate"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.367Z"
+processedAt	"2025-06-24T16:15:09.410Z"
+processingStartedAt	"2025-06-24T16:15:08.496Z"
+processingTimeMs	914
+17	
+id	914
+domain	"sebarts.org"
+status	"success"
+companyName	"fluidimageoverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; mix-blend-mode: normal; opacity: 0; } sebastopol center for the arts 282 s"
+extractionMethod	"footer_copyright"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.363Z"
+processedAt	"2025-06-24T16:15:09.190Z"
+processingStartedAt	"2025-06-24T16:15:08.496Z"
+processingTimeMs	694
+18	
+id	912
+domain	"whiskandpin.com.au"
+status	"success"
+companyName	"padding-top: 0px !important;} free shipping over $150 australia-wide gourmet food shop 100's of speciality foods food hampers gift giving made extraordinary! homewares unique gifting ideas shop onlineall collections gourmet food gourmet muesli chocolate cookies dried citrus dried fruits & nuts gluten free foods homewares ingredients pantry tea, coffee & drinks specials food hampersall food hampers alcohol & food hampers breakfast hampers chocolate hampers gluten free hampers christmas food hampers picnic & bbq hampers brandsall brands grounded pleasures mason cash peter watson williamson tea customer servicecontact us delivery information faqs my account stockists track order wishlist useful linksblog terms & conditions privacy policy refund policy check gift card balance companyabout us meet our family philosophy plastics & recyclability visit the gourmet gallery serviceswholesale food range corporate hampers blue mountains food hampers food hampers central coast food hampers melbourne food hampers sydney food hampers wollongong whisk & pin pty ltd 1999"
+extractionMethod	"footer_copyright"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.362Z"
+processedAt	"2025-06-24T16:15:10.387Z"
+processingStartedAt	"2025-06-24T16:15:08.496Z"
+processingTimeMs	1891
+19	
+id	911
+domain	"sytekus.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.359Z"
+processedAt	"2025-06-24T16:15:08.695Z"
+processingStartedAt	"2025-06-24T16:15:08.496Z"
+processingTimeMs	199
+20	
+id	910
+domain	"greatfooduk.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.356Z"
+processedAt	"2025-06-24T16:15:08.253Z"
+processingStartedAt	"2025-06-24T16:15:03.121Z"
+processingTimeMs	5132
+21	
+id	909
+domain	"newearthlife.org"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.355Z"
+processedAt	"2025-06-24T16:15:08.252Z"
+processingStartedAt	"2025-06-24T16:15:03.121Z"
+processingTimeMs	5131
+22	
+id	908
+domain	"mrminc.net"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.355Z"
+processedAt	"2025-06-24T16:15:03.360Z"
+processingStartedAt	"2025-06-24T16:15:03.121Z"
+processingTimeMs	239
+23	
+id	906
+domain	"provedoruniversal.com.br"
+status	"success"
+companyName	"endereço: barão do rio branco 402 - centro sobre o provedor cidades atendidas para sua casa para sua empresa política de privacidade contato atendimento por e-mail contato por whatsapp telefone instagram facebook youtube preencha o formulário que nossa equipe entrará em contato estou de acordo com o tratamento dos dados pessoais preenchidos acima para que seja possível a realização do contato por parte da eber dejani pereira de albernaz sobre minha solicitação, dúvida ou sugestão"
+extractionMethod	"footer_copyright"
+confidenceScore	60
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.347Z"
+processedAt	"2025-06-24T16:15:06.207Z"
+processingStartedAt	"2025-06-24T16:15:03.121Z"
+processingTimeMs	3086
+24	
+id	907
+domain	"kidtransportation.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.346Z"
+processedAt	"2025-06-24T16:15:08.241Z"
+processingStartedAt	"2025-06-24T16:15:03.121Z"
+processingTimeMs	5120
+25	
+id	905
+domain	"mtti.edu"
+status	"success"
+companyName	'fall river ave seekonk, ma 02771 phone: 508-336-6611 fax: 508-336-8887 privacy policy consumer information our schoolabout us our history why choose mtti accreditation join our team contact us programsautomotive building trades computer tech electrician hvac medical assistant medical billing & coding motorcycle admissionsadmissions overview admissions requirements book a tour contact admissions financial aid veteran/military benefits success stories <img decoding="async" class="alignleft size'
+extractionMethod	"footer_copyright"
+confidenceScore	60
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.342Z"
+processedAt	"2025-06-24T16:15:03.473Z"
+processingStartedAt	"2025-06-24T16:15:03.121Z"
+processingTimeMs	352
+26	
+id	903
+domain	"astriatx.com"
+status	"success"
+companyName	"Astriatx"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.340Z"
+processedAt	"2025-06-24T16:15:03.431Z"
+processingStartedAt	"2025-06-24T16:15:03.121Z"
+processingTimeMs	310
+27	
+id	902
+domain	"chdwh.com"
+status	"success"
+companyName	"new patient special appointments gentle cleaning special offer includes cleaning, exam and x-rays $179 start saving well done! savvy decision"
+extractionMethod	"footer_copyright"
+confidenceScore	60
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.338Z"
+processedAt	"2025-06-24T16:14:59.462Z"
+processingStartedAt	"2025-06-24T16:14:58.391Z"
+processingTimeMs	1071
+28	
+id	901
+domain	"sesamm.com"
+status	"success"
+companyName	'legacypageid": "47138858478", "contentfolderid": null, "contentgroupid": null, "abtestid": 51291189989, "languagevariantid": 47138858478, "languagecode": "en", }]); var hsvars = { render_id: "701fd16f-3c16-4ef1-b003-515cbbdd506b", ticks: 1750754013606, page_id: 47138858478, content_group_id: 0, portal_id: 25479803, app_hs_base_url'
+extractionMethod	"footer_copyright"
+confidenceScore	60
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.338Z"
+processedAt	"2025-06-24T16:15:00.320Z"
+processingStartedAt	"2025-06-24T16:14:58.391Z"
+processingTimeMs	1929
+29	
+id	904
+domain	"dbi.co"
+status	"success"
+companyName	"Dbi"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.337Z"
+processedAt	"2025-06-24T16:15:03.509Z"
+processingStartedAt	"2025-06-24T16:15:03.121Z"
+processingTimeMs	388
+30	
+id	900
+domain	"473873.com"
+status	"success"
+companyName	"473873"
+extractionMethod	"domain_parse"
+confidenceScore	90
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.335Z"
+processedAt	"2025-06-24T16:15:02.684Z"
+processingStartedAt	"2025-06-24T16:14:58.391Z"
+processingTimeMs	4293
+31	
+id	899
+domain	"chinapaint.com.cn"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.330Z"
+processedAt	"2025-06-24T16:14:59.813Z"
+processingStartedAt	"2025-06-24T16:14:58.391Z"
+processingTimeMs	1422
+32	
+id	898
+domain	"lat-sontheim.de"
+status	"success"
+companyName	"lat gmbh & co"
+extractionMethod	"footer_copyright_cached"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.328Z"
+processedAt	"2025-06-24T16:15:03.184Z"
+processingStartedAt	"2025-06-24T16:15:03.121Z"
+processingTimeMs	63
+33	
+id	896
+domain	"spreedly.com"
+status	"success"
+companyName	"spreedly, inc"
+extractionMethod	"footer_copyright_cached"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.324Z"
+processedAt	"2025-06-24T16:15:03.206Z"
+processingStartedAt	"2025-06-24T16:15:03.121Z"
+processingTimeMs	85
+34	
+id	897
+domain	"dhs-versicherungsmakler.de"
+status	"success"
+companyName	"DHS Insurance Broker GmbH & Co. KG"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.324Z"
+processedAt	"2025-06-24T16:14:58.531Z"
+processingStartedAt	"2025-06-24T16:14:58.391Z"
+processingTimeMs	140
+35	
+id	895
+domain	"ketch.org"
+status	"success"
+companyName	"Ketch"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.324Z"
+processedAt	"2025-06-24T16:14:59.188Z"
+processingStartedAt	"2025-06-24T16:14:58.391Z"
+processingTimeMs	797
+36	
+id	894
+domain	"tomoeya.net"
+status	"success"
+companyName	"Tomoeya"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.322Z"
+processedAt	"2025-06-24T16:15:02.288Z"
+processingStartedAt	"2025-06-24T16:14:58.391Z"
+processingTimeMs	3897
+37	
+id	893
+domain	"fimeco-walter-allinial.com"
+status	"success"
+companyName	"Fimeco Walter Allinial"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.320Z"
+processedAt	"2025-06-24T16:15:02.918Z"
+processingStartedAt	"2025-06-24T16:14:58.391Z"
+processingTimeMs	4527
+38	
+id	892
+domain	"tecservices.com"
+status	"success"
+companyName	"Tecservices"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.319Z"
+processedAt	"2025-06-24T16:14:59.329Z"
+processingStartedAt	"2025-06-24T16:14:58.391Z"
+processingTimeMs	938
+39	
+id	891
+domain	"sdlomon.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.318Z"
+processedAt	"2025-06-24T16:14:58.816Z"
+processingStartedAt	"2025-06-24T16:14:58.391Z"
+processingTimeMs	425
+40	
+id	890
+domain	"fnbhereford.com"
+status	"success"
+companyName	"first national bank of hereford"
+extractionMethod	"footer_copyright"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.316Z"
+processedAt	"2025-06-24T16:14:57.091Z"
+processingStartedAt	"2025-06-24T16:14:54.892Z"
+processingTimeMs	2199
+41	
+id	889
+domain	"vdheuveltrade.nl"
+status	"success"
+companyName	"auto'); ga('send', 'pageview'); toggle navigation home distributeurs producenten over ons contact nederlands english français deutsch v"
+extractionMethod	"footer_copyright"
+confidenceScore	60
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.315Z"
+processedAt	"2025-06-24T16:14:56.751Z"
+processingStartedAt	"2025-06-24T16:14:54.892Z"
+processingTimeMs	1859
+42	
+id	888
+domain	"riocinema.org.uk"
+status	"success"
+companyName	"the rio centre (dalston) limited is a private limited company limited by guarantee registered in england and wales with registered number 01409066, vat registered number 327655735 and registered charity number 277415"
+extractionMethod	"footer_copyright"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.314Z"
+processedAt	"2025-06-24T16:14:56.851Z"
+processingStartedAt	"2025-06-24T16:14:54.892Z"
+processingTimeMs	1959
+43	
+id	887
+domain	"onko.co.jp"
+status	"success"
+companyName	"big 代表取締役交代のお知らせ cd/dvd/bdセルショップの直営店bigは2025年1月、全店閉店いたしました。 長い間のご愛顧につき、この場をお借りして御礼申し上げます。 事業案内 会社情報 製品情報 電子公告 アクセス お問い合わせ copy right(c)2015 onko ltd"
+extractionMethod	"footer_copyright"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.313Z"
+processedAt	"2025-06-24T16:14:56.138Z"
+processingStartedAt	"2025-06-24T16:14:54.892Z"
+processingTimeMs	1246
+44	
+id	886
+domain	"villageofconcord.com"
+status	"success"
+companyName	"village of concord"
+extractionMethod	"footer_copyright"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.312Z"
+processedAt	"2025-06-24T16:14:58.181Z"
+processingStartedAt	"2025-06-24T16:14:54.892Z"
+processingTimeMs	3289
+45	
+id	884
+domain	"audetech.com"
+status	"success"
+companyName	"Audetech"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.310Z"
+processedAt	"2025-06-24T16:14:55.517Z"
+processingStartedAt	"2025-06-24T16:14:54.892Z"
+processingTimeMs	625
+46	
+id	885
+domain	"brennanlaw.com"
+status	"success"
+companyName	"law offices of robert brennan, apc"
+extractionMethod	"footer_copyright"
+confidenceScore	70
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.309Z"
+processedAt	"2025-06-24T16:14:57.310Z"
+processingStartedAt	"2025-06-24T16:14:54.892Z"
+processingTimeMs	2418
+47	
+id	883
+domain	"hashboard.com"
+status	"success"
+companyName	"Hashboard"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.308Z"
+processedAt	"2025-06-24T16:14:55.365Z"
+processingStartedAt	"2025-06-24T16:14:54.892Z"
+processingTimeMs	473
+48	
+id	882
+domain	"kippcolumbus.org"
+status	"success"
+companyName	"inspire drive, columbus, oh 43224 (614) 263-6137 facebookinstagramtwitterlinkedin about mission and vision history kipp columbus campus board of directors join our team contact us support kipp donate schools kipp columbus primary kipp columbus elementary kipp columbus middle kipp columbus high kipp forward jaguar athletics admissions how to apply lottery timeline faq admissions team © copyright 2025, kipp columbus"
+extractionMethod	"footer_copyright"
+confidenceScore	85
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.307Z"
+processedAt	"2025-06-24T16:14:55.209Z"
+processingStartedAt	"2025-06-24T16:14:54.892Z"
+processingTimeMs	317
+49	
+id	881
+domain	"orarchitects.com"
+status	"success"
+companyName	"Orarchitects"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.306Z"
+processedAt	"2025-06-24T16:14:56.741Z"
+processingStartedAt	"2025-06-24T16:14:54.892Z"
+processingTimeMs	1849
+50	
+id	880
+domain	"v-v-wassenberg.de"
+status	"success"
+companyName	"V V Wassenberg"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.303Z"
+processedAt	"2025-06-24T16:14:39.668Z"
+processingStartedAt	"2025-06-24T16:14:37.090Z"
+processingTimeMs	2578
+51	
+id	879
+domain	"whitessupply.com"
+status	"success"
+companyName	"Whitessupply"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.291Z"
+processedAt	"2025-06-24T16:14:54.573Z"
+processingStartedAt	"2025-06-24T16:14:37.090Z"
+processingTimeMs	17483
+52	
+id	878
+domain	"wgpllp.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.290Z"
+processedAt	"2025-06-24T16:14:54.577Z"
+processingStartedAt	"2025-06-24T16:14:37.090Z"
+processingTimeMs	17487
+53	
+id	876
+domain	"hawleytroxell.com"
+status	"success"
+companyName	"Hawleytroxell"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.288Z"
+processedAt	"2025-06-24T16:14:37.424Z"
+processingStartedAt	"2025-06-24T16:14:37.090Z"
+processingTimeMs	334
+54	
+id	877
+domain	"mcinc-products.jp"
+status	"success"
+companyName	"Mcinc Products"
+extractionMethod	"domain_parse"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.288Z"
+processedAt	"2025-06-24T16:14:54.578Z"
+processingStartedAt	"2025-06-24T16:14:37.090Z"
+processingTimeMs	17488
+55	
+id	874
+domain	"star-taxi.com"
+status	"success"
+companyName	"Star Taxi"
+extractionMethod	"domain_parse"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.285Z"
+processedAt	"2025-06-24T16:14:39.500Z"
+processingStartedAt	"2025-06-24T16:14:37.090Z"
+processingTimeMs	2410
+56	
+id	875
+domain	"perpetualmotionnw.com"
+status	"success"
+companyName	"e4b045720ac2712f/1740073688186"
+extractionMethod	"footer_copyright"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.285Z"
+processedAt	"2025-06-24T16:14:37.375Z"
+processingStartedAt	"2025-06-24T16:14:37.090Z"
+processingTimeMs	285
+57	
+id	873
+domain	"jarvit.com"
+status	"success"
+companyName	"rea mi-2634938 seamlessly connect, engage, and delight your customers"
+extractionMethod	"footer_copyright"
+confidenceScore	60
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.283Z"
+processedAt	"2025-06-24T16:14:38.065Z"
+processingStartedAt	"2025-06-24T16:14:37.090Z"
+processingTimeMs	975
+58	
+id	871
+domain	"hmisemi.com"
+status	"success"
+companyName	"Hmisemi"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.281Z"
+processedAt	"2025-06-24T16:14:38.060Z"
+processingStartedAt	"2025-06-24T16:14:37.090Z"
+processingTimeMs	970
+59	
+id	872
+domain	"tommygsespresso.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.281Z"
+processedAt	"2025-06-24T16:14:54.576Z"
+processingStartedAt	"2025-06-24T16:14:37.090Z"
+processingTimeMs	17486
+60	
+id	870
+domain	"seria-roile.co.jp"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.279Z"
+processedAt	"2025-06-24T16:14:33.063Z"
+processingStartedAt	"2025-06-24T16:14:32.794Z"
+processingTimeMs	269
+61	
+id	869
+domain	"marinelife.org"
+status	"success"
+companyName	"send message send message hours 10 a"
+extractionMethod	"footer_copyright"
+confidenceScore	70
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.278Z"
+processedAt	"2025-06-24T16:14:33.703Z"
+processingStartedAt	"2025-06-24T16:14:32.794Z"
+processingTimeMs	909
+62	
+id	868
+domain	"fatllama.com"
+status	"success"
+companyName	'id"'
+extractionMethod	"footer_copyright"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.277Z"
+processedAt	"2025-06-24T16:14:36.890Z"
+processingStartedAt	"2025-06-24T16:14:32.794Z"
+processingTimeMs	4096
+63	
+id	867
+domain	"fox-river.ca"
+status	"success"
+companyName	'shares"}}; corporate headquarters 141 adelaide street west, suite 301, toronto, on m5h 3l5 info (at) fox'
+extractionMethod	"footer_copyright"
+confidenceScore	60
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.276Z"
+processedAt	"2025-06-24T16:14:34.197Z"
+processingStartedAt	"2025-06-24T16:14:32.794Z"
+processingTimeMs	1403
+64	
+id	866
+domain	"bastion-ts.com.au"
+status	"success"
+companyName	"fluidimageoverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; mix-blend-mode: normal; opacity: 0; } #block"
+extractionMethod	"footer_copyright"
+confidenceScore	60
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.273Z"
+processedAt	"2025-06-24T16:14:33.558Z"
+processingStartedAt	"2025-06-24T16:14:32.794Z"
+processingTimeMs	764
+65	
+id	864
+domain	"jpond.com.cn"
+status	"success"
+companyName	"Jpond"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.272Z"
+processedAt	"2025-06-24T16:14:34.919Z"
+processingStartedAt	"2025-06-24T16:14:32.794Z"
+processingTimeMs	2125
+66	
+id	865
+domain	"riccomaresca.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.271Z"
+processedAt	"2025-06-24T16:14:33.118Z"
+processingStartedAt	"2025-06-24T16:14:32.794Z"
+processingTimeMs	324
+67	
+id	863
+domain	"qteam1.com"
+status	"success"
+companyName	"auto"
+extractionMethod	"footer_copyright"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.271Z"
+processedAt	"2025-06-24T16:14:34.938Z"
+processingStartedAt	"2025-06-24T16:14:32.794Z"
+processingTimeMs	2144
+68	
+id	862
+domain	"arielcoro.com"
+status	"success"
+companyName	"Arielcoro"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.270Z"
+processedAt	"2025-06-24T16:14:33.389Z"
+processingStartedAt	"2025-06-24T16:14:32.794Z"
+processingTimeMs	595
+69	
+id	861
+domain	"apmse.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.270Z"
+processedAt	"2025-06-24T16:14:33.469Z"
+processingStartedAt	"2025-06-24T16:14:32.794Z"
+processingTimeMs	675
+70	
+id	860
+domain	"phoenixfundservices.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.269Z"
+processedAt	"2025-06-24T16:14:31.151Z"
+processingStartedAt	"2025-06-24T16:14:24.753Z"
+processingTimeMs	6398
+71	
+id	858
+domain	"kingdomtherapeutics.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.267Z"
+processedAt	"2025-06-24T16:14:25.489Z"
+processingStartedAt	"2025-06-24T16:14:24.753Z"
+processingTimeMs	736
+72	
+id	859
+domain	"odsinc.co.jp"
+status	"success"
+companyName	"ohkawa corporation"
+extractionMethod	"footer_copyright"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.267Z"
+processedAt	"2025-06-24T16:14:31.158Z"
+processingStartedAt	"2025-06-24T16:14:24.753Z"
+processingTimeMs	6405
+73	
+id	857
+domain	"swnebr.net"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.266Z"
+processedAt	"2025-06-24T16:14:31.150Z"
+processingStartedAt	"2025-06-24T16:14:24.753Z"
+processingTimeMs	6397
+74	
+id	856
+domain	"icedap.com"
+status	"success"
+companyName	"Icedap"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.265Z"
+processedAt	"2025-06-24T16:14:31.148Z"
+processingStartedAt	"2025-06-24T16:14:24.753Z"
+processingTimeMs	6395
+75	
+id	854
+domain	"pace360.in"
+status	"success"
+companyName	"india (c) pace financial investment services llp meet the team regulatory information alternative investment fund (aif) global asset managers mutual fund insights 360 knowledge series gallery webinar contact us (c) pace financial investment services llp (c) pace financial investment services llp meet the team regulatory information alternative investment fund (aif) global asset managers mutual fund insights 360 knowledge series gallery webinar contact us no"
+extractionMethod	"footer_copyright"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.263Z"
+processedAt	"2025-06-24T16:14:32.599Z"
+processingStartedAt	"2025-06-24T16:14:24.753Z"
+processingTimeMs	7846
+76	
+id	855
+domain	"ngamiland.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.261Z"
+processedAt	"2025-06-24T16:14:25.108Z"
+processingStartedAt	"2025-06-24T16:14:24.753Z"
+processingTimeMs	355
+77	
+id	853
+domain	"cannatron.com"
+status	"success"
+companyName	'width=460" loading="lazy" class="footer'
+extractionMethod	"footer_copyright"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.260Z"
+processedAt	"2025-06-24T16:14:27.011Z"
+processingStartedAt	"2025-06-24T16:14:24.753Z"
+processingTimeMs	2258
+78	
+id	851
+domain	"goswirl.live"
+status	"success"
+companyName	"Goswirl"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.260Z"
+processedAt	"2025-06-24T16:14:25.595Z"
+processingStartedAt	"2025-06-24T16:14:24.753Z"
+processingTimeMs	842
+79	
+id	852
+domain	"neatleaf.com"
+status	"success"
+companyName	"Neatleaf"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.260Z"
+processedAt	"2025-06-24T16:14:25.597Z"
+processingStartedAt	"2025-06-24T16:14:24.753Z"
+processingTimeMs	844
+80	
+id	849
+domain	"ubees.com"
+status	"success"
+companyName	'forminator_fields"'
+extractionMethod	"footer_copyright"
+confidenceScore	80
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.257Z"
+processedAt	"2025-06-24T16:14:20.911Z"
+processingStartedAt	"2025-06-24T16:14:19.594Z"
+processingTimeMs	1316
+81	
+id	847
+domain	"tohkaiweb.com"
+status	"success"
+companyName	"Tohkaiweb"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.256Z"
+processedAt	"2025-06-24T16:14:22.103Z"
+processingStartedAt	"2025-06-24T16:14:19.594Z"
+processingTimeMs	2509
+82	
+id	848
+domain	"rolesvillenc.gov"
+status	"success"
+companyName	"town of rolesville, nc recent and upcoming news & events upcoming events jun 23 camp kidds with rolesville police"
+extractionMethod	"footer_copyright"
+confidenceScore	60
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.256Z"
+processedAt	"2025-06-24T16:14:20.605Z"
+processingStartedAt	"2025-06-24T16:14:19.594Z"
+processingTimeMs	1011
+83	
+id	846
+domain	"fkm-buster.de"
+status	"success"
+companyName	"Fkm Buster"
+extractionMethod	"domain_parse"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.253Z"
+processedAt	"2025-06-24T16:14:24.560Z"
+processingStartedAt	"2025-06-24T16:14:19.594Z"
+processingTimeMs	4966
+84	
+id	845
+domain	"aggielandchevrolet.com"
+status	"success"
+companyName	"Aggielandchevrolet"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.253Z"
+processedAt	"2025-06-24T16:14:20.065Z"
+processingStartedAt	"2025-06-24T16:14:19.594Z"
+processingTimeMs	471
+85	
+id	850
+domain	"tanaka-ind.co.jp"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.251Z"
+processedAt	"2025-06-24T16:14:20.006Z"
+processingStartedAt	"2025-06-24T16:14:19.594Z"
+processingTimeMs	411
+86	
+id	843
+domain	"solcgllc.com"
+status	"success"
+companyName	"Solcgllc"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.249Z"
+processedAt	"2025-06-24T16:14:20.283Z"
+processingStartedAt	"2025-06-24T16:14:19.594Z"
+processingTimeMs	689
+87	
+id	844
+domain	"yeesco.com.br"
+status	"success"
+companyName	"yeesco industria e comercio de confeccoes ltda®"
+extractionMethod	"footer_copyright"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.248Z"
+processedAt	"2025-06-24T16:14:22.749Z"
+processingStartedAt	"2025-06-24T16:14:19.594Z"
+processingTimeMs	3155
+88	
+id	842
+domain	"ece.srv.br"
+status	"success"
+companyName	"nossos horários​ segunda-sexta, 08:00h-12:00h / 13:30h-18:00h /* widget: instagram feed */ #uc_blox_grid_instagrm_widget_elementor_64d1ba8 { dis: grid; } #uc_blox_grid_instagrm_widget_elementor_64d1ba8"
+extractionMethod	"footer_copyright"
+confidenceScore	60
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.247Z"
+processedAt	"2025-06-24T16:14:21.578Z"
+processingStartedAt	"2025-06-24T16:14:19.593Z"
+processingTimeMs	1985
+89	
+id	841
+domain	"moderntimesbeer.com"
+status	"success"
+companyName	"Moderntimesbeer"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.246Z"
+processedAt	"2025-06-24T16:14:23.053Z"
+processingStartedAt	"2025-06-24T16:14:19.593Z"
+processingTimeMs	3460
+90	
+id	840
+domain	"activemicrotechnologies.com"
+status	"success"
+companyName	'cab01215bf52d0b0fe41c223c","fragment_name":"wc_fragments_c664784cab01215bf52d0b0fe41c223c"}; /* ]]> */ /* <![cdata[ */ var woocommerce_price_slider_params = {"currency_format_num_decimals"'
+extractionMethod	"footer_copyright"
+confidenceScore	60
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.242Z"
+processedAt	"2025-06-24T16:14:09.541Z"
+processingStartedAt	"2025-06-24T16:14:08.846Z"
+processingTimeMs	695
+91	
+id	839
+domain	"jandevrieshealth.co.uk"
+status	"success"
+companyName	"hadley wood healthcare ltd (incorporating jandevrieshealth"
+extractionMethod	"footer_copyright"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.241Z"
+processedAt	"2025-06-24T16:14:09.609Z"
+processingStartedAt	"2025-06-24T16:14:08.846Z"
+processingTimeMs	763
+92	
+id	838
+domain	"intence.tech"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain accessible but no extractable company information"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.238Z"
+processedAt	"2025-06-24T16:14:19.355Z"
+processingStartedAt	"2025-06-24T16:14:08.846Z"
+processingTimeMs	10509
+93	
+id	837
+domain	"bwr-innovations.com"
+status	"success"
+companyName	'blue water resolute bwr innovations web design by bluestem media llc privacy & terms <iframe src="https'
+extractionMethod	"footer_copyright"
+confidenceScore	100
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.236Z"
+processedAt	"2025-06-24T16:14:09.800Z"
+processingStartedAt	"2025-06-24T16:14:08.846Z"
+processingTimeMs	954
+94	
+id	836
+domain	"webi.co.jp"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.234Z"
+processedAt	"2025-06-24T16:14:09.169Z"
+processingStartedAt	"2025-06-24T16:14:08.846Z"
+processingTimeMs	323
+95	
+id	834
+domain	"guidingtechnologies.com"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain unreachable - bad website/network issue"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.232Z"
+processedAt	"2025-06-24T16:14:09.032Z"
+processingStartedAt	"2025-06-24T16:14:08.846Z"
+processingTimeMs	186
+96	
+id	835
+domain	"16handles.com"
+status	"success"
+companyName	"16handles"
+extractionMethod	"domain_parse"
+confidenceScore	90
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.232Z"
+processedAt	"2025-06-24T16:14:09.489Z"
+processingStartedAt	"2025-06-24T16:14:08.846Z"
+processingTimeMs	643
+97	
+id	833
+domain	"brisbaneorthopaedics.com.au"
+status	"success"
+companyName	"Brisbaneorthopaedics"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.230Z"
+processedAt	"2025-06-24T16:14:10.089Z"
+processingStartedAt	"2025-06-24T16:14:08.846Z"
+processingTimeMs	1243
+98	
+id	832
+domain	"kintessia.net"
+status	"failed"
+companyName	null
+extractionMethod	null
+confidenceScore	null
+retryCount	1
+errorMessage	"Domain accessible but no extractable company information"
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.182Z"
+processedAt	"2025-06-24T16:14:17.369Z"
+processingStartedAt	"2025-06-24T16:14:08.846Z"
+processingTimeMs	8523
+99	
+id	831
+domain	"waters.co.kr"
+status	"success"
+companyName	"Waters"
+extractionMethod	"domain_parse"
+confidenceScore	95
+retryCount	0
+errorMessage	null
+batchId	"Fiz0basYcLnvWWf31dzDv"
+createdAt	"2025-06-24T16:14:08.182Z"
+processedAt	"2025-06-24T16:14:10.882Z"
+processingStartedAt	"2025-06-24T16:14:08.846Z"
+processingTimeMs	2035

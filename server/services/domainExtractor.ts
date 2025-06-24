@@ -855,17 +855,15 @@ export class DomainExtractor {
     const bottomText = bodyText.slice(-2000); // Last 2000 characters
     const combinedText = (footerText + ' ' + bottomText).toLowerCase();
     
-    // Look for copyright and legal entity patterns in footer
+    // Look for copyright and legal entity patterns in footer - STRICT patterns only
     const legalEntityPatterns = [
-      // Copyright patterns with legal suffixes
-      /copyright\s*©?\s*\d{4}[^a-z]*([^.]+?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg|apc|p\.c\.|pc|pllc)[^.]*)/i,
-      /©\s*\d{4}[^a-z]*([^.]+?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg|apc|p\.c\.|pc|pllc)[^.]*)/i,
-      /\d{4}[^a-z]+([^.]+?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg|apc|p\.c\.|pc|pllc)[^.]*)/i,
-      // Direct legal entity patterns (law offices, etc.)
-      /(law offices? of [^,]+?,?\s*(?:inc|corp|corporation|ltd|limited|llc|co\.|apc|p\.c\.|pc|pllc))/i,
-      /([^,]+?\s+(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg|apc|p\.c\.|pc|pllc))\s*(?:\d{4}|all rights)/i,
-      // Enhanced pattern for law offices without comma separator  
-      /(law offices? of [^0-9]+(?:inc|corp|corporation|ltd|limited|llc|co\.|apc|p\.c\.|pc|pllc))/i
+      // Very specific copyright patterns with legal suffixes - max 50 chars
+      /copyright\s*©?\s*\d{4}[^a-z]*([a-zA-Z][^.]{1,45}?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg|apc|p\.c\.|pc|pllc))/i,
+      /©\s*\d{4}[^a-z]*([a-zA-Z][^.]{1,45}?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg|apc|p\.c\.|pc|pllc))/i,
+      // Very specific year + company patterns - max 50 chars
+      /\d{4}[^a-z]+([a-zA-Z][^.]{1,45}?(?:inc|corp|corporation|ltd|limited|llc|co\.|gmbh|ag|s\.a\.|spa|sarl|kg|apc|p\.c\.|pc|pllc))/i,
+      // Law offices - max 40 chars
+      /(law offices? of [a-zA-Z\s&]{1,30}?,?\s*(?:inc|corp|corporation|ltd|limited|llc|co\.|apc|p\.c\.|pc|pllc))/i
     ];
     
     for (const pattern of legalEntityPatterns) {
@@ -881,7 +879,30 @@ export class DomainExtractor {
         // Clean up the extracted name
         companyName = this.cleanCompanyName(companyName);
         
-        if (companyName && this.isValidCompanyName(companyName) && companyName.length >= 3) {
+        // Strict validation for footer extraction - reject if too long or contains noise
+        if (companyName && 
+            companyName.length <= 50 && 
+            companyName.length >= 3 &&
+            !companyName.includes('{') && 
+            !companyName.includes('}') && 
+            !companyName.includes('javascript') &&
+            !companyName.includes('html') &&
+            !companyName.includes('css') &&
+            !companyName.includes('padding') &&
+            !companyName.includes('margin') &&
+            !companyName.includes('width') &&
+            !companyName.includes('height') &&
+            !companyName.includes('display') &&
+            !companyName.includes('position') &&
+            !companyName.includes('opacity') &&
+            !companyName.includes('overflow') &&
+            !companyName.toLowerCase().includes('toggle') &&
+            !companyName.toLowerCase().includes('menu') &&
+            !companyName.toLowerCase().includes('button') &&
+            !companyName.toLowerCase().includes('click') &&
+            this.isValidCompanyName(companyName) && 
+            !this.isMarketingContent(companyName)) {
+          
           return {
             companyName,
             method: 'footer_copyright',
