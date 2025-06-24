@@ -54,11 +54,28 @@ export default function AnalyticsDashboard() {
   const latestBatch = analyticsData[0];
   const previousBatch = analyticsData[1];
   
-  // Calculate simple trends
-  const confidenceTrend = previousBatch ? latestBatch.medianConfidence - previousBatch.medianConfidence : 0;
-  const successTrend = previousBatch ? latestBatch.successRate - previousBatch.successRate : 0;
+  // Calculate cumulative averages (excluding latest batch for comparison)
+  const historicalData = analyticsData.slice(1); // All batches except the latest
+  const historicalAvgConfidence = historicalData.length > 0 
+    ? Math.round(historicalData.reduce((sum, batch) => sum + batch.medianConfidence, 0) / historicalData.length)
+    : 0;
+  const historicalAvgSuccess = historicalData.length > 0
+    ? Math.round(historicalData.reduce((sum, batch) => sum + batch.successRate, 0) / historicalData.length)
+    : 0;
+  const historicalAvgDomainMapping = historicalData.length > 0
+    ? Math.round(historicalData.reduce((sum, batch) => sum + batch.domainMappingPercentage, 0) / historicalData.length)
+    : 0;
+  const historicalAvgProcessingTime = historicalData.length > 0
+    ? Math.round(historicalData.reduce((sum, batch) => sum + batch.avgProcessingTimePerDomain, 0) / historicalData.length)
+    : 0;
   
-  // Calculate averages across all batches
+  // Calculate performance vs historical average
+  const confidencePerformance = historicalAvgConfidence > 0 ? latestBatch.medianConfidence - historicalAvgConfidence : 0;
+  const successPerformance = historicalAvgSuccess > 0 ? latestBatch.successRate - historicalAvgSuccess : 0;
+  const domainMappingPerformance = historicalAvgDomainMapping > 0 ? latestBatch.domainMappingPercentage - historicalAvgDomainMapping : 0;
+  const processingTimePerformance = historicalAvgProcessingTime > 0 ? historicalAvgProcessingTime - latestBatch.avgProcessingTimePerDomain : 0; // Inverted: lower is better
+  
+  // Overall averages for summary
   const avgConfidence = Math.round(analyticsData.reduce((sum, batch) => sum + batch.medianConfidence, 0) / analyticsData.length);
   const avgSuccessRate = Math.round(analyticsData.reduce((sum, batch) => sum + batch.successRate, 0) / analyticsData.length);
   const totalDomains = analyticsData.reduce((sum, batch) => sum + batch.totalDomains, 0);
@@ -84,17 +101,64 @@ export default function AnalyticsDashboard() {
         </div>
       </div>
 
+      {/* Cumulative Performance Comparison */}
+      {historicalData.length > 0 && (
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Latest Run vs Historical Average</CardTitle>
+            <p className="text-sm text-gray-600">Performance comparison against {historicalData.length} previous batches</p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-blue-600">{latestBatch.medianConfidence}%</p>
+                <p className="text-xs text-gray-500">Latest Confidence</p>
+                <div className={`text-sm font-medium ${confidencePerformance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {confidencePerformance >= 0 ? '+' : ''}{confidencePerformance} vs avg ({historicalAvgConfidence}%)
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-green-600">{latestBatch.successRate}%</p>
+                <p className="text-xs text-gray-500">Latest Success</p>
+                <div className={`text-sm font-medium ${successPerformance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {successPerformance >= 0 ? '+' : ''}{successPerformance} vs avg ({historicalAvgSuccess}%)
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-purple-600">{latestBatch.domainMappingPercentage}%</p>
+                <p className="text-xs text-gray-500">Domain Mapping</p>
+                <div className={`text-sm font-medium ${domainMappingPerformance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {domainMappingPerformance >= 0 ? '+' : ''}{domainMappingPerformance} vs avg ({historicalAvgDomainMapping}%)
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-orange-600">
+                  {latestBatch.avgProcessingTimePerDomain > 1000 
+                    ? `${Math.round(latestBatch.avgProcessingTimePerDomain / 1000)}s`
+                    : `${latestBatch.avgProcessingTimePerDomain}ms`
+                  }
+                </p>
+                <p className="text-xs text-gray-500">Processing Time</p>
+                <div className={`text-sm font-medium ${processingTimePerformance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {processingTimePerformance >= 0 ? 'Faster' : 'Slower'} by {Math.abs(processingTimePerformance)}ms
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-gray-600">Latest Confidence</p>
+                <p className="text-xs font-medium text-gray-600">Confidence</p>
                 <p className="text-xl font-bold text-blue-600">{latestBatch.medianConfidence}%</p>
-                {confidenceTrend !== 0 && (
-                  <p className={`text-xs ${confidenceTrend > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {confidenceTrend > 0 ? '+' : ''}{confidenceTrend}%
+                {historicalData.length > 0 && (
+                  <p className={`text-xs ${confidencePerformance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {confidencePerformance >= 0 ? '+' : ''}{confidencePerformance} vs avg
                   </p>
                 )}
               </div>
@@ -107,11 +171,11 @@ export default function AnalyticsDashboard() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-gray-600">Latest Success</p>
+                <p className="text-xs font-medium text-gray-600">Success Rate</p>
                 <p className="text-xl font-bold text-green-600">{latestBatch.successRate}%</p>
-                {successTrend !== 0 && (
-                  <p className={`text-xs ${successTrend > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {successTrend > 0 ? '+' : ''}{successTrend}%
+                {historicalData.length > 0 && (
+                  <p className={`text-xs ${successPerformance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {successPerformance >= 0 ? '+' : ''}{successPerformance} vs avg
                   </p>
                 )}
               </div>
@@ -126,7 +190,11 @@ export default function AnalyticsDashboard() {
               <div>
                 <p className="text-xs font-medium text-gray-600">Domain Mapping</p>
                 <p className="text-xl font-bold text-purple-600">{latestBatch.domainMappingPercentage}%</p>
-                <p className="text-xs text-gray-500">Usage rate</p>
+                {historicalData.length > 0 && (
+                  <p className={`text-xs ${domainMappingPerformance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {domainMappingPerformance >= 0 ? '+' : ''}{domainMappingPerformance} vs avg
+                  </p>
+                )}
               </div>
               <Database className="h-6 w-6 text-purple-600" />
             </div>
@@ -144,7 +212,11 @@ export default function AnalyticsDashboard() {
                     : `${latestBatch.avgProcessingTimePerDomain}ms`
                   }
                 </p>
-                <p className="text-xs text-gray-500">Per domain</p>
+                {historicalData.length > 0 && (
+                  <p className={`text-xs ${processingTimePerformance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {processingTimePerformance >= 0 ? 'Faster' : 'Slower'} by {Math.abs(processingTimePerformance)}ms
+                  </p>
+                )}
               </div>
               <Clock className="h-6 w-6 text-orange-600" />
             </div>
