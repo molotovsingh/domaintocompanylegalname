@@ -74,9 +74,9 @@ A production-scale web application for extracting company names from domain list
 - Documented extraction methods, confidence scoring, pattern recognition, and validation rules
 - Added comprehensive Jurisdictional Knowledge Reference with detailed legal entity explanations across 9 jurisdictions
 - Included capital requirements, regulatory details, and validation algorithms with minimal visual elements
-- Lowered confidence threshold from 70% to 60% for better small business coverage
-- Enhanced domain parsing to handle business suffixes and common patterns
-- Added business pattern recognition for improved confidence scoring
+- Enhanced extraction priority logic to prefer HTML legal entities over domain parsing
+- Added legal entity pattern recognition in HTML titles with confidence boost
+- Improved extraction comparison logic to choose best result between HTML and domain methods
 - Fixed processor to use enhanced DomainExtractor with About Us/Terms page crawling (June 24, 2025)
 - About Us and Terms page crawling now active for improved legal entity name extraction
 - Emergency fix: Restored proper validation logic to prevent extraction of marketing taglines and generic content
