@@ -68,6 +68,15 @@ export default function ParsingRules() {
                     <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">55% confidence</Badge>
                   </div>
                 </div>
+                
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="text-sm font-medium text-blue-800 mb-2">Success Threshold</div>
+                  <div className="text-sm text-blue-700">
+                    Results with ≥70% confidence are marked as <strong>successful</strong>.<br/>
+                    Results with 50-69% confidence are marked as <strong>failed</strong> for sophisticated processing.<br/>
+                    Results with &lt;50% confidence are completely rejected.
+                  </div>
+                </div>
               </CardContent>
             </Card>
 

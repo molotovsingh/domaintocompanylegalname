@@ -63,6 +63,8 @@ A production-scale web application for extracting company names from domain list
 - Added intelligent sub-page crawling for /about, /company, /terms paths where legal entity names appear
 - Created comprehensive Parsing Rules documentation page for developers
 - Documented extraction methods, confidence scoring, pattern recognition, and validation rules
+- Raised confidence threshold from 50% to 70% for success declaration
+- 50-69% confidence results now routed to sophisticated processing pipeline
 
 ## User Preferences
 - Professional interface without excessive technical jargon
