@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Settings, Server, Plus } from "lucide-react";
+import { Settings, Server } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -50,71 +50,14 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
           </div>
         )}
 
-        {/* Processing Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-600 uppercase tracking-wide">Rate</p>
-            <p className="text-lg font-bold text-gray-900">
-              {stats?.processingRate?.toLocaleString() || 0}/min
-            </p>
+        {/* System Status */}
+        {!batch && (
+          <div className="text-center p-6 bg-gray-50 rounded-lg">
+            <Server className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-600">No active processing</p>
+            <p className="text-xs text-gray-500 mt-1">Upload a file to begin</p>
           </div>
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-600 uppercase tracking-wide">ETA</p>
-            <p className="text-lg font-bold text-gray-900">
-              {stats?.eta || '--'}
-            </p>
-          </div>
-        </div>
-
-        {/* Worker Status */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-medium text-gray-700 flex items-center">
-            <Server className="text-gray-400 mr-2 h-4 w-4" />
-            Active Workers
-          </h3>
-
-          {/* Mock Worker Status - would be replaced with real data */}
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-success rounded-full mr-3"></div>
-              <span className="text-sm font-medium text-gray-700">Worker-01</span>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-gray-600">Processing</p>
-              <p className="text-xs text-gray-500">156/min</p>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-success rounded-full mr-3"></div>
-              <span className="text-sm font-medium text-gray-700">Worker-02</span>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-gray-600">Processing</p>
-              <p className="text-xs text-gray-500">142/min</p>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-warning rounded-full mr-3"></div>
-              <span className="text-sm font-medium text-gray-700">Worker-03</span>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-gray-600">Throttled</p>
-              <p className="text-xs text-gray-500">Rate limited</p>
-            </div>
-          </div>
-
-          <Button
-            variant="outline"
-            className="w-full text-primary-custom border-primary-custom hover:bg-primary-custom hover:bg-opacity-5"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Scale Workers
-          </Button>
-        </div>
+        )}
       </CardContent>
     </Card>
   );

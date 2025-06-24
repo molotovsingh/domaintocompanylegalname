@@ -61,11 +61,6 @@ export default function Dashboard() {
               <Link href="/jurisdictional-guide" className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors">
                 Jurisdictions
               </Link>
-              {currentBatchId && (
-                <div className="text-xs text-gray-600">
-                  Current: {currentBatchId.substring(0, 8)}...
-                </div>
-              )}
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">Admin User</p>
                 <p className="text-xs text-gray-600">Administrator</p>

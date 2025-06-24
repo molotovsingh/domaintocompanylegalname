@@ -2,8 +2,6 @@ import { useState, useRef } from "react";
 import { Upload, CloudUpload, Play } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -16,13 +14,7 @@ export default function FileUpload({ onBatchUploaded }: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [processingOptions, setProcessingOptions] = useState({
-    htmlTitle: false,
-    metaDescription: false,
-    domainFallback: true, // Always enabled - this is the primary method
-  });
-  const [retryAttempts, setRetryAttempts] = useState("3");
-  const [batchSize, setBatchSize] = useState("1000");
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -175,82 +167,22 @@ export default function FileUpload({ onBatchUploaded }: FileUploadProps) {
           </div>
         )}
 
-        {/* Configuration Options */}
-        <div className="mt-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Processing Options</label>
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="htmlTitle"
-                  checked={processingOptions.htmlTitle}
-                  onCheckedChange={(checked) =>
-                    setProcessingOptions(prev => ({ ...prev, htmlTitle: checked as boolean }))
-                  }
-                />
-                <label htmlFor="htmlTitle" className="text-sm text-gray-700">HTML Title Extraction</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="metaDescription"
-                  checked={processingOptions.metaDescription}
-                  onCheckedChange={(checked) =>
-                    setProcessingOptions(prev => ({ ...prev, metaDescription: checked as boolean }))
-                  }
-                />
-                <label htmlFor="metaDescription" className="text-sm text-gray-700">Meta Description Analysis</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="domainFallback"
-                  checked={processingOptions.domainFallback}
-                  onCheckedChange={(checked) =>
-                    setProcessingOptions(prev => ({ ...prev, domainFallback: checked as boolean }))
-                  }
-                />
-                <label htmlFor="domainFallback" className="text-sm text-gray-700">Domain-based Fallback</label>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Retry Attempts</label>
-              <Select value={retryAttempts} onValueChange={setRetryAttempts}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="3">3</SelectItem>
-                  <SelectItem value="5">5</SelectItem>
-                  <SelectItem value="10">10</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Batch Size</label>
-              <Select value={batchSize} onValueChange={setBatchSize}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1000">1000</SelectItem>
-                  <SelectItem value="5000">5000</SelectItem>
-                  <SelectItem value="10000">10000</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <Button
-            onClick={uploadFile}
-            disabled={!selectedFile || isUploading}
-            className="w-full bg-primary-custom hover:bg-blue-700 text-white flex items-center justify-center"
-          >
-            <Play className="mr-2 h-4 w-4" />
-            {isUploading ? 'Uploading...' : 'Upload & Queue for Processing'}
-          </Button>
+        {/* Processing Info */}
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-sm font-medium text-blue-900 mb-1">Extraction Methods</p>
+          <p className="text-xs text-blue-700">
+            Domain mapping (95% confidence) → About Us pages → Legal pages → Domain parsing (fallback)
+          </p>
         </div>
+
+        <Button
+          onClick={uploadFile}
+          disabled={!selectedFile || isUploading}
+          className="w-full mt-6 bg-primary-custom hover:bg-blue-700 text-white flex items-center justify-center"
+        >
+          <Play className="mr-2 h-4 w-4" />
+          {isUploading ? 'Uploading...' : 'Upload & Queue for Processing'}
+        </Button>
       </CardContent>
     </Card>
   );
