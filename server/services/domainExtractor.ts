@@ -44,7 +44,7 @@ export class DomainExtractor {
         };
       }
 
-      // Domain is reachable - proceed with HTML extraction (includes footer extraction)
+      // Domain is reachable - proceed with enhanced HTML extraction (structured data + footer + meta)
       const url = `https://${cleanDomain}`;
       const htmlResult = await this.extractFromHTML(url);
       
@@ -764,23 +764,26 @@ export class DomainExtractor {
     
     // Method-based confidence
     switch (method) {
-      case 'domain_parse':
-        confidence = 95; // Always high confidence for domain mappings
+      case 'domain_mapping':
+        confidence = 95; // Always high confidence for known mappings
+        break;
+      case 'structured_data':
+        confidence = 98; // Highest confidence for JSON-LD structured data
         break;
       case 'footer_copyright':
         confidence = 85; // High confidence for footer copyright extraction
         break;
-      case 'html_about':
+      case 'meta_property':
+        confidence = 80; // Good confidence for meta properties
+        break;
+      case 'about_page':
         confidence += 35; // High confidence for about sections
         break;
-      case 'html_legal':
+      case 'legal_page':
         confidence += 40; // Highest confidence for legal content
         break;
-      case 'html_subpage':
-        confidence += 30; // Good confidence for sub-pages
-        break;
-      case 'meta_description':
-        confidence += 20;
+      case 'domain_parse':
+        confidence = 55; // Lower confidence for generic domain parsing
         break;
       default:
         confidence += 10;
