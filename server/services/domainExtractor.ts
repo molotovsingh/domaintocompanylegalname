@@ -644,9 +644,13 @@ export class DomainExtractor {
   }
 
   private isValidCompanyName(name: string): boolean {
-    if (!name || name.length < 2) return false;
+    if (!name || name.length < 5 || name.length > 100) return false; // STRICTER: Minimum 5 characters
     
+    // STRICTER: Reject generic business terms
     const invalidPatterns = [
+      /^(solutions|technology|systems|platform|global|worldwide|leading|premier)$/i,
+      /^(company|business|enterprise|organization|corporation)$/i,
+      /^(website|homepage|main|official|portal)$/i,
       /due to several reasons/i,
       /access denied/i,
       /blocked/i,
