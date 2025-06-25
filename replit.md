@@ -152,7 +152,11 @@ A production-scale web application for extracting company names from domain list
 - Added 55+ French company domain mappings with proper legal entity names (SA, SE suffixes)
 - Fixed all false positives: Credit Agricole → Crédit Agricole SA, Saint-Gobain SA, etc.
 - Global principle: Absence of legal suffix indicates either extraction error or nonprofit status
-- Final extraction priority: Domain mappings → About Us pages → Legal pages → Domain parsing (fallback)
+- Updated extraction methods to modern standards: structured data (JSON-LD), enhanced meta properties, about/legal page extraction (June 25, 2025)
+- Added structured data extraction with 98% confidence for JSON-LD Schema.org organization data
+- Enhanced meta property extraction from og:site_name, application-name, twitter:title for better accuracy
+- Modernized User-Agent string to Chrome 120 for improved website compatibility
+- Final extraction priority: Structured data → Footer copyright → Meta properties → About/Legal pages → Domain parsing (fallback)
 
 ## User Preferences
 - Professional interface without excessive technical jargon

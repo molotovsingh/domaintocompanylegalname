@@ -303,10 +303,22 @@ export class DomainExtractor {
 
     const $ = cheerio.load(response.data);
     
-    // Priority 1: Try enhanced footer copyright extraction first
+    // Priority 1: Try structured data (JSON-LD) extraction first - highest confidence
+    const structuredResult = this.extractFromStructuredData($);
+    if (structuredResult.companyName && this.isValidCompanyName(structuredResult.companyName)) {
+      return structuredResult;
+    }
+    
+    // Priority 2: Try enhanced footer copyright extraction
     const footerResult = this.extractFromFooterCopyright($);
     if (footerResult.companyName) {
       return footerResult;
+    }
+    
+    // Priority 3: Try enhanced meta properties extraction
+    const metaResult = this.extractFromMetaProperties($);
+    if (metaResult.companyName && this.isValidCompanyName(metaResult.companyName)) {
+      return metaResult;
     }
     
     // Priority 2: Try About Us/Legal pages for unknown domains
