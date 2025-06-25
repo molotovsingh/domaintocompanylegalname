@@ -772,7 +772,7 @@ export class DomainExtractor {
   }
 
   private calculateConfidence(companyName: string, method: string): number {
-    let confidence = 50; // Base confidence
+    let confidence = 30; // STRICTER: Lower base confidence
     
     // Method-based confidence
     switch (method) {
@@ -786,19 +786,19 @@ export class DomainExtractor {
         confidence = 85; // High confidence for footer copyright extraction
         break;
       case 'meta_property':
-        confidence = 80; // Good confidence for meta properties
+        confidence = 75; // STRICTER: Reduced confidence for meta properties
         break;
       case 'about_page':
-        confidence += 35; // High confidence for about sections
+        confidence += 30; // STRICTER: Reduced confidence for about sections
         break;
       case 'legal_page':
-        confidence += 40; // Highest confidence for legal content
+        confidence += 35; // STRICTER: Reduced confidence for legal content
         break;
       case 'domain_parse':
-        confidence = 55; // Lower confidence for generic domain parsing
+        confidence = 45; // STRICTER: Much lower confidence for generic domain parsing
         break;
       default:
-        confidence += 10;
+        confidence += 5; // STRICTER: Minimal bonus for unknown methods
         break;
     }
     
@@ -807,7 +807,7 @@ export class DomainExtractor {
       confidence += 15;
     }
     
-    // CRITICAL PENALTY: Missing legal suffix for corporate entities (global issue)
+    // STRICTER PENALTY: Missing legal suffix for corporate entities (global issue)
     // Absence of suffix either indicates extraction error or nonprofit status
     if (!this.hasLegalSuffix(companyName)) {
       // Check if this appears to be a for-profit corporate entity
@@ -815,31 +815,43 @@ export class DomainExtractor {
       const isPersonalName = /^[A-Z][a-z]+\s+[A-Z][a-z]+$/i.test(companyName);
       
       if (!isNonprofit && !isPersonalName && companyName.length > 2) {
-        // Major penalty for missing legal suffix in corporate entities
-        // Apply regardless of extraction method - this is a universal quality requirement
-        confidence -= 25; // Severe penalty - this is a critical quality issue
+        // STRICTER: Massive penalty for missing legal suffix in corporate entities
+        confidence -= 40; // Even more severe penalty for quality
       }
     }
     
-    // Length-based confidence
-    if (companyName.length >= 3 && companyName.length <= 40) {
-      confidence += 10;
+    // STRICTER: Length-based confidence with tighter requirements
+    if (companyName.length >= 5 && companyName.length <= 35) {
+      confidence += 15; // Better bonus for appropriate length
+    } else {
+      confidence -= 10; // Penalty for too short/long names
     }
     
-    // Word count confidence
+    // STRICTER: Word count confidence with optimal range
     const wordCount = companyName.split(/\s+/).length;
-    if (wordCount >= 1 && wordCount <= 5) {
-      confidence += 10;
+    if (wordCount >= 2 && wordCount <= 4) {
+      confidence += 15; // Bonus for optimal word count
+    } else if (wordCount === 1) {
+      confidence -= 15; // Penalty for single words (often incomplete)
+    } else if (wordCount > 5) {
+      confidence -= 20; // Penalty for overly long names
     }
     
     // Capitalization confidence
     if (/^[A-Z]/.test(companyName)) {
-      confidence += 5;
+      confidence += 10; // Better bonus for proper capitalization
+    } else {
+      confidence -= 15; // Penalty for improper capitalization
     }
     
-    // Penalty for non-company-like content
-    if (/\b(solutions|technology|systems|services|platform|global|worldwide|leading|premier)\b/i.test(companyName)) {
-      confidence -= 20;
+    // STRICTER: Penalty for non-company-like content
+    if (/\b(solutions|technology|systems|services|platform|global|worldwide|leading|premier|innovative|cutting-edge)\b/i.test(companyName)) {
+      confidence -= 30; // Much higher penalty for marketing terms
+    }
+    
+    // STRICTER: Quality bonus for proper legal entity indicators
+    if (/\b(inc\.?|corp\.?|ltd\.?|llc|gmbh|ag|sa|spa)\b/i.test(companyName)) {
+      confidence += 20; // Significant bonus for proper legal suffixes
     }
     
     return Math.min(confidence, 100);

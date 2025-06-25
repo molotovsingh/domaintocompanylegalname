@@ -157,6 +157,12 @@ A production-scale web application for extracting company names from domain list
 - Enhanced meta property extraction from og:site_name, application-name, twitter:title for better accuracy
 - Modernized User-Agent string to Chrome 120 for improved website compatibility
 - Final extraction priority: Structured data → Footer copyright → Meta properties → About/Legal pages → Domain parsing (fallback)
+- Implemented stricter success criteria for higher quality results (June 25, 2025)
+- Raised minimum confidence threshold from 50% to 65% for marking domains as successful
+- Enhanced validation: Minimum 5-character company names, max 1 generic marketing word allowed
+- Stricter penalties: -40% confidence for missing legal suffixes, -30% for marketing terms
+- Quality bonuses: +20% for proper legal suffixes, +15% for optimal word count (2-4 words)
+- Corporate entities without legal suffixes now automatically rejected unless nonprofit/personal
 
 ## User Preferences
 - Professional interface without excessive technical jargon
