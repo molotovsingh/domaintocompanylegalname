@@ -857,13 +857,15 @@ export class DomainExtractor {
     
     // Look for copyright and legal entity patterns in footer - ENHANCED patterns
     const legalEntityPatterns = [
-      // Copyright with company name patterns - enhanced to capture "The Rio Centre (Dalston) Limited"
-      /©\s*\d{4}\s+([a-zA-Z][^.!?]{1,60}?(?:inc\.?|corp\.?|corporation|ltd\.?|limited|llc|co\.?|gmbh|ag|s\.a\.?|spa|sarl|kg|apc|p\.c\.?|pc|pllc))/i,
-      /copyright\s*©?\s*\d{4}\s+([a-zA-Z][^.!?]{1,60}?(?:inc\.?|corp\.?|corporation|ltd\.?|limited|llc|co\.?|gmbh|ag|s\.a\.?|spa|sarl|kg|apc|p\.c\.?|pc|pllc))/i,
-      // Year followed by company name - more flexible spacing
-      /\d{4}\s+([a-zA-Z][^.!?]{1,60}?(?:inc\.?|corp\.?|corporation|ltd\.?|limited|llc|co\.?|gmbh|ag|s\.a\.?|spa|sarl|kg|apc|p\.c\.?|pc|pllc))/i,
-      // The [Company Name] Limited patterns
-      /(the\s+[a-zA-Z\s()&-]{1,45}?\s+(?:limited|ltd\.?|inc\.?|corp\.?|corporation|llc))/i,
+      // Copyright with company name patterns - VERY flexible for Rio Cinema case
+      /©\s*\d{4}\s+([a-zA-Z][^.!?]{0,80}?(?:inc\.?|corp\.?|corporation|ltd\.?|limited|llc|co\.?|gmbh|ag|s\.a\.?|spa|sarl|kg|apc|p\.c\.?|pc|pllc))/i,
+      /copyright\s*©?\s*\d{4}\s+([a-zA-Z][^.!?]{0,80}?(?:inc\.?|corp\.?|corporation|ltd\.?|limited|llc|co\.?|gmbh|ag|s\.a\.?|spa|sarl|kg|apc|p\.c\.?|pc|pllc))/i,
+      // Year followed by company name - very flexible
+      /\d{4}\s+([a-zA-Z][^.!?]{0,80}?(?:inc\.?|corp\.?|corporation|ltd\.?|limited|llc|co\.?|gmbh|ag|s\.a\.?|spa|sarl|kg|apc|p\.c\.?|pc|pllc))/i,
+      // The [Company Name] Limited patterns - enhanced for parentheses
+      /(the\s+[a-zA-Z\s()&-]{1,60}?\s+(?:limited|ltd\.?|inc\.?|corp\.?|corporation|llc))/i,
+      // Direct "Company Name Limited" patterns  
+      /([a-zA-Z][a-zA-Z\s()&-]{8,50}\s+(?:limited|ltd\.?|inc\.?|corp\.?|corporation|llc|gmbh))/i,
       // Law offices patterns
       /(law offices? of [a-zA-Z\s&]{1,35}?,?\s*(?:inc\.?|corp\.?|corporation|ltd\.?|limited|llc|co\.?|apc|p\.c\.?|pc|pllc))/i
     ];
@@ -881,10 +883,10 @@ export class DomainExtractor {
         // Clean up the extracted name
         companyName = this.cleanCompanyName(companyName);
         
-        // Strict validation for footer extraction - reject if too long or contains noise
+        // Enhanced validation for footer extraction - allow longer names for complex entities
         if (companyName && 
-            companyName.length <= 50 && 
-            companyName.length >= 3 &&
+            companyName.length <= 80 && 
+            companyName.length >= 8 &&
             !companyName.includes('{') && 
             !companyName.includes('}') && 
             !companyName.includes('javascript') &&

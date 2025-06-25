@@ -52,6 +52,7 @@ A production-scale web application for extracting company names from domain list
 - **Legal Suffix Analysis**: Comprehensive evaluation of footer extraction quality and legal entity compliance completed (June 25, 2025)
 - **Footer Validation Confirmed**: Rio Cinema website footer screenshot confirms accurate extraction of "The Rio Centre (Dalston) Limited" from copyright notice
 - **Business Intelligence Accuracy**: Footer extraction delivering authentic legal entity names exactly as they appear in corporate registration footers
+- **Rio Cinema Case Study**: Enhanced footer patterns to capture complex entity names like "The Rio Centre (Dalston) Limited" from copyright notices
 
 ## Recent Changes
 - Fixed upload route function reference bug (parseDomainFile/domainsToCSV)
