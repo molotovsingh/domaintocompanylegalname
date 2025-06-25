@@ -6,7 +6,7 @@ const execAsync = promisify(exec);
 
 export interface ExtractionResult {
   companyName: string | null;
-  method: 'html_title' | 'meta_description' | 'domain_parse';
+  method: 'footer_copyright' | 'about_page' | 'legal_page' | 'structured_data' | 'meta_property' | 'domain_mapping' | 'domain_parse';
   confidence: number;
   error?: string;
   connectivity?: 'reachable' | 'unreachable' | 'unknown';
@@ -14,7 +14,7 @@ export interface ExtractionResult {
 
 export class DomainExtractor {
   private timeout = 10000; // 10 seconds
-  private userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
+  private userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
   async extractCompanyName(domain: string): Promise<ExtractionResult> {
     const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].toLowerCase();
@@ -26,7 +26,7 @@ export class DomainExtractor {
       if (knownMappings[cleanDomain]) {
         return {
           companyName: knownMappings[cleanDomain],
-          method: 'domain_parse',
+          method: 'domain_mapping',
           confidence: 95,
         };
       }
