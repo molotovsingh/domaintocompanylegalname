@@ -61,10 +61,6 @@ export default function Dashboard() {
               <Link href="/jurisdictional-guide" className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors">
                 Jurisdictions
               </Link>
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">Admin User</p>
-                <p className="text-xs text-gray-600">Administrator</p>
-              </div>
               <div className="w-8 h-8 bg-primary-custom rounded-full flex items-center justify-center text-white text-sm font-medium">
                 <User className="h-4 w-4" />
               </div>
