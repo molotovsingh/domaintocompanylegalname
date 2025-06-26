@@ -316,22 +316,23 @@ export class DomainExtractor {
 
     const $ = cheerio.load(response.data);
     
-    // Priority 1: Try structured data (JSON-LD) extraction first - highest confidence
-    const structuredResult = this.extractFromStructuredData($);
-    if (structuredResult.companyName && this.isValidCompanyName(structuredResult.companyName)) {
-      return structuredResult;
-    }
-    
-    // Priority 2: Try enhanced footer copyright extraction
+    // Priority 1: Try footer copyright extraction first (most reliable for legal entities)
     const footerResult = this.extractFromFooterCopyright($);
-    if (footerResult.companyName) {
+    if (footerResult.companyName && this.isValidCompanyName(footerResult.companyName)) {
       return footerResult;
     }
     
-    // Priority 3: Try enhanced meta properties extraction
-    const metaResult = this.extractFromMetaProperties($);
-    if (metaResult.companyName && this.isValidCompanyName(metaResult.companyName)) {
-      return metaResult;
+    // Priority 2: Try meta properties extraction
+    const title = $('title').text() || '';
+    const metaDescription = $('meta[name="description"]').attr('content') || '';
+    
+    if (title && this.isValidCompanyName(this.cleanCompanyName(title))) {
+      const cleanTitle = this.cleanCompanyName(title);
+      return {
+        companyName: cleanTitle,
+        method: 'meta_property',
+        confidence: this.calculateConfidence(cleanTitle, 'meta_property')
+      };
     }
     
     // Priority 2: Try About Us/Legal pages for unknown domains
