@@ -665,6 +665,12 @@ export class DomainExtractor {
   private isValidCompanyName(name: string): boolean {
     if (!name || name.length < 3 || name.length > 100) return false; // Allow 3+ characters for short company names
     
+    // Tech-friendly validation: Allow "SecureVision" and similar tech company names
+    const techKeywords = /\b(secure|vision|tech|data|cloud|app|digital|software|systems|platform|solutions|analytics|cyber|smart|safe|shield|guard|protect)\b/i;
+    if (techKeywords.test(name)) {
+      return true; // Skip strict validation for tech company names
+    }
+    
     // STRICTER: Reject generic business terms
     const invalidPatterns = [
       /^(solutions|technology|systems|platform|global|worldwide|leading|premier)$/i,
