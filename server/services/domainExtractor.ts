@@ -4,12 +4,24 @@ import { promisify } from 'util';
 import { exec } from 'child_process';
 const execAsync = promisify(exec);
 
+export interface ExtractionAttempt {
+  method: string;
+  success: boolean;
+  companyName?: string;
+  confidence?: number;
+  error?: string;
+}
+
 export interface ExtractionResult {
   companyName: string | null;
   method: 'footer_copyright' | 'about_page' | 'legal_page' | 'structured_data' | 'meta_property' | 'domain_mapping' | 'domain_parse' | 'html_subpage' | 'html_title' | 'html_about' | 'html_legal' | 'meta_description';
   confidence: number;
   error?: string;
-  connectivity?: 'reachable' | 'unreachable' | 'unknown';
+  connectivity?: 'reachable' | 'unreachable' | 'unknown' | 'protected';
+  failureCategory?: string;
+  technicalDetails?: string;
+  recommendation?: string;
+  extractionAttempts?: ExtractionAttempt[];
 }
 
 export class DomainExtractor {
@@ -18,6 +30,7 @@ export class DomainExtractor {
 
   async extractCompanyName(domain: string): Promise<ExtractionResult> {
     const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].toLowerCase();
+    const extractionAttempts: ExtractionAttempt[] = [];
     
     try {
       // ALWAYS check domain mappings first (overrides cache)
@@ -997,7 +1010,81 @@ export class DomainExtractor {
     return { companyName: null, method: 'footer_copyright', confidence: 0 };
   }
 
-  private async checkConnectivity(domain: string): Promise<'reachable' | 'unreachable' | 'unknown'> {
+  private classifyFailure(result: ExtractionResult, domain: string): ExtractionResult {
+    const attempts = result.extractionAttempts || [];
+    
+    // Analyze extraction attempts to determine failure category
+    if (result.connectivity === 'unreachable') {
+      return {
+        ...result,
+        failureCategory: 'bad_website_skip',
+        technicalDetails: 'Network connectivity failed - DNS, SSL, or server issues',
+        recommendation: 'Skip - Website unusable for business research'
+      };
+    }
+    
+    if (result.connectivity === 'protected') {
+      return {
+        ...result,
+        failureCategory: 'protected_manual_review',
+        technicalDetails: 'Anti-bot protection detected - Cloudflare, CAPTCHA, or rate limiting',
+        recommendation: 'Manual review needed - Use browser or proxy'
+      };
+    }
+    
+    // Check if we found company information but it failed validation
+    const foundCompanyNames = attempts.filter(a => a.companyName && a.companyName.length > 0);
+    const isTechDomain = /\.(io|ai|tech|app|cloud)$/.test(domain);
+    
+    if (foundCompanyNames.length > 0) {
+      const bestAttempt = foundCompanyNames.reduce((best, current) => 
+        (current.confidence || 0) > (best.confidence || 0) ? current : best
+      );
+      
+      // Check if it's a tech company that failed legal suffix validation
+      if (isTechDomain || /\b(secure|vision|tech|data|cloud|app|digital|software|cyber)\b/i.test(bestAttempt.companyName || '')) {
+        return {
+          ...result,
+          failureCategory: 'good_target_tech_issue',
+          technicalDetails: `Company identified as "${bestAttempt.companyName}" but failed validation (${bestAttempt.error || 'legal suffix missing'})`,
+          recommendation: 'Manual review - Likely valid tech company without traditional legal entity structure'
+        };
+      }
+      
+      return {
+        ...result,
+        failureCategory: 'incomplete_low_priority',
+        technicalDetails: `Partial extraction found "${bestAttempt.companyName}" with ${bestAttempt.confidence}% confidence`,
+        recommendation: 'Low priority - Company name detected but quality concerns'
+      };
+    }
+    
+    // No company information found at all
+    const hasBusinessContent = attempts.some(a => 
+      a.error?.includes('marketing') || 
+      a.error?.includes('generic') ||
+      domain.includes('blog') || 
+      domain.includes('personal')
+    );
+    
+    if (hasBusinessContent) {
+      return {
+        ...result,
+        failureCategory: 'no_corporate_presence',
+        technicalDetails: 'Website accessible but appears to be personal, blog, or non-business content',
+        recommendation: 'Skip - Not a viable business target'
+      };
+    }
+    
+    return {
+      ...result,
+      failureCategory: 'incomplete_low_priority',
+      technicalDetails: 'Website accessible but no company information patterns detected',
+      recommendation: 'Low priority - May require specialized extraction methods'
+    };
+  }
+
+  private async checkConnectivity(domain: string): Promise<'reachable' | 'unreachable' | 'protected' | 'unknown'> {
     try {
       // Quick HTTP HEAD request (faster than GET, saves bandwidth)
       const response = await axios.head(`https://${domain}`, {
@@ -1006,6 +1093,16 @@ export class DomainExtractor {
         validateStatus: () => true, // Accept any status code
         maxRedirects: 5 // Allow more redirects for proper validation
       });
+      
+      // Check for anti-bot protection
+      if (response.status === 403 || 
+          response.headers['server']?.toLowerCase().includes('cloudflare') ||
+          response.headers['cf-ray'] ||
+          response.data?.includes('challenge') ||
+          response.data?.includes('captcha')) {
+        return 'protected';
+      }
+      
       return response.status < 500 ? 'reachable' : 'unreachable';
     } catch (error: any) {
       // Network failures indicate unreachable domains

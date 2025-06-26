@@ -11,6 +11,10 @@ export const domains = pgTable("domains", {
   confidenceScore: real("confidence_score"),
   retryCount: integer("retry_count").default(0),
   errorMessage: text("error_message"),
+  failureCategory: text("failure_category"), // Business classification for failures
+  technicalDetails: text("technical_details"), // Technical diagnostic information
+  extractionAttempts: text("extraction_attempts"), // JSON string of attempted methods
+  recommendation: text("recommendation"), // Next action guidance
   batchId: text("batch_id").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   processedAt: timestamp("processed_at"),
