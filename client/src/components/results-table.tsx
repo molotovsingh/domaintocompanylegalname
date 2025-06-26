@@ -223,19 +223,19 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
                   Company Name
                 </th>
                 <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Business Category
+                </th>
+                <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Source
                 </th>
                 <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Confidence
                 </th>
                 <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                  Recommendation
                 </th>
                 <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Time
-                </th>
-                <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Processed
                 </th>
               </tr>
             </thead>
@@ -287,9 +287,6 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
                         ? `${Math.round(domain.processingTimeMs / 1000)}s`
                         : `${domain.processingTimeMs}ms`
                     ) : '-'}
-                  </td>
-                  <td className="py-4 px-6 text-sm text-gray-500">
-                    {domain.processedAt ? new Date(domain.processedAt).toLocaleString() : '-'}
                   </td>
                 </tr>
               ))}
