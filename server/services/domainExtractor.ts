@@ -159,9 +159,28 @@ export class DomainExtractor {
 
   private getKnownCompanyMappings(): Record<string, string> {
     return {
+      // Fortune 500 - Technology
+      'apple.com': 'Apple Inc.',
+      'microsoft.com': 'Microsoft Corporation',
+      'amazon.com': 'Amazon.com, Inc.',
+      'google.com': 'Alphabet Inc.',
+      'meta.com': 'Meta Platforms, Inc.',
+      'facebook.com': 'Meta Platforms, Inc.',
+      'tesla.com': 'Tesla, Inc.',
+      'nvidia.com': 'NVIDIA Corporation',
+      'oracle.com': 'Oracle Corporation',
+      'salesforce.com': 'Salesforce, Inc.',
+      
+      // Fortune 500 - Financial
+      'jpmorgan.com': 'JPMorgan Chase & Co.',
+      'berkshirehathaway.com': 'Berkshire Hathaway Inc.',
+      'wellsfargo.com': 'Wells Fargo & Company',
+      'goldmansachs.com': 'The Goldman Sachs Group, Inc.',
+      'morganstanley.com': 'Morgan Stanley',
+      
       // German Companies (corrected mappings)
-      'springer.com': 'Springer Nature',
-      'rtl.com': 'RTL Group',
+      'springer.com': 'Springer Nature Group',
+      'rtl.com': 'RTL Group SA',
       'wirecard.com': 'Wirecard AG', 
       'fuchs.com': 'Fuchs Petrolub SE',
       'siltronic.com': 'Siltronic AG',
@@ -178,6 +197,8 @@ export class DomainExtractor {
       'kuka.com': 'KUKA AG',
       'leica-microsystems.com': 'Leica Microsystems GmbH',
       'evotec.com': 'Evotec SE',
+      'deutsche-boerse.com': 'Deutsche Börse AG',
+      'united-internet.de': 'United Internet AG',
       'carl-zeiss.com': 'Carl Zeiss AG',
       'dhs-versicherungsmakler.de': 'DHS Insurance Broker GmbH & Co. KG',
       'morphosys.com': 'MorphoSys AG',
