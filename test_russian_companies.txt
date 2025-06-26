@@ -1,0 +1,5 @@
+gazprom.com
+sberbank.com
+yandex.com
+lukoil.com
+rosneft.com

@@ -1,0 +1,78 @@
+{
+  "legal_entities": [
+    {
+      "type": "Obshchestvo s Ogranichennoy Otvetstvennostyu",
+      "suffix": "OOO, ООО",
+      "description": "Limited liability company, the most common form for small to medium businesses."
+    },
+    {
+      "type": "Aktsionernoe Obshchestvo",
+      "suffix": "AO, АО",
+      "description": "Joint-stock company, used for larger or publicly traded businesses, can be public (PAO) or non-public."
+    },
+    {
+      "type": "Publichnoe Aktsionernoe Obshchestvo",
+      "suffix": "PAO, ПАО",
+      "description": "Public joint-stock company, for publicly traded companies with stricter disclosure requirements."
+    },
+    {
+      "type": "Tovarishchestvo na Vere",
+      "suffix": "(No specific suffix, often 'TNV' or none)",
+      "description": "Limited partnership with general and limited partners, general partners have unlimited liability."
+    },
+    {
+      "type": "Polnoe Tovarishchestvo",
+      "suffix": "(No specific suffix, often 'PT' or none)",
+      "description": "General partnership with unlimited liability for all partners."
+    },
+    {
+      "type": "Proizvodstvenny Kooperativ",
+      "suffix": "(No specific suffix, often 'PK' or 'Kooperativ')",
+      "description": "Production cooperative, member-owned for mutual benefit, common in agriculture or small industries."
+    },
+    {
+      "type": "Individualny Predprinimatel",
+      "suffix": "IP, ИП",
+      "description": "Sole proprietorship, no separate legal entity, unlimited liability."
+    },
+    {
+      "type": "Nekommercheskaya Organizatsiya",
+      "suffix": "(No specific suffix, often descriptive name)",
+      "description": "Nonprofit organization, used for social, cultural, or charitable purposes."
+    },
+    {
+      "type": "Fond",
+      "suffix": "(No specific suffix, often 'Fond' in name)",
+      "description": "Foundation, used for charitable, cultural, or social purposes, similar to a trust."
+    },
+    {
+      "type": "Doveritelnoe Upravlenie",
+      "suffix": "(No specific suffix, often 'Trust' or none)",
+      "description": "Trust management, a trust-like arrangement for asset management, not a standalone entity."
+    },
+    {
+      "type": "Avtonomnaya Nekommercheskaya Organizatsiya",
+      "suffix": "ANO, АНО",
+      "description": "Autonomous nonprofit organization, for cultural, educational, or social activities."
+    },
+    {
+      "type": "Obshchestvennaya Organizatsiya",
+      "suffix": "(No specific suffix, often 'Obshchestvennaya Organizatsiya')",
+      "description": "Public organization, a nonprofit for civic or social purposes."
+    },
+    {
+      "type": "Gosudarstvennoe Uchrezhdenie",
+      "suffix": "(No specific suffix, often descriptive name)",
+      "description": "State institution, such as government agencies, universities, or state-owned enterprises."
+    }
+  ],
+  "notes": [
+    "Suffixes like OOO, AO, and PAO are mandatory in the entity’s name to indicate its legal structure under the Russian Civil Code.",
+    "Trusts are not native to Russia’s civil law system; 'Doveritelnoe Upravlenie' (trust management) is a contractual arrangement for asset management, not a legal entity.",
+    "Foundations ('Fond') serve purposes similar to trusts, often for charitable or cultural activities, and are registered as legal entities.",
+    "Nonprofit entities like ANO or Obshchestvennaya Organizatsiya are common for social or charitable purposes, similar to Italy’s Associazioni or Taiwan’s nonprofit organizations.",
+    "State institutions and state-owned enterprises (e.g., Gazprom) lack standardized suffixes and are identified by name or context.",
+    "Entities are registered with the Federal Tax Service, and suffixes must comply with federal regulations.",
+    "The distinction between AO and PAO reflects reforms in 2014, with PAO reserved for public joint-stock companies."
+  ]
+}

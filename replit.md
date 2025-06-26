@@ -17,7 +17,7 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Comprehensive Results Management**: Enhanced results table with business categories, recommendations, and processing metrics
 - **PostgreSQL Analytics**: Cross-batch intelligence, duplicate detection, and permanent session results storage
 - **Real-time Processing Updates**: Live status tracking with 5-second refresh intervals and processing time metrics
-- **International Legal Entity Recognition**: 9 jurisdictions with comprehensive corporate structure validation
+- **International Legal Entity Recognition**: 10 jurisdictions with comprehensive corporate structure validation (US, Canada, Germany, France, Mexico, Brazil, Ireland, Italy, Taiwan, Russia)
 - **Export and Analytics**: CSV/JSON export, session analytics, and performance trend tracking
 - **Early Connectivity Triage**: Performance optimization saving 7+ seconds per unreachable domain
 
@@ -42,6 +42,7 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Enhanced Database Schema**: Added failure_category, technical_details, extraction_attempts, recommendation fields for comprehensive business intelligence
 - **Legal Entity Enforcement**: Stricter validation requiring corporate suffixes for business domains while allowing nonprofits/government exceptions
 - **User Feedback Integration**: Assessment approach and quality improvements validated through independent parsing analysis
+- **Russian Legal Entity Integration**: Added comprehensive Russian corporate structures (OOO, AO, PAO, IP, ANO) with major company mappings (Gazprom PAO, Sberbank PAO, etc.)
 - **Documentation Updated**: Comprehensive documentation reflecting current business intelligence capabilities and performance metrics
 - Enhanced company name extraction with proper legal entity names (June 24, 2025)
 - Added known company mappings for accurate Fortune 500 entity names
