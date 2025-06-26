@@ -434,13 +434,24 @@ export class DomainExtractor {
       .replace(/^www\./, '')
       .split('/')[0];
     
-    // Convert to company name format using our known mappings
-    const companyName = this.domainToCompanyName(cleanDomain);
+    // Remove TLD and convert to company name
+    const withoutTLD = cleanDomain.replace(/\.(com|org|net|edu|gov|co\.uk|co\.jp|co\.kr|com\.au|com\.br|com\.mx|com\.tr|com\.tw|com\.sg|com\.my|com\.ph|com\.th|com\.vn|com\.cn|co\.in|co\.za|com\.ar|com\.cl|com\.pe|com\.co|io|app|tech|ai|cloud)$/, '');
+    
+    // Convert to company name format
+    const companyName = this.domainToCompanyName(withoutTLD);
+    
+    // For .io domains and tech companies, be more lenient
+    const isTechDomain = /\.(io|tech|ai|app|cloud)$/.test(cleanDomain);
+    let confidence = this.calculateConfidence(companyName, 'domain_parse');
+    
+    if (isTechDomain && companyName.length >= 3) {
+      confidence += 15; // Bonus for tech domains that often don't have legal suffixes
+    }
     
     return {
       companyName,
       method: 'domain_parse',
-      confidence: this.calculateConfidence(companyName, 'domain_parse', cleanDomain),
+      confidence: confidence
     };
   }
 
