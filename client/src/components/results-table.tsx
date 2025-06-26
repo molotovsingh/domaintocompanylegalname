@@ -213,28 +213,28 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
             </p>
           </div>
         ) : (
-          <table className="w-full">
+          <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Domain
                 </th>
-                <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Company Name
                 </th>
-                <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Business Category
                 </th>
-                <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Source
                 </th>
-                <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Confidence
                 </th>
-                <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Recommendation
                 </th>
-                <th className="text-left py-3 px-6 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Time
                 </th>
               </tr>
@@ -242,46 +242,53 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
             <tbody className="bg-white divide-y divide-gray-200">
               {domains.map((domain: Domain) => (
                 <tr key={domain.id} className="hover:bg-gray-50">
-                  <td className="py-4 px-6">
+                  <td className="py-3 px-4">
                     <div className="flex items-center">
-                      <Globe className="text-gray-400 mr-2 h-4 w-4" />
-                      <span className="text-sm font-medium text-gray-900">{domain.domain}</span>
+                      <Globe className="text-gray-400 mr-2 h-3 w-3" />
+                      <span className="font-medium text-gray-900">{domain.domain}</span>
                     </div>
                   </td>
-                  <td className="py-4 px-6">
+                  <td className="py-3 px-4">
                     {domain.status === 'processing' ? (
                       <div className="flex items-center">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-custom mr-2"></div>
-                        <span className="text-sm text-gray-500">Processing...</span>
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary-custom mr-2"></div>
+                        <span className="text-gray-500">Processing...</span>
                       </div>
                     ) : (
-                      <span className="text-sm text-gray-900">{domain.companyName || '-'}</span>
+                      <span className="text-gray-900">{domain.companyName || '-'}</span>
                     )}
                   </td>
-                  <td className="py-4 px-6">
-                    <span className="text-sm text-gray-900">
+                  <td className="py-3 px-4">
+                    {getStatusBadge(domain.status)}
+                  </td>
+                  <td className="py-3 px-4">
+                    <span className="text-gray-900">
                       {domain.extractionMethod ? getSourceLabel(domain.extractionMethod) : '-'}
                     </span>
                   </td>
-                  <td className="py-4 px-6">
+                  <td className="py-3 px-4">
                     {domain.confidenceScore ? (
                       <div className="flex items-center">
-                        <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                        <div className="w-12 bg-gray-200 rounded-full h-1.5 mr-2">
                           <div
-                            className="bg-success h-2 rounded-full"
+                            className="bg-success h-1.5 rounded-full"
                             style={{ width: `${domain.confidenceScore}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm text-gray-900">{Math.round(domain.confidenceScore)}%</span>
+                        <span className="text-gray-900">{Math.round(domain.confidenceScore)}%</span>
                       </div>
                     ) : (
                       '-'
                     )}
                   </td>
-                  <td className="py-4 px-6">
-                    {getStatusBadge(domain.status)}
+                  <td className="py-3 px-4">
+                    {domain.recommendation ? (
+                      <span className="text-gray-700">{domain.recommendation}</span>
+                    ) : (
+                      '-'
+                    )}
                   </td>
-                  <td className="py-4 px-6 text-sm text-gray-500">
+                  <td className="py-3 px-4 text-gray-500">
                     {domain.processingTimeMs ? (
                       domain.processingTimeMs > 1000 
                         ? `${Math.round(domain.processingTimeMs / 1000)}s`
