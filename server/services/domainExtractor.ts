@@ -6,7 +6,7 @@ const execAsync = promisify(exec);
 
 export interface ExtractionResult {
   companyName: string | null;
-  method: 'footer_copyright' | 'about_page' | 'legal_page' | 'structured_data' | 'meta_property' | 'domain_mapping' | 'domain_parse';
+  method: 'footer_copyright' | 'about_page' | 'legal_page' | 'structured_data' | 'meta_property' | 'domain_mapping' | 'domain_parse' | 'html_subpage' | 'html_title' | 'html_about' | 'html_legal' | 'meta_description';
   confidence: number;
   error?: string;
   connectivity?: 'reachable' | 'unreachable' | 'unknown';
