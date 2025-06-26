@@ -4,7 +4,7 @@ export default function JurisdictionalGuide() {
       <header className="border-b pb-4">
         <h1 className="text-2xl font-bold">Jurisdictional Knowledge Reference</h1>
         <p className="text-gray-600 mt-2">
-          Comprehensive legal entity recognition across 11 jurisdictions with 190+ corporate suffixes and validation rules.
+          Comprehensive legal entity recognition across 11 jurisdictions including Taiwan and Russia with 190+ corporate suffixes and validation rules.
         </p>
       </header>
 
@@ -306,7 +306,7 @@ export default function JurisdictionalGuide() {
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold mb-4">Taiwan</h2>
+        <h2 className="text-xl font-semibold mb-4 text-blue-600">🇹🇼 Taiwan</h2>
         <div className="bg-gray-50 p-4 rounded mb-4">
           <h3 className="font-medium mb-2">Corporate Entities (Company Act)</h3>
           <div className="grid grid-cols-3 gap-4 text-sm">
@@ -339,7 +339,7 @@ export default function JurisdictionalGuide() {
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold mb-4">Russia</h2>
+        <h2 className="text-xl font-semibold mb-4 text-red-600">🇷🇺 Russia</h2>
         <div className="bg-gray-50 p-4 rounded mb-4">
           <h3 className="font-medium mb-2">Corporate Entities (Russian Civil Code)</h3>
           <div className="grid grid-cols-3 gap-4 text-sm">
