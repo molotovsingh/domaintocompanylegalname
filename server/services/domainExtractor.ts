@@ -322,9 +322,17 @@ export class DomainExtractor {
     }
     
     // Priority 2: Try About Us/Legal pages for unknown domains
-    const subPageResult = await this.extractFromSubPages(url);
-    if (subPageResult) {
-      return subPageResult;
+    const aboutUrl = url.replace(/\/$/, '') + '/about';
+    try {
+      const aboutResult = await this.extractFromPage(aboutUrl);
+      if (aboutResult.companyName && this.isValidCompanyName(aboutResult.companyName)) {
+        return {
+          ...aboutResult,
+          method: 'about_page'
+        };
+      }
+    } catch {
+      // About page doesn't exist, continue
     }
 
     // HTML title extraction completely removed - proven unreliable source of marketing content
@@ -853,8 +861,8 @@ export class DomainExtractor {
       confidence -= 30; // Much higher penalty for marketing terms
     }
     
-    // STRICTER: Quality bonus for proper legal entity indicators
-    if (/\b(inc\.?|corp\.?|ltd\.?|llc|gmbh|ag|sa|spa)\b/i.test(companyName)) {
+    // STRICTER: Quality bonus for proper legal entity indicators (including Taiwan)
+    if (/\b(inc\.?|corp\.?|ltd\.?|llc|gmbh|ag|sa|spa|co\.,?\s*ltd\.?)\b/i.test(companyName)) {
       confidence += 20; // Significant bonus for proper legal suffixes
     }
     

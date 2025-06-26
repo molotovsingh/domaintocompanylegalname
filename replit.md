@@ -98,6 +98,8 @@ A production-scale web application for extracting company names from domain list
 - Fixed confidence scoring for known global companies (95% for domain mapping vs 55% for generic parsing)
 - Added comprehensive Chinese corporate structure recognition (Co. Ltd., Group Ltd., etc.)
 - Added Taiwanese technology company mappings: TSMC, Foxconn, ASUS, Acer, HTC, MediaTek, Delta, etc. (June 26, 2025)
+- Enhanced Taiwanese legal entity recognition: Co., Ltd., Inc., Corporation, Foundation, Branch, Cooperative structures
+- Added comprehensive Taiwanese business form validation based on Company Act requirements
 - Fixed Session Stats component to properly display session results including duplicate detection metrics
 - Session Stats now shows comprehensive failure analysis confirming Chinese company web scraping resistance
 - Auto-batch selection ensures most recent processing results are always visible in UI

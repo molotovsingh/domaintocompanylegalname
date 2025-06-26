@@ -1,0 +1,74 @@
+{
+  "legal_entities": [
+    {
+      "type": "Company Limited by Shares",
+      "suffix": "Co., Ltd., Ltd.",
+      "description": "Most common business form, a limited liability company with shares, suitable for small to large enterprises."
+    },
+    {
+      "type": "Limited Company",
+      "suffix": "(No specific suffix, often 'Co.' or none)",
+      "description": "Limited liability company without share structure, less common, used for smaller businesses."
+    },
+    {
+      "type": "Unlimited Company",
+      "suffix": "(No specific suffix, often 'Co.' or none)",
+      "description": "Company with unlimited liability for owners, rare in practice."
+    },
+    {
+      "type": "Limited Partnership",
+      "suffix": "(No specific suffix, often 'LP' or none)",
+      "description": "Partnership with general and limited partners, general partners have unlimited liability."
+    },
+    {
+      "type": "General Partnership",
+      "suffix": "(No specific suffix, often none)",
+      "description": "Partnership with unlimited liability for all partners, typically informal."
+    },
+    {
+      "type": "Sole Proprietorship",
+      "suffix": "(No specific suffix)",
+      "description": "Business owned by one individual, no separate legal entity, unlimited liability."
+    },
+    {
+      "type": "Branch Office",
+      "suffix": "(No specific suffix, often 'Branch' in name)",
+      "description": "Extension of a foreign company, not a separate legal entity, liable to parent company."
+    },
+    {
+      "type": "Cooperative",
+      "suffix": "(No specific suffix, often 'Cooperative' or 'Co-op' in name)",
+      "description": "Member-owned organization for mutual benefit, common in agriculture or consumer sectors."
+    },
+    {
+      "type": "Non-Profit Organization",
+      "suffix": "(No specific suffix, often 'Association' or 'Foundation')",
+      "description": "Nonprofit entity for charitable, cultural, or social purposes, often registered as an association."
+    },
+    {
+      "type": "Foundation",
+      "suffix": "(No specific suffix, often 'Foundation' in name)",
+      "description": "Entity for charitable, educational, or cultural purposes, similar to a trust."
+    },
+    {
+      "type": "Trust",
+      "suffix": "(No specific suffix, often 'Trust' in name)",
+      "description": "Legal arrangement for asset management or estate planning, not a standalone entity."
+    },
+    {
+      "type": "Public Institution",
+      "suffix": "(No specific suffix, often descriptive name)",
+      "description": "Government-run entities, such as universities, hospitals, or state-owned enterprises."
+    }
+  ],
+  "notes": [
+    "The 'Co., Ltd.' suffix is the most common for businesses, governed by the Company Act, and is mandatory for companies limited by shares.",
+    "Trusts are recognized under Taiwan’s Trust Law (1996) for asset management, estate planning, or charitable purposes, but they are not legal entities; 'Trust' is typically included in the name.",
+    "Foundations serve purposes similar to trusts, often for charitable or cultural activities, and are registered as legal entities under the Civil Code.",
+    "Non-profit organizations, such as associations or foundations, are regulated under the Civil Associations Act or other laws, similar to Italy’s Associazioni or Brazil’s Associações.",
+    "Taiwan’s civil law system, influenced by Japanese and German models, limits the use of common law trusts, but trusts are used in financial and international contexts.",
+    "Public institutions and state-owned enterprises (e.g., Taiwan Power Company) lack standardized suffixes and are identified by name or context.",
+    "Foreign companies often operate through branch offices, which do not have a distinct legal personality but must register with the Ministry of Economic Affairs.",
+    "Cooperatives are governed by the Cooperative Act, with names often reflecting their member-owned nature."
+  ]
+}
