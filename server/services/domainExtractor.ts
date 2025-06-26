@@ -37,48 +37,108 @@ export class DomainExtractor {
       const knownMappings = this.getKnownCompanyMappings();
       
       if (knownMappings[cleanDomain]) {
+        extractionAttempts.push({
+          method: 'domain_mapping',
+          success: true,
+          companyName: knownMappings[cleanDomain],
+          confidence: 95
+        });
+        
         return {
           companyName: knownMappings[cleanDomain],
           method: 'domain_mapping',
           confidence: 95,
+          failureCategory: 'success',
+          extractionAttempts
         };
       }
+
+      extractionAttempts.push({
+        method: 'domain_mapping',
+        success: false,
+        error: 'No known mapping found'
+      });
 
       // Early triage: Quick connectivity check before expensive HTML extraction
       const connectivity = await this.checkConnectivity(cleanDomain);
       
       if (connectivity === 'unreachable') {
-        // Skip HTML extraction for unreachable domains - save time
-        const domainResult = this.extractFromDomain(cleanDomain);
-        return {
-          ...domainResult,
+        extractionAttempts.push({
+          method: 'connectivity_check',
+          success: false,
+          error: 'Domain unreachable'
+        });
+        
+        return this.classifyFailure({
+          companyName: null,
+          method: 'domain_parse',
+          confidence: 0,
           connectivity: 'unreachable',
-          error: 'Domain unreachable - bad website/network issue'
-        };
+          error: 'Domain unreachable - bad website/network issue',
+          extractionAttempts
+        }, cleanDomain);
       }
 
-      // Domain is reachable - proceed with enhanced HTML extraction (structured data + footer + meta)
-      const url = `https://${cleanDomain}`;
-      const htmlResult = await this.extractFromHTML(url);
+      if (connectivity === 'protected') {
+        extractionAttempts.push({
+          method: 'connectivity_check',
+          success: false,
+          error: 'Protected by anti-bot measures'
+        });
+        
+        return this.classifyFailure({
+          companyName: null,
+          method: 'domain_parse',
+          confidence: 0,
+          connectivity: 'protected',
+          error: 'Site protected - manual review needed',
+          extractionAttempts
+        }, cleanDomain);
+      }
+
+      // Domain is reachable - try domain parsing first as fallback
+      const domainResult = this.extractFromDomain(cleanDomain);
       
-      if (htmlResult.companyName && this.isValidCompanyName(htmlResult.companyName)) {
+      extractionAttempts.push({
+        method: 'domain_parse',
+        success: !!domainResult.companyName && this.isValidCompanyName(domainResult.companyName || ''),
+        companyName: domainResult.companyName || undefined,
+        confidence: domainResult.confidence
+      });
+      
+      if (domainResult.companyName && this.isValidCompanyName(domainResult.companyName)) {
         return {
-          ...htmlResult,
-          connectivity: 'reachable'
+          ...domainResult,
+          connectivity: 'reachable',
+          failureCategory: 'success',
+          extractionAttempts
         };
       }
       
-      // HTML extraction failed but domain is reachable - fallback to domain parsing
-      const domainResult = this.extractFromDomain(cleanDomain);
-      return {
-        ...domainResult,
+      // All extraction methods failed - classify the failure
+      return this.classifyFailure({
+        companyName: domainResult.companyName, // Include partial result for analysis
+        method: 'domain_parse',
+        confidence: domainResult.confidence,
         connectivity: 'reachable',
-        error: 'Domain accessible but no extractable company information'
-      };
+        error: 'Domain accessible but validation failed',
+        extractionAttempts
+      }, cleanDomain);
       
     } catch (error) {
-      // Unexpected error - check connectivity before fallback
-      const connectivity = await this.checkConnectivity(cleanDomain);
+      extractionAttempts.push({
+        method: 'exception_handling',
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown extraction error'
+      });
+      
+      return this.classifyFailure({
+        companyName: null,
+        method: 'domain_parse',
+        confidence: 0,
+        error: error instanceof Error ? error.message : 'Unknown extraction error',
+        extractionAttempts
+      }, cleanDomain);
       const domainResult = this.extractFromDomain(cleanDomain);
       
       if (connectivity === 'unreachable') {
@@ -323,11 +383,11 @@ export class DomainExtractor {
     }
     
     // Priority 2: Try meta properties extraction
-    const title = $('title').text() || '';
-    const metaDescription = $('meta[name="description"]').attr('content') || '';
+    const pageTitle = $('title').text() || '';
+    const pageMetaDescription = $('meta[name="description"]').attr('content') || '';
     
-    if (title && this.isValidCompanyName(this.cleanCompanyName(title))) {
-      const cleanTitle = this.cleanCompanyName(title);
+    if (pageTitle && this.isValidCompanyName(this.cleanCompanyName(pageTitle))) {
+      const cleanTitle = this.cleanCompanyName(pageTitle);
       return {
         companyName: cleanTitle,
         method: 'meta_property',

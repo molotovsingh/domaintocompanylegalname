@@ -118,51 +118,39 @@ export class BatchProcessor {
         return;
       }
 
-      // Extract company name using web scraping
+      // Extract company name with enhanced classification
       const result = await this.extractor.extractCompanyName(domain.domain);
 
-      if (result.companyName && result.confidence >= 65 && result.connectivity !== 'unreachable') {
-        const processingTime = Date.now() - startTime;
-        
-        await storage.updateDomain(domain.id, {
-          status: 'success',
-          companyName: result.companyName,
-          extractionMethod: result.method,
-          confidenceScore: result.confidence,
-          processedAt: new Date(),
-          processingTimeMs: processingTime,
-        });
-        this.processedCount++;
-      } else {
-        const processingTime = Date.now() - startTime;
-        
-        // Enhanced error message with connectivity info - but all count as failures
-        let errorMessage = result.error || 'Low confidence extraction';
-        if (result.connectivity === 'unreachable') {
-          errorMessage = 'Domain unreachable - bad website/network issue';
-        } else if (result.connectivity === 'reachable') {
-          errorMessage = 'Domain accessible but no extractable company information';
-        }
-        
-        // Special case: if domain parsed but unreachable, override with connectivity error
-        if (result.companyName && result.connectivity === 'unreachable') {
-          errorMessage = 'Domain unreachable - bad website/network issue';
-        }
-        
-        await storage.updateDomain(domain.id, {
-          status: 'failed', // All failures count equally
-          errorMessage,
-          retryCount: domain.retryCount + 1,
-          processedAt: new Date(),
-          processingTimeMs: processingTime,
-        });
-      }
+      const processingTime = Date.now() - startTime;
+      
+      // Determine status based on extraction result and confidence
+      const isSuccessful = result.companyName && 
+                          result.confidence >= 65 && 
+                          result.connectivity !== 'unreachable' &&
+                          result.failureCategory === 'success';
+
+      await storage.updateDomain(domain.id, {
+        status: isSuccessful ? 'success' : 'failed',
+        companyName: result.companyName,
+        extractionMethod: result.method,
+        confidenceScore: result.confidence,
+        errorMessage: result.error,
+        failureCategory: result.failureCategory || (isSuccessful ? 'success' : 'incomplete_low_priority'),
+        technicalDetails: result.technicalDetails,
+        extractionAttempts: result.extractionAttempts ? JSON.stringify(result.extractionAttempts) : null,
+        recommendation: result.recommendation,
+        processedAt: new Date(),
+        processingTimeMs: processingTime
+      });
 
     } catch (error: any) {
       const processingTime = Date.now() - startTime;
       
       await storage.updateDomain(domain.id, {
         status: 'failed',
+        failureCategory: 'incomplete_low_priority',
+        technicalDetails: 'Processing exception occurred',
+        recommendation: 'Retry with different extraction methods',
         errorMessage: `Processing error: ${error.message}`,
         retryCount: domain.retryCount + 1,
         processedAt: new Date(),
