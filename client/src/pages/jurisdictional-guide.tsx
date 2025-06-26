@@ -4,7 +4,7 @@ export default function JurisdictionalGuide() {
       <header className="border-b pb-4">
         <h1 className="text-2xl font-bold">Jurisdictional Knowledge Reference</h1>
         <p className="text-gray-600 mt-2">
-          Comprehensive legal entity recognition across 10 jurisdictions with 180+ corporate suffixes and validation rules.
+          Comprehensive legal entity recognition across 11 jurisdictions with 190+ corporate suffixes and validation rules.
         </p>
       </header>
 
@@ -302,6 +302,72 @@ export default function JurisdictionalGuide() {
         <div className="text-sm text-gray-600">
           <strong>Key Rules:</strong> S.r.l.s. introduced in 2012 for startups with reduced capital requirements. 
           Cooperatives often include "a r.l." (responsabilità limitata) for limited liability.
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Taiwan</h2>
+        <div className="bg-gray-50 p-4 rounded mb-4">
+          <h3 className="font-medium mb-2">Corporate Entities (Company Act)</h3>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <strong>Limited Companies:</strong> Co., Ltd., Company Limited, Ltd.
+            </div>
+            <div>
+              <strong>Corporations:</strong> Inc., Incorporated, Corporation
+            </div>
+            <div>
+              <strong>Technology:</strong> Corp., Technology Co., Ltd.
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4 text-sm mt-3">
+            <div>
+              <strong>Manufacturing:</strong> Industrial Co., Electronics Co.
+            </div>
+            <div>
+              <strong>Cooperatives:</strong> Cooperative, Co-op
+            </div>
+            <div>
+              <strong>Nonprofit:</strong> Foundation, Association, Branch
+            </div>
+          </div>
+        </div>
+        <div className="text-sm text-gray-600">
+          <strong>Key Rules:</strong> Most common form is "Co., Ltd." Technology companies often use "Corp." 
+          Manufacturing companies typically include industry descriptor. Foundation Act governs nonprofit entities.
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Russia</h2>
+        <div className="bg-gray-50 p-4 rounded mb-4">
+          <h3 className="font-medium mb-2">Corporate Entities (Russian Civil Code)</h3>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <strong>Limited Liability:</strong> OOO, ООО (Obshchestvo s Ogranichennoy Otvetstvennostyu)
+            </div>
+            <div>
+              <strong>Joint-Stock:</strong> AO, АО (Aktsionernoe Obshchestvo), PAO, ПАО (Publichnoe Aktsionernoe Obshchestvo)
+            </div>
+            <div>
+              <strong>Individual Entrepreneur:</strong> IP, ИП (Individualny Predprinimatel)
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4 text-sm mt-3">
+            <div>
+              <strong>Partnerships:</strong> TNV (Tovarishchestvo na Vere), PT (Polnoe Tovarishchestvo)
+            </div>
+            <div>
+              <strong>Cooperative:</strong> PK (Proizvodstvenny Kooperativ), Kooperativ
+            </div>
+            <div>
+              <strong>Nonprofit:</strong> ANO, АНО (Avtonomnaya Nekommercheskaya Organizatsiya), Fond, Obshchestvennaya Organizatsiya
+            </div>
+          </div>
+        </div>
+        <div className="text-sm text-gray-600">
+          <strong>Key Rules:</strong> OOO is the most common form for small-medium businesses. PAO reserved for publicly traded companies (2014 reform). 
+          State institutions lack standardized suffixes. Suffixes mandatory under Russian Civil Code. Both Latin and Cyrillic variants recognized.
         </div>
       </section>
 
