@@ -199,6 +199,18 @@ export class DomainExtractor {
       'evotec.com': 'Evotec SE',
       'deutsche-boerse.com': 'Deutsche Börse AG',
       'united-internet.de': 'United Internet AG',
+      
+      // Russian Companies
+      'gazprom.com': 'Gazprom PAO',
+      'rosneft.com': 'Rosneft Oil Company PAO',
+      'sberbank.com': 'Sberbank PAO',
+      'lukoil.com': 'LUKOIL PAO',
+      'norilsknickel.com': 'Nornickel PAO',
+      'magnit.com': 'Magnit PAO',
+      'x5.ru': 'X5 Retail Group',
+      'vtb.com': 'VTB Bank PAO',
+      'surgutneftegas.com': 'Surgutneftegaz PAO',
+      'yandex.com': 'Yandex N.V.',
       'carl-zeiss.com': 'Carl Zeiss AG',
       'dhs-versicherungsmakler.de': 'DHS Insurance Broker GmbH & Co. KG',
       'morphosys.com': 'MorphoSys AG',

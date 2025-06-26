@@ -42,7 +42,7 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Enhanced Database Schema**: Added failure_category, technical_details, extraction_attempts, recommendation fields for comprehensive business intelligence
 - **Legal Entity Enforcement**: Stricter validation requiring corporate suffixes for business domains while allowing nonprofits/government exceptions
 - **User Feedback Integration**: Assessment approach and quality improvements validated through independent parsing analysis
-- **Russian Legal Entity Integration**: Added comprehensive Russian corporate structures (OOO, AO, PAO, IP, ANO) with major company mappings (Gazprom PAO, Sberbank PAO, etc.)
+- **Russian Legal Entity Integration**: Added comprehensive Russian corporate structures (OOO/ООО, AO/АО, PAO/ПАО, IP/ИП, ANO/АНО) with major company mappings and proper Cyrillic recognition
 - **Documentation Updated**: Comprehensive documentation reflecting current business intelligence capabilities and performance metrics
 - Enhanced company name extraction with proper legal entity names (June 24, 2025)
 - Added known company mappings for accurate Fortune 500 entity names
