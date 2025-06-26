@@ -652,7 +652,7 @@ export class DomainExtractor {
   }
 
   private isValidCompanyName(name: string): boolean {
-    if (!name || name.length < 5 || name.length > 100) return false; // STRICTER: Minimum 5 characters
+    if (!name || name.length < 3 || name.length > 100) return false; // Allow 3+ characters for short company names
     
     // STRICTER: Reject generic business terms
     const invalidPatterns = [
@@ -832,11 +832,13 @@ export class DomainExtractor {
       }
     }
     
-    // STRICTER: Length-based confidence with tighter requirements
-    if (companyName.length >= 5 && companyName.length <= 35) {
-      confidence += 15; // Better bonus for appropriate length
+    // Length-based confidence - more lenient
+    if (companyName.length >= 3 && companyName.length <= 40) {
+      confidence += 10; // Bonus for appropriate length
+    } else if (companyName.length < 3) {
+      confidence -= 20; // Penalty for too short names
     } else {
-      confidence -= 10; // Penalty for too short/long names
+      confidence -= 10; // Penalty for too long names
     }
     
     // STRICTER: Word count confidence with optimal range
