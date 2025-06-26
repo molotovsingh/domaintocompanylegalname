@@ -4,7 +4,7 @@ export default function JurisdictionalGuide() {
       <header className="border-b pb-4">
         <h1 className="text-2xl font-bold">Jurisdictional Knowledge Reference</h1>
         <p className="text-gray-600 mt-2">
-          Comprehensive legal entity recognition across 9 jurisdictions with 170+ corporate suffixes and validation rules.
+          Comprehensive legal entity recognition across 10 jurisdictions with 180+ corporate suffixes and validation rules.
         </p>
       </header>
 
