@@ -440,11 +440,32 @@ export class DomainExtractor {
       'nubank.com.br': 'Nu Pagamentos S.A.',
       'mercadolivre.com.br': 'MercadoLibre Brasil Ltda.',
       'oi.com.br': 'Oi S.A.',
-      'tim.com.br': 'TIM Brasil S.A.'
+      'tim.com.br': 'TIM Brasil S.A.',
       
-      // Irish Companies (when needed)
-      // Major Irish companies can be added here with proper legal entity suffixes
-      // Examples: 'ryanair.com': 'Ryanair DAC', 'aib.ie': 'Allied Irish Banks PLC', etc.
+      // Irish companies (major corporations)
+      'ryanair.com': 'Ryanair DAC',
+      'aib.ie': 'Allied Irish Banks PLC',
+      'bankofireland.com': 'Bank of Ireland PLC',
+      'permanenttsb.ie': 'Permanent TSB PLC',
+      'kbc.ie': 'KBC Bank Ireland PLC',
+      'ulsterbank.ie': 'Ulster Bank Ireland DAC',
+      'eircom.net': 'Eir Limited',
+      'cih.ie': 'CIH Bank DAC',
+      'accenture.com': 'Accenture PLC',
+      'glanbia.com': 'Glanbia PLC',
+      'kingspan.com': 'Kingspan Group PLC',
+      'crh.com': 'CRH PLC',
+      'smurfitkappa.com': 'Smurfit Kappa Group PLC',
+      'kerry.com': 'Kerry Group PLC',
+      'irishtimes.com': 'The Irish Times DAC',
+      'independent.ie': 'Independent News & Media PLC',
+      'rte.ie': 'Raidió Teilifís Éireann',
+      'dcc.ie': 'DCC PLC',
+      'paddy-power.com': 'Flutter Entertainment PLC',
+      'betfair.com': 'Flutter Entertainment PLC',
+      'greencore.com': 'Greencore Group PLC',
+      'cairnhomes.com': 'Cairn Homes PLC',
+      'dalata.ie': 'Dalata Hotel Group PLC'
       
       // Italian Companies (when needed)
       // Major Italian companies can be added here with proper legal entity suffixes
