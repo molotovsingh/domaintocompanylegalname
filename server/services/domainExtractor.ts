@@ -1159,7 +1159,28 @@ export class DomainExtractor {
   }
   
   private searchFooterForLegalEntity(footerText: string, domainStems: string[], legalSuffixes: string[], country: string | null): { companyName: string; confidence: number } | null {
-    // Create search patterns for each domain stem + legal suffix combination
+    // ENHANCED METHOD: Search for expected entity names + legal suffixes (NEW APPROACH)
+    const expectedEntityNames = this.generateExpectedEntityNames(domainStems);
+    
+    // Method 1: Expected entity names + legal suffixes (HIGHEST PRIORITY)
+    for (const expectedName of expectedEntityNames) {
+      for (const suffix of legalSuffixes) {
+        // Look for expected entity name + legal suffix
+        const pattern = new RegExp(`\\b${this.escapeRegex(expectedName)}\\s*${this.escapeRegex(suffix)}\\b`, 'i');
+        const match = footerText.match(pattern);
+        
+        if (match) {
+          const foundEntity = match[0].trim();
+          console.log(`ENHANCED SUCCESS: Found "${foundEntity}" using expected name "${expectedName}" + ${country} suffix "${suffix}"`);
+          return {
+            companyName: foundEntity,
+            confidence: 98 // Highest confidence for expected name matches
+          };
+        }
+      }
+    }
+    
+    // Method 2: Domain stems + legal suffixes (EXISTING APPROACH)
     for (const stem of domainStems) {
       for (const suffix of legalSuffixes) {
         // Pattern 1: Exact stem + suffix match
@@ -1168,6 +1189,7 @@ export class DomainExtractor {
         if (exactMatch) {
           const companyName = this.cleanCompanyName(exactMatch[0]);
           if (this.isValidCompanyName(companyName) && !this.isMarketingContent(companyName)) {
+            console.log(`JURISDICTION SUCCESS: Found "${companyName}" using ${country} suffix "${suffix}" for domain stem "${stem}"`);
             return { companyName, confidence: 95 }; // High confidence for exact match
           }
         }
@@ -1203,6 +1225,37 @@ export class DomainExtractor {
   
   private escapeRegex(string: string): string {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  private generateExpectedEntityNames(domainStems: string[]): string[] {
+    const expectedNames: string[] = [];
+    
+    // Convert domain stems to expected company name formats
+    for (const stem of domainStems) {
+      // Convert hyphenated stems to space-separated names (e.g., "mcinc-products" → "Mcinc Products")
+      if (stem.includes('-')) {
+        const spacedName = stem.split('-')
+          .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+          .join(' ');
+        expectedNames.push(spacedName);
+        console.log(`Generated expected entity name: "${spacedName}" from stem "${stem}"`);
+      }
+      
+      // Convert underscore stems to space-separated names (e.g., "abc_corp" → "Abc Corp")
+      if (stem.includes('_')) {
+        const spacedName = stem.split('_')
+          .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+          .join(' ');
+        expectedNames.push(spacedName);
+        console.log(`Generated expected entity name: "${spacedName}" from stem "${stem}"`);
+      }
+      
+      // Add capitalized single word names
+      const capitalizedStem = stem.charAt(0).toUpperCase() + stem.slice(1).toLowerCase();
+      expectedNames.push(capitalizedStem);
+    }
+    
+    return [...new Set(expectedNames)]; // Remove duplicates
   }
 
   private classifyFailure(result: ExtractionResult, domain: string): ExtractionResult {
