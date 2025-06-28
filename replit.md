@@ -48,6 +48,8 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **MACHINE-FRIENDLY PARSING RULES SYSTEM COMPLETE**: Centralized all extraction methods, confidence modifiers, validation rules, and processing timeouts in unified TypeScript configuration enabling instant system updates through JSON modifications (June 28, 2025)
+- **Unified Configuration Architecture**: Single source of truth in shared/parsing-rules.ts serving domain extractor, documentation page, and validation system with automatic propagation across 7 extraction methods and all confidence calculations
 - **MACHINE-FRIENDLY JURISDICTION SYSTEM IMPLEMENTED**: Transformed hardcoded HTML documentation into TypeScript data structure with dynamic UI generation, enabling instant jurisdiction updates through single JSON modifications while maintaining full human observability (June 28, 2025)
 - **Data-Driven Architecture**: Unified jurisdiction data source serving both documentation page and domain extraction engine, eliminating duplicate maintenance and ensuring consistency across 12 jurisdictions with 390+ legal suffixes
 - **SRI LANKAN LEGAL ENTITY INTEGRATION COMPLETE**: Added comprehensive Sri Lankan business structure recognition with 55+ major company mappings including banks (Dialog Axiata PLC, Sampath Bank PLC), conglomerates (John Keells Holdings PLC), and telecommunications (Sri Lanka Telecom PLC) with proper PLC/Pvt Ltd suffix validation (June 28, 2025)
