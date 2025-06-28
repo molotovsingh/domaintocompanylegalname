@@ -1,0 +1,78 @@
+{
+  "legal_entities": [
+    {
+      "type": "Private Limited Company",
+      "suffix": "Pvt Ltd, (Private) Limited",
+      "description": "Most common business form, with limited liability for shareholders, not publicly traded."
+    },
+    {
+      "type": "Public Limited Company",
+      "suffix": "PLC, Public Limited Company",
+      "description": "Company with shares that can be publicly traded, with limited liability."
+    },
+    {
+      "type": "Company Limited by Guarantee",
+      "suffix": "Ltd, Limited (or none for nonprofits)",
+      "description": "Nonprofit company without shares, often for charitable or community purposes."
+    },
+    {
+      "type": "Unlimited Company",
+      "suffix": "(No specific suffix, often none)",
+      "description": "Rare company form with unlimited liability for shareholders."
+    },
+    {
+      "type": "Limited Partnership",
+      "suffix": "(No specific suffix, often 'LP' or none)",
+      "description": "Partnership with general and limited partners, general partners have unlimited liability."
+    },
+    {
+      "type": "General Partnership",
+      "suffix": "(No specific suffix)",
+      "description": "Partnership with unlimited liability for all partners, often informal."
+    },
+    {
+      "type": "Sole Proprietorship",
+      "suffix": "(No specific suffix)",
+      "description": "Business owned by one individual, no separate legal entity, unlimited liability."
+    },
+    {
+      "type": "Cooperative Society",
+      "suffix": "(No specific suffix, often 'Cooperative' or 'Co-op')",
+      "description": "Member-owned organization for mutual benefit, common in agriculture or consumer sectors."
+    },
+    {
+      "type": "Registered Society",
+      "suffix": "(No specific suffix, often 'Society')",
+      "description": "Nonprofit entity for cultural, social, or charitable purposes, registered under the Societies Ordinance."
+    },
+    {
+      "type": "Trust",
+      "suffix": "(No specific suffix, often 'Trust' in name)",
+      "description": "Legal arrangement for asset management, estate planning, or charitable purposes, not a standalone entity."
+    },
+    {
+      "type": "Charitable Trust",
+      "suffix": "(No specific suffix, often 'Trust' or 'Charitable Trust')",
+      "description": "Trust for charitable purposes, registered under the Trusts Ordinance."
+    },
+    {
+      "type": "Voluntary Social Service Organization",
+      "suffix": "(No specific suffix, often 'VSSO' or none)",
+      "description": "Nonprofit organization for social or charitable activities, registered under the VSSO Act."
+    },
+    {
+      "type": "Public Institution",
+      "suffix": "(No specific suffix, often descriptive name)",
+      "description": "Government-run entities, such as universities, hospitals, or state-owned enterprises."
+    }
+  ],
+  "notes": [
+    "Suffixes like Pvt Ltd, PLC, or Ltd are mandatory for companies under the Companies Act No. 7 of 2007 to indicate their legal structure.",
+    "Trusts, including charitable trusts, are recognized under the Trusts Ordinance (No. 9 of 1917) and are common for estate planning or charitable purposes, but they are not legal entities.",
+    "Sri Lanka’s hybrid legal system (common law and civil law) supports trusts, similar to Ireland or Canada, unlike purely civil law systems like Russia or Italy.",
+    "Nonprofit entities like Registered Societies and Voluntary Social Service Organizations (VSSOs) are common for charitable or community purposes, akin to Ireland’s incorporated associations or Russia’s ANO.",
+    "Cooperatives are regulated under the Cooperative Societies Ordinance, with names often including 'Cooperative' or 'Co-op'.",
+    "Public institutions and state-owned enterprises (e.g., Ceylon Petroleum Corporation) lack standardized suffixes and are identified by name or context.",
+    "Companies are registered with the Registrar of Companies, while trusts and societies may require registration with other authorities, such as the Ministry of Social Empowerment for VSSOs."
+  ]
+}
