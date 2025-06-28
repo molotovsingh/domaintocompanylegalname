@@ -468,8 +468,11 @@ export class DomainExtractor {
 
     const $ = cheerio.load(response.data);
     
+    // Extract domain from URL for enhanced footer extraction
+    const domain = new URL(url).hostname.replace(/^www\./, '');
+    
     // Priority 1: Try footer copyright extraction first (most reliable for legal entities)
-    const footerResult = this.extractFromFooterCopyright($);
+    const footerResult = this.extractFromFooterCopyright($, domain);
     if (footerResult.companyName && this.isValidCompanyName(footerResult.companyName)) {
       return footerResult;
     }
@@ -1082,7 +1085,7 @@ export class DomainExtractor {
     const bottomText = bodyText.slice(-2000); // Last 2000 characters
     const combinedText = footerText + ' ' + bottomText;
     
-    // Enhanced targeted search approach
+    // Enhanced targeted search approach - NEW INTELLIGENCE
     const targetedResult = this.searchFooterForLegalEntity(combinedText, domainStems, legalSuffixes, country);
     if (targetedResult) {
       return {
