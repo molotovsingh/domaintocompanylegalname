@@ -191,27 +191,12 @@ export class DomainExtractor {
         error: error instanceof Error ? error.message : 'Unknown extraction error'
       });
       
-      return this.classifyFailure({
-        companyName: null,
-        method: 'domain_parse',
-        confidence: 0,
-        error: error instanceof Error ? error.message : 'Unknown extraction error',
-        extractionAttempts
-      }, cleanDomain);
+      // Use domain parsing as final fallback
       const domainResult = this.extractFromDomain(cleanDomain);
-      
-      if (connectivity === 'unreachable') {
-        return {
-          ...domainResult,
-          connectivity: 'unreachable',
-          error: 'Domain unreachable - bad website/network issue'
-        };
-      }
-      
       return {
         ...domainResult,
-        connectivity: connectivity,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown extraction error',
+        extractionAttempts
       };
     }
   }
