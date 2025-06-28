@@ -157,7 +157,7 @@ export class BatchProcessor {
         technicalDetails: 'Processing exception occurred',
         recommendation: 'Retry with different extraction methods',
         errorMessage: `Processing error: ${error.message}`,
-        retryCount: domain.retryCount + 1,
+        retryCount: (domain.retryCount || 0) + 1,
         processedAt: new Date(),
         processingTimeMs: processingTime,
       });

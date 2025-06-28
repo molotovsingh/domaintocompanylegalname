@@ -1202,6 +1202,12 @@ export class DomainExtractor {
 
     console.log(`ENHANCED FOOTER: Processing ${domain} - Footer text length: ${footerText.length}`);
     
+    // Early exit for minimal content to prevent infinite loops
+    if (footerText.length < 50) {
+      console.log(`ENHANCED FOOTER: Skipping ${domain} - insufficient footer content (${footerText.length} chars)`);
+      return { companyName: null, method: 'footer_copyright', confidence: 0 };
+    }
+    
     // ENHANCED: Dual-layer footer search with expected entity names
     
     // Method 1: Expected entity names + legal suffixes (98% confidence)
