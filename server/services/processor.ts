@@ -192,10 +192,62 @@ export class BatchProcessor {
   }
 
   async processSingleDomain(domain: Domain): Promise<Domain> {
-    await this.processDomain(domain);
+    // For single domain tests, always do fresh processing (skip cache)
+    await this.processDomainFresh(domain);
     // Return the updated domain from storage
     const updatedDomain = await storage.getDomain(domain.id);
     return updatedDomain!;
+  }
+
+  private async processDomainFresh(domain: Domain): Promise<void> {
+    const startTime = Date.now();
+    
+    try {
+      // Mark as processing and record start time
+      await storage.updateDomain(domain.id, { 
+        status: 'processing',
+        processingStartedAt: new Date()
+      });
+
+      // Always extract fresh (no caching for single domain tests)
+      const result = await this.extractor.extractCompanyName(domain.domain);
+
+      const processingTime = Date.now() - startTime;
+      
+      // Determine status based on extraction result and confidence
+      const isSuccessful = result.companyName && 
+                          result.confidence >= 65 && 
+                          result.connectivity !== 'unreachable' &&
+                          result.failureCategory === 'success';
+
+      await storage.updateDomain(domain.id, {
+        status: isSuccessful ? 'success' : 'failed',
+        companyName: result.companyName,
+        extractionMethod: result.method,
+        confidenceScore: result.confidence,
+        errorMessage: result.error,
+        failureCategory: result.failureCategory || (isSuccessful ? 'success' : 'incomplete_low_priority'),
+        technicalDetails: result.technicalDetails,
+        extractionAttempts: result.extractionAttempts ? JSON.stringify(result.extractionAttempts) : null,
+        recommendation: result.recommendation,
+        processedAt: new Date(),
+        processingTimeMs: processingTime
+      });
+
+    } catch (error: any) {
+      const processingTime = Date.now() - startTime;
+      
+      await storage.updateDomain(domain.id, {
+        status: 'failed',
+        failureCategory: 'incomplete_low_priority',
+        technicalDetails: 'Processing exception occurred',
+        recommendation: 'Retry with different extraction methods',
+        errorMessage: `Processing error: ${error.message}`,
+        retryCount: (domain.retryCount || 0) + 1,
+        processedAt: new Date(),
+        processingTimeMs: processingTime,
+      });
+    }
   }
 }
 

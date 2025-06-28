@@ -48,6 +48,10 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **SINGLE DOMAIN TEST CACHING BUG FIXED**: Resolved issue where repeated testing of same domain showed cached failed results instead of fresh extraction attempts (June 28, 2025)
+- **Fresh Processing for Single Tests**: Single domain tests now bypass caching logic and always perform fresh extraction to ensure accurate repeated testing
+- **Single Domain Test Feature Added**: Implemented real-time single domain testing with instant results, business intelligence classification, and detailed extraction metrics (June 28, 2025)
+- **Enhanced Testing UI**: Added dedicated single domain input component with processing time display, confidence scoring, and business categorization badges
 - **CRITICAL PROCESSING LOOP BUG FIXED**: Resolved infinite processing loops caused by domains with minimal footer content getting stuck in repeated extraction attempts (June 28, 2025)
 - **Comprehensive Timeout Protection**: Implemented multi-layer timeout system with 25s extraction limits, 30s processing detection, and automatic stuck domain recovery
 - **Processing Stability Enhanced**: Added early exit for minimal footer content (<50 chars), Promise.race timeout protection, and stuck processing detection
