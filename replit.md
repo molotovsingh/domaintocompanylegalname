@@ -48,6 +48,8 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **SRI LANKAN LEGAL ENTITY INTEGRATION COMPLETE**: Added comprehensive Sri Lankan business structure recognition with 55+ major company mappings including banks (Dialog Axiata PLC, Sampath Bank PLC), conglomerates (John Keells Holdings PLC), and telecommunications (Sri Lanka Telecom PLC) with proper PLC/Pvt Ltd suffix validation (June 28, 2025)
+- **12th Jurisdiction Added**: Extended international coverage to include Sri Lankan Companies Act 2007 compliance with Private Limited, Public Limited, Trust, Cooperative, and Society structures alongside .lk TLD recognition
 - **SINGLE DOMAIN TEST CACHING BUG FIXED**: Resolved issue where repeated testing of same domain showed cached failed results instead of fresh extraction attempts (June 28, 2025)
 - **Fresh Processing for Single Tests**: Single domain tests now bypass caching logic and always perform fresh extraction to ensure accurate repeated testing
 - **Single Domain Test Feature Added**: Implemented real-time single domain testing with instant results, business intelligence classification, and detailed extraction metrics (June 28, 2025)
