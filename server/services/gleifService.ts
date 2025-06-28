@@ -51,52 +51,33 @@ export interface GLEIFCandidate extends GLEIFEntity {
 export interface SelectionResult {
   primarySelection: GLEIFCandidate;
   alternativeCandidates: GLEIFCandidate[];
-  selectionMethod: 'weighted_algorithm' | 'manual_override' | 'single_match';
+  selectionMethod: string;
   manualReviewRequired: boolean;
   totalCandidates: number;
 }
 
 export class GLEIFService {
-  private readonly GLEIF_API_BASE = 'https://api.gleif.org/api/v1';
-  private readonly tldMapping: Record<string, string>;
-  private readonly fortune500Companies: Set<string>;
+  private tldMapping: Record<string, string>;
 
   constructor() {
     this.tldMapping = getTLDMapping();
-    this.fortune500Companies = new Set([
-      // Major technology companies
-      'Apple Inc.', 'Microsoft Corporation', 'Alphabet Inc.', 'Amazon.com Inc.',
-      'Meta Platforms Inc.', 'Tesla Inc.', 'NVIDIA Corporation', 'Oracle Corporation',
-      
-      // Major automotive companies  
-      'General Motors Company', 'Ford Motor Company', 'Toyota Motor Corporation',
-      'Volkswagen AG', 'BMW AG', 'Mercedes-Benz Group AG', 'Stellantis N.V.',
-      
-      // Major financial institutions
-      'JPMorgan Chase & Co.', 'Bank of America Corporation', 'Wells Fargo & Company',
-      'Goldman Sachs Group Inc.', 'Morgan Stanley', 'Citigroup Inc.',
-      
-      // Additional Fortune 500 entries can be expanded based on requirements
-    ]);
   }
 
   /**
-   * Search for GLEIF entities based on company name extracted from Level 1
+   * Main entry point for GLEIF entity search
    */
-  async searchEntity(companyName: string, domain?: string): Promise<GLEIFSearchResult> {
+  async searchEntity(companyName: string, domain: string): Promise<GLEIFSearchResult> {
     try {
-      // Try exact match first
+      // Try exact search first
       let result = await this.performGLEIFSearch(companyName, 'exact');
       
       if (result.entities.length === 0) {
-        // Try fuzzy search if exact match fails
+        // Try fuzzy search if exact fails
         result = await this.performGLEIFSearch(companyName, 'fuzzy');
-      }
-      
-      if (result.entities.length === 0 && domain) {
-        // Try geographic search based on domain TLD
-        const jurisdiction = this.getJurisdictionFromDomain(domain);
-        if (jurisdiction) {
+        
+        if (result.entities.length === 0) {
+          // Try geographic search with TLD-based jurisdiction
+          const jurisdiction = this.getJurisdictionFromDomain(domain);
           result = await this.performGLEIFSearch(companyName, 'geographic', jurisdiction);
         }
       }
@@ -169,85 +150,127 @@ export class GLEIFService {
   }
 
   /**
-   * Perform actual GLEIF API search
+   * Perform actual GLEIF API search using the public GLEIF API
    */
   private async performGLEIFSearch(
     searchTerm: string, 
     method: 'exact' | 'fuzzy' | 'geographic',
     jurisdiction?: string
   ): Promise<GLEIFSearchResult> {
-    // This is a placeholder for the actual GLEIF API integration
-    // In a real implementation, this would make HTTP requests to the GLEIF API
-    
-    const mockEntities: GLEIFEntity[] = [
-      {
-        lei: 'HWUPKR0MPOU8FGXBT394',
-        legalName: 'Apple Inc.',
-        entityStatus: 'ACTIVE',
-        jurisdiction: 'US-CA',
-        legalForm: 'H1UM',
-        entityCategory: 'GENERAL',
-        registrationStatus: 'ISSUED',
+    try {
+      // GLEIF provides a free public API for legal entity searches
+      const baseUrl = 'https://api.gleif.org/api/v1/lei-records';
+      let searchUrl = `${baseUrl}?filter[entity.legalName]=*${encodeURIComponent(searchTerm)}*&page[size]=10`;
+      
+      // Add jurisdiction filter if provided
+      if (jurisdiction) {
+        searchUrl += `&filter[entity.legalAddress.country]=${jurisdiction}`;
+      }
+
+      console.log(`GLEIF API: Searching for "${searchTerm}" using ${method} method`);
+      
+      const response = await fetch(searchUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/vnd.api+json',
+          'User-Agent': 'Domain-Intelligence-Platform/1.0'
+        }
+      });
+
+      if (!response.ok) {
+        console.error(`GLEIF API error: ${response.status} ${response.statusText}`);
+        return { searchTerm, totalMatches: 0, entities: [], searchMethod: method };
+      }
+
+      const data = await response.json();
+      const entities: GLEIFEntity[] = [];
+
+      if (data.data && Array.isArray(data.data)) {
+        for (const record of data.data) {
+          const entity = this.parseGLEIFRecord(record);
+          if (entity) {
+            entities.push(entity);
+          }
+        }
+      }
+
+      console.log(`GLEIF API: Found ${entities.length} entities for "${searchTerm}"`);
+      
+      return {
+        searchTerm,
+        totalMatches: data.meta?.pagination?.total || entities.length,
+        entities,
+        searchMethod: method
+      };
+
+    } catch (error: any) {
+      console.error(`GLEIF API search failed for "${searchTerm}":`, error.message);
+      return { searchTerm, totalMatches: 0, entities: [], searchMethod: method };
+    }
+  }
+
+  /**
+   * Parse GLEIF API record into our entity format
+   */
+  private parseGLEIFRecord(record: any): GLEIFEntity | null {
+    try {
+      const attributes = record.attributes;
+      if (!attributes?.entity) return null;
+
+      const entity = attributes.entity;
+      const registration = attributes.registration;
+      
+      return {
+        lei: attributes.lei || '',
+        legalName: entity.legalName?.name || '',
+        entityStatus: entity.status || 'UNKNOWN',
+        jurisdiction: entity.legalAddress?.country || '',
+        legalForm: entity.legalForm?.id || '',
+        entityCategory: entity.category || 'GENERAL',
+        registrationStatus: registration?.status || 'UNKNOWN',
         headquarters: {
-          country: 'US',
-          region: 'CA',
-          city: 'Cupertino',
-          addressLines: ['One Apple Park Way'],
-          postalCode: '95014'
+          country: entity.headquartersAddress?.country || '',
+          region: entity.headquartersAddress?.region || '',
+          city: entity.headquartersAddress?.city || '',
+          addressLines: entity.headquartersAddress?.addressLines || [],
+          postalCode: entity.headquartersAddress?.postalCode || ''
         },
         legalAddress: {
-          country: 'US',
-          region: 'CA', 
-          city: 'Cupertino',
-          addressLines: ['One Apple Park Way'],
-          postalCode: '95014'
+          country: entity.legalAddress?.country || '',
+          region: entity.legalAddress?.region || '',
+          city: entity.legalAddress?.city || '',
+          addressLines: entity.legalAddress?.addressLines || [],
+          postalCode: entity.legalAddress?.postalCode || ''
         },
-        otherNames: ['Apple Computer Inc.'],
-        registrationDate: '1976-04-01',
-        lastUpdateDate: '2024-12-01'
-      }
-    ];
-
-    return {
-      searchTerm,
-      totalMatches: mockEntities.length,
-      entities: mockEntities,
-      searchMethod: method
-    };
+        otherNames: entity.otherEntityNames?.map((n: any) => n.name) || [],
+        registrationDate: registration?.initialRegistrationDate || '',
+        lastUpdateDate: attributes.lastUpdateDate || ''
+      };
+    } catch (error) {
+      console.error('Failed to parse GLEIF record:', error);
+      return null;
+    }
   }
 
   /**
    * Calculate weighted score for GLEIF candidate selection
    */
-  private calculateWeightedScore(entity: GLEIFEntity, domain: Domain): {
-    totalScore: number;
-    domainTldScore: number;
-    fortune500Score: number;
-    nameMatchScore: number;
-    entityComplexityScore: number;
-    selectionReason: string;
-  } {
-    // Domain TLD Matching (40% weight)
+  private calculateWeightedScore(entity: GLEIFEntity, domain: Domain) {
     const domainTldScore = this.calculateDomainTldScore(entity, domain.domain);
-    
-    // Fortune 500 Recognition (30% weight)
     const fortune500Score = this.calculateFortune500Score(entity);
-    
-    // Name Match Quality (20% weight)
     const nameMatchScore = this.calculateNameMatchScore(entity, domain.companyName || '');
-    
-    // Entity Complexity (10% weight)
     const entityComplexityScore = this.calculateEntityComplexityScore(entity);
 
+    // Weighted scoring algorithm: Name Match (40%) + Fortune 500 (25%) + TLD (20%) + Complexity (15%)
     const totalScore = Math.round(
-      domainTldScore * 0.4 +
-      fortune500Score * 0.3 +
-      nameMatchScore * 0.2 +
-      entityComplexityScore * 0.1
+      (nameMatchScore * 0.4) + 
+      (fortune500Score * 0.25) + 
+      (domainTldScore * 0.2) + 
+      (entityComplexityScore * 0.15)
     );
 
     const selectionReason = this.generateSelectionReason(
-      domainTldScore, fortune500Score, nameMatchScore, entityComplexityScore
+      nameMatchScore, fortune500Score, domainTldScore, entityComplexityScore
     );
 
     return {
@@ -261,159 +284,115 @@ export class GLEIFService {
   }
 
   private calculateDomainTldScore(entity: GLEIFEntity, domain: string): number {
-    const tld = domain.split('.').pop()?.toLowerCase();
-    if (!tld) return 0;
-
-    const expectedJurisdiction = this.tldMapping[tld];
-    if (!expectedJurisdiction) return 50; // Neutral score for unknown TLDs
-
-    // Check if entity jurisdiction matches domain TLD
-    if (entity.jurisdiction.startsWith(expectedJurisdiction)) {
-      return 100; // Perfect match
+    const domainTLD = domain.split('.').pop()?.toLowerCase();
+    const entityCountry = entity.jurisdiction.toLowerCase();
+    
+    // Check if TLD matches entity jurisdiction
+    if (this.tldMapping[`.${domainTLD}`] === entityCountry) {
+      return 100;
     }
-
-    // Partial match for similar jurisdictions (e.g., US states)
-    if (expectedJurisdiction === 'US' && entity.jurisdiction.startsWith('US-')) {
-      return 80;
+    
+    // Partial matches for common business jurisdictions
+    if (['com', 'org', 'net'].includes(domainTLD || '')) {
+      return 50; // Neutral score for generic TLDs
     }
-
-    return 20; // Low score for jurisdiction mismatch
+    
+    return 25; // Lower score for mismatched jurisdictions
   }
 
   private calculateFortune500Score(entity: GLEIFEntity): number {
-    if (this.fortune500Companies.has(entity.legalName)) {
-      return 100; // Fortune 500 company
+    const fortune500Indicators = [
+      'inc', 'corporation', 'corp', 'company', 'co', 'ltd', 'limited',
+      'sa', 'se', 'ag', 'gmbh', 'spa', 'srl', 'bv', 'nv'
+    ];
+    
+    const legalName = entity.legalName.toLowerCase();
+    const hasF500Indicator = fortune500Indicators.some(indicator => 
+      legalName.includes(indicator)
+    );
+    
+    if (hasF500Indicator && entity.entityStatus === 'ACTIVE') {
+      return 100;
+    } else if (hasF500Indicator) {
+      return 75;
+    } else if (entity.entityStatus === 'ACTIVE') {
+      return 50;
     }
     
-    // Check for partial matches (e.g., subsidiaries)
-    for (const fortune500Name of this.fortune500Companies) {
-      if (entity.legalName.includes(fortune500Name.split(' ')[0]) || 
-          fortune500Name.includes(entity.legalName.split(' ')[0])) {
-        return 60; // Potential subsidiary or related entity
-      }
-    }
-    
-    return 0; // Not recognized as Fortune 500
+    return 25;
   }
 
-  private calculateNameMatchScore(entity: GLEIFEntity, extractedName: string): number {
-    if (!extractedName) return 0;
-
-    const normalizedEntity = entity.legalName.toLowerCase().replace(/[^\w\s]/g, '');
-    const normalizedExtracted = extractedName.toLowerCase().replace(/[^\w\s]/g, '');
-
-    // Exact match
-    if (normalizedEntity === normalizedExtracted) {
-      return 100;
-    }
-
-    // Check if extracted name is contained in entity name
-    if (normalizedEntity.includes(normalizedExtracted)) {
-      return 80;
-    }
-
-    // Check if entity name is contained in extracted name  
-    if (normalizedExtracted.includes(normalizedEntity)) {
-      return 70;
-    }
-
-    // Word-based similarity
-    const entityWords = normalizedEntity.split(/\s+/);
-    const extractedWords = normalizedExtracted.split(/\s+/);
-    const commonWords = entityWords.filter(word => extractedWords.includes(word));
+  private calculateNameMatchScore(entity: GLEIFEntity, companyName: string): number {
+    if (!companyName) return 0;
     
-    if (commonWords.length > 0) {
-      const similarity = (commonWords.length * 2) / (entityWords.length + extractedWords.length);
-      return Math.round(similarity * 60); // Max 60 for partial matches
+    const entityName = entity.legalName.toLowerCase();
+    const targetName = companyName.toLowerCase();
+    
+    // Exact match
+    if (entityName === targetName) return 100;
+    
+    // Contains match
+    if (entityName.includes(targetName) || targetName.includes(entityName)) return 85;
+    
+    // Word overlap analysis
+    const entityWords = entityName.split(/\s+/);
+    const targetWords = targetName.split(/\s+/);
+    const overlap = entityWords.filter(word => targetWords.includes(word)).length;
+    const maxWords = Math.max(entityWords.length, targetWords.length);
+    
+    if (overlap > 0) {
+      return Math.round((overlap / maxWords) * 80);
     }
-
-    return 10; // Minimal score for no obvious match
+    
+    return 10; // Minimal score for any match
   }
 
   private calculateEntityComplexityScore(entity: GLEIFEntity): number {
     let score = 50; // Base score
-
-    // Active entities get higher scores
-    if (entity.entityStatus === 'ACTIVE') {
-      score += 30;
-    }
-
-    // Recent updates indicate active maintenance
-    const lastUpdate = new Date(entity.lastUpdateDate);
-    const monthsOld = (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24 * 30);
-    if (monthsOld < 6) {
-      score += 20;
-    }
-
-    // Presence of headquarters info indicates completeness
-    if (entity.headquarters.country && entity.headquarters.city) {
-      score += 10;
-    }
-
+    
+    // Active status bonus
+    if (entity.entityStatus === 'ACTIVE') score += 25;
+    
+    // Registration status bonus
+    if (entity.registrationStatus === 'ISSUED') score += 15;
+    
+    // Complete address information bonus
+    if (entity.headquarters.country && entity.headquarters.city) score += 10;
+    
     return Math.min(score, 100);
   }
 
-  private calculateGLEIFMatchScore(entity: GLEIFEntity, extractedName: string): number {
-    // This would be the confidence score from the GLEIF API response
-    // For now, return a high confidence for active entities with good name matches
-    const nameScore = this.calculateNameMatchScore(entity, extractedName);
-    const statusBonus = entity.entityStatus === 'ACTIVE' ? 20 : 0;
+  private generateSelectionReason(
+    nameMatch: number, fortune500: number, tldMatch: number, complexity: number
+  ): string {
+    const reasons = [];
     
-    return Math.min(nameScore + statusBonus, 100);
+    if (nameMatch >= 85) reasons.push('Strong name match');
+    if (fortune500 >= 75) reasons.push('Fortune 500 indicators');
+    if (tldMatch >= 75) reasons.push('Jurisdiction alignment');
+    if (complexity >= 75) reasons.push('Complete entity profile');
+    
+    return reasons.length > 0 ? reasons.join(', ') : 'Basic entity match';
   }
 
-  private generateSelectionReason(
-    domainTldScore: number,
-    fortune500Score: number, 
-    nameMatchScore: number,
-    entityComplexityScore: number
-  ): string {
-    const reasons: string[] = [];
-
-    if (domainTldScore >= 80) {
-      reasons.push('jurisdiction alignment');
-    }
-    if (fortune500Score >= 60) {
-      reasons.push('Fortune 500 recognition');
-    }
-    if (nameMatchScore >= 70) {
-      reasons.push('strong name match');
-    }
-    if (entityComplexityScore >= 80) {
-      reasons.push('active entity status');
-    }
-
-    return reasons.length > 0 ? reasons.join(', ') : 'algorithmic selection';
+  private calculateGLEIFMatchScore(entity: GLEIFEntity, companyName: string): number {
+    return this.calculateNameMatchScore(entity, companyName);
   }
 
   private requiresManualReview(candidates: GLEIFCandidate[]): boolean {
-    if (candidates.length === 0) return true;
+    if (candidates.length === 0) return false;
+    if (candidates.length === 1) return false;
     
-    // Require manual review if top candidates have similar scores
-    if (candidates.length > 1) {
-      const topScore = candidates[0].weightedScore;
-      const secondScore = candidates[1].weightedScore;
-      if (Math.abs(topScore - secondScore) <= 10) {
-        return true;
-      }
-    }
-
-    // Require manual review if primary selection has low confidence
-    if (candidates[0].weightedScore < 70) {
-      return true;
-    }
-
-    // Require manual review if more than 4 candidates
-    if (candidates.length > 4) {
-      return true;
-    }
-
-    return false;
+    // Manual review if top candidates have similar scores
+    const topScore = candidates[0].weightedScore;
+    const secondScore = candidates[1]?.weightedScore || 0;
+    
+    return (topScore - secondScore) < 15; // Less than 15 point difference
   }
 
-  private getJurisdictionFromDomain(domain: string): string | null {
-    const tld = domain.split('.').pop()?.toLowerCase();
-    return tld ? this.tldMapping[tld] || null : null;
+  private getJurisdictionFromDomain(domain: string): string {
+    const tld = '.' + domain.split('.').pop()?.toLowerCase();
+    return this.tldMapping[tld] || 'US';
   }
 }
 
