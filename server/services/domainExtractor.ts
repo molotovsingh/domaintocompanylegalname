@@ -29,51 +29,21 @@ export class DomainExtractor {
   private userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
   
   private getCountryFromTLD(domain: string): string | null {
-    const tldMap: Record<string, string> = {
-      '.de': 'germany',
-      '.co.jp': 'japan', 
-      '.com.br': 'brazil',
-      '.co.uk': 'uk',
-      '.com.au': 'australia',
-      '.fr': 'france',
-      '.it': 'italy',
-      '.ca': 'canada',
-      '.mx': 'mexico',
-      '.in': 'india',
-      '.nl': 'netherlands',
-      '.cn': 'china',
-      '.kr': 'korea',
-      '.ru': 'russia',
-      '.tw': 'taiwan',
-      '.lk': 'srilanka'
-    };
-    
-    for (const [tld, country] of Object.entries(tldMap)) {
-      if (domain.endsWith(tld)) {
-        return country;
-      }
-    }
-    return null;
+    // Import jurisdiction data
+    const { getJurisdictionByTLD } = require('@shared/jurisdictions');
+    return getJurisdictionByTLD(domain);
   }
   
   private getCountryLegalSuffixes(country: string): string[] {
-    const suffixMap: Record<string, string[]> = {
-      germany: ['GmbH', 'AG', 'UG', 'KG', 'SE', 'e.V.', 'GmbH & Co. KG'],
-      japan: ['Corporation', 'Corp', 'Ltd', 'Limited', 'KK', 'YK'],
-      brazil: ['S.A.', 'Ltda', 'EIRELI', 'MEI', 'Sociedade Anônima', 'Limitada'],
-      uk: ['Ltd', 'Limited', 'PLC', 'LLP', 'CIC'],
-      australia: ['Pty Ltd', 'Ltd', 'Limited', 'Pty Limited'],
-      france: ['SA', 'SARL', 'SAS', 'EURL', 'SNC', 'SCS'],
-      italy: ['S.p.A.', 'S.r.l.', 'S.n.c.', 'S.a.s.'],
-      canada: ['Inc.', 'Ltd.', 'Corp.', 'Ltée'],
-      mexico: ['S.A.', 'S.A. de C.V.', 'S. de R.L.'],
-      india: ['Ltd', 'Limited', 'Pvt Ltd', 'Private Limited'],
-      usa: ['Inc', 'Corp', 'LLC', 'Corporation', 'Company', 'Co.'],
-      russia: ['OOO', 'ООО', 'AO', 'АО', 'PAO', 'ПАО'],
-      srilanka: ['Pvt Ltd', '(Private) Limited', 'PLC', 'Public Limited Company', 'Ltd', 'Limited', 'Trust', 'Cooperative', 'Co-op', 'Society']
-    };
+    // Import jurisdiction data
+    const { getJurisdictionSuffixes, JURISDICTIONS } = require('@shared/jurisdictions');
     
-    return suffixMap[country] || suffixMap.usa; // Default to US suffixes
+    if (country && JURISDICTIONS[country]) {
+      return getJurisdictionSuffixes(country);
+    }
+    
+    // Default to US suffixes if country not found
+    return getJurisdictionSuffixes('us');
   }
   
   private extractDomainStem(domain: string): string[] {
