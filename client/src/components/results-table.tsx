@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Table, Download, FileCode, Globe, CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { Table, Download, FileCode, Globe, CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, Search, Shield, Users, Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import GLEIFCandidatesModal from "./gleif-candidates-modal";
 import type { Domain } from "@shared/schema";
 
 interface ResultsTableProps {
@@ -19,6 +20,7 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDomainForGleif, setSelectedDomainForGleif] = useState<{ id: number; domain: string } | null>(null);
   const { toast } = useToast();
 
   const { data: resultsData, isLoading } = useQuery({
@@ -232,6 +234,12 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
                   Confidence
                 </th>
                 <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  GLEIF Status
+                </th>
+                <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  LEI Code
+                </th>
+                <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Recommendation
                 </th>
                 <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -276,6 +284,54 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
                           ></div>
                         </div>
                         <span className="text-gray-900">{Math.round(domain.confidenceScore)}%</span>
+                      </div>
+                    ) : (
+                      '-'
+                    )}
+                  </td>
+                  <td className="py-3 px-4">
+                    {domain.level2Status ? (
+                      <div className="flex items-center">
+                        {domain.level2Status === 'success' ? (
+                          <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">
+                            <Shield className="mr-1 h-3 w-3" />
+                            Verified
+                          </Badge>
+                        ) : domain.level2Status === 'processing' ? (
+                          <Badge variant="secondary">
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-600 mr-1"></div>
+                            Processing
+                          </Badge>
+                        ) : domain.level2Status === 'failed' ? (
+                          <Badge variant="destructive">
+                            <XCircle className="mr-1 h-3 w-3" />
+                            No Match
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline">
+                            {domain.level2Status}
+                          </Badge>
+                        )}
+                      </div>
+                    ) : domain.level2Attempted ? (
+                      <Badge variant="outline" className="text-gray-500">
+                        Not Applicable
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-gray-400">
+                        Level 1 Only
+                      </Badge>
+                    )}
+                  </td>
+                  <td className="py-3 px-4">
+                    {domain.primaryLeiCode ? (
+                      <div className="flex items-center">
+                        <code className="bg-gray-100 px-2 py-1 rounded text-xs font-mono">
+                          {domain.primaryLeiCode}
+                        </code>
+                        <Button variant="ghost" size="sm" className="ml-2 h-6 w-6 p-0">
+                          <Eye className="h-3 w-3" />
+                        </Button>
                       </div>
                     ) : (
                       '-'
