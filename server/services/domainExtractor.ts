@@ -844,7 +844,7 @@ export class DomainExtractor {
   }
 
   private isValidCompanyName(name: string): boolean {
-    if (!name || name.length < 3 || name.length > 100) return false; // Allow 3+ characters for short company names
+    if (!name || name.length < 5 || name.length > 100) return false; // Increased minimum to 5 characters
     
     // Tech-friendly validation: Allow "SecureVision" and similar tech company names
     const techKeywords = /\b(secure|vision|tech|data|cloud|app|digital|software|systems|platform|solutions|analytics|cyber|smart|safe|shield|guard|protect)\b/i;
@@ -852,8 +852,14 @@ export class DomainExtractor {
       return true; // Skip strict validation for tech company names
     }
     
-    // STRICTER: Reject generic business terms
+    // ENHANCED: Reject Brazilian/Portuguese fragments and invalid patterns
     const invalidPatterns = [
+      // Brazilian fragments
+      /^(o|br|ticos|do|da|de|dos|das)\s/i, // Portuguese articles/fragments
+      /\s+(o|br|do|da|de|dos|das)$/i, // Ending with Portuguese articles
+      /^(o|br|ticos)\s+(s\.a\.|ltda|sa|limitada)/i, // Fragment + suffix only
+      
+      // Generic business terms
       /^(solutions|technology|systems|platform|global|worldwide|leading|premier)$/i,
       /^(company|business|enterprise|organization|corporation)$/i,
       /^(website|homepage|main|official|portal)$/i,
@@ -890,6 +896,9 @@ export class DomainExtractor {
       /perfect silicon solutions/i,
       /global leader in energy/i,
       /global lubrication solutions/i,
+      
+      // Only legal suffix patterns
+      /^(inc|ltd|llc|corp|co|company|corporation|limited|ltda|s\.a\.|sa)$/i,
     ];
     
     return !invalidPatterns.some(pattern => pattern.test(name.trim()));
@@ -1243,12 +1252,14 @@ export class DomainExtractor {
     // Method 2: Domain stems + legal suffixes (EXISTING APPROACH)
     for (const stem of domainStems) {
       for (const suffix of legalSuffixes) {
-        // Pattern 1: Exact stem + suffix match
-        const exactPattern = new RegExp(`\\b${this.escapeRegex(stem)}[\\s\\w]*?\\b${this.escapeRegex(suffix)}\\b`, 'gi');
+        // Pattern 1: Exact stem + suffix match (improved to avoid fragments)
+        const exactPattern = new RegExp(`\\b${this.escapeRegex(stem)}(?:[\\s][A-Z][\\w&-]*){0,2}\\s+${this.escapeRegex(suffix)}\\b`, 'gi');
         const exactMatch = footerText.match(exactPattern);
         if (exactMatch) {
           const companyName = this.cleanCompanyName(exactMatch[0]);
-          if (this.isValidCompanyName(companyName) && !this.isMarketingContent(companyName)) {
+          if (companyName.split(' ').length >= 2 && // Require at least 2 words
+              this.isValidCompanyName(companyName) && 
+              !this.isMarketingContent(companyName)) {
             console.log(`JURISDICTION SUCCESS: Found "${companyName}" using ${country} suffix "${suffix}" for domain stem "${stem}"`);
             return { companyName, confidence: 95 }; // High confidence for exact match
           }
@@ -1266,14 +1277,18 @@ export class DomainExtractor {
       }
     }
     
-    // Pattern 3: Look for any company name with legal suffix (country-specific)
+    // Pattern 3: Look for complete company names with legal suffix (improved matching)
     for (const suffix of legalSuffixes) {
-      const suffixPattern = new RegExp(`\\b[\\w\\s&-]+\\b${this.escapeRegex(suffix)}\\b`, 'gi');
+      // More precise pattern: 2-4 words before suffix, avoiding fragments
+      const suffixPattern = new RegExp(`\\b(?:[A-Z][\\w&-]*\\s+){1,3}[A-Z][\\w&-]*\\s+${this.escapeRegex(suffix)}\\b`, 'gi');
       const suffixMatches = footerText.match(suffixPattern);
       if (suffixMatches) {
         for (const match of suffixMatches) {
           const companyName = this.cleanCompanyName(match);
-          if (this.isValidCompanyName(companyName) && !this.isMarketingContent(companyName)) {
+          if (companyName.split(' ').length >= 2 && // At least 2 words
+              this.isValidCompanyName(companyName) && 
+              !this.isMarketingContent(companyName)) {
+            console.log(`SUFFIX MATCH: Found complete entity "${companyName}" with ${suffix}`);
             return { companyName, confidence: 75 }; // Lower confidence for generic suffix match
           }
         }
