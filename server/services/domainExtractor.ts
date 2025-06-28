@@ -465,7 +465,33 @@ export class DomainExtractor {
       'betfair.com': 'Flutter Entertainment PLC',
       'greencore.com': 'Greencore Group PLC',
       'cairnhomes.com': 'Cairn Homes PLC',
-      'dalata.ie': 'Dalata Hotel Group PLC'
+      'dalata.ie': 'Dalata Hotel Group PLC',
+      
+      // Irish Private Companies (large non-public corporations)
+      'musgrave.ie': 'Musgrave Group Limited',
+      'applegreen.com': 'Applegreen Limited',
+      'dunnes.ie': 'Dunnes Stores Limited',
+      'supermacs.ie': 'Supermac\'s Holdings Limited',
+      'quinn.ie': 'Quinn Group Limited',
+      'sisk.ie': 'John Sisk & Son Limited',
+      'rohcon.ie': 'Rohcon Limited',
+      'mcinerney.ie': 'McInerney Holdings Limited',
+      'zipmex.ie': 'Zipmex Europe DAC',
+      'circle.ie': 'Circle Internet Financial Ireland Limited',
+      'stripe.com': 'Stripe Payments Europe Limited',
+      'paypal.ie': 'PayPal Europe Limited',
+      'workday.ie': 'Workday Ireland Limited',
+      'hubspot.ie': 'HubSpot Ireland Limited',
+      'salesforce.ie': 'Salesforce Ireland Limited',
+      'microsoft.ie': 'Microsoft Ireland Operations Limited',
+      'google.ie': 'Google Ireland Limited',
+      'facebook.ie': 'Meta Platforms Ireland Limited',
+      'linkedin.ie': 'LinkedIn Ireland Unlimited Company',
+      'twitter.ie': 'Twitter International Unlimited Company',
+      'amazon.ie': 'Amazon EU S.à r.l. Irish Branch',
+      'airbnb.ie': 'Airbnb Ireland UC',
+      'uber.ie': 'Uber Ireland Limited',
+      'dropbox.ie': 'Dropbox Ireland Limited'
       
       // Italian Companies (when needed)
       // Major Italian companies can be added here with proper legal entity suffixes
