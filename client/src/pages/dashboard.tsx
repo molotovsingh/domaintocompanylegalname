@@ -62,10 +62,18 @@ export default function Dashboard() {
     refetchStats();
   };
 
+  const handleTestCompleted = () => {
+    // Switch to the shared single domain tests batch
+    setCurrentBatchId('single-domain-tests');
+  };
+
   // Auto-select the most recent batch if none is selected
   useEffect(() => {
     if (!currentBatchId && batches && Array.isArray(batches) && batches.length > 0) {
-      setCurrentBatchId(batches[0].id);
+      // Prefer the single domain tests batch if it exists, otherwise use the most recent
+      const singleDomainBatch = batches.find(b => b.id === 'single-domain-tests');
+      const batchToSelect = singleDomainBatch ? singleDomainBatch.id : batches[0].id;
+      setCurrentBatchId(batchToSelect);
     }
   }, [batches, currentBatchId]);
 
@@ -122,7 +130,7 @@ export default function Dashboard() {
           <FileUpload onBatchUploaded={handleBatchUploaded} />
 
           {/* Single Domain Test */}
-          <SingleDomainTest />
+          <SingleDomainTest onTestCompleted={handleTestCompleted} />
 
           {/* Processing Status */}
           <ProcessingStatus currentBatchId={currentBatchId} />

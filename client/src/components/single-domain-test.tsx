@@ -19,7 +19,11 @@ interface TestResult {
   recommendation: string | null;
 }
 
-export default function SingleDomainTest() {
+interface SingleDomainTestProps {
+  onTestCompleted?: () => void;
+}
+
+export default function SingleDomainTest({ onTestCompleted }: SingleDomainTestProps) {
   const [domain, setDomain] = useState("");
   const [testResult, setTestResult] = useState<TestResult | null>(null);
   const { toast } = useToast();
@@ -47,8 +51,12 @@ export default function SingleDomainTest() {
         title: "Domain test completed",
         description: `Processed ${result.domain} in ${result.processingTimeMs}ms`,
       });
-      // Refresh stats to include the new test
+      // Refresh stats and batches to include the new test
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/batches"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/results"] });
+      // Notify parent component about the completed test
+      onTestCompleted?.();
     },
     onError: (error) => {
       toast({

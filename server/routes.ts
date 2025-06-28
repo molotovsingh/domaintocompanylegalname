@@ -267,31 +267,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`Testing single domain: ${cleanDomain}`);
       
-      // Create a temporary batch for the single domain test
-      const batchId = `test_${nanoid()}`;
-      const batch = await storage.createBatch({
-        id: batchId,
-        fileName: `Single Domain Test: ${cleanDomain}`,
-        totalDomains: 1,
-        processedDomains: 0,
-        status: 'processing'
-      });
+      // Get or create the shared "Single Domain Tests" batch
+      const sharedBatchId = 'single-domain-tests';
+      let batch = await storage.getBatch(sharedBatchId);
+      
+      if (!batch) {
+        // Create the shared batch for all single domain tests
+        batch = await storage.createBatch({
+          id: sharedBatchId,
+          fileName: 'Single Domain Tests',
+          totalDomains: 0,
+          processedDomains: 0,
+          status: 'active'
+        });
+      }
 
-      // Create the domain entry
+      // Create the domain entry in the shared batch
       const domainEntry = await storage.createDomain({
         domain: cleanDomain,
-        batchId: batchId,
+        batchId: sharedBatchId,
         status: 'pending'
       });
 
       // Process the domain
       const result = await processor.processSingleDomain(domainEntry);
       
-      // Update batch status
-      await storage.updateBatch(batchId, {
-        status: 'completed',
-        processedDomains: 1,
-        completedAt: new Date()
+      // Update batch counts
+      await storage.updateBatch(sharedBatchId, {
+        totalDomains: (batch.totalDomains || 0) + 1,
+        processedDomains: (batch.processedDomains || 0) + 1,
+        status: 'active'
       });
       
       res.json({
