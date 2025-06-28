@@ -155,7 +155,34 @@ export class DomainExtractor {
         }, cleanDomain);
       }
 
-      // Domain is reachable - try domain parsing first as fallback
+      // Domain is reachable - try enhanced footer extraction with expected entity names
+      try {
+        const htmlResult = await this.extractFromHTML(`https://${cleanDomain}`);
+        
+        extractionAttempts.push({
+          method: htmlResult.method,
+          success: !!htmlResult.companyName && this.isValidCompanyName(htmlResult.companyName || ''),
+          companyName: htmlResult.companyName || undefined,
+          confidence: htmlResult.confidence
+        });
+        
+        if (htmlResult.companyName && this.isValidCompanyName(htmlResult.companyName)) {
+          return {
+            ...htmlResult,
+            connectivity: 'reachable',
+            failureCategory: 'success',
+            extractionAttempts
+          };
+        }
+      } catch (error) {
+        extractionAttempts.push({
+          method: 'html_extraction',
+          success: false,
+          error: error instanceof Error ? error.message : 'HTML extraction failed'
+        });
+      }
+
+      // Fallback to domain parsing if HTML extraction fails
       const domainResult = this.extractFromDomain(cleanDomain);
       
       extractionAttempts.push({
