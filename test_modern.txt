@@ -1,5 +1,3 @@
-toyota-motor.co.jp
-samsung-electronics.kr
-nissan-global.com
-honda-worldwide.com
-mitsubishi-motors.com
+apple.com
+microsoft.com
+toyota-global.com

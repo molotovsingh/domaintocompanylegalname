@@ -1098,6 +1098,37 @@ export class DomainExtractor {
     const bodyText = $('body').text();
     const bottomText = bodyText.slice(-2000); // Last 2000 characters
     const combinedText = footerText + ' ' + bottomText;
+
+    console.log(`ENHANCED FOOTER: Processing ${domain} - Footer text length: ${footerText.length}`);
+    
+    // ENHANCED: Dual-layer footer search with expected entity names
+    
+    // Method 1: Expected entity names + legal suffixes (98% confidence)
+    const expectedEntityNames = this.generateExpectedEntityNames(domainStems);
+    console.log(`ENHANCED FOOTER: Expected entities for ${domain}: ${expectedEntityNames.join(', ')}`);
+    
+    for (const expectedName of expectedEntityNames) {
+      for (const suffix of legalSuffixes) {
+        const patterns = [
+          new RegExp(`\\b${this.escapeRegex(expectedName)}\\s+${this.escapeRegex(suffix)}\\b`, 'i'),
+          new RegExp(`\\b${this.escapeRegex(expectedName)}\\s*${this.escapeRegex(suffix)}\\b`, 'i'),
+          new RegExp(`\\b${this.escapeRegex(expectedName)}[,\\s]*${this.escapeRegex(suffix)}\\b`, 'i')
+        ];
+        
+        for (const pattern of patterns) {
+          const match = combinedText.match(pattern);
+          if (match) {
+            const companyName = match[0].trim();
+            console.log(`ENHANCED FOOTER: Found expected entity "${companyName}" from "${expectedName}" + "${suffix}"`);
+            return {
+              companyName: this.cleanCompanyName(companyName),
+              method: 'footer_copyright',
+              confidence: 98 // Highest confidence for expected entity + legal suffix match
+            };
+          }
+        }
+      }
+    }
     
     // Enhanced targeted search approach - NEW INTELLIGENCE
     const targetedResult = this.searchFooterForLegalEntity(combinedText, domainStems, legalSuffixes, country);
