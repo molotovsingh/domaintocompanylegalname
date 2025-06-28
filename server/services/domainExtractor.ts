@@ -990,16 +990,16 @@ export class DomainExtractor {
       confidence += 15;
     }
     
-    // STRICTER PENALTY: Missing legal suffix for corporate entities (global issue)
-    // Absence of suffix either indicates extraction error or nonprofit status
+    // CRITICAL VALIDATION: Missing legal suffix penalty
     if (!this.hasLegalSuffix(companyName)) {
       // Check if this appears to be a for-profit corporate entity
       const isNonprofit = /\b(foundation|institute|university|hospital|school|college|museum|library|charity|association|society|council|federation|union|ministry|department|agency|bureau|commission|authority|board|center|centre)\b/i.test(companyName);
       const isPersonalName = /^[A-Z][a-z]+\s+[A-Z][a-z]+$/i.test(companyName);
       
       if (!isNonprofit && !isPersonalName && companyName.length > 2) {
-        // STRICTER: Massive penalty for missing legal suffix in corporate entities
-        confidence -= 40; // Even more severe penalty for quality
+        // MASSIVE PENALTY for missing legal suffix - this is critical for quality
+        confidence -= 50; // Increased penalty to ensure low confidence
+        console.log(`VALIDATION: Missing legal suffix penalty applied to "${companyName}" - confidence reduced by 50`);
       }
     }
     
