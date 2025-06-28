@@ -48,6 +48,9 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **CRITICAL PROCESSING LOOP BUG FIXED**: Resolved infinite processing loops caused by domains with minimal footer content getting stuck in repeated extraction attempts (June 28, 2025)
+- **Comprehensive Timeout Protection**: Implemented multi-layer timeout system with 25s extraction limits, 30s processing detection, and automatic stuck domain recovery
+- **Processing Stability Enhanced**: Added early exit for minimal footer content (<50 chars), Promise.race timeout protection, and stuck processing detection
 - **Database Management Button Added**: Implemented delete database button in dashboard header with proper API endpoint, PostgreSQL clearing functionality, and toast notifications for easy system reset (June 28, 2025)
 
 ## Previous Changes

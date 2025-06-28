@@ -91,6 +91,33 @@ export class DomainExtractor {
     const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].toLowerCase();
     const extractionAttempts: ExtractionAttempt[] = [];
     
+    // Set up timeout protection to prevent infinite processing
+    const timeout = 25000; // 25 seconds max per domain
+    const timeoutPromise = new Promise<ExtractionResult>((_, reject) => {
+      setTimeout(() => reject(new Error('Extraction timeout')), timeout);
+    });
+    
+    const extractionPromise = this.performExtraction(cleanDomain, extractionAttempts);
+    
+    try {
+      return await Promise.race([extractionPromise, timeoutPromise]);
+    } catch (error: any) {
+      if (error.message === 'Extraction timeout') {
+        console.log(`EXTRACTION TIMEOUT: ${domain} exceeded ${timeout}ms processing limit`);
+        return {
+          companyName: null,
+          method: 'domain_parse',
+          confidence: 0,
+          error: 'Processing timeout',
+          failureCategory: 'technical_timeout',
+          extractionAttempts
+        };
+      }
+      throw error;
+    }
+  }
+
+  private async performExtraction(cleanDomain: string, extractionAttempts: ExtractionAttempt[]): Promise<ExtractionResult> {
     try {
       // ALWAYS check domain mappings first (overrides cache)
       const knownMappings = this.getKnownCompanyMappings();
