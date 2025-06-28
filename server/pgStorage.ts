@@ -1,9 +1,9 @@
 import { eq, desc, asc, ilike, and, sql, count } from 'drizzle-orm';
 import { db } from './db';
-import { domains, batches, activities } from '../shared/schema';
+import { domains, batches, activities, gleifCandidates } from '../shared/schema';
 import type { 
   InsertDomain, Domain, InsertBatch, Batch, InsertActivity, Activity, 
-  ProcessingStats, SessionResults, AnalyticsData 
+  ProcessingStats, SessionResults, AnalyticsData, GleifCandidate, InsertGleifCandidate
 } from '../shared/schema';
 import type { IStorage } from './storage';
 
@@ -363,9 +363,93 @@ export class PostgreSQLStorage implements IStorage {
   // Database Management
   async clearDatabase(): Promise<void> {
     // Clear all tables in the correct order (respecting foreign key constraints)
+    await db.delete(gleifCandidates);
     await db.delete(domains);
     await db.delete(batches);
     await db.delete(activities);
+  }
+
+  // Level 2 GLEIF Operations (V2 Enhancement)
+  async createGleifCandidates(domainId: number, candidates: InsertGleifCandidate[]): Promise<GleifCandidate[]> {
+    const candidatesWithDomainId = candidates.map(candidate => ({
+      ...candidate,
+      domainId
+    }));
+    
+    const result = await db.insert(gleifCandidates)
+      .values(candidatesWithDomainId)
+      .returning();
+    
+    return result;
+  }
+
+  async getGleifCandidates(domainId: number): Promise<GleifCandidate[]> {
+    return await db.select()
+      .from(gleifCandidates)
+      .where(eq(gleifCandidates.domainId, domainId))
+      .orderBy(asc(gleifCandidates.rankPosition));
+  }
+
+  async updatePrimarySelection(domainId: number, leiCode: string): Promise<Domain | undefined> {
+    // First, update all candidates to mark the selected one as primary
+    await db.update(gleifCandidates)
+      .set({ isPrimarySelection: false })
+      .where(eq(gleifCandidates.domainId, domainId));
+    
+    const selectedCandidate = await db.update(gleifCandidates)
+      .set({ isPrimarySelection: true })
+      .where(and(
+        eq(gleifCandidates.domainId, domainId),
+        eq(gleifCandidates.leiCode, leiCode)
+      ))
+      .returning();
+
+    if (selectedCandidate.length === 0) {
+      return undefined;
+    }
+
+    // Update the domain record with primary selection
+    const candidate = selectedCandidate[0];
+    const result = await db.update(domains)
+      .set({
+        primaryLeiCode: candidate.leiCode,
+        primaryGleifName: candidate.legalName,
+        primarySelectionConfidence: candidate.gleifMatchScore,
+        finalLegalName: candidate.legalName,
+        finalConfidence: candidate.weightedScore,
+        finalExtractionMethod: 'level2_enhanced',
+        selectionAlgorithm: 'manual_override',
+        manualReviewRequired: false
+      })
+      .where(eq(domains.id, domainId))
+      .returning();
+
+    return result[0];
+  }
+
+  async getManualReviewQueue(limit = 50, offset = 0): Promise<Domain[]> {
+    return await db.select()
+      .from(domains)
+      .where(eq(domains.manualReviewRequired, true))
+      .orderBy(desc(domains.level2CandidatesCount), desc(domains.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
+  async getLevel2EligibleDomains(limit = 50, offset = 0): Promise<Domain[]> {
+    return await db.select()
+      .from(domains)
+      .where(and(
+        eq(domains.level2Attempted, false),
+        sql`(
+          (status = 'failed' AND company_name IS NOT NULL) OR
+          (status = 'success' AND confidence_score < 70) OR
+          (failure_category = 'Protected - Manual Review')
+        )`
+      ))
+      .orderBy(desc(domains.createdAt))
+      .limit(limit)
+      .offset(offset);
   }
 }
 

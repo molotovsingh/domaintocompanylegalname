@@ -332,6 +332,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Level 2 GLEIF API Endpoints (V2 Enhancement)
+  
+  // Get GLEIF candidates for a domain
+  app.get("/api/domains/:id/candidates", async (req, res) => {
+    try {
+      const domainId = parseInt(req.params.id);
+      
+      if (typeof storage.getGleifCandidates === 'function') {
+        const candidates = await storage.getGleifCandidates(domainId);
+        res.json(candidates);
+      } else {
+        res.status(501).json({ error: "GLEIF candidates not supported by current storage" });
+      }
+    } catch (error: any) {
+      console.error('Get GLEIF candidates error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Update primary GLEIF selection for a domain
+  app.post("/api/domains/:id/select-candidate", async (req, res) => {
+    try {
+      const domainId = parseInt(req.params.id);
+      const { leiCode } = req.body;
+      
+      if (!leiCode) {
+        return res.status(400).json({ error: 'LEI code is required' });
+      }
+      
+      if (typeof storage.updatePrimarySelection === 'function') {
+        const updatedDomain = await storage.updatePrimarySelection(domainId, leiCode);
+        if (updatedDomain) {
+          res.json(updatedDomain);
+        } else {
+          res.status(404).json({ error: 'Domain or candidate not found' });
+        }
+      } else {
+        res.status(501).json({ error: "Primary selection update not supported by current storage" });
+      }
+    } catch (error: any) {
+      console.error('Update primary selection error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get manual review queue
+  app.get("/api/manual-review-queue", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = parseInt(req.query.offset as string) || 0;
+      
+      if (typeof storage.getManualReviewQueue === 'function') {
+        const domains = await storage.getManualReviewQueue(limit, offset);
+        res.json(domains);
+      } else {
+        res.status(501).json({ error: "Manual review queue not supported by current storage" });
+      }
+    } catch (error: any) {
+      console.error('Manual review queue error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get domains eligible for Level 2 processing
+  app.get("/api/level2-eligible", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = parseInt(req.query.offset as string) || 0;
+      
+      if (typeof storage.getLevel2EligibleDomains === 'function') {
+        const domains = await storage.getLevel2EligibleDomains(limit, offset);
+        res.json(domains);
+      } else {
+        res.status(501).json({ error: "Level 2 processing not supported by current storage" });
+      }
+    } catch (error: any) {
+      console.error('Level 2 eligible domains error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Get batches
   app.get("/api/batches", async (req, res) => {
     try {

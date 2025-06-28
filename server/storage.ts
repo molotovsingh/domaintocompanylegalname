@@ -36,6 +36,13 @@ export interface IStorage {
   
   // Database Management
   clearDatabase?(): Promise<void>;
+  
+  // Level 2 GLEIF Operations (V2 - Backward Compatible)
+  createGleifCandidates?(domainId: number, candidates: InsertGleifCandidate[]): Promise<GleifCandidate[]>;
+  getGleifCandidates?(domainId: number): Promise<GleifCandidate[]>;
+  updatePrimarySelection?(domainId: number, leiCode: string): Promise<Domain | undefined>;
+  getManualReviewQueue?(limit?: number, offset?: number): Promise<Domain[]>;
+  getLevel2EligibleDomains?(limit?: number, offset?: number): Promise<Domain[]>;
 }
 
 export class MemStorage implements IStorage {
