@@ -1,0 +1,286 @@
+🚀 Starting FIXED Enhanced GLEIF Analysis
+
+🔍 Enhanced GLEIF Analysis for: 'Apple Inc'
+============================================================
+✅ Found 5 comprehensive matches
+
+======================================== ENTITY 1 ========================================
+🏢 **Legal Name**: Apple Inc.
+🆔 **LEI**: HWUPKR0MPOU8FGXBT394
+📊 **Entity Category**: GENERAL
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: H1UM
+🏛️  **Jurisdiction**: US-CA
+📅 **Creation Date**: 1977-01-03T00:00:00Z
+🔄 **Entity Status**: ACTIVE
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2025-03-04T16:01:50Z
+🏠 **Legal Address**: N/A, Glendale, US
+🏢 **HQ Address**: N/A, Cupertino, US
+🏷️  **Other Names**: 1 alternative names found
+   - Apple Computer, Inc. (PREVIOUS_LEGAL_NAME)
+
+==========================================================================================
+
+======================================== ENTITY 2 ========================================
+🏢 **Legal Name**: Apple Ford, Inc.
+🆔 **LEI**: 254900KZR24L5GN8TE52
+📊 **Entity Category**: GENERAL
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: XTIQ
+🏛️  **Jurisdiction**: US-DE
+📅 **Creation Date**: None
+🔄 **Entity Status**: ACTIVE
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2022-03-15T11:45:58Z
+🏠 **Legal Address**: N/A, WILMINGTON, US
+🏢 **HQ Address**: N/A, Columbia, US
+
+==========================================================================================
+
+======================================== ENTITY 3 ========================================
+🏢 **Legal Name**: Apple Management Inc.
+🆔 **LEI**: 254900TWD71M3MX9I453
+📊 **Entity Category**: GENERAL
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: 6TPA
+🏛️  **Jurisdiction**: PA
+📅 **Creation Date**: 2000-02-10T00:00:00Z
+🔄 **Entity Status**: ACTIVE
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2024-08-16T11:35:26Z
+🏠 **Legal Address**: N/A, Panama, PA
+🏢 **HQ Address**: N/A, Geneva, CH
+
+==========================================================================================
+
+======================================== ENTITY 4 ========================================
+🏢 **Legal Name**: GOLDEN APPLE INC
+🆔 **LEI**: 549300WV2Z00JXQ5YJ24
+📊 **Entity Category**: GENERAL
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: 8888
+🏛️  **Jurisdiction**: SC
+📅 **Creation Date**: None
+🔄 **Entity Status**: ACTIVE
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2023-07-31T17:11:36Z
+🏠 **Legal Address**: N/A, VICTORIA, SC
+🏢 **HQ Address**: N/A, VICTORIA, SC
+
+==========================================================================================
+
+======================================== ENTITY 5 ========================================
+🏢 **Legal Name**: APPLE QUEST, INC.
+🆔 **LEI**: 549300OFQZDF71H5ZN34
+📊 **Entity Category**: GENERAL
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: U7HC
+🏛️  **Jurisdiction**: US-MI
+📅 **Creation Date**: 2005-12-22T00:00:00Z
+🔄 **Entity Status**: ACTIVE
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2023-10-27T13:30:03Z
+🏠 **Legal Address**: N/A, CONKLIN, US
+🏢 **HQ Address**: N/A, CONKLIN, US
+
+==========================================================================================
+
+====================================================================================================
+
+
+🔍 Enhanced GLEIF Analysis for: 'Deutsche Bank AG'
+============================================================
+✅ Found 5 comprehensive matches
+
+======================================== ENTITY 1 ========================================
+🏢 **Legal Name**: Deutsche WertpapierService Bank AG
+🆔 **LEI**: 529900EXG2PM316ISO63
+📊 **Entity Category**: GENERAL
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: 6QQB
+🏛️  **Jurisdiction**: DE
+📅 **Creation Date**: 2004-08-31T22:00:00Z
+🔄 **Entity Status**: ACTIVE
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2025-04-22T04:06:12Z
+🏠 **Legal Address**: N/A, Frankfurt am Main, DE
+🏢 **HQ Address**: N/A, Frankfurt am Main, DE
+
+==========================================================================================
+
+======================================== ENTITY 2 ========================================
+🏢 **Legal Name**: Deutsche Bank AG Riyadh Branch
+🆔 **LEI**: 558600SY4RZNJTDP3H57
+📊 **Entity Category**: BRANCH
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: 6QQB
+🏛️  **Jurisdiction**: DE
+📅 **Creation Date**: None
+🔄 **Entity Status**: ACTIVE
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2023-06-22T10:08:31Z
+🏠 **Legal Address**: N/A, Riyadh, SA
+🏢 **HQ Address**: N/A, Frankfurt am Main, DE
+
+==========================================================================================
+
+======================================== ENTITY 3 ========================================
+🏢 **Legal Name**: DEUTSCHE BANK AG UK EXECUTIVE FUND TRACKER RETIREMENT PLAN
+🆔 **LEI**: 213800UKM7QB7JFTYF81
+📊 **Entity Category**: GENERAL
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: 8888
+🏛️  **Jurisdiction**: JE
+📅 **Creation Date**: 2010-02-11T00:00:00Z
+🔄 **Entity Status**: ACTIVE
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2024-12-12T20:31:15Z
+🏠 **Legal Address**: N/A, St Helier, JE
+🏢 **HQ Address**: N/A, St Helier, JE
+
+==========================================================================================
+
+======================================== ENTITY 4 ========================================
+🏢 **Legal Name**: DZ BANK AG Deutsche Zentral-Genossenschaftsbank, Frankfurt am Main
+🆔 **LEI**: 529900HNOAA1KXQJUQ27
+📊 **Entity Category**: GENERAL
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: 6QQB
+🏛️  **Jurisdiction**: DE
+📅 **Creation Date**: 1998-08-24T22:00:00Z
+🔄 **Entity Status**: ACTIVE
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2024-11-19T09:40:13Z
+🏠 **Legal Address**: N/A, Frankfurt am Main, DE
+🏢 **HQ Address**: N/A, Frankfurt am Main, DE
+
+==========================================================================================
+
+======================================== ENTITY 5 ========================================
+🏢 **Legal Name**: DZ BANK AG Deutsche Zentral-Genossenschaftsbank, Frankfurt am Main - New York Branch
+🆔 **LEI**: 5493005PGG4HB3CD7345
+📊 **Entity Category**: GENERAL
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: 9999
+🏛️  **Jurisdiction**: US
+📅 **Creation Date**: None
+🔄 **Entity Status**: NULL
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2023-08-04T15:50:47Z
+🏠 **Legal Address**: N/A, New York, US
+🏢 **HQ Address**: N/A, New York, US
+🔗 **Successor Entities**: 1 found
+   - None (LEI: 529900HNOAA1KXQJUQ27)
+
+==========================================================================================
+
+====================================================================================================
+
+
+🔍 Enhanced GLEIF Analysis for: 'Goldman Sachs'
+============================================================
+✅ Found 5 comprehensive matches
+
+======================================== ENTITY 1 ========================================
+🏢 **Legal Name**: Goldman Sachs Trust - Goldman Sachs BRIC Fund
+🆔 **LEI**: YS3UVBVGHMAJ8IVO4752
+📊 **Entity Category**: GENERAL
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: 9999
+🏛️  **Jurisdiction**: US
+📅 **Creation Date**: None
+🔄 **Entity Status**: INACTIVE
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2023-08-04T15:09:47Z
+🏠 **Legal Address**: N/A, Wilmington, US
+🏢 **HQ Address**: N/A, New York, US
+📋 **Entity Events**: 1 events recorded
+   - DISSOLUTION on 2015-11-04T00:00:00Z
+
+==========================================================================================
+
+======================================== ENTITY 2 ========================================
+🏢 **Legal Name**: GOLDMAN SACHS INTERNATIONAL
+🆔 **LEI**: 549300R83Q2VTICWNV15
+📊 **Entity Category**: BRANCH
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: 57V7
+🏛️  **Jurisdiction**: GB
+📅 **Creation Date**: 2017-04-01T00:00:00Z
+🔄 **Entity Status**: ACTIVE
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2024-09-24T16:45:36Z
+🏠 **Legal Address**: N/A, PARIS, FR
+🏢 **HQ Address**: N/A, LONDON, GB
+
+==========================================================================================
+
+======================================== ENTITY 3 ========================================
+🏢 **Legal Name**: Goldman Sachs Funds
+🆔 **LEI**: 549300ZV5E1STCGJCI52
+📊 **Entity Category**: GENERAL
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: UDY2
+🏛️  **Jurisdiction**: LU
+📅 **Creation Date**: None
+🔄 **Entity Status**: NULL
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2023-08-02T11:43:00Z
+🏠 **Legal Address**: N/A, Luxembourg, LU
+🏢 **HQ Address**: N/A, Luxembourg, LU
+🔗 **Successor Entities**: 1 found
+   - None (LEI: QFF65RC48F6VXI8OIA24)
+
+==========================================================================================
+
+======================================== ENTITY 4 ========================================
+🏢 **Legal Name**: GOLDMAN SACHS (RUSSIA)
+🆔 **LEI**: 549300ZGZN1H83NL5B44
+📊 **Entity Category**: GENERAL
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: 57V7
+🏛️  **Jurisdiction**: GB
+📅 **Creation Date**: 1991-07-09T05:00:00Z
+🔄 **Entity Status**: INACTIVE
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2024-12-16T17:06:10Z
+🏠 **Legal Address**: N/A, LONDON, GB
+🏢 **HQ Address**: N/A, LONDON, GB
+📋 **Entity Events**: 1 events recorded
+   - LIQUIDATION on 2023-09-25T00:00:00Z
+
+==========================================================================================
+
+======================================== ENTITY 5 ========================================
+🏢 **Legal Name**: GOLDMAN SACHS PROTECTION
+🆔 **LEI**: 5493000K858UHG00SN90
+📊 **Entity Category**: FUND
+📋 **Sub-Category**: None
+⚖️  **Legal Form**: UDY2
+🏛️  **Jurisdiction**: LU
+📅 **Creation Date**: 2010-06-30T00:00:00Z
+🔄 **Entity Status**: ACTIVE
+📝 **Registration Status**: N/A
+🏦 **Managing LOU**: N/A
+🔄 **Last Update**: 2025-02-22T17:31:44Z
+🏠 **Legal Address**: N/A, Luxembourg, LU
+🏢 **HQ Address**: N/A, The Hague, NL
+
+==========================================================================================
+
+====================================================================================================

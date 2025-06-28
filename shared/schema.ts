@@ -20,6 +20,27 @@ export const domains = pgTable("domains", {
   processedAt: timestamp("processed_at"),
   processingStartedAt: timestamp("processing_started_at"),
   processingTimeMs: integer("processing_time_ms"), // Time taken to process this domain in milliseconds
+  
+  // Level 2 GLEIF Enhancement Fields (V2 - Backward Compatible)
+  level2Attempted: boolean("level2_attempted").default(false),
+  level2Status: text("level2_status"), // 'success', 'multiple_candidates', 'failed', 'not_applicable'
+  level2CandidatesCount: integer("level2_candidates_count").default(0),
+  level2ProcessingTimeMs: integer("level2_processing_time_ms"),
+  
+  // Primary GLEIF Selection Results
+  primaryLeiCode: text("primary_lei_code"),
+  primaryGleifName: text("primary_gleif_name"),
+  primarySelectionConfidence: integer("primary_selection_confidence"),
+  selectionAlgorithm: text("selection_algorithm"), // 'weighted_score', 'manual_override', 'single_match'
+  
+  // Enhanced Business Intelligence
+  finalLegalName: text("final_legal_name"), // Best result from Level 1 + Level 2
+  finalConfidence: integer("final_confidence"), // Combined confidence score
+  finalExtractionMethod: text("final_extraction_method"), // 'level1_only', 'level2_enhanced', 'gleif_verified'
+  
+  // Manual Review Workflow
+  manualReviewRequired: boolean("manual_review_required").default(false),
+  selectionNotes: text("selection_notes"),
 });
 
 export const batches = pgTable("batches", {
@@ -42,6 +63,42 @@ export const activities = pgTable("activities", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Level 2 GLEIF Candidates Table (V2 Enhancement)
+export const gleifCandidates = pgTable("gleif_candidates", {
+  id: serial("id").primaryKey(),
+  domainId: integer("domain_id").notNull().references(() => domains.id),
+  
+  // GLEIF Entity Data
+  leiCode: text("lei_code").notNull(),
+  legalName: text("legal_name").notNull(),
+  entityStatus: text("entity_status"), // 'ACTIVE', 'INACTIVE', 'NULL'
+  jurisdiction: text("jurisdiction"), // ISO country code
+  legalForm: text("legal_form"), // Legal form code
+  entityCategory: text("entity_category"),
+  registrationStatus: text("registration_status"), // 'ISSUED', 'LAPSED', 'RETIRED'
+  
+  // Match Scoring
+  gleifMatchScore: integer("gleif_match_score"), // Raw GLEIF API confidence
+  weightedScore: integer("weighted_score"), // Our algorithm score
+  rankPosition: integer("rank_position"), // 1=primary, 2=alternative, etc.
+  
+  // Selection Criteria Scoring
+  domainTldScore: integer("domain_tld_score"),
+  fortune500Score: integer("fortune500_score"),
+  nameMatchScore: integer("name_match_score"),
+  entityComplexityScore: integer("entity_complexity_score"),
+  
+  // Additional Context
+  matchMethod: text("match_method"), // 'exact', 'fuzzy', 'geographic'
+  selectionReason: text("selection_reason"),
+  isPrimarySelection: boolean("is_primary_selection").default(false),
+  
+  // Full GLEIF Data (JSON)
+  gleifFullData: text("gleif_full_data"), // JSON string of complete GLEIF response
+  
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertDomainSchema = createInsertSchema(domains).omit({
   id: true,
   createdAt: true,
@@ -60,12 +117,22 @@ export const insertActivitySchema = createInsertSchema(activities).omit({
   createdAt: true,
 });
 
+// GLEIF Candidates Schema (V2)
+export const insertGleifCandidateSchema = createInsertSchema(gleifCandidates).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type Domain = typeof domains.$inferSelect;
 export type InsertDomain = z.infer<typeof insertDomainSchema>;
 export type Batch = typeof batches.$inferSelect;
 export type InsertBatch = z.infer<typeof insertBatchSchema>;
 export type Activity = typeof activities.$inferSelect;
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
+
+// GLEIF Candidates Types (V2)
+export type GleifCandidate = typeof gleifCandidates.$inferSelect;
+export type InsertGleifCandidate = z.infer<typeof insertGleifCandidateSchema>;
 
 export const processingStatsSchema = z.object({
   totalDomains: z.number(),
@@ -98,6 +165,16 @@ export const sessionResultsSchema = z.object({
   duplicatesSkipped: z.number().optional(),
   newDomainsProcessed: z.number().optional(),
   duplicatesSavingsPercentage: z.number().optional(),
+  
+  // Level 2 GLEIF Enhancement Metrics (V2)
+  level2AttemptedCount: z.number().optional().default(0),
+  level2SuccessCount: z.number().optional().default(0),
+  gleifVerifiedCount: z.number().optional().default(0),
+  leiCodesFound: z.number().optional().default(0),
+  averageLevel2Confidence: z.number().optional(),
+  corporateEntitiesIdentified: z.number().optional().default(0),
+  manualReviewRequired: z.number().optional().default(0),
+  multipleCandidatesFound: z.number().optional().default(0),
 });
 
 export const analyticsDataSchema = z.object({
