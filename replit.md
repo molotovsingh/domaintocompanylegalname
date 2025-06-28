@@ -48,6 +48,9 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **Database Management Button Added**: Implemented delete database button in dashboard header with proper API endpoint, PostgreSQL clearing functionality, and toast notifications for easy system reset (June 28, 2025)
+
+## Previous Changes
 - **CRITICAL FALSE POSITIVE ELIMINATED**: Fixed domain mapping system that was completely non-functional - now extracts "Natura & Co Holding S.A." instead of "Veja como" (Portuguese marketing copy) with proper 95% confidence (June 28, 2025)
 - **Footer Method Operational Confirmation**: Successfully extracted Brazilian corporate entities via footer_copyright method with 75% confidence (MercadoLivre "br LTDA", Santander "o S.A.")
 - **Cross-Jurisdiction Validation**: System now confirmed operational across German (Volkswagen Leasing GmbH), Finnish (Nokia Corporation), and Brazilian (multiple S.A./LTDA) legal entities
