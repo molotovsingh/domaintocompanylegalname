@@ -44,7 +44,8 @@ export class DomainExtractor {
       '.cn': 'china',
       '.kr': 'korea',
       '.ru': 'russia',
-      '.tw': 'taiwan'
+      '.tw': 'taiwan',
+      '.lk': 'srilanka'
     };
     
     for (const [tld, country] of Object.entries(tldMap)) {
@@ -68,7 +69,8 @@ export class DomainExtractor {
       mexico: ['S.A.', 'S.A. de C.V.', 'S. de R.L.'],
       india: ['Ltd', 'Limited', 'Pvt Ltd', 'Private Limited'],
       usa: ['Inc', 'Corp', 'LLC', 'Corporation', 'Company', 'Co.'],
-      russia: ['OOO', 'ООО', 'AO', 'АО', 'PAO', 'ПАО']
+      russia: ['OOO', 'ООО', 'AO', 'АО', 'PAO', 'ПАО'],
+      srilanka: ['Pvt Ltd', '(Private) Limited', 'PLC', 'Public Limited Company', 'Ltd', 'Limited', 'Trust', 'Cooperative', 'Co-op', 'Society']
     };
     
     return suffixMap[country] || suffixMap.usa; // Default to US suffixes
@@ -442,6 +444,63 @@ export class DomainExtractor {
       '1und1.com': '1&1 AG',
       'aixtron.com': 'AIXTRON SE',
       'gea.com': 'GEA Group AG',
+      
+      // Sri Lankan Companies (major corporations and conglomerates)
+      'keells.com': 'John Keells Holdings PLC',
+      'johnkeells.com': 'John Keells Holdings PLC',
+      'cargillsceylon.com': 'Cargills (Ceylon) PLC',
+      'aitken-spence.com': 'Aitken Spence PLC',
+      'commercial.lk': 'Commercial Bank of Ceylon PLC',
+      'combank.lk': 'Commercial Bank of Ceylon PLC',
+      'dfcc.lk': 'DFCC Bank PLC',
+      'hatton.lk': 'Hatton National Bank PLC',
+      'sampath.lk': 'Sampath Bank PLC',
+      'ndb.lk': 'National Development Bank PLC',
+      'unionbank.lk': 'Union Bank of Colombo PLC',
+      'seylan.lk': 'Seylan Bank PLC',
+      'peoplesbank.lk': 'Peoples Bank',
+      'boc.lk': 'Bank of Ceylon',
+      'nsb.lk': 'National Savings Bank',
+      'chevrontexaco.lk': 'Chevron Lubricants Lanka PLC',
+      'brandix.com': 'Brandix Lanka Limited',
+      'mas.lk': 'MAS Holdings Private Limited',
+      'hemas.com': 'Hemas Holdings PLC',
+      'arpico.com': 'Richard Pieris & Company PLC',
+      'dialog.lk': 'Dialog Axiata PLC',
+      'mobitel.lk': 'Mobitel (Pvt) Ltd',
+      'slt.lk': 'Sri Lanka Telecom PLC',
+      'etisalat.lk': 'Etisalat Lanka (Private) Limited',
+      'ceylonelectricity.gov.lk': 'Ceylon Electricity Board',
+      'leco.lk': 'Lanka Electricity Company (Private) Limited',
+      'ceypetco.gov.lk': 'Ceylon Petroleum Corporation',
+      'petrolumlanka.com': 'Petrolium Lanka PLC',
+      'teejay.com': 'Teejay Lanka PLC',
+      'dilmah.com': 'Dilmah Ceylon Tea Company PLC',
+      'unilever.lk': 'Unilever Sri Lanka Limited',
+      'nestle.lk': 'Nestlé Lanka PLC',
+      'coca-cola.lk': 'Coca-Cola Beverages Sri Lanka Limited',
+      'elephant-house.com': 'Elephant House PLC',
+      'maliban.lk': 'Maliban Biscuit Manufactories (Private) Limited',
+      'ceylon-cold-stores.com': 'Ceylon Cold Stores PLC',
+      'cic.lk': 'CIC Holdings PLC',
+      'dipped.lk': 'Dipped Products PLC',
+      'loadstar.lk': 'Loadstar (Private) Limited',
+      'acl.lk': 'ACL Cables PLC',
+      'lankabell.lk': 'Lanka Bell Limited',
+      'softlogic.lk': 'Softlogic Holdings PLC',
+      'softlogiclife.com': 'Softlogic Life Insurance PLC',
+      'janashakthi.lk': 'Janashakthi Insurance PLC',
+      'allianz.lk': 'Allianz Insurance Lanka Limited',
+      'aig.lk': 'AIG Insurance Lanka Limited',
+      'fairfirst.lk': 'Fairfirst Insurance Limited',
+      'singer.lk': 'Singer (Sri Lanka) PLC',
+      'damro.lk': 'Damro Limited',
+      'odel.lk': 'Odel PLC',
+      'abans.lk': 'Abans PLC',
+      'dsf.lk': 'Distilleries Company of Sri Lanka PLC',
+      'ceylon-tobacco.com': 'Ceylon Tobacco Company PLC',
+      'casino.lk': 'Ballys Colombo',
+      'colombofort.com': 'Colombo Fort Land & Building PLC',
       
       // Mexican Companies (when needed)
       // Major Mexican companies can be added here with proper legal entity suffixes

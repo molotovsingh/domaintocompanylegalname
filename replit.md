@@ -17,7 +17,7 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Comprehensive Results Management**: Enhanced results table with business categories, recommendations, and processing metrics
 - **PostgreSQL Analytics**: Cross-batch intelligence, duplicate detection, and permanent session results storage
 - **Real-time Processing Updates**: Live status tracking with 5-second refresh intervals and processing time metrics
-- **International Legal Entity Recognition**: 11 jurisdictions with comprehensive corporate structure validation (US, Canada, Germany, France, Mexico, Brazil, Ireland, Italy, Taiwan, Russia)
+- **International Legal Entity Recognition**: 12 jurisdictions with comprehensive corporate structure validation (US, Canada, Germany, France, Mexico, Brazil, Ireland, Italy, Taiwan, Russia, Sri Lanka)
 - **Export and Analytics**: CSV/JSON export, session analytics, and performance trend tracking
 - **Early Connectivity Triage**: Performance optimization saving 7+ seconds per unreachable domain
 
