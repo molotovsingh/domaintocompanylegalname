@@ -1108,7 +1108,7 @@ export class DomainExtractor {
     console.log(`ENHANCED FOOTER: Expected entities for ${domain}: ${expectedEntityNames.join(', ')}`);
     
     for (const expectedName of expectedEntityNames) {
-      for (const suffix of legalSuffixes) {
+      for (const suffix of legalSuffixes.slice(0, 10)) { // Limit to first 10 suffixes to prevent infinite loops
         const patterns = [
           new RegExp(`\\b${this.escapeRegex(expectedName)}\\s+${this.escapeRegex(suffix)}\\b`, 'i'),
           new RegExp(`\\b${this.escapeRegex(expectedName)}\\s*${this.escapeRegex(suffix)}\\b`, 'i'),
