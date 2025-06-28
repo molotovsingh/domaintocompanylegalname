@@ -27,6 +27,65 @@ export interface ExtractionResult {
 export class DomainExtractor {
   private timeout = 10000; // 10 seconds
   private userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+  
+  private getCountryFromTLD(domain: string): string | null {
+    const tldMap: Record<string, string> = {
+      '.de': 'germany',
+      '.co.jp': 'japan', 
+      '.com.br': 'brazil',
+      '.co.uk': 'uk',
+      '.com.au': 'australia',
+      '.fr': 'france',
+      '.it': 'italy',
+      '.ca': 'canada',
+      '.mx': 'mexico',
+      '.in': 'india',
+      '.nl': 'netherlands',
+      '.cn': 'china',
+      '.kr': 'korea',
+      '.ru': 'russia',
+      '.tw': 'taiwan'
+    };
+    
+    for (const [tld, country] of Object.entries(tldMap)) {
+      if (domain.endsWith(tld)) {
+        return country;
+      }
+    }
+    return null;
+  }
+  
+  private getCountryLegalSuffixes(country: string): string[] {
+    const suffixMap: Record<string, string[]> = {
+      germany: ['GmbH', 'AG', 'UG', 'KG', 'SE', 'e.V.', 'GmbH & Co. KG'],
+      japan: ['Corporation', 'Corp', 'Ltd', 'Limited', 'KK', 'YK'],
+      brazil: ['S.A.', 'Ltda', 'EIRELI', 'MEI', 'Sociedade Anônima', 'Limitada'],
+      uk: ['Ltd', 'Limited', 'PLC', 'LLP', 'CIC'],
+      australia: ['Pty Ltd', 'Ltd', 'Limited', 'Pty Limited'],
+      france: ['SA', 'SARL', 'SAS', 'EURL', 'SNC', 'SCS'],
+      italy: ['S.p.A.', 'S.r.l.', 'S.n.c.', 'S.a.s.'],
+      canada: ['Inc.', 'Ltd.', 'Corp.', 'Ltée'],
+      mexico: ['S.A.', 'S.A. de C.V.', 'S. de R.L.'],
+      india: ['Ltd', 'Limited', 'Pvt Ltd', 'Private Limited'],
+      usa: ['Inc', 'Corp', 'LLC', 'Corporation', 'Company', 'Co.'],
+      russia: ['OOO', 'ООО', 'AO', 'АО', 'PAO', 'ПАО']
+    };
+    
+    return suffixMap[country] || suffixMap.usa; // Default to US suffixes
+  }
+  
+  private extractDomainStem(domain: string): string[] {
+    // Remove TLD and common words to get meaningful brand terms
+    const domainBase = domain.split('.')[0];
+    const commonWords = ['the', 'and', 'group', 'company', 'corp', 'inc', 'ltd', 'llc'];
+    
+    // Split on hyphens, underscores, numbers
+    const parts = domainBase.split(/[-_0-9]+/).filter(part => 
+      part.length > 2 && !commonWords.includes(part.toLowerCase())
+    );
+    
+    return [domainBase, ...parts].filter(Boolean);
+  }
 
   async extractCompanyName(domain: string): Promise<ExtractionResult> {
     const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].toLowerCase();
@@ -995,8 +1054,11 @@ export class DomainExtractor {
     return Math.min(confidence, 100);
   }
 
-  private extractFromFooterCopyright($: any): ExtractionResult {
-    // Enhanced footer extraction focusing on copyright and legal entity patterns
+  private extractFromFooterCopyright($: any, domain: string): ExtractionResult {
+    const country = this.getCountryFromTLD(domain);
+    const legalSuffixes = country ? this.getCountryLegalSuffixes(country) : this.getCountryLegalSuffixes('usa');
+    const domainStems = this.extractDomainStem(domain);
+    
     const footerSelectors = [
       'footer',
       '.footer',
@@ -1018,21 +1080,25 @@ export class DomainExtractor {
     // Also check bottom of page content for copyright notices
     const bodyText = $('body').text();
     const bottomText = bodyText.slice(-2000); // Last 2000 characters
-    const combinedText = (footerText + ' ' + bottomText).toLowerCase();
+    const combinedText = footerText + ' ' + bottomText;
     
-    // Look for copyright and legal entity patterns in footer - ENHANCED patterns
+    // Enhanced targeted search approach
+    const targetedResult = this.searchFooterForLegalEntity(combinedText, domainStems, legalSuffixes, country);
+    if (targetedResult) {
+      return {
+        companyName: targetedResult.companyName,
+        method: 'footer_copyright',
+        confidence: targetedResult.confidence
+      };
+    }
+    
+    // Fallback to enhanced copyright patterns with strict validation
     const legalEntityPatterns = [
-      // Copyright with company name patterns - VERY flexible for Rio Cinema case
-      /©\s*\d{4}\s+([a-zA-Z][^.!?]{0,80}?(?:inc\.?|corp\.?|corporation|ltd\.?|limited|llc|co\.?|gmbh|ag|s\.a\.?|spa|sarl|kg|apc|p\.c\.?|pc|pllc))/i,
-      /copyright\s*©?\s*\d{4}\s+([a-zA-Z][^.!?]{0,80}?(?:inc\.?|corp\.?|corporation|ltd\.?|limited|llc|co\.?|gmbh|ag|s\.a\.?|spa|sarl|kg|apc|p\.c\.?|pc|pllc))/i,
-      // Year followed by company name - very flexible
-      /\d{4}\s+([a-zA-Z][^.!?]{0,80}?(?:inc\.?|corp\.?|corporation|ltd\.?|limited|llc|co\.?|gmbh|ag|s\.a\.?|spa|sarl|kg|apc|p\.c\.?|pc|pllc))/i,
-      // The [Company Name] Limited patterns - enhanced for parentheses
-      /(the\s+[a-zA-Z\s()&-]{1,60}?\s+(?:limited|ltd\.?|inc\.?|corp\.?|corporation|llc))/i,
-      // Direct "Company Name Limited" patterns  
-      /([a-zA-Z][a-zA-Z\s()&-]{8,50}\s+(?:limited|ltd\.?|inc\.?|corp\.?|corporation|llc|gmbh))/i,
-      // Law offices patterns
-      /(law offices? of [a-zA-Z\s&]{1,35}?,?\s*(?:inc\.?|corp\.?|corporation|ltd\.?|limited|llc|co\.?|apc|p\.c\.?|pc|pllc))/i
+      // Copyright with company name patterns - country-specific suffixes
+      new RegExp(`©\\s*\\d{4}\\s+([a-zA-Z][^.!?]{0,80}?(?:${legalSuffixes.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}))`, 'i'),
+      new RegExp(`copyright\\s*©?\\s*\\d{4}\\s+([a-zA-Z][^.!?]{0,80}?(?:${legalSuffixes.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}))`, 'i'),
+      // Year followed by company name with country-specific suffixes
+      new RegExp(`\\d{4}\\s+([a-zA-Z][^.!?]{0,80}?(?:${legalSuffixes.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}))`, 'i')
     ];
     
     for (const pattern of legalEntityPatterns) {
@@ -1102,6 +1168,53 @@ export class DomainExtractor {
     }
     
     return { companyName: null, method: 'footer_copyright', confidence: 0 };
+  }
+  
+  private searchFooterForLegalEntity(footerText: string, domainStems: string[], legalSuffixes: string[], country: string | null): { companyName: string; confidence: number } | null {
+    // Create search patterns for each domain stem + legal suffix combination
+    for (const stem of domainStems) {
+      for (const suffix of legalSuffixes) {
+        // Pattern 1: Exact stem + suffix match
+        const exactPattern = new RegExp(`\\b${this.escapeRegex(stem)}[\\s\\w]*?\\b${this.escapeRegex(suffix)}\\b`, 'gi');
+        const exactMatch = footerText.match(exactPattern);
+        if (exactMatch) {
+          const companyName = this.cleanCompanyName(exactMatch[0]);
+          if (this.isValidCompanyName(companyName) && !this.isMarketingContent(companyName)) {
+            return { companyName, confidence: 95 }; // High confidence for exact match
+          }
+        }
+        
+        // Pattern 2: Fuzzy stem match + suffix
+        const fuzzyPattern = new RegExp(`\\b\\w*${this.escapeRegex(stem)}\\w*[\\s\\w]*?\\b${this.escapeRegex(suffix)}\\b`, 'gi');
+        const fuzzyMatch = footerText.match(fuzzyPattern);
+        if (fuzzyMatch) {
+          const companyName = this.cleanCompanyName(fuzzyMatch[0]);
+          if (this.isValidCompanyName(companyName) && !this.isMarketingContent(companyName)) {
+            return { companyName, confidence: 85 }; // Medium confidence for fuzzy match
+          }
+        }
+      }
+    }
+    
+    // Pattern 3: Look for any company name with legal suffix (country-specific)
+    for (const suffix of legalSuffixes) {
+      const suffixPattern = new RegExp(`\\b[\\w\\s&-]+\\b${this.escapeRegex(suffix)}\\b`, 'gi');
+      const suffixMatches = footerText.match(suffixPattern);
+      if (suffixMatches) {
+        for (const match of suffixMatches) {
+          const companyName = this.cleanCompanyName(match);
+          if (this.isValidCompanyName(companyName) && !this.isMarketingContent(companyName)) {
+            return { companyName, confidence: 75 }; // Lower confidence for generic suffix match
+          }
+        }
+      }
+    }
+    
+    return null;
+  }
+  
+  private escapeRegex(string: string): string {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
   private classifyFailure(result: ExtractionResult, domain: string): ExtractionResult {
