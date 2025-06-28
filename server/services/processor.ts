@@ -19,7 +19,7 @@ export class BatchProcessor {
   // Level 2 GLEIF Processing Logic (V2 Enhancement)
   private shouldTriggerLevel2(domain: Domain): boolean {
     // Skip if Level 2 already attempted
-    if (domain.level2Attempted) {
+    if (domain.level2Attempted === true) {
       return false;
     }
 
@@ -76,6 +76,7 @@ export class BatchProcessor {
       if (typeof storage.createGleifCandidates === 'function') {
         const candidatesData = [selectionResult.primarySelection, ...selectionResult.alternativeCandidates]
           .map(candidate => ({
+            domainId: domain.id,
             leiCode: candidate.lei,
             legalName: candidate.legalName,
             entityStatus: candidate.entityStatus,
@@ -156,6 +157,15 @@ export class BatchProcessor {
     return domain.failureCategory || 'Level 1 Only - Manual Review';
   }
 
+  // Central Level 2 processing trigger
+  private async attemptLevel2Processing(domainId: number): Promise<void> {
+    const domain = await storage.getDomain(domainId);
+    if (domain && this.shouldTriggerLevel2(domain)) {
+      console.log(`Triggering Level 2 GLEIF enhancement for ${domain.domain}`);
+      await this.processLevel2Enhancement(domain);
+    }
+  }
+
   async processBatch(batchId: string): Promise<void> {
     if (this.isProcessing) {
       throw new Error('Processor is already running');
@@ -202,15 +212,32 @@ export class BatchProcessor {
         await new Promise(resolve => setTimeout(resolve, 500));
       }
 
+      // Post-process Level 2 GLEIF enhancements for eligible domains
+      console.log('Starting Level 2 GLEIF enhancement phase...');
+      const allDomains = await storage.getDomainsByBatch(batchId, 10000);
+      const level2Eligible = allDomains.filter(domain => this.shouldTriggerLevel2(domain));
+      
+      if (level2Eligible.length > 0) {
+        console.log(`Processing ${level2Eligible.length} domains for Level 2 GLEIF enhancement`);
+        for (const domain of level2Eligible) {
+          try {
+            await this.processLevel2Enhancement(domain);
+          } catch (error: any) {
+            console.error(`Level 2 processing failed for ${domain.domain}:`, error.message);
+          }
+        }
+      }
+
       // Mark batch as completed
       await storage.updateBatch(batchId, { status: 'completed' });
       await storage.createActivity({
         type: 'batch_complete',
-        message: `Batch completed: ${batch.fileName}`,
+        message: `Batch completed: ${batch.fileName} (Level 2 enhanced: ${level2Eligible.length})`,
         details: JSON.stringify({ 
           batchId, 
           processed: this.processedCount,
-          successful: await this.getSuccessfulCount(batchId)
+          successful: await this.getSuccessfulCount(batchId),
+          level2Enhanced: level2Eligible.length
         })
       });
 
@@ -335,6 +362,10 @@ export class BatchProcessor {
   async processSingleDomain(domain: Domain): Promise<Domain> {
     // For single domain tests, always do fresh processing (skip cache)
     await this.processDomainFresh(domain);
+    
+    // Check if Level 2 GLEIF enhancement should be triggered for single domain
+    await this.attemptLevel2Processing(domain.id);
+    
     // Return the updated domain from storage
     const updatedDomain = await storage.getDomain(domain.id);
     return updatedDomain!;
