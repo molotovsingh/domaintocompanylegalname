@@ -1,4 +1,10 @@
-lat-sontheim.de
-fkm-buster.de
-kosmos.de
-siemens.de
+automotive-innovations.de
+financial-solutions.fr
+tech-manufacturing.jp
+global-consulting.ca
+digital-services.it
+medical-devices.mx
+energy-systems.ie
+industrial-equipment.com.br
+software-development.com.tw
+logistics-networks.ru
