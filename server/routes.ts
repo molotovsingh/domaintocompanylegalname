@@ -413,6 +413,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get Level 2 analytics
+  app.get("/api/analytics/level2", async (req, res) => {
+    try {
+      if (storage.getGleifCandidates && storage.getDomainsByStatus) {
+        // Calculate Level 2 analytics from available data
+        const allDomains = await storage.getDomainsByStatus('success');
+        const failedDomains = await storage.getDomainsByStatus('failed');
+        
+        // Filter domains that had Level 2 processing
+        const level2Domains = [...allDomains, ...failedDomains].filter(d => d.level2Attempted);
+        const successfulMatches = level2Domains.filter(d => d.level2Status === 'success');
+        const failedMatches = level2Domains.filter(d => d.level2Status === 'failed');
+        
+        // Calculate aggregate statistics
+        const totalLevel2Attempts = level2Domains.length;
+        const averageWeightedScore = successfulMatches.length > 0 
+          ? successfulMatches.reduce((sum, d) => sum + (d.confidenceScore || 0), 0) / successfulMatches.length
+          : 0;
+
+        // Get all candidates to calculate totals
+        let totalCandidatesFound = 0;
+        let jurisdictionCounts: Record<string, number> = {};
+        let statusCounts: Record<string, number> = {};
+
+        for (const domain of level2Domains) {
+          try {
+            const candidates = await storage.getGleifCandidates!(domain.id);
+            totalCandidatesFound += candidates.length;
+            
+            candidates.forEach(candidate => {
+              if (candidate.jurisdiction) {
+                jurisdictionCounts[candidate.jurisdiction] = (jurisdictionCounts[candidate.jurisdiction] || 0) + 1;
+              }
+              if (candidate.entityStatus) {
+                statusCounts[candidate.entityStatus] = (statusCounts[candidate.entityStatus] || 0) + 1;
+              }
+            });
+          } catch (err) {
+            // Skip if candidates can't be retrieved
+          }
+        }
+
+        const analytics = {
+          totalLevel2Attempts,
+          successfulMatches: successfulMatches.length,
+          failedMatches: failedMatches.length,
+          averageWeightedScore,
+          totalCandidatesFound,
+          averageCandidatesPerDomain: totalLevel2Attempts > 0 ? totalCandidatesFound / totalLevel2Attempts : 0,
+          topJurisdictions: Object.entries(jurisdictionCounts)
+            .map(([jurisdiction, count]) => ({ jurisdiction, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 10),
+          entityStatusBreakdown: Object.entries(statusCounts)
+            .map(([status, count]) => ({ status, count }))
+            .sort((a, b) => b.count - a.count),
+          confidenceImprovements: successfulMatches.filter(d => (d.confidenceScore || 0) > 70).length,
+          manualReviewQueue: level2Domains.filter(d => d.level2Status === 'candidates_found' && !d.primaryLeiCode).length
+        };
+
+        res.json(analytics);
+      } else {
+        // Return empty analytics for storage types that don't support Level 2
+        res.json({
+          totalLevel2Attempts: 0,
+          successfulMatches: 0,
+          failedMatches: 0,
+          averageWeightedScore: 0,
+          totalCandidatesFound: 0,
+          averageCandidatesPerDomain: 0,
+          topJurisdictions: [],
+          entityStatusBreakdown: [],
+          confidenceImprovements: 0,
+          manualReviewQueue: 0
+        });
+      }
+    } catch (error: any) {
+      console.error('Level 2 analytics error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Get batches
   app.get("/api/batches", async (req, res) => {
     try {

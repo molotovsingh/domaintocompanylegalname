@@ -30,11 +30,7 @@ export default function GLEIFCandidatesModal({ domainId, domain, isOpen, onClose
   // Mutation to select primary candidate
   const selectCandidateMutation = useMutation({
     mutationFn: async (leiCode: string) => {
-      return apiRequest(`/api/domains/${domainId}/select-candidate`, {
-        method: 'POST',
-        body: JSON.stringify({ leiCode }),
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return apiRequest(`/api/domains/${domainId}/select-candidate`, 'POST', { leiCode });
     },
     onSuccess: () => {
       toast({

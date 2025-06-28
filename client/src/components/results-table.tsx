@@ -329,7 +329,12 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
                         <code className="bg-gray-100 px-2 py-1 rounded text-xs font-mono">
                           {domain.primaryLeiCode}
                         </code>
-                        <Button variant="ghost" size="sm" className="ml-2 h-6 w-6 p-0">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="ml-2 h-6 w-6 p-0"
+                          onClick={() => setSelectedDomainForGleif({ id: domain.id, domain: domain.domain })}
+                        >
                           <Eye className="h-3 w-3" />
                         </Button>
                       </div>
@@ -405,6 +410,14 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
           </div>
         </div>
       )}
+
+      {/* GLEIF Candidates Modal */}
+      <GLEIFCandidatesModal
+        domainId={selectedDomainForGleif?.id || null}
+        domain={selectedDomainForGleif?.domain || ""}
+        isOpen={!!selectedDomainForGleif}
+        onClose={() => setSelectedDomainForGleif(null)}
+      />
     </Card>
   );
 }
