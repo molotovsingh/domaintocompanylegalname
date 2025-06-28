@@ -1,5 +1,6 @@
 import { storage } from '../storage';
 import { DomainExtractor } from './domainExtractor';
+import { gleifService } from './gleifService';
 import type { Domain } from '@shared/schema';
 
 export class BatchProcessor {
@@ -13,6 +14,146 @@ export class BatchProcessor {
 
   private hasLegalSuffix(companyName: string): boolean {
     return /\b(Inc\.?|Incorporated|LLC|L\.L\.C\.|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?|Group|Holdings|P\.C\.|PC|PLLC|P\.L\.L\.C\.|LP|L\.P\.|LLP|L\.L\.P\.|LLLP|L\.L\.L\.P\.|Co-op|Cooperative|Trust|Association|Ltée|plc|PLC|DAC|CLG|UC|ULC|Society|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG|SARL|SA|SAS|SNC|SCS|SCA|EURL|SC|SCOP|GIE|SEM|Fondation|Ltda\.?|Limitada|SLU|EIRELI|MEI|Coop|Cooperativa|SCA|OSC|Fundação|Associação|S\.p\.A\.|S\.r\.l\.|S\.r\.l\.s\.|S\.n\.c\.|S\.a\.s\.|S\.a\.p\.a\.|Soc\.\s*Coop\.|Società\s*Cooperativa|Fondazione|S\.A\.|S\.A\.\s*de\s*C\.V\.|S\.\s*de\s*R\.L\.|S\.\s*de\s*R\.L\.\s*de\s*C\.V\.|S\.\s*en\s*C\.|S\.\s*en\s*C\.\s*por\s*A\.|S\.C\.|A\.C\.|I\.A\.P\.|S\.A\.P\.I\.|S\.A\.P\.I\.\s*de\s*C\.V\.|OOO|ООО|AO|АО|PAO|ПАО|IP|ИП|ANO|АНО|TNV|PT|PK|Kooperativ|Fond|Pvt\s*Ltd|Private\s*Limited|Public\s*Limited\s*Company)\b/i.test(companyName);
+  }
+
+  // Level 2 GLEIF Processing Logic (V2 Enhancement)
+  private shouldTriggerLevel2(domain: Domain): boolean {
+    // Skip if Level 2 already attempted
+    if (domain.level2Attempted) {
+      return false;
+    }
+
+    // Trigger Level 2 for these scenarios:
+    return (
+      // Failed extraction but partial company name detected
+      (domain.status === 'failed' && domain.companyName && domain.companyName.length > 2) ||
+      // Low confidence successful extraction
+      (domain.status === 'success' && (domain.confidenceScore || 0) < 70) ||
+      // Protected sites requiring manual review
+      (domain.failureCategory === 'Protected - Manual Review') ||
+      // Incomplete extractions with potential
+      (domain.failureCategory === 'incomplete_low_priority' && domain.companyName)
+    );
+  }
+
+  private async processLevel2Enhancement(domain: Domain): Promise<void> {
+    const level2StartTime = Date.now();
+    
+    try {
+      // Mark Level 2 as attempted
+      await storage.updateDomain(domain.id, {
+        level2Attempted: true,
+        level2Status: 'processing'
+      });
+
+      if (!domain.companyName) {
+        await storage.updateDomain(domain.id, {
+          level2Status: 'not_applicable',
+          level2ProcessingTimeMs: Date.now() - level2StartTime
+        });
+        return;
+      }
+
+      // Search GLEIF for candidates
+      const searchResult = await gleifService.searchEntity(domain.companyName, domain.domain);
+      
+      if (searchResult.entities.length === 0) {
+        await storage.updateDomain(domain.id, {
+          level2Status: 'failed',
+          level2ProcessingTimeMs: Date.now() - level2StartTime
+        });
+        return;
+      }
+
+      // Process multiple candidates
+      const selectionResult = await gleifService.processMultipleCandidates(
+        searchResult.entities,
+        domain,
+        searchResult.searchMethod
+      );
+
+      // Store all candidates in database
+      if (typeof storage.createGleifCandidates === 'function') {
+        const candidatesData = [selectionResult.primarySelection, ...selectionResult.alternativeCandidates]
+          .map(candidate => ({
+            leiCode: candidate.lei,
+            legalName: candidate.legalName,
+            entityStatus: candidate.entityStatus,
+            jurisdiction: candidate.jurisdiction,
+            legalForm: candidate.legalForm,
+            entityCategory: candidate.entityCategory,
+            registrationStatus: candidate.registrationStatus,
+            gleifMatchScore: candidate.gleifMatchScore,
+            weightedScore: candidate.weightedScore,
+            rankPosition: candidate.rankPosition,
+            domainTldScore: candidate.domainTldScore,
+            fortune500Score: candidate.fortune500Score,
+            nameMatchScore: candidate.nameMatchScore,
+            entityComplexityScore: candidate.entityComplexityScore,
+            matchMethod: candidate.matchMethod,
+            selectionReason: candidate.selectionReason,
+            isPrimarySelection: candidate.isPrimarySelection,
+            gleifFullData: JSON.stringify(candidate)
+          }));
+
+        await storage.createGleifCandidates(domain.id, candidatesData);
+      }
+
+      // Update domain with Level 2 results
+      const primaryCandidate = selectionResult.primarySelection;
+      const enhancedBusinessCategory = this.determineEnhancedBusinessCategory(domain, selectionResult);
+      
+      await storage.updateDomain(domain.id, {
+        level2Status: 'success',
+        level2CandidatesCount: selectionResult.totalCandidates,
+        level2ProcessingTimeMs: Date.now() - level2StartTime,
+        primaryLeiCode: primaryCandidate.lei,
+        primaryGleifName: primaryCandidate.legalName,
+        primarySelectionConfidence: primaryCandidate.gleifMatchScore,
+        selectionAlgorithm: selectionResult.selectionMethod,
+        finalLegalName: primaryCandidate.legalName,
+        finalConfidence: primaryCandidate.weightedScore,
+        finalExtractionMethod: 'level2_enhanced',
+        manualReviewRequired: selectionResult.manualReviewRequired,
+        selectionNotes: primaryCandidate.selectionReason,
+        failureCategory: enhancedBusinessCategory,
+        status: enhancedBusinessCategory.includes('GLEIF Verified') ? 'success' : domain.status
+      });
+
+      console.log(`Level 2 GLEIF enhancement completed for ${domain.domain}: ${primaryCandidate.legalName} (${primaryCandidate.lei})`);
+
+    } catch (error: any) {
+      console.error(`Level 2 processing failed for ${domain.domain}:`, error);
+      
+      await storage.updateDomain(domain.id, {
+        level2Status: 'failed',
+        level2ProcessingTimeMs: Date.now() - level2StartTime,
+        selectionNotes: `Level 2 processing error: ${error.message}`
+      });
+    }
+  }
+
+  private determineEnhancedBusinessCategory(domain: Domain, selectionResult: any): string {
+    const primaryCandidate = selectionResult.primarySelection;
+    
+    if (primaryCandidate.entityStatus === 'ACTIVE' && primaryCandidate.weightedScore >= 85) {
+      return 'GLEIF Verified - High Priority';
+    }
+    
+    if (primaryCandidate.entityStatus === 'ACTIVE' && primaryCandidate.weightedScore >= 70) {
+      return 'GLEIF Matched - Good Target';
+    }
+    
+    if (primaryCandidate.entityStatus === 'INACTIVE') {
+      return 'GLEIF Historical - Research Required';
+    }
+    
+    if (selectionResult.manualReviewRequired) {
+      return 'GLEIF Multiple - Manual Review';
+    }
+    
+    // Fall back to original Level 1 category
+    return domain.failureCategory || 'Level 1 Only - Manual Review';
   }
 
   async processBatch(batchId: string): Promise<void> {
