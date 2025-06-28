@@ -94,8 +94,11 @@ export class DomainExtractor {
     try {
       // ALWAYS check domain mappings first (overrides cache)
       const knownMappings = this.getKnownCompanyMappings();
+      console.log(`DOMAIN MAPPING DEBUG: Looking up "${cleanDomain}"`);
+      console.log(`DOMAIN MAPPING DEBUG: Available keys: ${Object.keys(knownMappings).filter(k => k.includes(cleanDomain.split('.')[0])).join(', ')}`);
       
       if (knownMappings[cleanDomain]) {
+        console.log(`DOMAIN MAPPING SUCCESS: Found "${knownMappings[cleanDomain]}" for ${cleanDomain}`);
         extractionAttempts.push({
           method: 'domain_mapping',
           success: true,
@@ -110,6 +113,8 @@ export class DomainExtractor {
           failureCategory: 'success',
           extractionAttempts
         };
+      } else {
+        console.log(`DOMAIN MAPPING FAILED: "${cleanDomain}" not found in mappings`);
       }
 
       extractionAttempts.push({
