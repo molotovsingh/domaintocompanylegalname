@@ -190,6 +190,13 @@ export class BatchProcessor {
   isCurrentlyProcessing(): boolean {
     return this.isProcessing;
   }
+
+  async processSingleDomain(domain: Domain): Promise<Domain> {
+    await this.processDomain(domain);
+    // Return the updated domain from storage
+    const updatedDomain = await storage.getDomain(domain.id);
+    return updatedDomain!;
+  }
 }
 
 export const processor = new BatchProcessor();

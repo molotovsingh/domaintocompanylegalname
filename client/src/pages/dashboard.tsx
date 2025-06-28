@@ -11,6 +11,7 @@ import ProcessingStatus from "@/components/processing-status";
 import ResultsTable from "@/components/results-table";
 import ActivityFeed from "@/components/activity-feed";
 import SessionResults from "@/components/session-results";
+import SingleDomainTest from "@/components/single-domain-test";
 
 export default function Dashboard() {
   const [currentBatchId, setCurrentBatchId] = useState<string | null>(null);
@@ -116,9 +117,12 @@ export default function Dashboard() {
         {/* Stats Cards */}
         <StatsCards stats={stats as any} />
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Upload Section */}
           <FileUpload onBatchUploaded={handleBatchUploaded} />
+
+          {/* Single Domain Test */}
+          <SingleDomainTest />
 
           {/* Processing Status */}
           <ProcessingStatus currentBatchId={currentBatchId} />

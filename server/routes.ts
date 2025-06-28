@@ -250,6 +250,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test single domain
+  app.post("/api/test-domain", async (req, res) => {
+    try {
+      const { domain } = req.body;
+      
+      if (!domain || typeof domain !== 'string') {
+        return res.status(400).json({ error: 'Domain is required' });
+      }
+
+      const cleanDomain = domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
+      
+      if (!isValidDomain(cleanDomain)) {
+        return res.status(400).json({ error: 'Invalid domain format' });
+      }
+
+      console.log(`Testing single domain: ${cleanDomain}`);
+      
+      // Create a temporary batch for the single domain test
+      const batchId = `test_${nanoid()}`;
+      const batch = await storage.createBatch({
+        id: batchId,
+        fileName: `Single Domain Test: ${cleanDomain}`,
+        totalDomains: 1,
+        processedDomains: 0,
+        status: 'processing'
+      });
+
+      // Create the domain entry
+      const domainEntry = await storage.createDomain({
+        domain: cleanDomain,
+        batchId: batchId,
+        status: 'pending'
+      });
+
+      // Process the domain
+      const result = await processor.processSingleDomain(domainEntry);
+      
+      // Update batch status
+      await storage.updateBatch(batchId, {
+        status: 'completed',
+        processedDomains: 1,
+        completedAt: new Date()
+      });
+      
+      res.json({
+        domain: result.domain,
+        status: result.status,
+        companyName: result.companyName,
+        extractionMethod: result.extractionMethod,
+        confidenceScore: result.confidenceScore,
+        processingTimeMs: result.processingTimeMs,
+        failureCategory: result.failureCategory,
+        errorMessage: result.errorMessage,
+        recommendation: result.recommendation
+      });
+
+    } catch (error: any) {
+      console.error('Single domain test error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Clear database
   app.delete("/api/database/clear", async (req, res) => {
     try {
