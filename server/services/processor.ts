@@ -19,20 +19,20 @@ export class BatchProcessor {
   // Level 2 GLEIF Processing Logic (V2 Enhancement)
   private shouldTriggerLevel2(domain: Domain): boolean {
     // Skip if Level 2 already attempted
-    if (domain.level2Attempted === true) {
-      return false;
-    }
-
+    if (domain.level2Attempted === true) return false;
+    
     // Trigger Level 2 for these scenarios:
     return (
       // Failed extraction but partial company name detected
       (domain.status === 'failed' && domain.companyName && domain.companyName.length > 2) ||
-      // Low confidence successful extraction
-      (domain.status === 'success' && (domain.confidenceScore || 0) < 70) ||
+      // Low confidence successful extraction (increased threshold for testing)
+      (domain.status === 'success' && (domain.confidenceScore || 0) < 95) ||
       // Protected sites requiring manual review
       (domain.failureCategory === 'Protected - Manual Review') ||
       // Incomplete extractions with potential
-      (domain.failureCategory === 'incomplete_low_priority' && domain.companyName)
+      (domain.failureCategory === 'incomplete_low_priority' && domain.companyName) ||
+      // All successful extractions with company names (for comprehensive GLEIF verification)
+      (domain.status === 'success' && domain.companyName && domain.companyName.length > 3)
     );
   }
 
