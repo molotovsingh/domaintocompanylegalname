@@ -1255,7 +1255,7 @@ export class DomainExtractor {
       expectedNames.push(capitalizedStem);
     }
     
-    return [...new Set(expectedNames)]; // Remove duplicates
+    return Array.from(new Set(expectedNames)); // Remove duplicates
   }
 
   private classifyFailure(result: ExtractionResult, domain: string): ExtractionResult {

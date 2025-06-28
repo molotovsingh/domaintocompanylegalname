@@ -1,1 +1,5 @@
-test.com
+toyota-motor.co.jp
+samsung-electronics.kr
+nissan-global.com
+honda-worldwide.com
+mitsubishi-motors.com
