@@ -980,6 +980,23 @@ export class DomainExtractor {
       'jsbchina.cn': 'Jiangsu Bank Co. Ltd.',
       'citicbank.com': 'China CITIC Bank Corp. Ltd.',
       'haitian.com': 'Haitian International Holdings Ltd.',
+      
+      // Singaporean Companies - Major Financial and Technology Corporations
+      'dbs.com': 'DBS Group Holdings Ltd',
+      'ocbc.com': 'Oversea-Chinese Banking Corporation Ltd',
+      'uob.com': 'United Overseas Bank Ltd',
+      'singtel.com': 'Singapore Telecommunications Ltd',
+      'capitaland.com': 'CapitaLand Investment Ltd',
+      'wilmar-international.com': 'Wilmar International Ltd',
+      'genting.com': 'Genting Singapore Ltd',
+      'citydev.com': 'City Developments Ltd',
+      'keppelcorp.com': 'Keppel Corporation Ltd',
+      'sembcorp.com': 'Sembcorp Industries Ltd',
+      'comfort-delgro.com': 'ComfortDelGro Corporation Ltd',
+      'sph.com.sg': 'Singapore Press Holdings Ltd',
+      'stx.com.sg': 'STX OSV Holdings Ltd',
+      'jardines.com': 'Jardine Matheson Holdings Ltd',
+      'hyflux.com': 'Hyflux Ltd',
     };
 
     // Check if we have a known mapping for this domain

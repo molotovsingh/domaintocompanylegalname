@@ -517,6 +517,68 @@ export const JURISDICTIONS: Record<string, JurisdictionData> = {
       "PLC can list on Colombo Stock Exchange",
       "Trusts recognized under Trusts Ordinance but not separate legal entities"
     ]
+  },
+
+  singapore: {
+    name: "Singapore",
+    tlds: [".sg", ".com.sg", ".org.sg"],
+    entities: {
+      private_limited: {
+        suffixes: ["Pte Ltd", "Private Limited"],
+        description: "Most common business form, with limited liability for shareholders, not publicly traded",
+        confidence: 95,
+        mandatory: true
+      },
+      public_limited: {
+        suffixes: ["Ltd", "Limited"],
+        description: "Company with shares that can be publicly traded, with limited liability",
+        confidence: 95,
+        mandatory: true
+      },
+      llp: {
+        suffixes: ["LLP"],
+        description: "Partnership with limited liability for all partners, common for professional firms",
+        confidence: 90,
+        mandatory: true
+      },
+      limited_partnership: {
+        suffixes: ["LP"],
+        description: "Partnership with general and limited partners, general partners have unlimited liability",
+        confidence: 85,
+        mandatory: true
+      },
+      society: {
+        suffixes: ["Society"],
+        description: "Nonprofit entity for cultural, social, or charitable purposes, registered under the Societies Act",
+        confidence: 80,
+        mandatory: false
+      },
+      cooperative: {
+        suffixes: ["Co-operative", "Co-op"],
+        description: "Member-owned organization for mutual benefit, common in consumer or housing sectors",
+        confidence: 85,
+        mandatory: false
+      },
+      trust: {
+        suffixes: ["Trust", "Charitable Trust"],
+        description: "Legal arrangement for asset management, estate planning, or charitable purposes",
+        confidence: 90,
+        mandatory: false
+      }
+    },
+    rules: [
+      "Companies Act requires Pte Ltd, Ltd, or LLP suffixes for companies and partnerships",
+      "Private companies must use 'Pte Ltd' or 'Private Limited'",
+      "Public companies must use 'Ltd' or 'Limited'",
+      "Limited Liability Partnerships must use 'LLP'",
+      "Trusts typically include 'Trust' in the name for identification"
+    ],
+    notes: [
+      "Entities registered with Accounting and Corporate Regulatory Authority (ACRA)",
+      "Societies registered under the Societies Act for nonprofit purposes",
+      "Cooperative societies governed by the Co-operative Societies Act",
+      "Business-friendly environment allows foreign companies as branch offices"
+    ]
   }
 };
 

@@ -1,0 +1,74 @@
+{
+  "legal_entities": [
+    {
+      "type": "Private Limited Company",
+      "suffix": "Pte Ltd, Private Limited",
+      "description": "Most common business form, with limited liability for shareholders, not publicly traded."
+    },
+    {
+      "type": "Public Company Limited by Shares",
+      "suffix": "Ltd, Limited",
+      "description": "Company with shares that can be publicly traded, with limited liability."
+    },
+    {
+      "type": "Public Company Limited by Guarantee",
+      "suffix": "(No specific suffix, often 'Limited' or none)",
+      "description": "Nonprofit company without shares, often for charitable or community purposes."
+    },
+    {
+      "type": "Limited Liability Partnership",
+      "suffix": "LLP",
+      "description": "Partnership with limited liability for all partners, common for professional firms."
+    },
+    {
+      "type": "Limited Partnership",
+      "suffix": "LP",
+      "description": "Partnership with general and limited partners, general partners have unlimited liability."
+    },
+    {
+      "type": "General Partnership",
+      "suffix": "(No specific suffix)",
+      "description": "Partnership with unlimited liability for all partners, often informal."
+    },
+    {
+      "type": "Sole Proprietorship",
+      "suffix": "(No specific suffix)",
+      "description": "Business owned by one individual, no separate legal entity, unlimited liability."
+    },
+    {
+      "type": "Society",
+      "suffix": "(No specific suffix, often 'Society')",
+      "description": "Nonprofit entity for cultural, social, or charitable purposes, registered under the Societies Act."
+    },
+    {
+      "type": "Cooperative Society",
+      "suffix": "(No specific suffix, often 'Co-operative' or 'Co-op')",
+      "description": "Member-owned organization for mutual benefit, common in consumer or housing sectors."
+    },
+    {
+      "type": "Trust",
+      "suffix": "(No specific suffix, often 'Trust' in name)",
+      "description": "Legal arrangement for asset management, estate planning, or charitable purposes, not a standalone entity."
+    },
+    {
+      "type": "Charitable Trust",
+      "suffix": "(No specific suffix, often 'Trust' or 'Charitable Trust')",
+      "description": "Trust for charitable purposes, often registered with the Commissioner of Charities."
+    },
+    {
+      "type": "Public Institution",
+      "suffix": "(No specific suffix, often descriptive name)",
+      "description": "Government-run entities, such as universities, hospitals, or statutory boards."
+    }
+  ],
+  "notes": [
+    "Suffixes like Pte Ltd, Ltd, or LLP are mandatory for companies and partnerships under the Companies Act or Limited Liability Partnerships Act to indicate their legal structure.",
+    "Trusts, including charitable trusts, are recognized under Singapore’s common law system and governed by the Trustees Act, but they are not legal entities; 'Trust' is typically included in the name.",
+    "Charitable trusts and nonprofit entities may be registered with the Commissioner of Charities for tax-exempt status, similar to Sri Lanka’s charitable trusts.",
+    "Societies are registered under the Societies Act, used for nonprofit purposes like cultural or community activities, akin to Sri Lanka’s registered societies.",
+    "Cooperative societies are governed by the Co-operative Societies Act, with names often including 'Co-operative' or 'Co-op'.",
+    "Public institutions and statutory boards (e.g., Housing and Development Board) lack standardized suffixes and are identified by name or context.",
+    "Singapore’s business-friendly environment allows foreign companies to operate as branch offices, which are not separate legal entities but registered with ACRA.",
+    "Entities are registered with the Accounting and Corporate Regulatory Authority (ACRA), except for societies and cooperatives, which have separate registries."
+  ]
+}
