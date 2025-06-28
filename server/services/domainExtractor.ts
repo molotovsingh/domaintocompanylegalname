@@ -420,9 +420,27 @@ export class DomainExtractor {
       // Major Mexican companies can be added here with proper legal entity suffixes
       // Examples: 'cemex.com': 'CEMEX S.A.B. de C.V.', 'femsa.com': 'FEMSA S.A. de C.V.', etc.
       
-      // Brazilian Companies (when needed)
-      // Major Brazilian companies can be added here with proper legal entity suffixes
-      // Examples: 'petrobras.com': 'Petróleo Brasileiro S.A.', 'vale.com': 'Vale S.A.', etc.
+      // Brazilian companies (major corporations)
+      'petrobras.com.br': 'Petróleo Brasileiro S.A.',
+      'vale.com': 'Vale S.A.',
+      'itau.com.br': 'Itaú Unibanco Holding S.A.',
+      'bradesco.com.br': 'Banco Bradesco S.A.',
+      'ambev.com.br': 'Ambev S.A.',
+      'jbs.com.br': 'JBS S.A.',
+      'natura.com.br': 'Natura & Co Holding S.A.',
+      'embraer.com': 'Embraer S.A.',
+      'magazine-luiza.com.br': 'Magazine Luiza S.A.',
+      'weg.net': 'WEG S.A.',
+      'gerdau.com': 'Gerdau S.A.',
+      'ultrapar.com.br': 'Ultrapar Participações S.A.',
+      'suzano.com.br': 'Suzano S.A.',
+      'braskem.com': 'Braskem S.A.',
+      'banco-do-brasil.com.br': 'Banco do Brasil S.A.',
+      'santander.com.br': 'Banco Santander Brasil S.A.',
+      'nubank.com.br': 'Nu Pagamentos S.A.',
+      'mercadolivre.com.br': 'MercadoLibre Brasil Ltda.',
+      'oi.com.br': 'Oi S.A.',
+      'tim.com.br': 'TIM Brasil S.A.'
       
       // Irish Companies (when needed)
       // Major Irish companies can be added here with proper legal entity suffixes
