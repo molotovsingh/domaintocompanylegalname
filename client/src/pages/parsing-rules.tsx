@@ -1,565 +1,203 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Code, Settings, Target, FileText, Globe, Database } from "lucide-react";
+import { EXTRACTION_METHODS, CONFIDENCE_MODIFIERS, VALIDATION_RULES, PROCESSING_TIMEOUTS, getEnabledMethods } from "@shared/parsing-rules";
+
+function MethodCard({ method }: { method: any }) {
+  return (
+    <div className="bg-gray-50 p-4 rounded">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="font-medium">{method.name}</h3>
+        <div className="flex items-center gap-2">
+          <span className={`px-2 py-1 rounded text-xs ${method.enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            {method.enabled ? 'Enabled' : 'Disabled'}
+          </span>
+          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+            Priority: {method.priority}
+          </span>
+        </div>
+      </div>
+      
+      <p className="text-sm text-gray-600 mb-3">{method.description}</p>
+      
+      <div className="grid grid-cols-2 gap-3 text-xs">
+        <div>
+          <span className="font-medium">Base Confidence:</span> {method.confidence}%
+        </div>
+        {method.timeout && (
+          <div>
+            <span className="font-medium">Timeout:</span> {method.timeout / 1000}s
+          </div>
+        )}
+      </div>
+      
+      {method.validation && (
+        <div className="mt-3 p-2 bg-yellow-50 rounded">
+          <div className="font-medium text-xs mb-1">Validation Rules:</div>
+          <div className="text-xs text-gray-600 space-y-1">
+            {method.validation.minLength && <div>Min Length: {method.validation.minLength}</div>}
+            {method.validation.maxLength && <div>Max Length: {method.validation.maxLength}</div>}
+            {method.validation.requiredWords && <div>Required Words: {method.validation.requiredWords}</div>}
+            {method.validation.blacklist && (
+              <div>Blacklist: {method.validation.blacklist.slice(0, 3).join(', ')}{method.validation.blacklist.length > 3 ? '...' : ''}</div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {method.selectors && (
+        <div className="mt-3 p-2 bg-blue-50 rounded">
+          <div className="font-medium text-xs mb-1">CSS Selectors:</div>
+          <div className="text-xs text-gray-600">
+            {method.selectors.slice(0, 2).join(', ')}{method.selectors.length > 2 ? '...' : ''}
+          </div>
+        </div>
+      )}
+      
+      {method.patterns && (
+        <div className="mt-3 p-2 bg-purple-50 rounded">
+          <div className="font-medium text-xs mb-1">Regex Patterns:</div>
+          <div className="text-xs text-gray-600">
+            {method.patterns.length} pattern{method.patterns.length !== 1 ? 's' : ''} configured
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ConfigSection({ title, config, unit = '' }: { title: string; config: any; unit?: string }) {
+  return (
+    <div className="bg-gray-50 p-4 rounded">
+      <h3 className="font-medium mb-3">{title}</h3>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+        {Object.entries(config).map(([key, value]) => (
+          <div key={key} className="flex justify-between">
+            <span className="text-gray-600">{key.replace(/([A-Z])/g, ' $1').toLowerCase()}:</span>
+            <span className="font-medium">{String(value)}{unit}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function ParsingRules() {
+  const enabledMethods = getEnabledMethods();
+  const totalMethods = Object.keys(EXTRACTION_METHODS).length;
+  const enabledCount = enabledMethods.length;
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Domain Parsing Rules & Logic</h1>
-          <p className="text-gray-600">Developer documentation for company name extraction algorithms and rules</p>
+    <div className="max-w-6xl mx-auto p-6 space-y-8">
+      <header className="border-b pb-4">
+        <h1 className="text-2xl font-bold">Parsing Rules Configuration</h1>
+        <p className="text-gray-600 mt-2">
+          Machine-friendly extraction methods, confidence modifiers, and validation rules for domain intelligence processing.
+        </p>
+        <div className="mt-3 flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 bg-green-100 rounded"></span>
+            <span>Enabled ({enabledCount}/{totalMethods})</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 bg-red-100 rounded"></span>
+            <span>Disabled</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 bg-blue-100 rounded"></span>
+            <span>Priority Order</span>
+          </div>
         </div>
+      </header>
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="methods">Methods</TabsTrigger>
-            <TabsTrigger value="confidence">Confidence</TabsTrigger>
-            <TabsTrigger value="mappings">Mappings</TabsTrigger>
-            <TabsTrigger value="patterns">Patterns</TabsTrigger>
-            <TabsTrigger value="validation">Validation</TabsTrigger>
-          </TabsList>
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Extraction Methods</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {Object.values(EXTRACTION_METHODS)
+            .sort((a, b) => a.priority - b.priority)
+            .map((method, idx) => (
+              <MethodCard key={idx} method={method} />
+            ))}
+        </div>
+      </section>
 
-          <TabsContent value="overview" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Extraction Priority Order
-                </CardTitle>
-                <CardDescription>
-                  The system attempts extraction methods in order of reliability
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4">
-                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
-                    <div>
-                      <div className="font-medium">1. Domain Mapping</div>
-                      <div className="text-sm text-gray-600">Known Fortune 500/FTSE companies</div>
-                    </div>
-                    <Badge variant="secondary" className="bg-green-100 text-green-800">95% confidence</Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <div>
-                      <div className="font-medium">2. HTML Extraction</div>
-                      <div className="text-sm text-gray-600">Structured data, titles, meta tags</div>
-                    </div>
-                    <Badge variant="secondary" className="bg-blue-100 text-blue-800">65-95% confidence</Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200">
-                    <div>
-                      <div className="font-medium">3. Sub-page Crawling</div>
-                      <div className="text-sm text-gray-600">About Us, Terms, Legal pages</div>
-                    </div>
-                    <Badge variant="secondary" className="bg-orange-100 text-orange-800">75-85% confidence</Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                    <div>
-                      <div className="font-medium">4. Domain Parsing</div>
-                      <div className="text-sm text-gray-600">Generic domain-to-name conversion</div>
-                    </div>
-                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">55% confidence</Badge>
-                  </div>
-                </div>
-                
-                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="text-sm font-medium text-blue-800 mb-2">Success Threshold</div>
-                  <div className="text-sm text-blue-700">
-                    Results with ≥70% confidence are marked as <strong>successful</strong>.<br/>
-                    Results with 50-69% confidence are marked as <strong>failed</strong> for sophisticated processing.<br/>
-                    Results with &lt;50% confidence are completely rejected.
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  Processing Configuration
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <strong>Timeout:</strong> 10 seconds per request
-                  </div>
-                  <div>
-                    <strong>Max Redirects:</strong> 3
-                  </div>
-                  <div>
-                    <strong>Batch Size:</strong> 10 domains concurrently
-                  </div>
-                  <div>
-                    <strong>Retry Logic:</strong> 1 retry on failure
-                  </div>
-                  <div>
-                    <strong>User Agent:</strong> Chrome/91.0.4472.124
-                  </div>
-                  <div>
-                    <strong>Duplicate Detection:</strong> 85%+ confidence reuse
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="methods" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Code className="h-5 w-5" />
-                  HTML Extraction Methods
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h4 className="font-medium mb-2">1. Structured Data (JSON-LD)</h4>
-                  <div className="bg-gray-50 p-3 rounded text-sm font-mono">
-                    {'<script type="application/ld+json">'}
-                    <br />
-                    {'  { "name": "Company Name", "legalName": "Legal Entity" }'}
-                    <br />
-                    {'</script>'}
-                  </div>
-                  <p className="text-sm text-gray-600 mt-2">Highest confidence (95%) - official business data</p>
-                </div>
-
-                <Separator />
-
-                <div>
-                  <h4 className="font-medium mb-2">2. About Section Extraction</h4>
-                  <div className="space-y-2">
-                    <div className="text-sm"><strong>Selectors:</strong></div>
-                    <div className="bg-gray-50 p-3 rounded text-sm font-mono">
-                      section[class*="about"] p:first-of-type<br />
-                      .about-section p:first-of-type<br />
-                      #about p:first-of-type<br />
-                      [class*="company-info"] p:first-of-type
-                    </div>
-                    <div className="text-sm"><strong>Pattern Matching:</strong></div>
-                    <div className="bg-gray-50 p-3 rounded text-sm">
-                      • "We are [Company Name] Corp"<br />
-                      • "[Company Name] is a leading..."<br />
-                      • "Founded [Company Name] Limited"
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div>
-                  <h4 className="font-medium mb-2">3. Legal Footer Extraction</h4>
-                  <div className="space-y-2">
-                    <div className="text-sm"><strong>Selectors:</strong></div>
-                    <div className="bg-gray-50 p-3 rounded text-sm font-mono">
-                      footer p:contains("©")<br />
-                      footer p:contains("Copyright")<br />
-                      .copyright, .footer-legal
-                    </div>
-                    <div className="text-sm"><strong>Pattern Matching:</strong></div>
-                    <div className="bg-gray-50 p-3 rounded text-sm">
-                      • "© 2024 [Company Name] Inc."<br />
-                      • "Copyright [Company Name] Corporation"<br />
-                      • "All rights reserved [Company Name] Ltd."
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div>
-                  <h4 className="font-medium mb-2">4. Sub-page Crawling</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-sm font-medium mb-2">About Pages</div>
-                      <div className="bg-gray-50 p-3 rounded text-sm font-mono">
-                        /about<br />
-                        /about-us<br />
-                        /company<br />
-                        /who-we-are<br />
-                        /our-company<br />
-                        /corporate
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium mb-2">Legal Pages</div>
-                      <div className="bg-gray-50 p-3 rounded text-sm font-mono">
-                        /terms<br />
-                        /legal<br />
-                        /terms-and-conditions<br />
-                        /privacy
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="confidence" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Confidence Scoring Algorithm
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-2">Base Confidence: 50%</h4>
-                  </div>
-
-                  <div>
-                    <h4 className="font-medium mb-2">Method Bonuses:</h4>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <strong>Domain Mapping:</strong> +45% (95% total)
-                      </div>
-                      <div>
-                        <strong>Structured Data:</strong> +45% (95% total)
-                      </div>
-                      <div>
-                        <strong>About Page/Section:</strong> +35% (85% total)
-                      </div>
-                      <div>
-                        <strong>Legal Page/Text:</strong> +25% (75% total)
-                      </div>
-                      <div>
-                        <strong>HTML Title:</strong> +20% (70% total)
-                      </div>
-                      <div>
-                        <strong>Meta Description:</strong> +15% (65% total)
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div>
-                    <h4 className="font-medium mb-2">Legal Entity Bonuses:</h4>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <strong>Inc, Corp, Corporation:</strong> +10%
-                      </div>
-                      <div>
-                        <strong>Ltd, Limited:</strong> +10%
-                      </div>
-                      <div>
-                        <strong>LLC, LP, LLP:</strong> +8%
-                      </div>
-                      <div>
-                        <strong>plc (UK):</strong> +10%
-                      </div>
-                      <div>
-                        <strong>Co. Ltd. (Asian):</strong> +8%
-                      </div>
-                      <div>
-                        <strong>Group, Holdings:</strong> +5%
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div>
-                    <h4 className="font-medium mb-2">Length Penalties:</h4>
-                    <div className="space-y-2 text-sm">
-                      <div><strong>Too Short (&lt;3 characters):</strong> -20%</div>
-                      <div><strong>Too Long (&gt;50 characters):</strong> -10%</div>
-                      <div><strong>Optimal Length (3-20 characters):</strong> No penalty</div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="mappings" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="h-5 w-5" />
-                  Domain Mapping Categories
-                </CardTitle>
-                <CardDescription>
-                  Known company mappings for 95% confidence extraction
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-medium mb-3 text-blue-700">UK FTSE 100 Companies</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>shell.com</span>
-                        <span className="text-gray-600">Shell plc</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>unilever.com</span>
-                        <span className="text-gray-600">Unilever PLC</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>vodafone.com</span>
-                        <span className="text-gray-600">Vodafone Group Plc</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>rolls-royce.com</span>
-                        <span className="text-gray-600">Rolls-Royce Holdings plc</span>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-2">+ 36 more FTSE companies</div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-medium mb-3 text-green-700">US Fortune 500</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>walmart.com</span>
-                        <span className="text-gray-600">Walmart Inc.</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>amazon.com</span>
-                        <span className="text-gray-600">Amazon.com Inc.</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>apple.com</span>
-                        <span className="text-gray-600">Apple Inc.</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>microsoft.com</span>
-                        <span className="text-gray-600">Microsoft Corp.</span>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-2">+ 50+ Fortune 500 companies</div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-medium mb-3 text-red-700">Chinese Global Companies</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>alibaba.com</span>
-                        <span className="text-gray-600">Alibaba Group Holding Limited</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>tencent.com</span>
-                        <span className="text-gray-600">Tencent Holdings Limited</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>bytedance.com</span>
-                        <span className="text-gray-600">ByteDance Ltd.</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>pingan.com</span>
-                        <span className="text-gray-600">Ping An Insurance Group</span>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-2">+ 30+ Chinese companies</div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-medium mb-3 text-purple-700">European Companies</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>nestle.com</span>
-                        <span className="text-gray-600">Nestlé S.A.</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>asml.com</span>
-                        <span className="text-gray-600">ASML Holding N.V.</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>sap.com</span>
-                        <span className="text-gray-600">SAP SE</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>lvmh.com</span>
-                        <span className="text-gray-600">LVMH Moët Hennessy Louis Vuitton SE</span>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-2">+ 20+ European companies</div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="patterns" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Text Pattern Recognition
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h4 className="font-medium mb-3">About Page Patterns</h4>
-                  <div className="bg-gray-50 p-4 rounded text-sm font-mono">
-                    <div className="text-green-600">// Match: "We are XYZ Company"</div>
-                    <div>/(?:we are|about)\s+([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i</div>
-                    <br />
-                    <div className="text-green-600">// Match: "XYZ Corp is a leading..."</div>
-                    <div>/^([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))\s+(?:is|was|provides|offers|specializes)/i</div>
-                    <br />
-                    <div className="text-green-600">// Match: "Founded XYZ Company"</div>
-                    <div>/(?:founded|established|created)\s+([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i</div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div>
-                  <h4 className="font-medium mb-3">Legal Text Patterns</h4>
-                  <div className="bg-gray-50 p-4 rounded text-sm font-mono">
-                    <div className="text-blue-600">// Match: "This agreement between you and XYZ Corp"</div>
-                    <div>/(?:this agreement|these terms).*?(?:between you and|with)\s+([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i</div>
-                    <br />
-                    <div className="text-blue-600">// Match: "© 2024 XYZ Corporation"</div>
-                    <div>/(?:copyright|©|all rights reserved).*?(\d{"{4}"}).*?([A-Z][a-zA-Z\s&.,'-]+(?:Inc\.?|Corp\.?|Corporation|Company|Ltd\.?|Limited|LLC|LP|LLP|plc))/i</div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div>
-                  <h4 className="font-medium mb-3">Legal Entity Suffixes</h4>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <div className="text-sm font-medium mb-2">US Corporate</div>
-                      <div className="text-sm space-y-1">
-                        <div>Inc., Incorporated</div>
-                        <div>Corp., Corporation</div>
-                        <div>LLC, LP, LLP</div>
-                        <div>Company, Co.</div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium mb-2">UK/International</div>
-                      <div className="text-sm space-y-1">
-                        <div>plc, PLC</div>
-                        <div>Ltd., Limited</div>
-                        <div>Holdings</div>
-                        <div>Group</div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium mb-2">Asian</div>
-                      <div className="text-sm space-y-1">
-                        <div>Co. Ltd.</div>
-                        <div>Co., Ltd.</div>
-                        <div>Limited</div>
-                        <div>Pte Ltd</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="validation" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="h-5 w-5" />
-                  Validation Rules
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h4 className="font-medium mb-3">Invalid Pattern Detection</h4>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="text-sm font-medium mb-2 text-red-600">Common Page Elements (Rejected)</div>
-                      <div className="bg-red-50 p-3 rounded text-sm font-mono">
-                        /^(home|about|contact|login|register|sign|error|404|403|500)$/i
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="text-sm font-medium mb-2 text-red-600">Stop Words (Rejected)</div>
-                      <div className="bg-red-50 p-3 rounded text-sm font-mono">
-                        /^(the|a|an|and|or|but|in|on|at|to|for|of|with|by)$/i
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="text-sm font-medium mb-2 text-red-600">Numbers Only (Rejected)</div>
-                      <div className="bg-red-50 p-3 rounded text-sm font-mono">
-                        /^\d+$/
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="text-sm font-medium mb-2 text-red-600">Special Characters Only (Rejected)</div>
-                      <div className="bg-red-50 p-3 rounded text-sm font-mono">
-                        /^[^\w\s]+$/
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div>
-                  <h4 className="font-medium mb-3">Length Validation</h4>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div className="p-3 bg-red-50 rounded border border-red-200">
-                      <div className="font-medium text-red-800">Too Short</div>
-                      <div className="text-red-600">&lt; 2 characters</div>
-                      <div className="text-red-600">Rejected</div>
-                    </div>
-                    <div className="p-3 bg-green-50 rounded border border-green-200">
-                      <div className="font-medium text-green-800">Optimal</div>
-                      <div className="text-green-600">3-50 characters</div>
-                      <div className="text-green-600">Accepted</div>
-                    </div>
-                    <div className="p-3 bg-yellow-50 rounded border border-yellow-200">
-                      <div className="font-medium text-yellow-800">Too Long</div>
-                      <div className="text-yellow-600">&gt; 100 characters</div>
-                      <div className="text-yellow-600">Rejected</div>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div>
-                  <h4 className="font-medium mb-3">Text Cleaning Rules</h4>
-                  <div className="space-y-3 text-sm">
-                    <div>
-                      <strong>Remove after dash:</strong> <code className="bg-gray-100 px-2 py-1 rounded">/\s*-\s*.*$/</code>
-                      <div className="text-gray-600">Example: "Company Name - Welcome" → "Company Name"</div>
-                    </div>
-                    <div>
-                      <strong>Remove after pipe:</strong> <code className="bg-gray-100 px-2 py-1 rounded">/\s*\|\s*.*$/</code>
-                      <div className="text-gray-600">Example: "Company Name | Home" → "Company Name"</div>
-                    </div>
-                    <div>
-                      <strong>Remove after colon:</strong> <code className="bg-gray-100 px-2 py-1 rounded">/\s*:.*$/</code>
-                      <div className="text-gray-600">Example: "Company Name: Services" → "Company Name"</div>
-                    </div>
-                    <div>
-                      <strong>Remove prefixes:</strong> <code className="bg-gray-100 px-2 py-1 rounded">/^(Home|Welcome to|About)\s*/i</code>
-                      <div className="text-gray-600">Example: "Welcome to Company Name" → "Company Name"</div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ConfigSection 
+          title="Confidence Modifiers" 
+          config={CONFIDENCE_MODIFIERS}
+          unit="%"
+        />
+        
+        <ConfigSection 
+          title="Processing Timeouts" 
+          config={Object.fromEntries(
+            Object.entries(PROCESSING_TIMEOUTS).map(([k, v]) => [k, v / 1000])
+          )}
+          unit="s"
+        />
       </div>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Validation Rules</h2>
+        <div className="bg-gray-50 p-4 rounded space-y-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+            <div>
+              <span className="text-gray-600">Min Confidence:</span>
+              <span className="font-medium ml-2">{VALIDATION_RULES.minConfidenceThreshold}%</span>
+            </div>
+            <div>
+              <span className="text-gray-600">Min Length:</span>
+              <span className="font-medium ml-2">{VALIDATION_RULES.minCompanyNameLength}</span>
+            </div>
+            <div>
+              <span className="text-gray-600">Max Length:</span>
+              <span className="font-medium ml-2">{VALIDATION_RULES.maxCompanyNameLength}</span>
+            </div>
+            <div>
+              <span className="text-gray-600">Max Marketing Words:</span>
+              <span className="font-medium ml-2">{VALIDATION_RULES.maxMarketingWords}</span>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <div>
+              <h4 className="font-medium text-sm mb-2">Allowed Nonprofit Patterns</h4>
+              <div className="flex flex-wrap gap-1">
+                {VALIDATION_RULES.allowedNonprofitPatterns.map((pattern, idx) => (
+                  <span key={idx} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
+                    {pattern}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-medium text-sm mb-2">Blacklisted Patterns</h4>
+              <div className="flex flex-wrap gap-1">
+                {VALIDATION_RULES.blacklistedPatterns.slice(0, 10).map((pattern, idx) => (
+                  <span key={idx} className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded">
+                    {pattern}
+                  </span>
+                ))}
+                {VALIDATION_RULES.blacklistedPatterns.length > 10 && (
+                  <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                    +{VALIDATION_RULES.blacklistedPatterns.length - 10} more
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-blue-50 p-4 rounded">
+        <h3 className="font-medium mb-2">Machine-Friendly Updates</h3>
+        <p className="text-sm text-gray-700">
+          All parsing rules are centralized in <code className="bg-white px-1 rounded">shared/parsing-rules.ts</code>. 
+          Updates to extraction methods, confidence modifiers, or validation rules automatically propagate throughout the system.
+        </p>
+        <div className="mt-2 text-xs text-gray-600">
+          <strong>Quick Updates:</strong> Modify timeout values, enable/disable methods, adjust confidence thresholds, 
+          add new extraction patterns, or update validation rules without touching extraction logic.
+        </div>
+      </section>
     </div>
   );
 }

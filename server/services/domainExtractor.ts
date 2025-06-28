@@ -2,6 +2,16 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { promisify } from 'util';
 import { exec } from 'child_process';
+import { 
+  EXTRACTION_METHODS, 
+  CONFIDENCE_MODIFIERS, 
+  VALIDATION_RULES, 
+  PROCESSING_TIMEOUTS,
+  getEnabledMethods,
+  calculateConfidence,
+  validateCompanyName,
+  isMarketingContent
+} from '@shared/parsing-rules';
 const execAsync = promisify(exec);
 
 export interface ExtractionAttempt {
@@ -25,7 +35,7 @@ export interface ExtractionResult {
 }
 
 export class DomainExtractor {
-  private timeout = 10000; // 10 seconds
+  private timeout = PROCESSING_TIMEOUTS.htmlExtraction;
   private userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
   
   private getCountryFromTLD(domain: string): string | null {
@@ -1141,91 +1151,27 @@ export class DomainExtractor {
   }
 
   private calculateConfidence(companyName: string, method: string): number {
-    let confidence = 30; // STRICTER: Lower base confidence
+    // Get base confidence from extraction method configuration
+    const extractionMethod = EXTRACTION_METHODS[method] || EXTRACTION_METHODS.domain_parse;
+    let confidence = extractionMethod.confidence;
     
-    // Method-based confidence
-    switch (method) {
-      case 'domain_mapping':
-        confidence = 95; // Always high confidence for known mappings
-        break;
-      case 'structured_data':
-        confidence = 98; // Highest confidence for JSON-LD structured data
-        break;
-      case 'footer_copyright':
-        confidence = 85; // High confidence for footer copyright extraction
-        break;
-      case 'meta_property':
-        confidence = 75; // STRICTER: Reduced confidence for meta properties
-        break;
-      case 'about_page':
-        confidence += 30; // STRICTER: Reduced confidence for about sections
-        break;
-      case 'legal_page':
-        confidence += 35; // STRICTER: Reduced confidence for legal content
-        break;
-      case 'domain_parse':
-        confidence = 20; // MUCH LOWER: Base confidence for domain parsing (ensures penalties create realistic scores)
-        break;
-      default:
-        confidence += 5; // STRICTER: Minimal bonus for unknown methods
-        break;
-    }
-    
-    // Legal suffix bonus (strong indicator of proper company name) - Now includes Russian entities
-    if (/\b(Inc\.?|Incorporated|LLC|L\.L\.C\.|Corp\.?|Corporation|Ltd\.?|Limited|Company|Co\.?|Group|Holdings|P\.C\.|PC|PLLC|P\.L\.L\.C\.|LP|L\.P\.|LLP|L\.L\.P\.|LLLP|L\.L\.L\.P\.|Co-op|Cooperative|Trust|Association|Ltée|plc|PLC|DAC|CLG|UC|ULC|Society|GmbH|AG|UG|KG|OHG|GbR|e\.K\.|eG|SE|Stiftung|e\.V\.|gGmbH|gAG|SARL|SA|SAS|SNC|SCS|SCA|EURL|SC|SCOP|GIE|SEM|Fondation|Ltda\.?|Limitada|SLU|EIRELI|MEI|Coop|Cooperativa|SCA|OSC|Fundação|Associação|S\.p\.A\.|S\.r\.l\.|S\.r\.l\.s\.|S\.n\.c\.|S\.a\.s\.|S\.a\.p\.a\.|Soc\.\s*Coop\.|Società\s*Cooperativa|Fondazione|S\.A\.|S\.A\.\s*de\s*C\.V\.|S\.\s*de\s*R\.L\.|S\.\s*de\s*R\.L\.\s*de\s*C\.V\.|S\.\s*en\s*C\.|S\.\s*en\s*C\.\s*por\s*A\.|S\.C\.|A\.C\.|I\.A\.P\.|S\.A\.P\.I\.|S\.A\.P\.I\.\s*de\s*C\.V\.|OOO|ООО|AO|АО|PAO|ПАО|IP|ИП|ANO|АНО|TNV|PT|PK|Kooperativ|Fond)\b/i.test(companyName)) {
-      confidence += 15;
-    }
-    
-    // CRITICAL VALIDATION: Missing legal suffix penalty
-    if (!this.hasLegalSuffix(companyName)) {
-      // Check if this appears to be a for-profit corporate entity
-      const isNonprofit = /\b(foundation|institute|university|hospital|school|college|museum|library|charity|association|society|council|federation|union|ministry|department|agency|bureau|commission|authority|board|center|centre)\b/i.test(companyName);
-      const isPersonalName = /^[A-Z][a-z]+\s+[A-Z][a-z]+$/i.test(companyName);
-      
-      if (!isNonprofit && !isPersonalName && companyName.length > 2) {
-        // MASSIVE PENALTY for missing legal suffix - this is critical for quality
-        confidence -= 50; // Increased penalty to ensure low confidence
-        console.log(`VALIDATION: Missing legal suffix penalty applied to "${companyName}" - confidence reduced by 50`);
-      }
-    }
-    
-    // Length-based confidence - more lenient
-    if (companyName.length >= 3 && companyName.length <= 40) {
-      confidence += 10; // Bonus for appropriate length
-    } else if (companyName.length < 3) {
-      confidence -= 20; // Penalty for too short names
-    } else {
-      confidence -= 10; // Penalty for too long names
-    }
-    
-    // STRICTER: Word count confidence with optimal range
+    // Calculate using centralized confidence system
+    const hasLegalSuffix = this.hasLegalSuffix(companyName);
+    const isMarketing = isMarketingContent(companyName);
     const wordCount = companyName.split(/\s+/).length;
-    if (wordCount >= 2 && wordCount <= 4) {
-      confidence += 15; // Bonus for optimal word count
-    } else if (wordCount === 1) {
-      confidence -= 15; // Penalty for single words (often incomplete)
-    } else if (wordCount > 5) {
-      confidence -= 20; // Penalty for overly long names
-    }
     
-    // Capitalization confidence
-    if (/^[A-Z]/.test(companyName)) {
-      confidence += 10; // Better bonus for proper capitalization
-    } else {
-      confidence -= 15; // Penalty for improper capitalization
-    }
+    confidence = calculateConfidence(
+      confidence,
+      hasLegalSuffix,
+      isMarketing,
+      wordCount,
+      false, // isExpectedEntity - not implemented in this context
+      false  // domainMatch - not implemented in this context
+    );
     
-    // STRICTER: Penalty for non-company-like content
-    if (/\b(solutions|technology|systems|services|platform|global|worldwide|leading|premier|innovative|cutting-edge)\b/i.test(companyName)) {
-      confidence -= 30; // Much higher penalty for marketing terms
-    }
+    console.log(`CONFIDENCE CALCULATION: "${companyName}" method="${method}" base=${extractionMethod.confidence} final=${confidence}`);
     
-    // STRICTER: Quality bonus for proper legal entity indicators (including Taiwan)
-    if (/\b(inc\.?|corp\.?|ltd\.?|llc|gmbh|ag|sa|spa|co\.,?\s*ltd\.?)\b/i.test(companyName)) {
-      confidence += 20; // Significant bonus for proper legal suffixes
-    }
-    
-    return Math.min(confidence, 100);
+    return confidence;
   }
 
   private extractFromFooterCopyright($: any, domain: string): ExtractionResult {
