@@ -99,12 +99,13 @@ export class BatchProcessor {
       });
 
       // Check if we already have a high-confidence result for this domain
+      // BUT only use cache if it has proper legal suffix (quality validation)
       const existingHighConfidence = await storage.getHighConfidenceResult(domain.domain);
       
-      if (existingHighConfidence && existingHighConfidence.id !== domain.id) {
+      if (existingHighConfidence && existingHighConfidence.id !== domain.id && this.hasLegalSuffix(existingHighConfidence.companyName || '')) {
         const processingTime = Date.now() - startTime;
         
-        // Use existing high-confidence result
+        // Use existing high-confidence result ONLY if it has proper legal suffix
         await storage.updateDomain(domain.id, {
           status: 'success',
           companyName: existingHighConfidence.companyName,
