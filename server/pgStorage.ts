@@ -359,6 +359,14 @@ export class PostgreSQLStorage implements IStorage {
 
     return analyticsData;
   }
+
+  // Database Management
+  async clearDatabase(): Promise<void> {
+    // Clear all tables in the correct order (respecting foreign key constraints)
+    await db.delete(domains);
+    await db.delete(batches);
+    await db.delete(activities);
+  }
 }
 
 export const storage = new PostgreSQLStorage();

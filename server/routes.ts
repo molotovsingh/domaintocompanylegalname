@@ -250,6 +250,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Clear database
+  app.delete("/api/database/clear", async (req, res) => {
+    try {
+      // This will be handled by the PostgreSQL storage implementation
+      if (typeof storage.clearDatabase === 'function') {
+        await storage.clearDatabase();
+        res.json({ message: "Database cleared successfully" });
+      } else {
+        res.status(501).json({ error: "Database clearing not implemented for current storage" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Get batches
   app.get("/api/batches", async (req, res) => {
     try {

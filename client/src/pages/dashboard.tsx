@@ -1,8 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Globe, User, BarChart3 } from "lucide-react";
+import { Globe, User, BarChart3, Trash2 } from "lucide-react";
 import { Link } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import StatsCards from "@/components/stats-cards";
 import FileUpload from "@/components/file-upload";
 import ProcessingStatus from "@/components/processing-status";
@@ -12,6 +14,8 @@ import SessionResults from "@/components/session-results";
 
 export default function Dashboard() {
   const [currentBatchId, setCurrentBatchId] = useState<string | null>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: stats, refetch: refetchStats } = useQuery({
     queryKey: ["/api/stats"],
@@ -23,6 +27,35 @@ export default function Dashboard() {
     refetchInterval: 10000,
   });
 
+  const deleteDatabaseMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/database/clear', {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to clear database');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Database cleared",
+        description: "All domain data has been successfully deleted.",
+      });
+      setCurrentBatchId(null);
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/batches"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/results"] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to clear database. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleBatchUploaded = (batchId: string) => {
     setCurrentBatchId(batchId);
     refetchStats();
@@ -30,7 +63,7 @@ export default function Dashboard() {
 
   // Auto-select the most recent batch if none is selected
   useEffect(() => {
-    if (!currentBatchId && batches && batches.length > 0) {
+    if (!currentBatchId && batches && Array.isArray(batches) && batches.length > 0) {
       setCurrentBatchId(batches[0].id);
     }
   }, [batches, currentBatchId]);
@@ -61,6 +94,16 @@ export default function Dashboard() {
               <Link href="/jurisdictional-guide" className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors">
                 Jurisdictions
               </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => deleteDatabaseMutation.mutate()}
+                disabled={deleteDatabaseMutation.isPending}
+                className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 hover:border-red-300"
+              >
+                <Trash2 className="h-4 w-4" />
+                {deleteDatabaseMutation.isPending ? "Clearing..." : "Clear DB"}
+              </Button>
               <div className="w-8 h-8 bg-primary-custom rounded-full flex items-center justify-center text-white text-sm font-medium">
                 <User className="h-4 w-4" />
               </div>
@@ -71,7 +114,7 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
-        <StatsCards stats={stats} />
+        <StatsCards stats={stats as any} />
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           {/* Upload Section */}

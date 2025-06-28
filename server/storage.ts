@@ -1,4 +1,4 @@
-import { domains, batches, activities, type Domain, type InsertDomain, type Batch, type InsertBatch, type Activity, type InsertActivity, type ProcessingStats, type SessionResults } from "@shared/schema";
+import { domains, batches, activities, type Domain, type InsertDomain, type Batch, type InsertBatch, type Activity, type InsertActivity, type ProcessingStats, type SessionResults, type AnalyticsData } from "@shared/schema";
 
 export interface IStorage {
   // Domains
@@ -33,6 +33,9 @@ export interface IStorage {
   
   // Analytics
   getAnalyticsData(limit?: number, offset?: number): Promise<AnalyticsData[]>;
+  
+  // Database Management
+  clearDatabase?(): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
