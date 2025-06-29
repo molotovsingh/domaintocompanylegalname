@@ -1,4 +1,4 @@
-import { domains, batches, activities, gleifCandidates, type Domain, type InsertDomain, type Batch, type InsertBatch, type Activity, type InsertActivity, type GleifCandidate, type InsertGleifCandidate, type ProcessingStats, type SessionResults, type AnalyticsData } from "@shared/schema";
+import { domains, batches, activities, gleifCandidates, type Domain, type InsertDomain, type Batch, type InsertBatch, type Activity, type InsertActivity, type GleifCandidate, type InsertGleifCandidate, type GleifEntity, type InsertGleifEntity, type DomainEntityMapping, type InsertDomainEntityMapping, type EntityRelationship, type InsertEntityRelationship, type ProcessingStats, type SessionResults, type AnalyticsData } from "@shared/schema";
 
 export interface IStorage {
   // Domains

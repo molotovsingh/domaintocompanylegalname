@@ -1,9 +1,11 @@
 import { eq, desc, asc, ilike, and, sql, count } from 'drizzle-orm';
 import { db } from './db';
-import { domains, batches, activities, gleifCandidates } from '../shared/schema';
+import { domains, batches, activities, gleifCandidates, gleifEntities, domainEntityMappings, entityRelationships } from '../shared/schema';
 import type { 
   InsertDomain, Domain, InsertBatch, Batch, InsertActivity, Activity, 
-  ProcessingStats, SessionResults, AnalyticsData, GleifCandidate, InsertGleifCandidate
+  ProcessingStats, SessionResults, AnalyticsData, GleifCandidate, InsertGleifCandidate,
+  GleifEntity, InsertGleifEntity, DomainEntityMapping, InsertDomainEntityMapping,
+  EntityRelationship, InsertEntityRelationship
 } from '../shared/schema';
 import type { IStorage } from './storage';
 
@@ -466,6 +468,75 @@ export class PostgreSQLStorage implements IStorage {
       .orderBy(desc(domains.createdAt))
       .limit(limit)
       .offset(offset);
+  }
+
+  // Enhanced GLEIF Knowledge Base Operations (V3 - Entity Intelligence)
+  async createGleifEntity(entity: InsertGleifEntity): Promise<GleifEntity> {
+    const result = await db.insert(gleifEntities).values(entity).returning();
+    return result[0];
+  }
+
+  async getGleifEntity(leiCode: string): Promise<GleifEntity | undefined> {
+    const result = await db.select().from(gleifEntities).where(eq(gleifEntities.leiCode, leiCode)).limit(1);
+    return result[0];
+  }
+
+  async updateGleifEntity(leiCode: string, updates: Partial<GleifEntity>): Promise<GleifEntity | undefined> {
+    const result = await db.update(gleifEntities)
+      .set(updates)
+      .where(eq(gleifEntities.leiCode, leiCode))
+      .returning();
+    return result[0];
+  }
+
+  async createDomainEntityMapping(mapping: InsertDomainEntityMapping): Promise<DomainEntityMapping> {
+    const result = await db.insert(domainEntityMappings).values(mapping).returning();
+    return result[0];
+  }
+
+  async getDomainEntityMapping(domain: string, leiCode: string): Promise<DomainEntityMapping | undefined> {
+    const result = await db.select()
+      .from(domainEntityMappings)
+      .where(and(
+        eq(domainEntityMappings.domain, domain),
+        eq(domainEntityMappings.leiCode, leiCode)
+      ))
+      .limit(1);
+    return result[0];
+  }
+
+  async getDomainEntityMappings(domain: string): Promise<DomainEntityMapping[]> {
+    return await db.select()
+      .from(domainEntityMappings)
+      .where(eq(domainEntityMappings.domain, domain))
+      .orderBy(desc(domainEntityMappings.mappingConfidence));
+  }
+
+  async getEntityDomainMappings(leiCode: string): Promise<DomainEntityMapping[]> {
+    return await db.select()
+      .from(domainEntityMappings)
+      .where(eq(domainEntityMappings.leiCode, leiCode))
+      .orderBy(desc(domainEntityMappings.lastConfirmedDate));
+  }
+
+  async updateDomainEntityMapping(id: number, updates: Partial<DomainEntityMapping>): Promise<DomainEntityMapping | undefined> {
+    const result = await db.update(domainEntityMappings)
+      .set(updates)
+      .where(eq(domainEntityMappings.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async createEntityRelationship(relationship: InsertEntityRelationship): Promise<EntityRelationship> {
+    const result = await db.insert(entityRelationships).values(relationship).returning();
+    return result[0];
+  }
+
+  async getEntityRelationships(leiCode: string): Promise<EntityRelationship[]> {
+    return await db.select()
+      .from(entityRelationships)
+      .where(eq(entityRelationships.parentLei, leiCode))
+      .orderBy(desc(entityRelationships.relationshipConfidence));
   }
 }
 

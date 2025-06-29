@@ -142,7 +142,7 @@ export const gleifCandidates = pgTable("gleif_candidates", {
   domainId: integer("domain_id").notNull().references(() => domains.id),
   
   // GLEIF Entity Data
-  leiCode: text("lei_code").notNull().references(() => gleifEntities.leiCode),
+  leiCode: text("lei_code").notNull(),
   legalName: text("legal_name").notNull(),
   entityStatus: text("entity_status"), // 'ACTIVE', 'INACTIVE', 'NULL'
   jurisdiction: text("jurisdiction"), // ISO country code
