@@ -43,6 +43,20 @@ export interface IStorage {
   updatePrimarySelection?(domainId: number, leiCode: string): Promise<Domain | undefined>;
   getManualReviewQueue?(limit?: number, offset?: number): Promise<Domain[]>;
   getLevel2EligibleDomains?(limit?: number, offset?: number): Promise<Domain[]>;
+  
+  // Enhanced GLEIF Knowledge Base Operations (V3 - Entity Intelligence)
+  createGleifEntity?(entity: InsertGleifEntity): Promise<GleifEntity>;
+  getGleifEntity?(leiCode: string): Promise<GleifEntity | undefined>;
+  updateGleifEntity?(leiCode: string, updates: Partial<GleifEntity>): Promise<GleifEntity | undefined>;
+  
+  createDomainEntityMapping?(mapping: InsertDomainEntityMapping): Promise<DomainEntityMapping>;
+  getDomainEntityMapping?(domain: string, leiCode: string): Promise<DomainEntityMapping | undefined>;
+  getDomainEntityMappings?(domain: string): Promise<DomainEntityMapping[]>;
+  getEntityDomainMappings?(leiCode: string): Promise<DomainEntityMapping[]>;
+  updateDomainEntityMapping?(id: number, updates: Partial<DomainEntityMapping>): Promise<DomainEntityMapping | undefined>;
+  
+  createEntityRelationship?(relationship: InsertEntityRelationship): Promise<EntityRelationship>;
+  getEntityRelationships?(leiCode: string): Promise<EntityRelationship[]>;
 }
 
 export class MemStorage implements IStorage {

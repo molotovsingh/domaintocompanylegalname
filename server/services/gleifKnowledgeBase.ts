@@ -1,6 +1,5 @@
 import { storage } from '../pgStorage';
 import { 
-  GLEIFEntity, 
   Domain, 
   GleifEntity, 
   InsertGleifEntity,
@@ -9,6 +8,34 @@ import {
   EntityRelationship,
   InsertEntityRelationship
 } from '../../shared/schema';
+
+// GLEIF API Entity interface
+interface GLEIFEntity {
+  lei: string;
+  legalName: string;
+  entityStatus: string;
+  jurisdiction: string;
+  legalForm: string;
+  entityCategory: string;
+  registrationStatus: string;
+  headquarters: {
+    country: string;
+    region: string;
+    city: string;
+    addressLines: string[];
+    postalCode: string;
+  };
+  legalAddress: {
+    country: string;
+    region: string;
+    city: string;
+    addressLines: string[];
+    postalCode: string;
+  };
+  otherNames: string[];
+  registrationDate: string;
+  lastUpdateDate: string;
+}
 
 /**
  * GLEIF Knowledge Base Service
