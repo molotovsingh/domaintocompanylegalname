@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Settings, Server, CheckCircle, AlertCircle } from "lucide-react";
+import { Settings, Server, CheckCircle, AlertCircle, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -10,12 +10,6 @@ interface ProcessingStatusProps {
 }
 
 export default function ProcessingStatus({ currentBatchId }: ProcessingStatusProps) {
-  const { data: batchData } = useQuery({
-    queryKey: ["/api/results", currentBatchId],
-    enabled: !!currentBatchId,
-    refetchInterval: 2000, // Refetch every 2 seconds for real-time updates
-  });
-
   const { data: batches } = useQuery({
     queryKey: ["/api/batches"],
     refetchInterval: 3000,
@@ -26,23 +20,24 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
     refetchInterval: 5000,
   });
 
-  const batch = batchData?.batch;
-  const progressPercentage = batch ? (batch.processedDomains / batch.totalDomains) * 100 : 0;
-  
-  // Find active processing batches
-  const activeBatch = Array.isArray(batches) ? batches.find((b: any) => b.status === 'processing') : null;
-  const pendingBatches = Array.isArray(batches) ? batches.filter((b: any) => b.status === 'pending') : [];
-  const completedBatches = Array.isArray(batches) ? batches.filter((b: any) => b.status === 'completed') : [];
+  // Type-safe batch data access
+  const batchesList = Array.isArray(batches) ? batches : [];
+  const activeBatch = batchesList.find((b: any) => b.status === 'processing');
+  const pendingBatches = batchesList.filter((b: any) => b.status === 'pending');
+  const completedBatches = batchesList.filter((b: any) => b.status === 'completed');
   
   // Determine system status
   const getSystemStatus = () => {
-    if (activeBatch) return { status: 'processing', label: 'Processing', color: 'bg-blue-500' };
-    if (pendingBatches.length > 0) return { status: 'pending', label: 'Pending', color: 'bg-yellow-500' };
-    if (completedBatches.length > 0) return { status: 'idle', label: 'Ready', color: 'bg-green-500' };
-    return { status: 'idle', label: 'Ready', color: 'bg-gray-500' };
+    if (activeBatch) return { status: 'processing', label: 'Processing', color: 'bg-blue-500', icon: Clock };
+    if (pendingBatches.length > 0) return { status: 'pending', label: 'Pending', color: 'bg-yellow-500', icon: AlertCircle };
+    if (completedBatches.length > 0) return { status: 'idle', label: 'Ready', color: 'bg-green-500', icon: CheckCircle };
+    return { status: 'idle', label: 'Ready', color: 'bg-gray-500', icon: Server };
   };
   
   const systemStatus = getSystemStatus();
+  const StatusIcon = systemStatus.icon;
+
+  const totalDomains = (stats as any)?.totalDomains || 0;
 
   return (
     <Card className="bg-surface shadow-material border border-gray-200">
@@ -51,7 +46,7 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
           <Settings className="text-primary-custom mr-2 h-5 w-5" />
           Processing Status
         </h2>
-        <p className="text-sm text-gray-600 mt-1">Real-time processing progress and worker status</p>
+        <p className="text-sm text-gray-600 mt-1">Real-time processing progress and system status</p>
       </div>
       <CardContent className="p-6">
         {/* System Status Header */}
@@ -62,11 +57,9 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
               System Status: {systemStatus.label}
             </span>
           </div>
-          {stats && (
-            <Badge variant="outline" className="text-xs">
-              {stats.totalDomains?.toLocaleString()} total processed
-            </Badge>
-          )}
+          <Badge variant="outline" className="text-xs">
+            {totalDomains.toLocaleString()} total processed
+          </Badge>
         </div>
 
         {/* Active Processing */}
@@ -109,7 +102,7 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
         {/* System Ready State */}
         {!activeBatch && pendingBatches.length === 0 && (
           <div className="text-center p-6 bg-green-50 rounded-lg">
-            <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+            <StatusIcon className="h-8 w-8 text-green-500 mx-auto mb-2" />
             <p className="text-sm text-gray-700 font-medium">System Ready</p>
             <p className="text-xs text-gray-600 mt-1">
               {completedBatches.length > 0 
