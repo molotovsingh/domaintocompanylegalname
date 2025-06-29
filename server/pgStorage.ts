@@ -343,6 +343,20 @@ export class PostgreSQLStorage implements IStorage {
         ? Math.round((highConfidenceCount / successful.length) * 100)
         : 0;
 
+      // Calculate total processing time
+      const totalProcessingTimeMs = batch.completedAt && batch.uploadedAt 
+        ? new Date(batch.completedAt).getTime() - new Date(batch.uploadedAt).getTime()
+        : 0;
+      
+      // Format total processing time
+      const formatProcessingTime = (ms: number): string => {
+        if (ms < 60000) return `${Math.round(ms / 1000)}s`;
+        if (ms < 3600000) return `${Math.round(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s`;
+        const hours = Math.floor(ms / 3600000);
+        const minutes = Math.round((ms % 3600000) / 60000);
+        return `${hours}h ${minutes}m`;
+      };
+
       analyticsData.push({
         batchId: batch.id,
         fileName: batch.fileName,
@@ -354,6 +368,8 @@ export class PostgreSQLStorage implements IStorage {
         domainMappingPercentage,
         avgProcessingTimePerDomain,
         highConfidencePercentage,
+        totalProcessingTimeMs,
+        totalProcessingTimeFormatted: formatProcessingTime(totalProcessingTimeMs),
       });
     }
 

@@ -15,6 +15,8 @@ interface AnalyticsData {
   domainMappingPercentage: number;
   avgProcessingTimePerDomain: number;
   highConfidencePercentage: number;
+  totalProcessingTimeMs: number;
+  totalProcessingTimeFormatted: string;
 }
 
 export default function AnalyticsDashboard() {
@@ -149,7 +151,7 @@ export default function AnalyticsDashboard() {
       )}
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -205,7 +207,7 @@ export default function AnalyticsDashboard() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-gray-600">Processing Time</p>
+                <p className="text-xs font-medium text-gray-600">Per Domain</p>
                 <p className="text-xl font-bold text-orange-600">
                   {latestBatch.avgProcessingTimePerDomain > 1000 
                     ? `${Math.round(latestBatch.avgProcessingTimePerDomain / 1000)}s`
@@ -219,6 +221,19 @@ export default function AnalyticsDashboard() {
                 )}
               </div>
               <Clock className="h-6 w-6 text-orange-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-gray-600">Total Time</p>
+                <p className="text-xl font-bold text-indigo-600">{latestBatch.totalProcessingTimeFormatted}</p>
+                <p className="text-xs text-gray-500">{latestBatch.totalDomains} domains</p>
+              </div>
+              <Clock className="h-6 w-6 text-indigo-600" />
             </div>
           </CardContent>
         </Card>

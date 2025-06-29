@@ -188,6 +188,8 @@ export const analyticsDataSchema = z.object({
   domainMappingPercentage: z.number(),
   avgProcessingTimePerDomain: z.number(),
   highConfidencePercentage: z.number(),
+  totalProcessingTimeMs: z.number(),
+  totalProcessingTimeFormatted: z.string(),
 });
 
 export type ProcessingStats = z.infer<typeof processingStatsSchema>;
