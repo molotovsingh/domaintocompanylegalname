@@ -23,7 +23,7 @@ export default function GLEIFCandidatesModal({ domainId, domain, isOpen, onClose
 
   // Fetch GLEIF candidates for this domain
   const { data: candidates, isLoading } = useQuery<GleifCandidate[]>({
-    queryKey: ['/api/domains', domainId, 'candidates'],
+    queryKey: [`/api/domains/${domainId}/candidates`],
     enabled: !!domainId && isOpen,
   });
 
