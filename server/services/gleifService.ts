@@ -1,5 +1,6 @@
 import { getTLDMapping } from '../../shared/jurisdictions';
 import type { Domain, InsertGleifCandidate } from '../../shared/schema';
+import { gleifKnowledgeBase } from './gleifKnowledgeBase';
 
 export interface GLEIFEntity {
   lei: string;
@@ -139,6 +140,20 @@ export class GLEIFService {
 
     // Determine if manual review is required
     const manualReviewRequired = this.requiresManualReview(candidates);
+
+    // ACCUMULATION STRATEGY: Store all discovered entities in knowledge base
+    try {
+      await gleifKnowledgeBase.accumulateEntities(
+        entities, 
+        domain, 
+        searchMethod, 
+        primarySelection.lei
+      );
+      console.log(`✓ Accumulated ${entities.length} GLEIF entities for domain: ${domain.domain}`);
+    } catch (error) {
+      console.error(`Failed to accumulate GLEIF entities for ${domain.domain}:`, error);
+      // Don't fail the main process if accumulation fails
+    }
 
     return {
       primarySelection,

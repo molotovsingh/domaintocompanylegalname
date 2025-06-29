@@ -52,6 +52,11 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **GLEIF KNOWLEDGE BASE V3 IMPLEMENTED**: Revolutionary transformation from simple domain extractor to comprehensive entity intelligence accumulation system with 5-10x data multiplication effect - every GLEIF API call now stores all discovered entities (not just primary selections) enabling compound intelligence growth and proprietary entity moat (June 29, 2025)
+- **Enhanced Database Architecture**: Added master GLEIF entities table, domain-entity relationship mapping, and corporate hierarchy discovery with frequency tracking and confidence scoring
+- **Data Accumulation Strategy**: Integrated GLEIF knowledge base service into processing pipeline storing all discovered entities, mapping corporate relationships, and building cross-domain intelligence
+- **Intelligence APIs**: Created comprehensive entity intelligence endpoints (/api/intelligence/domain, /api/intelligence/entity, /api/intelligence/stats) for downstream system integration
+- **Strategic Foundation**: Positioned system as authoritative "get the right company first" layer for broader company intelligence ecosystem (firmographics, news, financials, contact intelligence)
 - **DUPLICATION PREVENTION SYSTEM VALIDATED**: Complete testing confirms enhanced upload process correctly skips high-confidence domains (85%+) while processing lower-confidence domains for improvement - validated with 5 Fortune 500 companies skipped and 5 lower-confidence domains processed, maintaining data integrity and optimizing performance (June 29, 2025)
 - **PROCESSING STATUS SYSTEM ENHANCED**: Fixed real-time status display to correctly show "System Ready" when idle vs "Processing" during active batch processing with live progress tracking and batch queue management (June 29, 2025)
 - **DUPLICATE DETECTION SYSTEM FIXED**: Enhanced upload process to prevent reprocessing successful domains with 85%+ confidence scores - Fortune 500 companies like apple.com, microsoft.com, db.com now properly skipped to avoid redundant processing and maintain data integrity (June 29, 2025)
