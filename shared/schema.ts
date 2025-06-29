@@ -63,13 +63,86 @@ export const activities = pgTable("activities", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Level 2 GLEIF Candidates Table (V2 Enhancement)
+// Master GLEIF Entity Intelligence Database
+export const gleifEntities = pgTable("gleif_entities", {
+  leiCode: text("lei_code").primaryKey(),
+  legalName: text("legal_name").notNull(),
+  entityStatus: text("entity_status"), // 'ACTIVE', 'INACTIVE', 'NULL'
+  jurisdiction: text("jurisdiction"), // ISO country code
+  legalForm: text("legal_form"), // Legal form code
+  entityCategory: text("entity_category"),
+  registrationStatus: text("registration_status"), // 'ISSUED', 'LAPSED', 'RETIRED'
+  
+  // Address Intelligence
+  headquartersCountry: text("headquarters_country"),
+  headquartersCity: text("headquarters_city"),
+  headquartersRegion: text("headquarters_region"),
+  headquartersPostalCode: text("headquarters_postal_code"),
+  legalAddressCountry: text("legal_address_country"),
+  legalAddressCity: text("legal_address_city"),
+  legalAddressRegion: text("legal_address_region"),
+  legalAddressPostalCode: text("legal_address_postal_code"),
+  
+  // Entity Intelligence
+  otherNames: text("other_names").array(), // Alternative entity names
+  registrationDate: text("registration_date"),
+  lastGleifUpdate: text("last_gleif_update"),
+  
+  // Accumulation Intelligence
+  firstDiscoveredDate: timestamp("first_discovered_date").defaultNow(),
+  discoveryFrequency: integer("discovery_frequency").default(1), // How often we encounter this entity
+  lastSeenDate: timestamp("last_seen_date").defaultNow(),
+  
+  // Full GLEIF Data Archive
+  gleifFullData: text("gleif_full_data"), // JSON string of complete GLEIF response
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Domain-Entity Relationship Mapping
+export const domainEntityMappings = pgTable("domain_entity_mappings", {
+  id: serial("id").primaryKey(),
+  domain: text("domain").notNull(),
+  leiCode: text("lei_code").notNull().references(() => gleifEntities.leiCode),
+  
+  // Mapping Intelligence
+  mappingConfidence: integer("mapping_confidence"), // Our confidence in this mapping
+  discoveryMethod: text("discovery_method"), // 'exact', 'fuzzy', 'geographic', 'corporate_family'
+  firstMappedDate: timestamp("first_mapped_date").defaultNow(),
+  lastConfirmedDate: timestamp("last_confirmed_date").defaultNow(),
+  mappingFrequency: integer("mapping_frequency").default(1), // How often we see this mapping
+  
+  // Selection Context
+  isPrimarySelection: boolean("is_primary_selection").default(false),
+  selectionReason: text("selection_reason"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Corporate Relationship Intelligence
+export const entityRelationships = pgTable("entity_relationships", {
+  id: serial("id").primaryKey(),
+  parentLei: text("parent_lei").references(() => gleifEntities.leiCode),
+  childLei: text("child_lei").references(() => gleifEntities.leiCode),
+  
+  // Relationship Intelligence
+  relationshipType: text("relationship_type"), // 'subsidiary', 'branch', 'affiliate', 'parent'
+  ownershipPercentage: text("ownership_percentage"),
+  discoveredDate: timestamp("discovered_date").defaultNow(),
+  relationshipConfidence: integer("relationship_confidence"),
+  discoveryMethod: text("discovery_method"), // 'gleif_search', 'domain_analysis', 'manual'
+  
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Level 2 GLEIF Candidates Table (V2 Enhancement) - Keep for backward compatibility
 export const gleifCandidates = pgTable("gleif_candidates", {
   id: serial("id").primaryKey(),
   domainId: integer("domain_id").notNull().references(() => domains.id),
   
   // GLEIF Entity Data
-  leiCode: text("lei_code").notNull(),
+  leiCode: text("lei_code").notNull().references(() => gleifEntities.leiCode),
   legalName: text("legal_name").notNull(),
   entityStatus: text("entity_status"), // 'ACTIVE', 'INACTIVE', 'NULL'
   jurisdiction: text("jurisdiction"), // ISO country code
@@ -117,7 +190,23 @@ export const insertActivitySchema = createInsertSchema(activities).omit({
   createdAt: true,
 });
 
-// GLEIF Candidates Schema (V2)
+// Enhanced GLEIF Knowledge Base Schemas
+export const insertGleifEntitySchema = createInsertSchema(gleifEntities).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertDomainEntityMappingSchema = createInsertSchema(domainEntityMappings).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertEntityRelationshipSchema = createInsertSchema(entityRelationships).omit({
+  id: true,
+  createdAt: true,
+});
+
+// GLEIF Candidates Schema (V2) - Backward compatibility
 export const insertGleifCandidateSchema = createInsertSchema(gleifCandidates).omit({
   id: true,
   createdAt: true,
@@ -130,7 +219,17 @@ export type InsertBatch = z.infer<typeof insertBatchSchema>;
 export type Activity = typeof activities.$inferSelect;
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
 
-// GLEIF Candidates Types (V2)
+// Enhanced GLEIF Knowledge Base Types
+export type GleifEntity = typeof gleifEntities.$inferSelect;
+export type InsertGleifEntity = z.infer<typeof insertGleifEntitySchema>;
+
+export type DomainEntityMapping = typeof domainEntityMappings.$inferSelect;
+export type InsertDomainEntityMapping = z.infer<typeof insertDomainEntityMappingSchema>;
+
+export type EntityRelationship = typeof entityRelationships.$inferSelect;
+export type InsertEntityRelationship = z.infer<typeof insertEntityRelationshipSchema>;
+
+// GLEIF Candidates Types (V2) - Backward compatibility
 export type GleifCandidate = typeof gleifCandidates.$inferSelect;
 export type InsertGleifCandidate = z.infer<typeof insertGleifCandidateSchema>;
 
