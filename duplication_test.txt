@@ -1,0 +1,10 @@
+global.toyota
+gm.com
+global.honda
+global.canon
+citroen.com
+compass-group.com
+unite-group.co.uk
+jsbchina.cn
+sc.com
+example-new-domain.com

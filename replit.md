@@ -52,6 +52,8 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **DUPLICATION PREVENTION SYSTEM VALIDATED**: Complete testing confirms enhanced upload process correctly skips high-confidence domains (85%+) while processing lower-confidence domains for improvement - validated with 5 Fortune 500 companies skipped and 5 lower-confidence domains processed, maintaining data integrity and optimizing performance (June 29, 2025)
+- **PROCESSING STATUS SYSTEM ENHANCED**: Fixed real-time status display to correctly show "System Ready" when idle vs "Processing" during active batch processing with live progress tracking and batch queue management (June 29, 2025)
 - **DUPLICATE DETECTION SYSTEM FIXED**: Enhanced upload process to prevent reprocessing successful domains with 85%+ confidence scores - Fortune 500 companies like apple.com, microsoft.com, db.com now properly skipped to avoid redundant processing and maintain data integrity (June 29, 2025)
 - **GLEIF CANDIDATES MODAL FIX**: Resolved React Query configuration issue preventing GLEIF candidates from displaying in modal - casino.fr now correctly shows 4 verified candidates with complete LEI data and selection algorithms (June 29, 2025)
 - **CSV EXPORT ENHANCEMENT**: Updated export functionality to include all Level 2 GLEIF fields (Business Category, GLEIF Status, LEI Code, Recommendation, Processing Time) matching the UI display for complete business intelligence analysis (June 29, 2025)
