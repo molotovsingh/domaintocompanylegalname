@@ -46,19 +46,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'No valid domains found in file' });
       }
 
+      // Check for existing successful domains to avoid reprocessing
+      const newDomainsOnly: string[] = [];
+      const skippedDomains: string[] = [];
+      
+      console.log('Checking for existing successful records...');
+      for (const domain of uniqueDomains) {
+        const existingSuccess = await storage.getHighConfidenceResult(domain.trim());
+        if (existingSuccess && existingSuccess.confidenceScore && existingSuccess.confidenceScore >= 85) {
+          skippedDomains.push(domain);
+          console.log(`Skipping ${domain} - already has high confidence result (${existingSuccess.confidenceScore}%)`);
+        } else {
+          newDomainsOnly.push(domain);
+        }
+      }
+
+      console.log(`${newDomainsOnly.length} new domains to process, ${skippedDomains.length} skipped (already successful)`);
+
+      if (newDomainsOnly.length === 0) {
+        return res.status(200).json({ 
+          message: 'All domains already have high-confidence results',
+          domainCount: 0,
+          duplicatesRemoved: domains.length - uniqueDomains.length,
+          existingSuccessful: skippedDomains.length
+        });
+      }
+
       const batchId = nanoid();
       
       // Create batch
       const batch = await storage.createBatch({
         id: batchId,
         fileName: req.file.originalname || 'unknown',
-        totalDomains: uniqueDomains.length,
+        totalDomains: newDomainsOnly.length,
         status: 'pending'
       });
 
-      // Create domain records
-      console.log(`Creating ${uniqueDomains.length} domain records...`);
-      await Promise.all(uniqueDomains.map(domain => 
+      // Create domain records only for new domains
+      console.log(`Creating ${newDomainsOnly.length} domain records...`);
+      await Promise.all(newDomainsOnly.map(domain => 
         storage.createDomain({
           domain: domain.trim(),
           batchId,
@@ -71,16 +97,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.createActivity({
         type: 'batch_upload',
         message: `New file uploaded: ${req.file.originalname}`,
-        details: JSON.stringify({ batchId, domainCount: uniqueDomains.length, duplicatesRemoved: domains.length - uniqueDomains.length })
+        details: JSON.stringify({ 
+          batchId, 
+          domainCount: newDomainsOnly.length, 
+          duplicatesRemoved: domains.length - uniqueDomains.length,
+          existingSuccessful: skippedDomains.length,
+          totalOriginal: domains.length
+        })
       });
 
-      console.log(`Upload complete: ${uniqueDomains.length} unique domains stored in batch ${batchId}`);
+      console.log(`Upload complete: ${newDomainsOnly.length} new domains stored in batch ${batchId}, ${skippedDomains.length} skipped (already successful)`);
       res.json({ 
         batchId, 
         fileName: req.file.originalname,
-        domainCount: uniqueDomains.length,
+        domainCount: newDomainsOnly.length,
         duplicatesRemoved: domains.length - uniqueDomains.length,
-        message: 'File uploaded successfully' 
+        existingSuccessful: skippedDomains.length,
+        message: `File uploaded successfully. ${newDomainsOnly.length} new domains to process, ${skippedDomains.length} already have high-confidence results.` 
       });
 
     } catch (error: any) {
