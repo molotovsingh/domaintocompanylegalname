@@ -190,11 +190,11 @@ class Level1ExtractionDemo {
         const footerText = footer.text().trim();
         console.log(`Footer text (first 200 chars): "${footerText.substring(0, 200)}..."`);
         
-        // Look for copyright patterns
+        // Look for copyright patterns (FIXED: allow periods for Inc., Co., etc.)
         const copyrightPatterns = [
-          /©\s*\d{4}[-\d\s,]*([^.|\n|;|,]{2,50}?)(?:\.|$|\n)/gi,
-          /Copyright\s*\d{4}[-\d\s,]*([^.|\n|;|,]{2,50}?)(?:\.|$|\n)/gi,
-          /\d{4}\s*([A-Z][^.|\n|;|,]{2,50}?)(?:\.|$|\n)/gi
+          /©\s*\d{4}[^A-Za-z]*([A-Z][\w\s&,.-]{5,80}?(?:Inc\.?|Corp\.?|Co\.?|Ltd\.?|LLC|Corporation|Limited|Company))/gi,
+          /Copyright\s*\d{4}[^A-Za-z]*([A-Z][\w\s&,.-]{5,80}?(?:Inc\.?|Corp\.?|Co\.?|Ltd\.?|LLC|Corporation|Limited|Company))/gi,
+          /\d{4}[^A-Za-z]*([A-Z][\w\s&,.-]{5,80}?(?:Inc\.?|Corp\.?|Co\.?|Ltd\.?|LLC|Corporation|Limited|Company))/gi
         ];
         
         for (const pattern of copyrightPatterns) {

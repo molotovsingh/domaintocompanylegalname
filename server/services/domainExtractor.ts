@@ -1271,11 +1271,11 @@ export class DomainExtractor {
     
     // Fallback to enhanced copyright patterns with strict validation
     const legalEntityPatterns = [
-      // Copyright with company name patterns - country-specific suffixes
-      new RegExp(`©\\s*\\d{4}\\s+([a-zA-Z][^.!?]{0,80}?(?:${legalSuffixes.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}))`, 'i'),
-      new RegExp(`copyright\\s*©?\\s*\\d{4}\\s+([a-zA-Z][^.!?]{0,80}?(?:${legalSuffixes.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}))`, 'i'),
-      // Year followed by company name with country-specific suffixes
-      new RegExp(`\\d{4}\\s+([a-zA-Z][^.!?]{0,80}?(?:${legalSuffixes.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}))`, 'i')
+      // Copyright with company name patterns - country-specific suffixes (FIXED: allow periods for Inc., Co., etc.)
+      new RegExp(`©\\s*\\d{4}[^A-Za-z]*([A-Z][\\w\\s&,.-]{5,80}?(?:${legalSuffixes.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}))`, 'i'),
+      new RegExp(`copyright\\s*©?\\s*\\d{4}[^A-Za-z]*([A-Z][\\w\\s&,.-]{5,80}?(?:${legalSuffixes.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}))`, 'i'),
+      // Year followed by company name with country-specific suffixes (FIXED: allow periods)
+      new RegExp(`\\d{4}[^A-Za-z]*([A-Z][\\w\\s&,.-]{5,80}?(?:${legalSuffixes.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}))`, 'i')
     ];
     
     for (const pattern of legalEntityPatterns) {

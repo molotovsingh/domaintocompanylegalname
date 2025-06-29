@@ -22,10 +22,18 @@
 - **Corporate Heritage**: "For more than 130 years" - established Fortune 500 company
 
 **Actual Level 1 Results:**
-- ✓ Found "Merck & Co" in footer copyright (75% confidence)
+- ⚠️ Found "Merck & Co" in footer copyright (75% confidence) - **INCOMPLETE EXTRACTION**
 - ✓ Found "Merck.com" in meta properties (80% confidence - winner)
+- ✗ Missed complete legal entity: "Merck & Co., Inc."
 - ✗ Missed primary brand messaging and business description
 - ✗ Missed corporate positioning statements
+
+**Critical Footer Content Available:**
+```
+"Copyright © 2025 Merck & Co., Inc., Rahway, NJ, USA, and its affiliates. All rights reserved."
+```
+**Should Extract:** "Merck & Co., Inc." (complete legal entity name)
+**Actually Extracted:** "Merck & Co" (incomplete - missing Inc.)
 
 ### 2. Content Extraction Opportunities
 
