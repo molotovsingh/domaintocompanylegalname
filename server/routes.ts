@@ -570,12 +570,30 @@ function isValidDomain(domain: string): boolean {
 
 // Helper function to convert domains to CSV
 function domainsToCSV(domains: any[]): string {
-  const headers = ['Domain', 'Company Name', 'Method', 'Confidence', 'Status', 'Processed At'];
+  const headers = [
+    'Domain', 
+    'Company Name', 
+    'Business Category', 
+    'Extraction Method', 
+    'Confidence', 
+    'GLEIF Status', 
+    'LEI Code', 
+    'Recommendation', 
+    'Processing Time (ms)', 
+    'Status', 
+    'Processed At'
+  ];
+  
   const rows = domains.map(d => [
     d.domain,
     d.companyName || '',
+    d.businessCategory || '',
     d.extractionMethod || '',
     d.confidenceScore || '',
+    d.gleifStatus || '',
+    d.leiCode || '',
+    d.recommendation || '',
+    d.processingTime || '',
     d.status,
     d.processedAt ? new Date(d.processedAt).toISOString() : ''
   ]);

@@ -52,6 +52,7 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **CSV EXPORT ENHANCEMENT**: Updated export functionality to include all Level 2 GLEIF fields (Business Category, GLEIF Status, LEI Code, Recommendation, Processing Time) matching the UI display for complete business intelligence analysis (June 29, 2025)
 - **COMPREHENSIVE ANALYTICS ENHANCEMENT**: Added total processing time metrics to performance dashboard with 5-grid layout displaying batch completion times, per-domain averages, success rates, confidence scores, and domain mapping efficiency for complete batch processing analysis (June 29, 2025)
 - **CRITICAL GLEIF STATUS BUG FIXED**: Resolved Level 2 processing issue where 140 domains with successful GLEIF matches were incorrectly marked as "failed" - isbank.com.tr and similar domains now correctly show "success" status with authentic LEI codes, boosting G20 batch success rate from 9.5% to 46.6% (June 29, 2025)
 - **CRITICAL DEUTSCHE BANK BUG FIXED**: Resolved GLEIF integration issue where db.com incorrectly returned "DB CONSULTING" instead of "Deutsche Bank AG" - added proper domain mapping and fixed Level 2 enhancement to find authentic Deutsche Bank entities (June 28, 2025)
