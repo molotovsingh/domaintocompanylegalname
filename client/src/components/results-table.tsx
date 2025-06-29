@@ -263,7 +263,16 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
                         <span className="text-gray-500">Processing...</span>
                       </div>
                     ) : (
-                      <span className="text-gray-900">{domain.companyName || '-'}</span>
+                      <div className="flex flex-col">
+                        <span className="text-gray-900">
+                          {domain.finalLegalName || domain.primaryGleifName || domain.companyName || '-'}
+                        </span>
+                        {domain.finalLegalName && domain.companyName && domain.finalLegalName !== domain.companyName && (
+                          <span className="text-xs text-gray-500">
+                            Original: {domain.companyName}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </td>
                   <td className="py-3 px-4">

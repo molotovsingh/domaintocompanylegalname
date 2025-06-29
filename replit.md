@@ -48,6 +48,7 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **RESULTS TABLE ENHANCEMENT**: Fixed company name display to show GLEIF-enhanced legal entity names (DB CONSULTING) instead of original extraction (Db) with original name as subtitle when enhanced (June 28, 2025)
 - **LEVEL 2 GLEIF FRONTEND INTEGRATION COMPLETE**: Successfully implemented comprehensive frontend interface for Level 2 GLEIF functionality with enhanced results table, candidate management modal, analytics dashboard, and complete API integration (June 28, 2025)
 - **Enhanced Results Table**: Added Level 2 columns (GLEIF Status, LEI Code) with interactive status badges, candidate viewing capabilities, and integrated candidate selection workflow
 - **GLEIF Candidates Modal**: Created comprehensive modal interface for viewing all GLEIF candidates with weighted scores, jurisdiction indicators, entity status, selection algorithms, and primary candidate management
