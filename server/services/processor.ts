@@ -118,7 +118,7 @@ export class BatchProcessor {
         manualReviewRequired: selectionResult.manualReviewRequired,
         selectionNotes: primaryCandidate.selectionReason,
         failureCategory: enhancedBusinessCategory,
-        status: enhancedBusinessCategory.includes('GLEIF Verified') ? 'success' : domain.status
+        status: (primaryCandidate.lei && primaryCandidate.legalName) ? 'success' : domain.status
       });
 
       console.log(`Level 2 GLEIF enhancement completed for ${domain.domain}: ${primaryCandidate.legalName} (${primaryCandidate.lei})`);
