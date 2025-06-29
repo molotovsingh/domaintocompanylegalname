@@ -8,7 +8,7 @@
  * - Parent-subsidiary relationship validation
  */
 
-import { GLEIFEntity } from '../shared/schema';
+import { GLEIFEntity } from './gleifService';
 
 interface ValidationResult {
   isValid: boolean;
@@ -145,7 +145,7 @@ export class GLEIFValidationService {
     }
     
     const isConsistent = expectedJurisdictions.includes(entity.jurisdiction || '') ||
-                        expectedJurisdictions.includes(entity.headquartersCountry || '');
+                        expectedJurisdictions.includes(entity.headquarters?.country || '');
     
     return {
       isValid: isConsistent,

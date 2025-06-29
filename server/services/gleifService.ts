@@ -1,6 +1,7 @@
 import { getTLDMapping } from '../../shared/jurisdictions';
 import type { Domain, InsertGleifCandidate } from '../../shared/schema';
 import { gleifKnowledgeBase } from './gleifKnowledgeBase';
+import { gleifValidationService } from './gleifValidationService';
 
 export interface GLEIFEntity {
   lei: string;
@@ -107,14 +108,27 @@ export class GLEIFService {
       throw new Error('No GLEIF entities provided for candidate processing');
     }
 
-    // Convert entities to candidates with scoring
-    const candidates: GLEIFCandidate[] = entities.map((entity, index) => {
+    // ENHANCED VALIDATION: Filter and validate entities before processing
+    const validatedEntities = gleifValidationService.validateAndRankCandidates(
+      entities,
+      domain.domain,
+      domain.companyName || ''
+    );
+
+    console.log(`Validation filtered ${entities.length} entities to ${validatedEntities.length} high-quality matches`);
+
+    if (validatedEntities.length === 0) {
+      throw new Error('No valid GLEIF entities found after quality validation - all matches filtered as false positives');
+    }
+
+    // Convert validated entities to candidates with enhanced scoring
+    const candidates: GLEIFCandidate[] = validatedEntities.map((entity, index) => {
       const scores = this.calculateWeightedScore(entity, domain);
       
       return {
         ...entity,
         gleifMatchScore: this.calculateGLEIFMatchScore(entity, domain.companyName || ''),
-        weightedScore: scores.totalScore,
+        weightedScore: Math.max(scores.totalScore, entity.validationScore), // Use higher of algorithm or validation score
         rankPosition: index + 1,
         domainTldScore: scores.domainTldScore,
         fortune500Score: scores.fortune500Score,
