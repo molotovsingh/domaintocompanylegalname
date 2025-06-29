@@ -417,6 +417,9 @@ export class DomainExtractor {
       'schneider-electric.com': 'Schneider Electric SE',
       
       // Additional German Companies (addressing failures)
+      'db.com': 'Deutsche Bank AG',
+      'deutschebank.com': 'Deutsche Bank AG',
+      'deutsche-bank.com': 'Deutsche Bank AG',
       'rewe.de': 'REWE Group',
       'bertelsmann.com': 'Bertelsmann SE & Co. KGaA',
       'aldi.com': 'ALDI Group',
