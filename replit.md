@@ -52,6 +52,7 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **CRITICAL FOOTER COPYRIGHT EXTRACTION BUG FIXED**: Resolved regex pattern issue that truncated legal entity names at periods, cutting off "Merck & Co., Inc." to "Merck & Co" and "Exxon Mobil Corporation" extraction - enhanced pattern now captures complete corporate names with proper legal suffixes including Inc., Corp., Co., etc. (June 29, 2025)
 - **GLEIF VALIDATION SYSTEM IMPLEMENTED**: Comprehensive accuracy control system addressing false positive matches through generic term detection, domain-entity correlation analysis, geographic consistency validation, and quality scoring - prevents issues like corporate.exxonmobil.com matching unrelated "CORPORATE+" entities while maintaining 47-entity knowledge base accumulation success (June 29, 2025)
 - **GLEIF KNOWLEDGE BASE V3 IMPLEMENTED**: Revolutionary transformation from simple domain extractor to comprehensive entity intelligence accumulation system with 5-10x data multiplication effect - every GLEIF API call now stores all discovered entities (not just primary selections) enabling compound intelligence growth and proprietary entity moat (June 29, 2025)
 - **Enhanced Database Architecture**: Added master GLEIF entities table, domain-entity relationship mapping, and corporate hierarchy discovery with frequency tracking and confidence scoring
