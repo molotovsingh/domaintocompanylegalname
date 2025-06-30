@@ -287,7 +287,7 @@ export class DomainExtractor {
     const extractionAttempts: ExtractionAttempt[] = [];
     
     // Set up timeout protection to prevent infinite processing
-    const timeout = 25000; // 25 seconds max per domain
+    const timeout = PROCESSING_TIMEOUTS.perDomain; // Use optimized 11-second timeout
     const timeoutPromise = new Promise<ExtractionResult>((_, reject) => {
       setTimeout(() => reject(new Error('Extraction timeout')), timeout);
     });

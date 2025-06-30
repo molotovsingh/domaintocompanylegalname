@@ -256,7 +256,7 @@ export class BatchProcessor {
 
   private async processDomain(domain: Domain): Promise<void> {
     const startTime = Date.now();
-    const maxProcessingTime = 30000; // 30 seconds max per domain
+    const maxProcessingTime = 12000; // 12 seconds max per domain (aligned with optimized extractor timeout)
     
     try {
       // Skip if already processed successfully (from cache)
