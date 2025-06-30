@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./pgStorage";
 import { processor } from "./services/processor";
 import multer from 'multer';
 import { z } from 'zod';
@@ -259,39 +259,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const domains = await storage.getDomainsByBatch(batchId, 100000);
       
-      // Enhance domains with GLEIF candidates data using direct Drizzle queries
-      const enhancedDomains = [];
-      
-      for (const domain of domains) {
-        try {
-          // Use the exact same Drizzle query pattern as getGleifCandidates
-          const candidates = await db.select()
-            .from(gleifCandidates)
-            .where(eq(gleifCandidates.domainId, domain.id))
-            .orderBy(asc(gleifCandidates.rankPosition));
-          
-          console.log(`Domain ${domain.domain} (ID: ${domain.id}) has ${candidates.length} GLEIF candidates`);
-          
-          enhancedDomains.push({
-            ...domain,
-            gleifCandidateCount: candidates.length,
-            allLeiCodes: candidates.map(c => c.leiCode).join('; '),
-            allLegalNames: candidates.map(c => c.legalName).join('; '),
-            allJurisdictions: candidates.map(c => c.jurisdiction).join('; '),
-            allEntityStatuses: candidates.map(c => c.entityStatus).join('; ')
-          });
-        } catch (error) {
-          console.error(`Error fetching candidates for domain ${domain.domain}:`, error);
-          enhancedDomains.push({
-            ...domain,
-            gleifCandidateCount: 0,
-            allLeiCodes: '',
-            allLegalNames: '',
-            allJurisdictions: '',
-            allEntityStatuses: ''
-          });
-        }
-      }
+      // Enhance domains with GLEIF candidates using bulk query approach
+      const enhancedDomains = await Promise.all(
+        domains.map(async (domain) => {
+          try {
+            // Query GLEIF candidates directly using raw SQL for better performance
+            const candidatesResult = await db.execute(sql`
+              SELECT lei_code, legal_name, jurisdiction, entity_status 
+              FROM gleif_candidates 
+              WHERE domain_id = ${domain.id} 
+              ORDER BY rank_position
+            `);
+            
+            const candidates = candidatesResult.rows;
+            
+            return {
+              ...domain,
+              gleifCandidateCount: candidates.length,
+              allLeiCodes: candidates.map((c: any) => c.lei_code).join('; '),
+              allLegalNames: candidates.map((c: any) => c.legal_name).join('; '),
+              allJurisdictions: candidates.map((c: any) => c.jurisdiction).join('; '),
+              allEntityStatuses: candidates.map((c: any) => c.entity_status).join('; ')
+            };
+          } catch (error) {
+            console.error(`Error fetching candidates for domain ${domain.domain}:`, error);
+            return {
+              ...domain,
+              gleifCandidateCount: 0,
+              allLeiCodes: '',
+              allLegalNames: '',
+              allJurisdictions: '',
+              allEntityStatuses: ''
+            };
+          }
+        })
+      );
 
       if (format === 'json') {
         res.setHeader('Content-Type', 'application/json');
