@@ -38,6 +38,8 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
   const StatusIcon = systemStatus.icon;
 
   const totalDomains = (stats as any)?.totalDomains || 0;
+  const processedDomains = (stats as any)?.processedDomains || 0;
+  const progressPercentage = totalDomains > 0 ? Math.round((processedDomains / totalDomains) * 100) : 0;
 
   return (
     <Card className="bg-surface shadow-material border border-gray-200">
@@ -58,7 +60,7 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
             </span>
           </div>
           <Badge variant="outline" className="text-xs">
-            {totalDomains.toLocaleString()} total processed
+            {processedDomains.toLocaleString()} total processed
           </Badge>
         </div>
 
@@ -70,13 +72,13 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
                 Processing: {activeBatch.fileName}
               </span>
               <span className="text-sm text-gray-600">
-                {Math.round((activeBatch.processedDomains / activeBatch.totalDomains) * 100)}%
+                {progressPercentage}%
               </span>
             </div>
-            <Progress value={(activeBatch.processedDomains / activeBatch.totalDomains) * 100} className="w-full h-3" />
+            <Progress value={progressPercentage} className="w-full h-3" />
             <div className="flex justify-between text-xs text-gray-600 mt-1">
-              <span>{activeBatch.processedDomains?.toLocaleString()}</span>
-              <span>{activeBatch.totalDomains?.toLocaleString()} domains</span>
+              <span>{processedDomains?.toLocaleString()}</span>
+              <span>{totalDomains?.toLocaleString()} domains</span>
             </div>
           </div>
         )}
