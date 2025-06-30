@@ -288,7 +288,7 @@ export class GLEIFService {
     const domainTldScore = this.calculateDomainTldScore(entity, domain.domain);
     const fortune500Score = this.calculateFortune500Score(entity);
     const nameMatchScore = this.calculateNameMatchScore(entity, domain.companyName || '');
-    const entityComplexityScore = this.calculateEntityComplexityScore(entity);
+    const entityComplexityScore = this.calculateEntityComplexityScore(entity, domain.domain);
 
     // Weighted scoring algorithm: Name Match (40%) + Fortune 500 (25%) + TLD (20%) + Complexity (15%)
     const totalScore = Math.round(
@@ -316,17 +316,40 @@ export class GLEIFService {
     const domainTLD = domain.split('.').pop()?.toLowerCase();
     const entityCountry = entity.jurisdiction.toLowerCase();
     
-    // Check if TLD matches entity jurisdiction
+    // Enhanced geographic matching with business context priority
+    
+    // Perfect jurisdiction match
     if (this.tldMapping[`.${domainTLD}`] === entityCountry) {
       return 100;
     }
     
-    // Partial matches for common business jurisdictions
-    if (['com', 'org', 'net'].includes(domainTLD || '')) {
-      return 50; // Neutral score for generic TLDs
+    // Special handling for .com domains - heavily favor US entities
+    if (domainTLD === 'com') {
+      if (entityCountry === 'us') {
+        return 95; // Strong preference for US entities on .com
+      }
+      // Significant penalty for non-US entities on .com domains
+      // unless it's a major business jurisdiction
+      if (['ca', 'gb', 'de', 'fr', 'jp', 'au'].includes(entityCountry)) {
+        return 30; // Some allowance for major business centers
+      }
+      return 15; // Heavy penalty for others
     }
     
-    return 25; // Lower score for mismatched jurisdictions
+    // Generic TLD handling with business context
+    if (['org', 'net'].includes(domainTLD || '')) {
+      // More neutral for org/net
+      if (entityCountry === 'us') return 70;
+      return 50;
+    }
+    
+    // Country-specific TLD mismatches
+    if (domainTLD && domainTLD.length === 2) {
+      // This is a country TLD that doesn't match entity jurisdiction
+      return 10; // Heavy penalty for wrong country TLD
+    }
+    
+    return 25; // Default for other mismatches
   }
 
   private calculateFortune500Score(entity: GLEIFEntity): number {
@@ -376,19 +399,37 @@ export class GLEIFService {
     return 10; // Minimal score for any match
   }
 
-  private calculateEntityComplexityScore(entity: GLEIFEntity): number {
+  private calculateEntityComplexityScore(entity: GLEIFEntity, domain: string): number {
     let score = 50; // Base score
     
-    // Active status bonus
+    // Active status bonus (most important)
     if (entity.entityStatus === 'ACTIVE') score += 25;
     
-    // Registration status bonus
-    if (entity.registrationStatus === 'ISSUED') score += 15;
+    // Enhanced registration status handling
+    if (entity.registrationStatus === 'ISSUED') {
+      score += 15;
+    } else if (entity.registrationStatus === 'LAPSED' && entity.entityStatus === 'ACTIVE') {
+      // Reduced penalty for lapsed but active entities - common in business
+      score += 5; // Still some bonus for active entities
+    }
+    
+    // Business entity type preference for commercial domains
+    const isCommercialDomain = domain.endsWith('.com') || domain.endsWith('.biz');
+    if (isCommercialDomain) {
+      const commercialEntityTypes = ['PJ10', '8888', 'C3VN', 'TXGZ']; // Common commercial forms
+      const foundationTypes = ['5WWO', 'PRIV']; // Foundation/trust types
+      
+      if (commercialEntityTypes.includes(entity.legalForm)) {
+        score += 15; // Prefer corporations for .com domains
+      } else if (foundationTypes.includes(entity.legalForm)) {
+        score -= 10; // Penalize foundations for commercial domains
+      }
+    }
     
     // Complete address information bonus
     if (entity.headquarters.country && entity.headquarters.city) score += 10;
     
-    return Math.min(score, 100);
+    return Math.min(Math.max(score, 0), 100);
   }
 
   private generateSelectionReason(
