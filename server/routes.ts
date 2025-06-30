@@ -259,44 +259,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const domains = await storage.getDomainsByBatch(batchId, 100000);
       
-      // Directly enhance each domain with all discovered GLEIF candidates
+      // Create enhanced domains with GLEIF candidates data
       const enhancedDomains = [];
       
       for (const domain of domains) {
+        // Start with the domain data
+        const enhanced = { ...domain };
+        
+        // Initialize GLEIF fields with empty values
+        enhanced.gleifCandidateCount = 0;
+        enhanced.allLeiCodes = '';
+        enhanced.allLegalNames = '';
+        enhanced.allJurisdictions = '';
+        enhanced.allEntityStatuses = '';
+        
+        // Try to get GLEIF candidates data
         try {
-          // Get all GLEIF candidates for this domain
-          const candidatesResult = await db.execute(sql`
-            SELECT lei_code, legal_name, jurisdiction, entity_status
-            FROM gleif_candidates 
-            WHERE domain_id = ${domain.id}
-            ORDER BY id
-          `);
-          
-          const candidates = candidatesResult.rows;
-          const allLeiCodes = candidates.map((c: any) => c.lei_code).join('; ');
-          const allLegalNames = candidates.map((c: any) => c.legal_name).join('; ');
-          const allJurisdictions = candidates.map((c: any) => c.jurisdiction).join('; ');
-          const allEntityStatuses = candidates.map((c: any) => c.entity_status).join('; ');
-          
-          enhancedDomains.push({
-            ...domain,
-            allLeiCodes,
-            allLegalNames,
-            allJurisdictions,
-            allEntityStatuses,
-            gleifCandidateCount: candidates.length
-          });
+          const candidates = await storage.getGleifCandidates(domain.id);
+          if (candidates && candidates.length > 0) {
+            enhanced.gleifCandidateCount = candidates.length;
+            enhanced.allLeiCodes = candidates.map(c => c.leiCode).join('; ');
+            enhanced.allLegalNames = candidates.map(c => c.legalName).join('; ');
+            enhanced.allJurisdictions = candidates.map(c => c.jurisdiction).join('; ');
+            enhanced.allEntityStatuses = candidates.map(c => c.entityStatus).join('; ');
+          }
         } catch (error) {
-          console.error(`Error fetching GLEIF candidates for domain ${domain.id}:`, error);
-          enhancedDomains.push({
-            ...domain,
-            allLeiCodes: '',
-            allLegalNames: '',
-            allJurisdictions: '',
-            allEntityStatuses: '',
-            gleifCandidateCount: 0
-          });
+          console.log(`No GLEIF candidates found for domain ${domain.id}: ${domain.domain}`);
         }
+        
+        enhancedDomains.push(enhanced);
       }
       
       if (format === 'json') {
