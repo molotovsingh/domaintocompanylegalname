@@ -5,6 +5,9 @@ import { processor } from "./services/processor";
 import multer from 'multer';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
+import { db } from "./db";
+import { gleifCandidates } from "../shared/schema";
+import { sql, inArray } from "drizzle-orm";
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
