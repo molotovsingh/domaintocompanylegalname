@@ -263,20 +263,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const enhancedDomains = [];
       
       for (const domain of domains) {
-        // Use the exact same Drizzle query pattern as getGleifCandidates
-        const candidates = await db.select()
-          .from(gleifCandidates)
-          .where(eq(gleifCandidates.domainId, domain.id))
-          .orderBy(asc(gleifCandidates.rankPosition));
-        
-        enhancedDomains.push({
-          ...domain,
-          gleifCandidateCount: candidates.length,
-          allLeiCodes: candidates.map(c => c.leiCode).join('; '),
-          allLegalNames: candidates.map(c => c.legalName).join('; '),
-          allJurisdictions: candidates.map(c => c.jurisdiction).join('; '),
-          allEntityStatuses: candidates.map(c => c.entityStatus).join('; ')
-        });
+        try {
+          // Use the exact same Drizzle query pattern as getGleifCandidates
+          const candidates = await db.select()
+            .from(gleifCandidates)
+            .where(eq(gleifCandidates.domainId, domain.id))
+            .orderBy(asc(gleifCandidates.rankPosition));
+          
+          console.log(`Domain ${domain.domain} (ID: ${domain.id}) has ${candidates.length} GLEIF candidates`);
+          
+          enhancedDomains.push({
+            ...domain,
+            gleifCandidateCount: candidates.length,
+            allLeiCodes: candidates.map(c => c.leiCode).join('; '),
+            allLegalNames: candidates.map(c => c.legalName).join('; '),
+            allJurisdictions: candidates.map(c => c.jurisdiction).join('; '),
+            allEntityStatuses: candidates.map(c => c.entityStatus).join('; ')
+          });
+        } catch (error) {
+          console.error(`Error fetching candidates for domain ${domain.domain}:`, error);
+          enhancedDomains.push({
+            ...domain,
+            gleifCandidateCount: 0,
+            allLeiCodes: '',
+            allLegalNames: '',
+            allJurisdictions: '',
+            allEntityStatuses: ''
+          });
+        }
       }
 
       if (format === 'json') {
