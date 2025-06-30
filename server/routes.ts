@@ -8,6 +8,7 @@ import { nanoid } from 'nanoid';
 import { db } from "./db";
 import { gleifCandidates } from "../shared/schema";
 import { sql, inArray, eq, asc } from "drizzle-orm";
+import { generateDomainHash } from "../shared/domain-hash";
 import { addNormalizedExportRoute } from "./routes-normalized";
 import { addWideExportRoute } from "./routes-wide";
 
@@ -93,14 +94,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create domain records only for new domains
       console.log(`Creating ${newDomainsOnly.length} domain records...`);
-      await Promise.all(newDomainsOnly.map(domain => 
-        storage.createDomain({
-          domain: domain.trim(),
+      await Promise.all(newDomainsOnly.map(domain => {
+        const cleanDomain = domain.trim();
+        return storage.createDomain({
+          domainHash: generateDomainHash(cleanDomain),
+          domain: cleanDomain,
           batchId,
           status: 'pending',
           retryCount: 0
-        })
-      ));
+        });
+      }));
 
       // Log activity
       await storage.createActivity({
@@ -363,6 +366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create the domain entry in the shared batch
       const domainEntry = await storage.createDomain({
+        domainHash: generateDomainHash(cleanDomain),
         domain: cleanDomain,
         batchId: sharedBatchId,
         status: 'pending'
