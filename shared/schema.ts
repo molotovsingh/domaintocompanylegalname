@@ -2,25 +2,9 @@ import { pgTable, text, serial, integer, boolean, timestamp, real, unique } from
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Unique Domains Master Table - Single source of truth for all domains
-export const uniqueDomains = pgTable("unique_domains", {
-  domainHash: text("domain_hash").primaryKey(), // MD5 hash of domain for persistent ID
-  domain: text("domain").notNull().unique(),
-  firstSeenAt: timestamp("first_seen_at").defaultNow(),
-  totalProcessingAttempts: integer("total_processing_attempts").default(0),
-  bestExtractionResult: text("best_extraction_result"), // Best company name found across all batches
-  bestExtractionMethod: text("best_extraction_method"), // Method that produced best result
-  bestConfidenceScore: real("best_confidence_score"), // Highest confidence achieved
-  latestStatus: text("latest_status").default("pending"), // Latest processing status
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Domain Processing Results - Historical batch processing data
-export const domainResults = pgTable("domain_results", {
+export const domains = pgTable("domains", {
   id: serial("id").primaryKey(),
-  domainHash: text("domain_hash").notNull().references(() => uniqueDomains.domainHash),
-  batchId: text("batch_id").notNull().references(() => batches.id),
+  domainHash: text("domain_hash").notNull(), // MD5 hash for persistent identification
   domain: text("domain").notNull(),
   status: text("status").notNull().default("pending"), // pending, processing, success, failed
   companyName: text("company_name"),
@@ -33,6 +17,7 @@ export const domainResults = pgTable("domain_results", {
   technicalDetails: text("technical_details"), // Technical diagnostic information
   extractionAttempts: text("extraction_attempts"), // JSON string of attempted methods
   recommendation: text("recommendation"), // Next action guidance
+  batchId: text("batch_id").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   processedAt: timestamp("processed_at"),
   processingStartedAt: timestamp("processing_started_at"),
