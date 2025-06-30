@@ -1,9 +1,26 @@
-import { pgTable, text, serial, integer, boolean, timestamp, real } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, real, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const domains = pgTable("domains", {
+// Unique Domains Master Table - Single source of truth for all domains
+export const uniqueDomains = pgTable("unique_domains", {
+  domainHash: text("domain_hash").primaryKey(), // MD5 hash of domain for persistent ID
+  domain: text("domain").notNull().unique(),
+  firstSeenAt: timestamp("first_seen_at").defaultNow(),
+  totalProcessingAttempts: integer("total_processing_attempts").default(0),
+  bestExtractionResult: text("best_extraction_result"), // Best company name found across all batches
+  bestExtractionMethod: text("best_extraction_method"), // Method that produced best result
+  bestConfidenceScore: real("best_confidence_score"), // Highest confidence achieved
+  latestStatus: text("latest_status").default("pending"), // Latest processing status
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Domain Processing Results - Historical batch processing data
+export const domainResults = pgTable("domain_results", {
   id: serial("id").primaryKey(),
+  domainHash: text("domain_hash").notNull().references(() => uniqueDomains.domainHash),
+  batchId: text("batch_id").notNull().references(() => batches.id),
   domain: text("domain").notNull(),
   status: text("status").notNull().default("pending"), // pending, processing, success, failed
   companyName: text("company_name"),
@@ -16,7 +33,6 @@ export const domains = pgTable("domains", {
   technicalDetails: text("technical_details"), // Technical diagnostic information
   extractionAttempts: text("extraction_attempts"), // JSON string of attempted methods
   recommendation: text("recommendation"), // Next action guidance
-  batchId: text("batch_id").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   processedAt: timestamp("processed_at"),
   processingStartedAt: timestamp("processing_started_at"),
@@ -137,10 +153,10 @@ export const entityRelationships = pgTable("entity_relationships", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Level 2 GLEIF Candidates Table (V2 Enhancement) - Keep for backward compatibility
+// Level 2 GLEIF Candidates Table (V2 Enhancement) - Updated for domain hash architecture
 export const gleifCandidates = pgTable("gleif_candidates", {
   id: serial("id").primaryKey(),
-  domainId: integer("domain_id").notNull().references(() => domains.id),
+  domainHash: text("domain_hash").notNull().references(() => uniqueDomains.domainHash),
   
   // GLEIF Entity Data
   leiCode: text("lei_code").notNull(),
@@ -173,7 +189,13 @@ export const gleifCandidates = pgTable("gleif_candidates", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertDomainSchema = createInsertSchema(domains).omit({
+// Updated schema exports for domain hash architecture
+export const insertUniqueDomainSchema = createInsertSchema(uniqueDomains).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertDomainResultSchema = createInsertSchema(domainResults).omit({
   id: true,
   createdAt: true,
   processedAt: true,
@@ -213,12 +235,19 @@ export const insertGleifCandidateSchema = createInsertSchema(gleifCandidates).om
   createdAt: true,
 });
 
-export type Domain = typeof domains.$inferSelect;
-export type InsertDomain = z.infer<typeof insertDomainSchema>;
+// Updated type exports for domain hash architecture
+export type UniqueDomain = typeof uniqueDomains.$inferSelect;
+export type InsertUniqueDomain = z.infer<typeof insertUniqueDomainSchema>;
+export type DomainResult = typeof domainResults.$inferSelect;
+export type InsertDomainResult = z.infer<typeof insertDomainResultSchema>;
 export type Batch = typeof batches.$inferSelect;
 export type InsertBatch = z.infer<typeof insertBatchSchema>;
 export type Activity = typeof activities.$inferSelect;
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
+
+// Legacy exports for backward compatibility
+export type Domain = typeof domainResults.$inferSelect; // Map to domainResults for compatibility
+export type InsertDomain = z.infer<typeof insertDomainResultSchema>;
 
 // Enhanced GLEIF Knowledge Base Types
 export type GleifEntity = typeof gleifEntities.$inferSelect;
