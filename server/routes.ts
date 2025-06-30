@@ -256,13 +256,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const domains = await storage.getDomainsByBatch(batchId, 100000);
       
+      // Enhance domains with all GLEIF candidate data
+      const enhancedDomains = await Promise.all(domains.map(async (domain) => {
+        const candidates = await storage.getGleifCandidates(domain.id);
+        const allLeiCodes = candidates.map(c => c.leiCode).join('; ');
+        const allLegalNames = candidates.map(c => c.legalName).join('; ');
+        const allJurisdictions = candidates.map(c => c.jurisdiction).join('; ');
+        const allEntityStatuses = candidates.map(c => c.entityStatus).join('; ');
+        
+        return {
+          ...domain,
+          allLeiCodes,
+          allLegalNames,
+          allJurisdictions,
+          allEntityStatuses,
+          gleifCandidateCount: candidates.length
+        };
+      }));
+      
       if (format === 'json') {
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Content-Disposition', `attachment; filename="domains_${batchId}.json"`);
-        res.json(domains);
+        res.json(enhancedDomains);
       } else {
         // CSV format
-        const csvContent = domainsToCSV(domains);
+        const csvContent = domainsToCSV(enhancedDomains);
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', `attachment; filename="domains_${batchId}.csv"`);
         res.send(csvContent);
@@ -610,14 +628,16 @@ function domainsToCSV(domains: any[]): string {
     'Extraction Method', 
     'Confidence Score', 
     'GLEIF Status', 
-    'LEI Code', 
+    'Primary LEI Code', 
     'Country',
     'GLEIF Enhanced Name',
-    'Primary LEI Selected',
     'Total GLEIF Candidates',
+    'All LEI Codes',
+    'All Legal Names',
+    'All Jurisdictions',
+    'All Entity Statuses',
     'Geographic Markers',
     'Legal Jurisdiction',
-    'Entity Status',
     'Recommendation', 
     'Processing Time (ms)', 
     'Status', 
@@ -639,11 +659,13 @@ function domainsToCSV(domains: any[]): string {
     d.leiCode || '',
     d.guessedCountry || '',
     d.gleifEnhancedName || '',
-    d.primaryLeiCode || '',
     d.gleifCandidateCount || '',
+    d.allLeiCodes || '',
+    d.allLegalNames || '',
+    d.allJurisdictions || '',
+    d.allEntityStatuses || '',
     d.geographicMarkers || '',
     d.legalJurisdiction || '',
-    d.entityStatus || '',
     d.recommendation || '',
     d.processingTimeMs || '',
     d.status,
