@@ -263,28 +263,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const enhancedDomains = [];
       
       for (const domain of domains) {
-        // Start with the domain data
-        const enhanced = { ...domain };
-        
-        // Initialize GLEIF fields with empty values
-        enhanced.gleifCandidateCount = 0;
-        enhanced.allLeiCodes = '';
-        enhanced.allLegalNames = '';
-        enhanced.allJurisdictions = '';
-        enhanced.allEntityStatuses = '';
+        // Start with the domain data and add new properties
+        const enhanced = { 
+          ...domain,
+          gleifCandidateCount: 0,
+          allLeiCodes: '',
+          allLegalNames: '',
+          allJurisdictions: '',
+          allEntityStatuses: ''
+        };
         
         // Try to get GLEIF candidates data
         try {
           const candidates = await storage.getGleifCandidates(domain.id);
+          console.log(`Domain ${domain.domain} (${domain.id}): Found ${candidates ? candidates.length : 0} candidates`);
           if (candidates && candidates.length > 0) {
             enhanced.gleifCandidateCount = candidates.length;
             enhanced.allLeiCodes = candidates.map(c => c.leiCode).join('; ');
             enhanced.allLegalNames = candidates.map(c => c.legalName).join('; ');
             enhanced.allJurisdictions = candidates.map(c => c.jurisdiction).join('; ');
             enhanced.allEntityStatuses = candidates.map(c => c.entityStatus).join('; ');
+            console.log(`Enhanced ${domain.domain} with ${candidates.length} candidates`);
           }
         } catch (error) {
-          console.log(`No GLEIF candidates found for domain ${domain.id}: ${domain.domain}`);
+          console.log(`Error getting GLEIF candidates for ${domain.domain} (${domain.id}):`, error);
         }
         
         enhancedDomains.push(enhanced);
