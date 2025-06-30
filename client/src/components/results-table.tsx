@@ -240,6 +240,9 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
                   LEI Code
                 </th>
                 <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Country
+                </th>
+                <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Recommendation
                 </th>
                 <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -347,6 +350,13 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
                           <Eye className="h-3 w-3" />
                         </Button>
                       </div>
+                    ) : (
+                      '-'
+                    )}
+                  </td>
+                  <td className="py-3 px-4">
+                    {domain.guessedCountry ? (
+                      <span className="text-gray-700">{domain.guessedCountry}</span>
                     ) : (
                       '-'
                     )}

@@ -135,8 +135,7 @@ export class DomainExtractor {
     let phoneMatch;
     while ((phoneMatch = phoneRegex.exec(content)) !== null) {
       const code = phoneMatch[1];
-      const phonePattern = this.geographicPatterns.phonePatterns[code as keyof typeof this.geographicPatterns.phonePatterns];
-      if (phonePattern) {
+      if (this.geographicPatterns.phonePatterns[code]) {
         markers.phoneCountryCodes.push(code);
       }
     }
