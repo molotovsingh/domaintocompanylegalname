@@ -257,43 +257,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { batchId } = req.params;
       const { format = 'csv' } = req.query;
       
+      // Get all domains first
       const domains = await storage.getDomainsByBatch(batchId, 100000);
       
-      // Enhance domains with GLEIF candidates using bulk query approach
-      const enhancedDomains = await Promise.all(
-        domains.map(async (domain) => {
-          try {
-            // Query GLEIF candidates directly using raw SQL for better performance
-            const candidatesResult = await db.execute(sql`
-              SELECT lei_code, legal_name, jurisdiction, entity_status 
-              FROM gleif_candidates 
-              WHERE domain_id = ${domain.id} 
-              ORDER BY rank_position
-            `);
-            
-            const candidates = candidatesResult.rows;
-            
-            return {
-              ...domain,
-              gleifCandidateCount: candidates.length,
-              allLeiCodes: candidates.map((c: any) => c.lei_code).join('; '),
-              allLegalNames: candidates.map((c: any) => c.legal_name).join('; '),
-              allJurisdictions: candidates.map((c: any) => c.jurisdiction).join('; '),
-              allEntityStatuses: candidates.map((c: any) => c.entity_status).join('; ')
-            };
-          } catch (error) {
-            console.error(`Error fetching candidates for domain ${domain.domain}:`, error);
-            return {
-              ...domain,
-              gleifCandidateCount: 0,
-              allLeiCodes: '',
-              allLegalNames: '',
-              allJurisdictions: '',
-              allEntityStatuses: ''
-            };
-          }
-        })
-      );
+      // Process each domain to add GLEIF data using working storage method
+      const enhancedDomains = [];
+      for (const domain of domains) {
+        const candidates = await storage.getGleifCandidates(domain.id);
+        
+        enhancedDomains.push({
+          id: domain.id,
+          domain: domain.domain,
+          companyName: domain.companyName,
+          businessCategory: domain.businessCategory,
+          extractionMethod: domain.extractionMethod,
+          confidenceScore: domain.confidenceScore,
+          gleifStatus: domain.gleifStatus,
+          leiCode: domain.leiCode,
+          guessedCountry: domain.guessedCountry,
+          gleifEnhancedName: domain.gleifEnhancedName,
+          gleifCandidateCount: candidates.length,
+          allLeiCodes: candidates.map(c => c.leiCode).join('; '),
+          allLegalNames: candidates.map(c => c.legalName).join('; '),
+          allJurisdictions: candidates.map(c => c.jurisdiction).join('; '),
+          allEntityStatuses: candidates.map(c => c.entityStatus).join('; '),
+          geographicMarkers: domain.geographicMarkers,
+          legalJurisdiction: domain.legalJurisdiction,
+          recommendation: domain.recommendation,
+          processingTimeMs: domain.processingTimeMs,
+          status: domain.status,
+          errorMessage: domain.errorMessage,
+          failureCategory: domain.failureCategory,
+          technicalDetails: domain.technicalDetails,
+          retryCount: domain.retryCount,
+          createdAt: domain.createdAt,
+          processedAt: domain.processedAt
+        });
+      }
 
       if (format === 'json') {
         res.setHeader('Content-Type', 'application/json');
@@ -307,6 +307,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.send(csvContent);
       }
     } catch (error: any) {
+      console.error('Export error:', error);
       res.status(500).json({ error: error.message });
     }
   });
