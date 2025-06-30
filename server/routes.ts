@@ -257,7 +257,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { batchId } = req.params;
       const { format = 'csv' } = req.query;
       
+      console.log(`Starting export for batch ${batchId} in ${format} format`);
       const domains = await storage.getDomainsByBatch(batchId, 100000);
+      console.log(`Retrieved ${domains.length} domains for export`);
       
       // Create enhanced domains with GLEIF candidates data
       const enhancedDomains = [];
