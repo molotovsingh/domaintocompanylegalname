@@ -9,6 +9,7 @@ export const domains = pgTable("domains", {
   companyName: text("company_name"),
   extractionMethod: text("extraction_method"), // html_title, meta_description, domain_parse
   confidenceScore: real("confidence_score"),
+  guessedCountry: text("guessed_country"), // Country detected from TLD and geographic intelligence
   retryCount: integer("retry_count").default(0),
   errorMessage: text("error_message"),
   failureCategory: text("failure_category"), // Business classification for failures
