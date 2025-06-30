@@ -251,49 +251,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Export results
+  // Export results with comprehensive GLEIF candidates data
   app.get("/api/export/:batchId", async (req, res) => {
     try {
       const { batchId } = req.params;
       const { format = 'csv' } = req.query;
       
-      console.log(`Starting export for batch ${batchId} in ${format} format`);
       const domains = await storage.getDomainsByBatch(batchId, 100000);
-      console.log(`Retrieved ${domains.length} domains for export`);
       
-      // Create enhanced domains with GLEIF candidates data
-      const enhancedDomains = [];
-      
-      for (const domain of domains) {
-        // Start with the domain data and add new properties
-        const enhanced = { 
-          ...domain,
-          gleifCandidateCount: 0,
-          allLeiCodes: '',
-          allLegalNames: '',
-          allJurisdictions: '',
-          allEntityStatuses: ''
-        };
-        
-        // Try to get GLEIF candidates data
-        try {
-          const candidates = await storage.getGleifCandidates(domain.id);
-          console.log(`Domain ${domain.domain} (${domain.id}): Found ${candidates ? candidates.length : 0} candidates`);
-          if (candidates && candidates.length > 0) {
-            enhanced.gleifCandidateCount = candidates.length;
-            enhanced.allLeiCodes = candidates.map(c => c.leiCode).join('; ');
-            enhanced.allLegalNames = candidates.map(c => c.legalName).join('; ');
-            enhanced.allJurisdictions = candidates.map(c => c.jurisdiction).join('; ');
-            enhanced.allEntityStatuses = candidates.map(c => c.entityStatus).join('; ');
-            console.log(`Enhanced ${domain.domain} with ${candidates.length} candidates`);
+      // Enhance all domains with GLEIF candidates data
+      const enhancedDomains = await Promise.all(
+        domains.map(async (domain: any) => {
+          try {
+            const candidates = await storage.getGleifCandidates(domain.id);
+            return {
+              ...domain,
+              gleifCandidateCount: candidates.length,
+              allLeiCodes: candidates.map(c => c.leiCode).join('; '),
+              allLegalNames: candidates.map(c => c.legalName).join('; '),
+              allJurisdictions: candidates.map(c => c.jurisdiction).join('; '),
+              allEntityStatuses: candidates.map(c => c.entityStatus).join('; ')
+            };
+          } catch (error) {
+            return {
+              ...domain,
+              gleifCandidateCount: 0,
+              allLeiCodes: '',
+              allLegalNames: '',
+              allJurisdictions: '',
+              allEntityStatuses: ''
+            };
           }
-        } catch (error) {
-          console.log(`Error getting GLEIF candidates for ${domain.domain} (${domain.id}):`, error);
-        }
-        
-        enhancedDomains.push(enhanced);
-      }
-      
+        })
+      );
+
       if (format === 'json') {
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Content-Disposition', `attachment; filename="domains_${batchId}.json"`);
