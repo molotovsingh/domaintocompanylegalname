@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import { db } from "./db";
 import { gleifCandidates } from "../shared/schema";
-import { sql, inArray } from "drizzle-orm";
+import { sql, inArray, eq, asc } from "drizzle-orm";
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -259,31 +259,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const domains = await storage.getDomainsByBatch(batchId, 100000);
       
-      // Enhance domains with GLEIF candidates using the same method as /api/domains/:id/candidates
-      const enhancedDomains = await Promise.all(
-        domains.map(async (domain) => {
-          try {
-            const candidates = await storage.getGleifCandidates(domain.id);
-            return {
-              ...domain,
-              gleifCandidateCount: candidates.length,
-              allLeiCodes: candidates.map(c => c.leiCode).join('; '),
-              allLegalNames: candidates.map(c => c.legalName).join('; '),
-              allJurisdictions: candidates.map(c => c.jurisdiction).join('; '),
-              allEntityStatuses: candidates.map(c => c.entityStatus).join('; ')
-            };
-          } catch (error) {
-            return {
-              ...domain,
-              gleifCandidateCount: 0,
-              allLeiCodes: '',
-              allLegalNames: '',
-              allJurisdictions: '',
-              allEntityStatuses: ''
-            };
-          }
-        })
-      );
+      // Enhance domains with GLEIF candidates data using direct Drizzle queries
+      const enhancedDomains = [];
+      
+      for (const domain of domains) {
+        // Use the exact same Drizzle query pattern as getGleifCandidates
+        const candidates = await db.select()
+          .from(gleifCandidates)
+          .where(eq(gleifCandidates.domainId, domain.id))
+          .orderBy(asc(gleifCandidates.rankPosition));
+        
+        enhancedDomains.push({
+          ...domain,
+          gleifCandidateCount: candidates.length,
+          allLeiCodes: candidates.map(c => c.leiCode).join('; '),
+          allLegalNames: candidates.map(c => c.legalName).join('; '),
+          allJurisdictions: candidates.map(c => c.jurisdiction).join('; '),
+          allEntityStatuses: candidates.map(c => c.entityStatus).join('; ')
+        });
+      }
 
       if (format === 'json') {
         res.setHeader('Content-Type', 'application/json');
