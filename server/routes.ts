@@ -8,6 +8,8 @@ import { nanoid } from 'nanoid';
 import { db } from "./db";
 import { gleifCandidates } from "../shared/schema";
 import { sql, inArray, eq, asc } from "drizzle-orm";
+import { addNormalizedExportRoute } from "./routes-normalized";
+import { addWideExportRoute } from "./routes-wide";
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -15,6 +17,10 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Register both database architecture approaches for comparison
+  addNormalizedExportRoute(app);
+  addWideExportRoute(app);
   
   // Get dashboard stats
   app.get("/api/stats", async (req, res) => {
