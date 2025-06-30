@@ -22,6 +22,16 @@ export interface ExtractionAttempt {
   error?: string;
 }
 
+export interface GeographicMarkers {
+  detectedCountries: string[];
+  phoneCountryCodes: string[];
+  addressMentions: string[];
+  currencySymbols: string[];
+  legalJurisdictions: string[];
+  languageIndicators: string[];
+  confidenceScore: number;
+}
+
 export interface ExtractionResult {
   companyName: string | null;
   method: 'footer_copyright' | 'about_page' | 'legal_page' | 'structured_data' | 'meta_property' | 'domain_mapping' | 'domain_parse' | 'html_subpage' | 'html_title' | 'html_about' | 'html_legal' | 'meta_description';
@@ -32,16 +42,220 @@ export interface ExtractionResult {
   technicalDetails?: string;
   recommendation?: string;
   extractionAttempts?: ExtractionAttempt[];
+  geographicMarkers?: GeographicMarkers;
+  guessedCountry?: string;
 }
 
 export class DomainExtractor {
   private timeout = PROCESSING_TIMEOUTS.htmlExtraction;
   private userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
   
+  private geographicPatterns = {
+    countries: {
+      'United States': ['US', 'USA', 'United States', 'America', 'Delaware', 'California', 'New York', 'Texas', 'Florida'],
+      'Germany': ['Germany', 'Deutschland', 'German', 'Berlin', 'Munich', 'Hamburg', 'GmbH', 'AG'],
+      'United Kingdom': ['UK', 'United Kingdom', 'Britain', 'British', 'England', 'London', 'Scotland', 'Wales'],
+      'France': ['France', 'French', 'Paris', 'Lyon', 'Marseille', 'SA', 'SAS', 'SARL'],
+      'Japan': ['Japan', 'Japanese', 'Tokyo', 'Osaka', 'Kyoto', 'Co., Ltd.', 'K.K.', 'Kabushiki'],
+      'Canada': ['Canada', 'Canadian', 'Toronto', 'Vancouver', 'Montreal', 'Inc.', 'Ltd.', 'Corp.'],
+      'Italy': ['Italy', 'Italian', 'Rome', 'Milan', 'S.p.A.', 'S.r.l.'],
+      'Spain': ['Spain', 'Spanish', 'Madrid', 'Barcelona', 'S.A.', 'S.L.'],
+      'Netherlands': ['Netherlands', 'Dutch', 'Amsterdam', 'B.V.', 'N.V.'],
+      'Australia': ['Australia', 'Australian', 'Sydney', 'Melbourne', 'Pty Ltd'],
+      'Switzerland': ['Switzerland', 'Swiss', 'Zurich', 'Geneva', 'AG', 'GmbH'],
+      'Austria': ['Austria', 'Austrian', 'Vienna', 'Salzburg', 'GmbH', 'AG']
+    },
+    phonePatterns: {
+      '+1': 'US/Canada',
+      '+44': 'UK',
+      '+49': 'Germany', 
+      '+33': 'France',
+      '+81': 'Japan',
+      '+39': 'Italy',
+      '+34': 'Spain',
+      '+31': 'Netherlands',
+      '+61': 'Australia',
+      '+41': 'Switzerland',
+      '+43': 'Austria'
+    } as Record<string, string>,
+    currencySymbols: {
+      '$': 'USD',
+      '€': 'EUR', 
+      '£': 'GBP',
+      '¥': 'JPY',
+      'C$': 'CAD',
+      'A$': 'AUD',
+      'CHF': 'CHF'
+    },
+    legalTerms: {
+      'incorporated in': 'legal_jurisdiction',
+      'registered in': 'legal_jurisdiction', 
+      'headquartered in': 'headquarters',
+      'based in': 'headquarters',
+      'located in': 'location'
+    }
+  };
+  
   private getCountryFromTLD(domain: string): string | null {
     // Import jurisdiction data
     const { getJurisdictionByTLD } = require('@shared/jurisdictions');
     return getJurisdictionByTLD(domain);
+  }
+
+  /**
+   * Extract geographic markers from website content
+   */
+  private extractGeographicMarkers($: cheerio.CheerioAPI, domain: string): GeographicMarkers {
+    const content = $.text().toLowerCase();
+    const html = $.html();
+    
+    const markers: GeographicMarkers = {
+      detectedCountries: [],
+      phoneCountryCodes: [],
+      addressMentions: [],
+      currencySymbols: [],
+      legalJurisdictions: [],
+      languageIndicators: [],
+      confidenceScore: 0
+    };
+
+    // Detect country mentions
+    for (const [country, patterns] of Object.entries(this.geographicPatterns.countries)) {
+      for (const pattern of patterns) {
+        if (content.includes(pattern.toLowerCase())) {
+          if (!markers.detectedCountries.includes(country)) {
+            markers.detectedCountries.push(country);
+          }
+        }
+      }
+    }
+
+    // Extract phone country codes
+    const phoneRegex = /(\+\d{1,3})\s*[\d\s\-\(\)]+/g;
+    let phoneMatch;
+    while ((phoneMatch = phoneRegex.exec(content)) !== null) {
+      const code = phoneMatch[1];
+      const phonePattern = this.geographicPatterns.phonePatterns[code as keyof typeof this.geographicPatterns.phonePatterns];
+      if (phonePattern) {
+        markers.phoneCountryCodes.push(code);
+      }
+    }
+
+    // Extract currency symbols
+    for (const [symbol, currency] of Object.entries(this.geographicPatterns.currencySymbols)) {
+      if (content.includes(symbol)) {
+        markers.currencySymbols.push(symbol);
+      }
+    }
+
+    // Extract legal jurisdiction mentions
+    for (const [term, type] of Object.entries(this.geographicPatterns.legalTerms)) {
+      const regex = new RegExp(term + '\\s+([a-z\\s,]+)', 'gi');
+      const matches = content.match(regex);
+      if (matches) {
+        markers.legalJurisdictions.push(...matches);
+      }
+    }
+
+    // Extract address patterns
+    const addressPatterns = [
+      /\d+\s+[a-z\s]+(?:street|st|avenue|ave|road|rd|boulevard|blvd|drive|dr|lane|ln)/gi,
+      /[a-z\s]+,\s*[a-z]{2}\s+\d{5}/gi, // US ZIP codes
+      /[a-z\s]+\s+\d{5}\s+[a-z\s]+/gi, // European postal codes
+    ];
+    
+    for (const pattern of addressPatterns) {
+      const matches = content.match(pattern);
+      if (matches) {
+        markers.addressMentions.push(...matches.slice(0, 3)); // Limit to first 3 matches
+      }
+    }
+
+    // Detect language indicators
+    const langAttribute = $('html').attr('lang');
+    if (langAttribute) {
+      markers.languageIndicators.push(langAttribute);
+    }
+
+    // Calculate confidence score
+    markers.confidenceScore = this.calculateGeographicConfidence(markers);
+
+    return markers;
+  }
+
+  /**
+   * Calculate confidence score for geographic detection
+   */
+  private calculateGeographicConfidence(markers: GeographicMarkers): number {
+    let score = 0;
+    
+    // Country mentions (high value)
+    score += markers.detectedCountries.length * 25;
+    
+    // Phone codes (medium-high value)
+    score += markers.phoneCountryCodes.length * 20;
+    
+    // Legal jurisdictions (high value)
+    score += markers.legalJurisdictions.length * 30;
+    
+    // Address mentions (medium value)
+    score += markers.addressMentions.length * 15;
+    
+    // Currency symbols (low-medium value)
+    score += markers.currencySymbols.length * 10;
+    
+    // Language indicators (medium value)
+    score += markers.languageIndicators.length * 15;
+    
+    return Math.min(score, 100); // Cap at 100
+  }
+
+  /**
+   * Determine most likely country from geographic markers
+   */
+  private guessCountryFromMarkers(markers: GeographicMarkers, domain: string): string {
+    const countryScores: Record<string, number> = {};
+    
+    // TLD-based initial guess
+    const tldCountry = this.getCountryFromTLD(domain);
+    if (tldCountry) {
+      countryScores[tldCountry] = 20;
+    }
+    
+    // .com domains default to US unless strong evidence otherwise
+    if (domain.endsWith('.com') && !tldCountry) {
+      countryScores['United States'] = 15;
+    }
+    
+    // Score based on detected countries
+    for (const country of markers.detectedCountries) {
+      countryScores[country] = (countryScores[country] || 0) + 30;
+    }
+    
+    // Score based on phone codes
+    for (const code of markers.phoneCountryCodes) {
+      const country = this.geographicPatterns.phonePatterns[code];
+      if (country) {
+        countryScores[country] = (countryScores[country] || 0) + 25;
+      }
+    }
+    
+    // Score based on legal jurisdictions
+    for (const jurisdiction of markers.legalJurisdictions) {
+      for (const [country, patterns] of Object.entries(this.geographicPatterns.countries)) {
+        for (const pattern of patterns) {
+          if (jurisdiction.toLowerCase().includes(pattern.toLowerCase())) {
+            countryScores[country] = (countryScores[country] || 0) + 35;
+          }
+        }
+      }
+    }
+    
+    // Find highest scoring country
+    const topCountry = Object.entries(countryScores)
+      .sort(([,a], [,b]) => b - a)[0];
+    
+    return topCountry?.[0] || 'Unknown';
   }
   
   private getCountryLegalSuffixes(country: string): string[] {
@@ -622,10 +836,18 @@ export class DomainExtractor {
     // Extract domain from URL for enhanced footer extraction
     const domain = new URL(url).hostname.replace(/^www\./, '');
     
+    // Extract geographic markers from page content
+    const geographicMarkers = this.extractGeographicMarkers($, domain);
+    const guessedCountry = this.guessCountryFromMarkers(geographicMarkers, domain);
+    
     // Priority 1: Try footer copyright extraction first (most reliable for legal entities)
     const footerResult = this.extractFromFooterCopyright($, domain);
     if (footerResult.companyName && this.isValidCompanyName(footerResult.companyName)) {
-      return footerResult;
+      return {
+        ...footerResult,
+        geographicMarkers,
+        guessedCountry
+      };
     }
     
     // Priority 2: Try meta properties extraction
