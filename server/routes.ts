@@ -259,31 +259,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const domains = await storage.getDomainsByBatch(batchId, 100000);
       
-      // Enhance all domains with GLEIF candidates data
-      const enhancedDomains = await Promise.all(
-        domains.map(async (domain: any) => {
-          try {
-            const candidates = await storage.getGleifCandidates(domain.id);
-            return {
-              ...domain,
-              gleifCandidateCount: candidates.length,
-              allLeiCodes: candidates.map(c => c.leiCode).join('; '),
-              allLegalNames: candidates.map(c => c.legalName).join('; '),
-              allJurisdictions: candidates.map(c => c.jurisdiction).join('; '),
-              allEntityStatuses: candidates.map(c => c.entityStatus).join('; ')
-            };
-          } catch (error) {
-            return {
-              ...domain,
-              gleifCandidateCount: 0,
-              allLeiCodes: '',
-              allLegalNames: '',
-              allJurisdictions: '',
-              allEntityStatuses: ''
-            };
-          }
-        })
-      );
+      // Use direct database query for GLEIF candidates to ensure data retrieval
+      const enhancedDomains = [];
+      for (const domain of domains) {
+        const enhanced = { ...domain } as any;
+        
+        try {
+          // Get GLEIF candidates using storage method
+          const candidates = await storage.getGleifCandidates(domain.id);
+          
+          enhanced.gleifCandidateCount = candidates.length;
+          enhanced.allLeiCodes = candidates.map((c: any) => c.leiCode).join('; ');
+          enhanced.allLegalNames = candidates.map((c: any) => c.legalName).join('; ');
+          enhanced.allJurisdictions = candidates.map((c: any) => c.jurisdiction).join('; ');
+          enhanced.allEntityStatuses = candidates.map((c: any) => c.entityStatus).join('; ');
+          
+        } catch (error) {
+          enhanced.gleifCandidateCount = 0;
+          enhanced.allLeiCodes = '';
+          enhanced.allLegalNames = '';
+          enhanced.allJurisdictions = '';
+          enhanced.allEntityStatuses = '';
+        }
+        
+        enhancedDomains.push(enhanced);
+      }
 
       if (format === 'json') {
         res.setHeader('Content-Type', 'application/json');
