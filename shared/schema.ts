@@ -141,7 +141,7 @@ export const entityRelationships = pgTable("entity_relationships", {
 // Level 2 GLEIF Candidates Table (V2 Enhancement) - Updated for domain hash architecture
 export const gleifCandidates = pgTable("gleif_candidates", {
   id: serial("id").primaryKey(),
-  domainHash: text("domain_hash").notNull().references(() => uniqueDomains.domainHash),
+  domainHash: text("domain_hash").notNull().references(() => domains.domainHash),
   
   // GLEIF Entity Data
   leiCode: text("lei_code").notNull(),
@@ -175,12 +175,7 @@ export const gleifCandidates = pgTable("gleif_candidates", {
 });
 
 // Updated schema exports for domain hash architecture
-export const insertUniqueDomainSchema = createInsertSchema(uniqueDomains).omit({
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertDomainResultSchema = createInsertSchema(domainResults).omit({
+export const insertDomainSchema = createInsertSchema(domains).omit({
   id: true,
   createdAt: true,
   processedAt: true,
@@ -221,18 +216,12 @@ export const insertGleifCandidateSchema = createInsertSchema(gleifCandidates).om
 });
 
 // Updated type exports for domain hash architecture
-export type UniqueDomain = typeof uniqueDomains.$inferSelect;
-export type InsertUniqueDomain = z.infer<typeof insertUniqueDomainSchema>;
-export type DomainResult = typeof domainResults.$inferSelect;
-export type InsertDomainResult = z.infer<typeof insertDomainResultSchema>;
+export type Domain = typeof domains.$inferSelect;
+export type InsertDomain = z.infer<typeof insertDomainSchema>;
 export type Batch = typeof batches.$inferSelect;
 export type InsertBatch = z.infer<typeof insertBatchSchema>;
 export type Activity = typeof activities.$inferSelect;
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
-
-// Legacy exports for backward compatibility
-export type Domain = typeof domainResults.$inferSelect; // Map to domainResults for compatibility
-export type InsertDomain = z.infer<typeof insertDomainResultSchema>;
 
 // Enhanced GLEIF Knowledge Base Types
 export type GleifEntity = typeof gleifEntities.$inferSelect;
