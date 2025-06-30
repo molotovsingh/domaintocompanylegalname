@@ -117,18 +117,48 @@ export class PostgreSQLStorage implements IStorage {
 
   // Stats
   async getProcessingStats(): Promise<ProcessingStats> {
-    const totalDomainsResult = await db.select({ count: count() }).from(domains);
-    const totalDomains = totalDomainsResult[0]?.count || 0;
+    // Get the most recent active or processing batch
+    const activeBatchResult = await db.select()
+      .from(batches)
+      .where(sql`${batches.status} IN ('processing', 'active')`)
+      .orderBy(desc(batches.createdAt))
+      .limit(1);
 
-    const processedDomainsResult = await db.select({ count: count() })
-      .from(domains)
-      .where(sql`${domains.status} IN ('success', 'failed')`);
-    const processedDomains = processedDomainsResult[0]?.count || 0;
+    let batchId = null;
+    if (activeBatchResult.length > 0) {
+      batchId = activeBatchResult[0].id;
+    } else {
+      // If no active batch, get the most recent batch
+      const recentBatchResult = await db.select()
+        .from(batches)
+        .orderBy(desc(batches.createdAt))
+        .limit(1);
+      if (recentBatchResult.length > 0) {
+        batchId = recentBatchResult[0].id;
+      }
+    }
 
-    const successfulDomainsResult = await db.select({ count: count() })
-      .from(domains)
-      .where(eq(domains.status, 'success'));
-    const successfulDomains = successfulDomainsResult[0]?.count || 0;
+    let totalDomains = 0;
+    let processedDomains = 0;
+    let successfulDomains = 0;
+
+    if (batchId) {
+      // Get stats for the specific batch
+      const totalDomainsResult = await db.select({ count: count() })
+        .from(domains)
+        .where(eq(domains.batchId, batchId));
+      totalDomains = totalDomainsResult[0]?.count || 0;
+
+      const processedDomainsResult = await db.select({ count: count() })
+        .from(domains)
+        .where(sql`${domains.batchId} = ${batchId} AND ${domains.status} IN ('success', 'failed')`);
+      processedDomains = processedDomainsResult[0]?.count || 0;
+
+      const successfulDomainsResult = await db.select({ count: count() })
+        .from(domains)
+        .where(sql`${domains.batchId} = ${batchId} AND ${domains.status} = 'success'`);
+      successfulDomains = successfulDomainsResult[0]?.count || 0;
+    }
 
     const successRate = processedDomains > 0 
       ? Math.round((successfulDomains / processedDomains) * 1000) / 10 
