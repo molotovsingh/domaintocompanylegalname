@@ -578,6 +578,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get processing stats
+  app.get("/api/stats", async (req, res) => {
+    try {
+      const stats = await storage.getProcessingStats();
+      res.json(stats);
+    } catch (error: any) {
+      console.error('Stats error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Get batches
   app.get("/api/batches", async (req, res) => {
     try {

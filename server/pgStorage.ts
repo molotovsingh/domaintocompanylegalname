@@ -117,24 +117,38 @@ export class PostgreSQLStorage implements IStorage {
 
   // Stats
   async getProcessingStats(): Promise<ProcessingStats> {
-    // Get the G20 batch specifically since that's what's currently processing
-    const batchId = 'qrUTSb4rU5XJcoSs8Ro0I'; // G20 batch ID
+    // Get the most recent batch
+    const recentBatchResult = await db.select()
+      .from(batches)
+      .orderBy(sql`uploaded_at DESC`)
+      .limit(1);
+    
+    let batchId = null;
+    if (recentBatchResult.length > 0) {
+      batchId = recentBatchResult[0].id;
+    }
 
-    // Get stats for the G20 batch
-    const totalDomainsResult = await db.select({ count: count() })
-      .from(domains)
-      .where(eq(domains.batchId, batchId));
-    const totalDomains = totalDomainsResult[0]?.count || 0;
+    let totalDomains = 0;
+    let processedDomains = 0;
+    let successfulDomains = 0;
 
-    const processedDomainsResult = await db.select({ count: count() })
-      .from(domains)
-      .where(sql`batch_id = ${batchId} AND status IN ('success', 'failed')`);
-    const processedDomains = processedDomainsResult[0]?.count || 0;
+    if (batchId) {
+      // Get stats for the most recent batch
+      const totalDomainsResult = await db.select({ count: count() })
+        .from(domains)
+        .where(eq(domains.batchId, batchId));
+      totalDomains = totalDomainsResult[0]?.count || 0;
 
-    const successfulDomainsResult = await db.select({ count: count() })
-      .from(domains)
-      .where(sql`batch_id = ${batchId} AND status = 'success'`);
-    const successfulDomains = successfulDomainsResult[0]?.count || 0;
+      const processedDomainsResult = await db.select({ count: count() })
+        .from(domains)
+        .where(sql`batch_id = ${batchId} AND status IN ('success', 'failed')`);
+      processedDomains = processedDomainsResult[0]?.count || 0;
+
+      const successfulDomainsResult = await db.select({ count: count() })
+        .from(domains)
+        .where(sql`batch_id = ${batchId} AND status = 'success'`);
+      successfulDomains = successfulDomainsResult[0]?.count || 0;
+    }
 
     const successRate = processedDomains > 0 
       ? Math.round((successfulDomains / processedDomains) * 1000) / 10 
