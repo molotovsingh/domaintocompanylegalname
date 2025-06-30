@@ -258,20 +258,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Enhance domains with all GLEIF candidate data
       const enhancedDomains = await Promise.all(domains.map(async (domain) => {
-        const candidates = await storage.getGleifCandidates(domain.id);
-        const allLeiCodes = candidates.map(c => c.leiCode).join('; ');
-        const allLegalNames = candidates.map(c => c.legalName).join('; ');
-        const allJurisdictions = candidates.map(c => c.jurisdiction).join('; ');
-        const allEntityStatuses = candidates.map(c => c.entityStatus).join('; ');
-        
-        return {
-          ...domain,
-          allLeiCodes,
-          allLegalNames,
-          allJurisdictions,
-          allEntityStatuses,
-          gleifCandidateCount: candidates.length
-        };
+        try {
+          const candidates = await storage.getGleifCandidates(domain.id);
+          const allLeiCodes = candidates.length > 0 ? candidates.map(c => c.leiCode).join('; ') : '';
+          const allLegalNames = candidates.length > 0 ? candidates.map(c => c.legalName).join('; ') : '';
+          const allJurisdictions = candidates.length > 0 ? candidates.map(c => c.jurisdiction).join('; ') : '';
+          const allEntityStatuses = candidates.length > 0 ? candidates.map(c => c.entityStatus).join('; ') : '';
+          
+          return {
+            ...domain,
+            allLeiCodes,
+            allLegalNames,
+            allJurisdictions,
+            allEntityStatuses,
+            gleifCandidateCount: candidates.length
+          };
+        } catch (error) {
+          console.error(`Error fetching GLEIF candidates for domain ${domain.id}:`, error);
+          return {
+            ...domain,
+            allLeiCodes: '',
+            allLegalNames: '',
+            allJurisdictions: '',
+            allEntityStatuses: '',
+            gleifCandidateCount: 0
+          };
+        }
       }));
       
       if (format === 'json') {
