@@ -194,8 +194,8 @@ export class BatchProcessor {
       } else {
         console.log(`Processing ${batchDomains.length} pending domains for batch ${batchId}`);
         
-        // Process domains with concurrency control
-        const batchSize = 10;
+        // Reduced concurrency for Fortune 500 enterprise domains
+        const batchSize = 3;
         for (let i = 0; i < batchDomains.length; i += batchSize) {
           const batch = batchDomains.slice(i, i + batchSize);
           await Promise.all(batch.map(domain => this.processDomain(domain)));

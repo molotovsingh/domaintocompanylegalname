@@ -222,10 +222,10 @@ export const VALIDATION_RULES: ValidationRules = {
 };
 
 export const PROCESSING_TIMEOUTS: ProcessingTimeouts = {
-  perDomain: 11000,        // 11 seconds max per domain (optimized based on longest successful extraction)
-  htmlExtraction: 6000,    // 6 seconds for HTML processing (quicker timeout)
-  connectivityCheck: 3000, // 3 seconds for connectivity test (faster triage)
-  stuckDetection: 20000,   // 20 seconds to detect stuck processing (earlier intervention)
+  perDomain: 25000,        // 25 seconds for Fortune 500 companies with enterprise infrastructure
+  htmlExtraction: 15000,   // 15 seconds for complex corporate sites
+  connectivityCheck: 5000, // 5 seconds for connectivity test
+  stuckDetection: 30000,   // 30 seconds to detect stuck processing
   batchProcessing: 3600000 // 1 hour max for batch processing
 };
 
