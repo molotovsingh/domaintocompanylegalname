@@ -11,6 +11,8 @@ import { sql, inArray, eq, asc } from "drizzle-orm";
 import { generateDomainHash } from "../shared/domain-hash";
 import { addNormalizedExportRoute } from "./routes-normalized";
 import { addWideExportRoute } from "./routes-wide";
+import { readFileSync, existsSync, readdirSync } from 'fs';
+import { join } from 'path';
 
 const upload = multer({ 
   storage: multer.memoryStorage(),

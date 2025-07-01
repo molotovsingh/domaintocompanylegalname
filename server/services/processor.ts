@@ -274,6 +274,21 @@ export class BatchProcessor {
       // Mark batch as completed
       const finalBatchDomains = await storage.getDomainsByBatch(batchId, 10000);
       const finalProcessed = finalBatchDomains.filter(d => d.status !== 'pending').length;
+      const finalSuccessful = await this.getSuccessfulCount(batchId);
+      const totalTimeMs = Date.now() - batchStartTime;
+      
+      // Log batch completion with comprehensive metrics
+      batchLogger.logBatchComplete({
+        processed: finalProcessed,
+        successful: finalSuccessful,
+        failed: finalProcessed - finalSuccessful,
+        totalTimeMs: totalTimeMs,
+        averageTimePerDomain: finalProcessed > 0 ? totalTimeMs / finalProcessed : 0,
+        successRate: finalProcessed > 0 ? (finalSuccessful / finalProcessed) * 100 : 0
+      });
+      
+      // Generate AI analysis summary
+      batchLogger.generateAIAnalysisSummary();
       
       await storage.updateBatch(batchId, { status: 'completed' });
       await storage.createActivity({
@@ -282,7 +297,7 @@ export class BatchProcessor {
         details: JSON.stringify({ 
           batchId, 
           processed: finalProcessed,
-          successful: await this.getSuccessfulCount(batchId),
+          successful: finalSuccessful,
           level2Enhanced: level2Eligible.length
         })
       });
