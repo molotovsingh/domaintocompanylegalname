@@ -243,6 +243,8 @@ export const processingStatsSchema = z.object({
   successRate: z.number(),
   processingRate: z.number(),
   eta: z.string(),
+  elapsedTime: z.string().optional(),
+  processingStartedAt: z.string().optional(),
 });
 
 export const sessionResultsSchema = z.object({

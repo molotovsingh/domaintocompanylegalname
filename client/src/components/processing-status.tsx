@@ -40,6 +40,8 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
   const totalDomains = (stats as any)?.totalDomains || 0;
   const processedDomains = (stats as any)?.processedDomains || 0;
   const progressPercentage = totalDomains > 0 ? Math.round((processedDomains / totalDomains) * 100) : 0;
+  const elapsedTime = (stats as any)?.elapsedTime;
+  const eta = (stats as any)?.eta;
 
   return (
     <Card className="bg-surface shadow-material border border-gray-200">
@@ -79,6 +81,28 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
             <div className="flex justify-between text-xs text-gray-600 mt-1">
               <span>{processedDomains?.toLocaleString()}</span>
               <span>{totalDomains?.toLocaleString()} domains</span>
+            </div>
+            
+            {/* Processing Time Counters */}
+            <div className="grid grid-cols-2 gap-3 mt-3">
+              <div className="bg-blue-50 p-2 rounded-lg">
+                <div className="flex items-center text-xs text-gray-600 mb-1">
+                  <Clock className="h-3 w-3 mr-1" />
+                  <span>Elapsed Time</span>
+                </div>
+                <div className="text-sm font-medium text-gray-900">
+                  {elapsedTime || "0s"}
+                </div>
+              </div>
+              <div className="bg-green-50 p-2 rounded-lg">
+                <div className="flex items-center text-xs text-gray-600 mb-1">
+                  <Settings className="h-3 w-3 mr-1" />
+                  <span>ETA</span>
+                </div>
+                <div className="text-sm font-medium text-gray-900">
+                  {eta || "Complete"}
+                </div>
+              </div>
             </div>
           </div>
         )}

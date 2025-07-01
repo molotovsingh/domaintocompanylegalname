@@ -124,8 +124,10 @@ export class PostgreSQLStorage implements IStorage {
       .limit(1);
     
     let batchId = null;
+    let recentBatch = null;
     if (recentBatchResult.length > 0) {
       batchId = recentBatchResult[0].id;
+      recentBatch = recentBatchResult[0];
     }
 
     let totalDomains = 0;
@@ -160,12 +162,55 @@ export class PostgreSQLStorage implements IStorage {
     const etaSeconds = remaining > 0 ? Math.ceil(remaining / processingRate) : 0;
     const eta = etaSeconds > 0 ? `${Math.floor(etaSeconds / 60)}m ${etaSeconds % 60}s` : "Complete";
 
+    // Calculate elapsed time if batch is currently processing
+    let elapsedTime: string | undefined;
+    let processingStartedAt: string | undefined;
+
+    if (recentBatch) {
+      // Look for processing start time in activities for this specific batch
+      const processingActivity = await db.select()
+        .from(activities)
+        .where(sql`type = 'batch_processing' AND details LIKE '%' || ${batchId} || '%'`)
+        .orderBy(activities.createdAt)
+        .limit(1);
+
+      if (processingActivity.length > 0) {
+        const activityCreatedAt = processingActivity[0].createdAt;
+        const startTime = typeof activityCreatedAt === 'string' 
+          ? new Date(activityCreatedAt) 
+          : activityCreatedAt;
+        
+        processingStartedAt = startTime.toISOString();
+        
+        // Calculate elapsed time if batch is still processing or has unprocessed domains
+        if (recentBatch.status === 'processing' || processedDomains < totalDomains) {
+          const now = new Date();
+          const elapsedMs = now.getTime() - startTime.getTime();
+          const elapsedSeconds = Math.floor(elapsedMs / 1000);
+          const minutes = Math.floor(elapsedSeconds / 60);
+          const seconds = elapsedSeconds % 60;
+          const hours = Math.floor(minutes / 60);
+          const displayMinutes = minutes % 60;
+          
+          if (hours > 0) {
+            elapsedTime = `${hours}h ${displayMinutes}m`;
+          } else if (minutes > 0) {
+            elapsedTime = `${minutes}m ${seconds}s`;
+          } else {
+            elapsedTime = `${seconds}s`;
+          }
+        }
+      }
+    }
+
     return {
       totalDomains,
       processedDomains,
       successRate,
       processingRate,
-      eta
+      eta,
+      elapsedTime,
+      processingStartedAt
     };
   }
 
