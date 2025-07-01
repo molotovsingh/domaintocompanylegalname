@@ -1,4 +1,4 @@
-import { writeFileSync, appendFileSync, existsSync, mkdirSync } from 'fs';
+import { writeFileSync, appendFileSync, existsSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 interface BatchLogEntry {
@@ -358,7 +358,7 @@ export class BatchLogger {
     if (!existsSync(this.batchLogPath)) return [];
     
     try {
-      const content = require('fs').readFileSync(this.batchLogPath, 'utf8');
+      const content = readFileSync(this.batchLogPath, 'utf8');
       return content.trim().split('\n').map((line: string) => JSON.parse(line));
     } catch (error) {
       console.error('Failed to read batch log:', error);
