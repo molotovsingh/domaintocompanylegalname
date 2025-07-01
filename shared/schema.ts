@@ -91,15 +91,15 @@ export const gleifEntities = pgTable("gleif_entities", {
   lastGleifUpdate: text("last_gleif_update"),
   
   // Accumulation Intelligence
-  firstDiscoveredDate: timestamp("first_discovered_date").defaultNow(),
+  firstDiscoveredDate: timestamp("first_discovered_date", { mode: 'string' }).defaultNow(),
   discoveryFrequency: integer("discovery_frequency").default(1), // How often we encounter this entity
-  lastSeenDate: timestamp("last_seen_date").defaultNow(),
+  lastSeenDate: timestamp("last_seen_date", { mode: 'string' }).defaultNow(),
   
   // Full GLEIF Data Archive
   gleifFullData: text("gleif_full_data"), // JSON string of complete GLEIF response
   
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow(),
 });
 
 // Domain-Entity Relationship Mapping
@@ -111,8 +111,8 @@ export const domainEntityMappings = pgTable("domain_entity_mappings", {
   // Mapping Intelligence
   mappingConfidence: integer("mapping_confidence"), // Our confidence in this mapping
   discoveryMethod: text("discovery_method"), // 'exact', 'fuzzy', 'geographic', 'corporate_family'
-  firstMappedDate: timestamp("first_mapped_date").defaultNow(),
-  lastConfirmedDate: timestamp("last_confirmed_date").defaultNow(),
+  firstMappedDate: timestamp("first_mapped_date", { mode: 'string' }).defaultNow(),
+  lastConfirmedDate: timestamp("last_confirmed_date", { mode: 'string' }).defaultNow(),
   mappingFrequency: integer("mapping_frequency").default(1), // How often we see this mapping
   
   // Selection Context
@@ -131,7 +131,7 @@ export const entityRelationships = pgTable("entity_relationships", {
   // Relationship Intelligence
   relationshipType: text("relationship_type"), // 'subsidiary', 'branch', 'affiliate', 'parent'
   ownershipPercentage: text("ownership_percentage"),
-  discoveredDate: timestamp("discovered_date").defaultNow(),
+  discoveredDate: timestamp("discovered_date", { mode: 'string' }).defaultNow(),
   relationshipConfidence: integer("relationship_confidence"),
   discoveryMethod: text("discovery_method"), // 'gleif_search', 'domain_analysis', 'manual'
   
