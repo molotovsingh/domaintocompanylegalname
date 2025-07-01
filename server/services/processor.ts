@@ -187,56 +187,35 @@ export class BatchProcessor {
         details: JSON.stringify({ batchId, totalDomains: batch.totalDomains })
       });
 
-      // Continuous processing loop until all pending domains are processed
-      let continuousProcessingRounds = 0;
-      const maxRounds = 10; // Prevent infinite loops
-      
-      while (continuousProcessingRounds < maxRounds) {
-        // Get current pending domains for this batch
-        const pendingDomains = await storage.getDomainsByStatus('pending');
-        const batchDomains = pendingDomains.filter(d => d.batchId === batchId);
-        
-        if (batchDomains.length === 0) {
-          console.log(`No more pending domains for batch ${batchId}, processing complete`);
-          break;
-        }
-        
-        console.log(`Processing round ${continuousProcessingRounds + 1}: ${batchDomains.length} pending domains remaining`);
+      // Get pending domains for this batch
+      const pendingDomains = await storage.getDomainsByStatus('pending');
+      const batchDomains = pendingDomains.filter(d => d.batchId === batchId);
 
+      if (batchDomains.length === 0) {
+        console.log(`No pending domains found for batch ${batchId}, processing complete`);
+      } else {
+        console.log(`Processing ${batchDomains.length} pending domains for batch ${batchId}`);
+        
         // Process domains with concurrency control
         const batchSize = 10;
-        let roundProcessedCount = 0;
-        
         for (let i = 0; i < batchDomains.length; i += batchSize) {
           const batch = batchDomains.slice(i, i + batchSize);
           await Promise.all(batch.map(domain => this.processDomain(domain)));
           
-          roundProcessedCount += batch.length;
+          // Update batch progress
           this.processedCount += batch.length;
-          
-          // Update batch progress more frequently
-          const totalProcessed = await this.getTotalProcessedCount(batchId);
+          const processed = Math.min(this.processedCount, batchDomains.length);
           const successful = await this.getSuccessfulCount(batchId);
           
           await storage.updateBatch(batchId, {
-            processedDomains: totalProcessed,
+            processedDomains: processed,
             successfulDomains: successful,
-            failedDomains: totalProcessed - successful
+            failedDomains: processed - successful
           });
 
           // Small delay to prevent overwhelming and show processing status
           await new Promise(resolve => setTimeout(resolve, 500));
         }
-        
-        console.log(`Completed processing round ${continuousProcessingRounds + 1}: processed ${roundProcessedCount} domains`);
-        continuousProcessingRounds++;
-        
-        // Short break between rounds to allow stuck domain monitor to work
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      }
-      
-      if (continuousProcessingRounds >= maxRounds) {
-        console.log(`Reached maximum processing rounds (${maxRounds}), stopping to prevent infinite loop`);
       }
 
       // Post-process Level 2 GLEIF enhancements for eligible domains
