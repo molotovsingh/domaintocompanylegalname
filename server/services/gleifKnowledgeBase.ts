@@ -142,7 +142,7 @@ export class GLEIFKnowledgeBase {
         // Update mapping frequency and confidence
         await storage.updateDomainEntityMapping?.(existingMapping.id, {
           mappingFrequency: existingMapping.mappingFrequency + 1,
-          lastConfirmedDate: new Date().toISOString(),
+          lastConfirmedDate: new Date(),
           isPrimarySelection: isPrimary || existingMapping.isPrimarySelection
         });
       } else {

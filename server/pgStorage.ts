@@ -363,7 +363,7 @@ export class PostgreSQLStorage implements IStorage {
       averageConfidence: confidenceCount > 0 ? Math.round(totalConfidence / confidenceCount) : 0,
       extractionMethods,
       processingTime,
-      completedAt: batch.completedAt || new Date().toISOString(),
+      completedAt: batch.completedAt ? (typeof batch.completedAt === 'string' ? batch.completedAt : batch.completedAt.toISOString()) : new Date().toISOString(),
       qualityMetrics: {
         highConfidenceCount,
         mediumConfidenceCount,
@@ -466,7 +466,8 @@ export class PostgreSQLStorage implements IStorage {
       analyticsData.push({
         batchId: batch.id,
         fileName: batch.fileName,
-        completedAt: batch.completedAt || batch.uploadedAt,
+        completedAt: batch.completedAt ? (typeof batch.completedAt === 'string' ? batch.completedAt : batch.completedAt.toISOString()) : 
+                     (batch.uploadedAt ? (typeof batch.uploadedAt === 'string' ? batch.uploadedAt : batch.uploadedAt.toISOString()) : new Date().toISOString()),
         totalDomains: batch.totalDomains,
         successRate: Math.round((successful.length / batchDomains.length) * 100),
         medianConfidence,

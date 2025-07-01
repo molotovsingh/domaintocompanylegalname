@@ -285,10 +285,10 @@ export class GLEIFService {
    * Calculate weighted score for GLEIF candidate selection
    */
   private calculateWeightedScore(entity: GLEIFEntity, domain: Domain) {
-    const domainTldScore = this.calculateDomainTldScore(entity, domain.domain);
-    const fortune500Score = this.calculateFortune500Score(entity);
-    const nameMatchScore = this.calculateNameMatchScore(entity, domain.companyName || '');
-    const entityComplexityScore = this.calculateEntityComplexityScore(entity, domain.domain);
+    const domainTldScore = Math.round(this.calculateDomainTldScore(entity, domain.domain));
+    const fortune500Score = Math.round(this.calculateFortune500Score(entity));
+    const nameMatchScore = Math.round(this.calculateNameMatchScore(entity, domain.companyName || ''));
+    const entityComplexityScore = Math.round(this.calculateEntityComplexityScore(entity, domain.domain));
 
     // Weighted scoring algorithm: Name Match (40%) + Fortune 500 (25%) + TLD (20%) + Complexity (15%)
     const totalScore = Math.round(
