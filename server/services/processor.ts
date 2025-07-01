@@ -2,6 +2,7 @@ import { storage } from '../storage';
 import { DomainExtractor } from './domainExtractor';
 import { gleifService } from './gleifService';
 import type { Domain } from '@shared/schema';
+import { BatchLoggerFactory } from './batchLogger';
 
 export class BatchProcessor {
   private extractor: DomainExtractor;
@@ -171,12 +172,21 @@ export class BatchProcessor {
     }
 
     this.isProcessing = true;
+    const batchLogger = BatchLoggerFactory.getLogger(batchId);
+    const batchStartTime = Date.now();
 
     try {
       const batch = await storage.getBatch(batchId);
       if (!batch) {
         throw new Error('Batch not found');
       }
+
+      // Log batch start with comprehensive context
+      batchLogger.logBatchStart({
+        fileName: batch.fileName,
+        totalDomains: batch.totalDomains || 0,
+        uploadedAt: batch.uploadedAt ? batch.uploadedAt.toISOString() : new Date().toISOString()
+      });
 
       await storage.updateBatch(batchId, { status: 'processing' });
       await storage.createActivity({
@@ -196,19 +206,48 @@ export class BatchProcessor {
         
         // Reduced concurrency for Fortune 500 enterprise domains
         const batchSize = 3;
+        let processedCount = 0;
+        
         for (let i = 0; i < batchDomains.length; i += batchSize) {
           const batch = batchDomains.slice(i, i + batchSize);
-          await Promise.all(batch.map(domain => this.processDomain(domain)));
+          
+          // Log start for each domain in batch
+          batch.forEach((domain, index) => {
+            batchLogger.logDomainStart(domain.domain, i + index + 1);
+          });
+          
+          await Promise.all(batch.map(domain => this.processDomain(domain, batchLogger)));
+          processedCount += batch.length;
           
           // Update batch progress - use actual database state instead of counter
           const allBatchDomains = await storage.getDomainsByBatch(batchId, 10000);
           const actualProcessed = allBatchDomains.filter(d => d.status !== 'pending').length;
           const successful = await this.getSuccessfulCount(batchId);
+          const failed = actualProcessed - successful;
+          
+          // Calculate processing rates
+          const elapsedMs = Date.now() - batchStartTime;
+          const currentRate = (actualProcessed / (elapsedMs / 1000)) * 60; // domains per minute
+          const averageRate = (actualProcessed / (elapsedMs / 60000)); // domains per minute
+          const estimatedRemainingMs = batchDomains.length > actualProcessed ? 
+            ((batchDomains.length - actualProcessed) / currentRate) * 60000 : 0;
+          
+          // Log batch progress
+          batchLogger.logBatchProgress({
+            processed: actualProcessed,
+            total: batchDomains.length,
+            successCount: successful,
+            failureCount: failed,
+            currentRate: Math.round(currentRate * 10) / 10,
+            averageRate: Math.round(averageRate * 10) / 10,
+            elapsedTimeMs: elapsedMs,
+            estimatedRemainingMs: estimatedRemainingMs
+          });
           
           await storage.updateBatch(batchId, {
             processedDomains: actualProcessed,
             successfulDomains: successful,
-            failedDomains: actualProcessed - successful
+            failedDomains: failed
           });
 
           // Small delay to prevent overwhelming and show processing status
@@ -261,7 +300,7 @@ export class BatchProcessor {
     }
   }
 
-  private async processDomain(domain: Domain): Promise<void> {
+  private async processDomain(domain: Domain, batchLogger?: any): Promise<void> {
     const startTime = Date.now();
     const maxProcessingTime = 13000; // 13 seconds max (11s extractor + 2s buffer)
     
