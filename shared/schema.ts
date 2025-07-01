@@ -141,7 +141,7 @@ export const entityRelationships = pgTable("entity_relationships", {
 // Level 2 GLEIF Candidates Table (V2 Enhancement) - Updated for domain hash architecture
 export const gleifCandidates = pgTable("gleif_candidates", {
   id: serial("id").primaryKey(),
-  domainHash: text("domain_hash").notNull().references(() => domains.domainHash),
+  domainId: integer("domain_id").notNull().references(() => domains.id),
   
   // GLEIF Entity Data
   leiCode: text("lei_code").notNull(),
