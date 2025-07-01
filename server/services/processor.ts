@@ -187,29 +187,56 @@ export class BatchProcessor {
         details: JSON.stringify({ batchId, totalDomains: batch.totalDomains })
       });
 
-      // Get pending domains for this batch
-      const pendingDomains = await storage.getDomainsByStatus('pending');
-      const batchDomains = pendingDomains.filter(d => d.batchId === batchId);
-
-      // Process domains with concurrency control
-      const batchSize = 10;
-      for (let i = 0; i < batchDomains.length; i += batchSize) {
-        const batch = batchDomains.slice(i, i + batchSize);
-        await Promise.all(batch.map(domain => this.processDomain(domain)));
+      // Continuous processing loop until all pending domains are processed
+      let continuousProcessingRounds = 0;
+      const maxRounds = 10; // Prevent infinite loops
+      
+      while (continuousProcessingRounds < maxRounds) {
+        // Get current pending domains for this batch
+        const pendingDomains = await storage.getDomainsByStatus('pending');
+        const batchDomains = pendingDomains.filter(d => d.batchId === batchId);
         
-        // Update batch progress
-        this.processedCount += batch.length;
-        const processed = Math.min(this.processedCount, batchDomains.length);
-        const successful = await this.getSuccessfulCount(batchId);
+        if (batchDomains.length === 0) {
+          console.log(`No more pending domains for batch ${batchId}, processing complete`);
+          break;
+        }
         
-        await storage.updateBatch(batchId, {
-          processedDomains: processed,
-          successfulDomains: successful,
-          failedDomains: processed - successful
-        });
+        console.log(`Processing round ${continuousProcessingRounds + 1}: ${batchDomains.length} pending domains remaining`);
 
-        // Small delay to prevent overwhelming and show processing status
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Process domains with concurrency control
+        const batchSize = 10;
+        let roundProcessedCount = 0;
+        
+        for (let i = 0; i < batchDomains.length; i += batchSize) {
+          const batch = batchDomains.slice(i, i + batchSize);
+          await Promise.all(batch.map(domain => this.processDomain(domain)));
+          
+          roundProcessedCount += batch.length;
+          this.processedCount += batch.length;
+          
+          // Update batch progress more frequently
+          const totalProcessed = await this.getTotalProcessedCount(batchId);
+          const successful = await this.getSuccessfulCount(batchId);
+          
+          await storage.updateBatch(batchId, {
+            processedDomains: totalProcessed,
+            successfulDomains: successful,
+            failedDomains: totalProcessed - successful
+          });
+
+          // Small delay to prevent overwhelming and show processing status
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
+        console.log(`Completed processing round ${continuousProcessingRounds + 1}: processed ${roundProcessedCount} domains`);
+        continuousProcessingRounds++;
+        
+        // Short break between rounds to allow stuck domain monitor to work
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+      
+      if (continuousProcessingRounds >= maxRounds) {
+        console.log(`Reached maximum processing rounds (${maxRounds}), stopping to prevent infinite loop`);
       }
 
       // Post-process Level 2 GLEIF enhancements for eligible domains
@@ -361,6 +388,11 @@ export class BatchProcessor {
   private async getSuccessfulCount(batchId: string): Promise<number> {
     const domains = await storage.getDomainsByBatch(batchId, 10000);
     return domains.filter(d => d.status === 'success').length;
+  }
+
+  private async getTotalProcessedCount(batchId: string): Promise<number> {
+    const domains = await storage.getDomainsByBatch(batchId, 10000);
+    return domains.filter(d => d.status === 'success' || d.status === 'failed').length;
   }
 
   isCurrentlyProcessing(): boolean {
