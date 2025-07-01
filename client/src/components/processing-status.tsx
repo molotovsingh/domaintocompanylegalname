@@ -94,13 +94,13 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
                   {elapsedTime || "0s"}
                 </div>
               </div>
-              <div className="bg-green-50 p-2 rounded-lg">
+              <div className={`p-2 rounded-lg ${eta === "Stalled" ? "bg-red-50" : "bg-green-50"}`}>
                 <div className="flex items-center text-xs text-gray-600 mb-1">
                   <Settings className="h-3 w-3 mr-1" />
                   <span>ETA</span>
                 </div>
-                <div className="text-sm font-medium text-gray-900">
-                  {eta || "Complete"}
+                <div className={`text-sm font-medium ${eta === "Stalled" ? "text-red-700" : "text-gray-900"}`}>
+                  {eta || "Unknown"}
                 </div>
               </div>
             </div>

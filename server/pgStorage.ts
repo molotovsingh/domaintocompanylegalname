@@ -156,11 +156,50 @@ export class PostgreSQLStorage implements IStorage {
       ? Math.round((successfulDomains / processedDomains) * 1000) / 10 
       : 0;
 
-    // Calculate processing rate and ETA
-    const processingRate = 2; // domains per second (estimate)
+    // Calculate dynamic processing rate and ETA based on actual progress
+    let processingRate = 0;
+    let eta = "Unknown";
     const remaining = totalDomains - processedDomains;
-    const etaSeconds = remaining > 0 ? Math.ceil(remaining / processingRate) : 0;
-    const eta = etaSeconds > 0 ? `${Math.floor(etaSeconds / 60)}m ${etaSeconds % 60}s` : "Complete";
+
+    if (remaining === 0) {
+      eta = "Complete";
+    } else if (recentBatch && processedDomains > 0) {
+      // Look for recent processing activity to calculate actual rate
+      const recentActivity = await db.select()
+        .from(activities)
+        .where(sql`type = 'batch_processing' AND details LIKE '%' || ${batchId} || '%'`)
+        .orderBy(activities.createdAt)
+        .limit(1);
+
+      if (recentActivity.length > 0) {
+        const activityCreatedAt = recentActivity[0].createdAt;
+        const startTime = typeof activityCreatedAt === 'string' 
+          ? new Date(activityCreatedAt) 
+          : activityCreatedAt;
+        
+        if (startTime) {
+          const elapsedMs = Date.now() - startTime.getTime();
+          const elapsedMinutes = elapsedMs / (1000 * 60);
+          
+          if (elapsedMinutes > 0) {
+            processingRate = processedDomains / elapsedMinutes; // domains per minute
+            
+            if (processingRate > 0.1) { // Only calculate ETA if meaningful progress
+              const etaMinutes = Math.ceil(remaining / processingRate);
+              if (etaMinutes < 60) {
+                eta = `${etaMinutes}m`;
+              } else {
+                const hours = Math.floor(etaMinutes / 60);
+                const mins = etaMinutes % 60;
+                eta = `${hours}h ${mins}m`;
+              }
+            } else {
+              eta = "Stalled";
+            }
+          }
+        }
+      }
+    }
 
     // Calculate elapsed time if batch is currently processing
     let elapsedTime: string | undefined;
@@ -207,7 +246,7 @@ export class PostgreSQLStorage implements IStorage {
       totalDomains,
       processedDomains,
       successRate,
-      processingRate,
+      processingRate: Math.round(processingRate * 10) / 10, // Round to 1 decimal
       eta,
       elapsedTime,
       processingStartedAt
