@@ -613,6 +613,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===== BATCH LOGGING API ENDPOINTS =====
+
+  // Get batch log files
+  app.get('/api/logs/batches', async (req, res) => {
+    try {
+      const logsDir = join(process.cwd(), 'logs');
+      
+      if (!existsSync(logsDir)) {
+        return res.json({ 
+          batches: [], 
+          message: 'No logs directory found - start processing a batch to generate logs' 
+        });
+      }
+
+      const files = readdirSync(logsDir);
+      const batchLogs = files
+        .filter(file => file.startsWith('batch-') && file.endsWith('.jsonl'))
+        .map(file => {
+          const batchId = file.replace('batch-', '').replace('.jsonl', '');
+          const filePath = join(logsDir, file);
+          
+          try {
+            const content = readFileSync(filePath, 'utf8');
+            const lines = content.trim().split('\n').filter(line => line.trim());
+            const firstEntry = lines.length > 0 ? JSON.parse(lines[0]) : null;
+            const lastEntry = lines.length > 0 ? JSON.parse(lines[lines.length - 1]) : null;
+            
+            return {
+              batchId,
+              fileName: file,
+              totalEvents: lines.length,
+              startTime: firstEntry?.timestamp,
+              lastEvent: lastEntry?.timestamp,
+              lastEventType: lastEntry?.event,
+              size: readFileSync(filePath).length
+            };
+          } catch (error) {
+            return {
+              batchId,
+              fileName: file,
+              error: 'Failed to parse log file',
+              size: readFileSync(filePath).length
+            };
+          }
+        })
+        .sort((a, b) => (b.lastEvent || '').localeCompare(a.lastEvent || ''));
+
+      res.json({ batches: batchLogs });
+    } catch (error) {
+      console.error('Error reading batch logs:', error);
+      res.status(500).json({ error: 'Failed to read batch logs' });
+    }
+  });
+
+  // Get specific batch log
+  app.get('/api/logs/batch/:batchId', async (req, res) => {
+    try {
+      const { batchId } = req.params;
+      const logsDir = join(process.cwd(), 'logs');
+      const logFile = join(logsDir, `batch-${batchId}.jsonl`);
+      
+      if (!existsSync(logFile)) {
+        return res.status(404).json({ error: 'Batch log not found' });
+      }
+
+      const content = readFileSync(logFile, 'utf8');
+      const entries = content.trim().split('\n')
+        .filter(line => line.trim())
+        .map(line => JSON.parse(line));
+
+      res.json({
+        batchId,
+        totalEntries: entries.length,
+        entries: entries
+      });
+    } catch (error) {
+      console.error('Error reading batch log:', error);
+      res.status(500).json({ error: 'Failed to read batch log' });
+    }
+  });
+
+  // Get AI analysis summary for a batch
+  app.get('/api/logs/analysis/:batchId', async (req, res) => {
+    try {
+      const { batchId } = req.params;
+      const logsDir = join(process.cwd(), 'logs');
+      const analysisFile = join(logsDir, `analysis-${batchId}.json`);
+      
+      if (!existsSync(analysisFile)) {
+        return res.status(404).json({ 
+          error: 'Analysis not found',
+          message: 'AI analysis summary will be generated when batch completes'
+        });
+      }
+
+      const analysis = JSON.parse(readFileSync(analysisFile, 'utf8'));
+      res.json(analysis);
+    } catch (error) {
+      console.error('Error reading analysis:', error);
+      res.status(500).json({ error: 'Failed to read analysis' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
