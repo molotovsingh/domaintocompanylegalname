@@ -12,6 +12,7 @@ import ResultsTable from "@/components/results-table";
 import ActivityFeed from "@/components/activity-feed";
 import SessionResults from "@/components/session-results";
 import SingleDomainTest from "@/components/single-domain-test";
+import BottleneckAnalysisComponent from "@/components/bottleneck-analysis";
 
 export default function Dashboard() {
   const [currentBatchId, setCurrentBatchId] = useState<string | null>(null);
@@ -124,6 +125,9 @@ export default function Dashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
         <StatsCards stats={stats as any} />
+
+        {/* Performance Bottleneck Analysis */}
+        <BottleneckAnalysisComponent bottlenecks={(stats as any)?.bottlenecks} />
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Upload Section */}
