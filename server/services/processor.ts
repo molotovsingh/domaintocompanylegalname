@@ -181,6 +181,46 @@ export class BatchProcessor {
         throw new Error('Batch not found');
       }
 
+      // Auto-resume logic: Check if batch has pending domains that need processing
+      const pendingDomains = await storage.getDomainsByStatus('pending');
+      const batchPendingDomains = pendingDomains.filter(d => d.batchId === batchId);
+      
+      if (batchPendingDomains.length === 0) {
+        console.log(`No pending domains for batch ${batchId}. Checking if processing truly complete...`);
+        
+        // Verify batch completion
+        const allBatchDomains = await storage.getDomainsByBatch(batchId, 10000);
+        const totalProcessed = allBatchDomains.filter(d => d.status !== 'pending').length;
+        
+        if (totalProcessed < batch.totalDomains) {
+          console.log(`RESUMING: Found ${batch.totalDomains - totalProcessed} unprocessed domains in completed batch`);
+          // Force requeue stuck domains that aren't actually processing
+          const stuckDomains = allBatchDomains.filter(d => 
+            d.status === 'processing' && 
+            (!d.processingStartedAt || (Date.now() - new Date(d.processingStartedAt).getTime()) > 30000)
+          );
+          
+          for (const stuckDomain of stuckDomains) {
+            await storage.updateDomain(stuckDomain.id, {
+              status: 'pending',
+              processingStartedAt: null
+            });
+          }
+          
+          // Retry getting pending domains
+          const retryPendingDomains = await storage.getDomainsByStatus('pending');
+          const retryBatchPendingDomains = retryPendingDomains.filter(d => d.batchId === batchId);
+          
+          if (retryBatchPendingDomains.length > 0) {
+            console.log(`REQUEUED: ${retryBatchPendingDomains.length} stuck domains back to pending`);
+          }
+        } else {
+          console.log(`Batch ${batchId} processing complete`);
+          this.isProcessing = false;
+          return;
+        }
+      }
+
       // Log batch start with comprehensive context
       batchLogger.logBatchStart({
         fileName: batch.fileName,
@@ -197,11 +237,57 @@ export class BatchProcessor {
 
       // Get pending domains for this batch
       const pendingDomains = await storage.getDomainsByStatus('pending');
-      const batchDomains = pendingDomains.filter(d => d.batchId === batchId);
+      let batchDomains = pendingDomains.filter(d => d.batchId === batchId);
 
+      // Recovery system: Check for orphaned domains in inconsistent states
       if (batchDomains.length === 0) {
-        console.log(`No pending domains found for batch ${batchId}, processing complete`);
-      } else {
+        console.log(`No pending domains found for batch ${batchId}. Running status recovery...`);
+        
+        const allBatchDomains = await storage.getDomainsByBatch(batchId, 10000);
+        const totalProcessed = allBatchDomains.filter(d => d.status !== 'pending').length;
+        
+        if (totalProcessed < batch.totalDomains) {
+          // Find domains that might be in inconsistent states
+          const orphanedDomains = allBatchDomains.filter(d => {
+            // Domain shows as processing but no recent processing timestamp
+            if (d.status === 'processing' && (!d.processingStartedAt || 
+                (Date.now() - new Date(d.processingStartedAt).getTime()) > 60000)) {
+              return true;
+            }
+            
+            // Domain failed but has low retry count and could be retried
+            if (d.status === 'failed' && (d.retryCount || 0) < 2 && 
+                d.failureCategory !== 'circuit_breaker_skip') {
+              return true;
+            }
+            
+            return false;
+          });
+
+          if (orphanedDomains.length > 0) {
+            console.log(`STATUS RECOVERY: Found ${orphanedDomains.length} domains in inconsistent states, resetting to pending`);
+            
+            for (const orphanedDomain of orphanedDomains) {
+              await storage.updateDomain(orphanedDomain.id, {
+                status: 'pending',
+                processingStartedAt: null,
+                retryCount: (orphanedDomain.retryCount || 0) + 1
+              });
+            }
+            
+            // Refresh pending domains list
+            const refreshedPendingDomains = await storage.getDomainsByStatus('pending');
+            batchDomains = refreshedPendingDomains.filter(d => d.batchId === batchId);
+            console.log(`STATUS RECOVERY: ${batchDomains.length} domains now available for processing`);
+          }
+        }
+        
+        if (batchDomains.length === 0) {
+          console.log(`Batch ${batchId} processing complete after status recovery`);
+        }
+      }
+
+      if (batchDomains.length > 0) {
         console.log(`Processing ${batchDomains.length} pending domains for batch ${batchId}`);
         
         // Reduced concurrency for Fortune 500 enterprise domains
@@ -322,7 +408,22 @@ export class BatchProcessor {
     try {
       // Skip if already processed successfully (from cache)
       if (domain.status === 'success') {
-        
+        return;
+      }
+
+      // Circuit breaker: Skip domains that have failed too many times
+      const retryCount = domain.retryCount || 0;
+      if (retryCount >= 3) {
+        console.log(`CIRCUIT BREAKER: Skipping ${domain.domain} - exceeded retry limit (${retryCount} attempts)`);
+        await storage.updateDomain(domain.id, {
+          status: 'failed',
+          failureCategory: 'circuit_breaker_skip',
+          errorMessage: 'Domain skipped due to repeated failures - circuit breaker activated',
+          technicalDetails: `Exceeded maximum retry attempts (${retryCount}/3)`,
+          recommendation: 'Manual review required - automated processing unsuccessful',
+          processedAt: new Date(),
+          processingTimeMs: Date.now() - startTime
+        });
         return;
       }
 
@@ -403,20 +504,59 @@ export class BatchProcessor {
 
     } catch (error: any) {
       const processingTime = Date.now() - startTime;
+      const retryCount = (domain.retryCount || 0) + 1;
+      
+      // Intelligent retry strategy based on error type
+      const shouldRetry = this.shouldRetryDomain(error.message, retryCount);
+      const finalStatus = shouldRetry ? 'pending' : 'failed';
+      
+      if (shouldRetry) {
+        console.log(`INTELLIGENT RETRY: Queuing ${domain.domain} for retry ${retryCount}/3 - ${error.message}`);
+      }
       
       await storage.updateDomain(domain.id, {
-        status: 'failed',
-        failureCategory: 'technical_timeout',
+        status: finalStatus,
+        failureCategory: shouldRetry ? 'retry_queued' : 'technical_timeout',
         technicalDetails: `Processing error or timeout: ${error.message}`,
-        recommendation: 'Retry with different extraction methods',
+        recommendation: shouldRetry ? 'Automatic retry scheduled' : 'Manual intervention required',
         errorMessage: `Processing error: ${error.message}`,
-        retryCount: (domain.retryCount || 0) + 1,
-        processedAt: new Date(),
+        retryCount: retryCount,
+        processedAt: finalStatus === 'failed' ? new Date() : null,
         processingTimeMs: processingTime,
+        processingStartedAt: null // Reset for retry
       });
     }
 
     
+  }
+
+  private shouldRetryDomain(errorMessage: string, retryCount: number): boolean {
+    if (retryCount >= 3) return false;
+    
+    // Retry network/timeout errors
+    if (errorMessage.includes('timeout') || 
+        errorMessage.includes('ETIMEDOUT') ||
+        errorMessage.includes('ECONNRESET') ||
+        errorMessage.includes('ENOTFOUND')) {
+      return true;
+    }
+    
+    // Retry rate limiting errors
+    if (errorMessage.includes('429') || 
+        errorMessage.includes('rate limit')) {
+      return true;
+    }
+    
+    // Don't retry permanent errors
+    if (errorMessage.includes('404') ||
+        errorMessage.includes('403') ||
+        errorMessage.includes('certificate') ||
+        errorMessage.includes('SSL')) {
+      return false;
+    }
+    
+    // Retry general processing errors on first attempt
+    return retryCount <= 1;
   }
 
   private async getSuccessfulCount(batchId: string): Promise<number> {
