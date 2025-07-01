@@ -317,7 +317,7 @@ export class BatchProcessor {
 
   private async processDomain(domain: Domain, batchLogger?: any): Promise<void> {
     const startTime = Date.now();
-    const maxProcessingTime = 13000; // 13 seconds max (11s extractor + 2s buffer)
+    const maxProcessingTime = 11000; // 11 seconds max (matches extractor timeout)
     
     try {
       // Skip if already processed successfully (from cache)
@@ -329,7 +329,7 @@ export class BatchProcessor {
       // Check for stuck processing (processing for more than 13 seconds)
       if (domain.status === 'processing' && domain.processingStartedAt) {
         const processingTime = Date.now() - new Date(domain.processingStartedAt).getTime();
-        if (processingTime > maxProcessingTime) {
+        if (processingTime > 11000) {
           console.log(`TIMEOUT: Domain ${domain.domain} stuck processing for ${processingTime}ms, forcing completion`);
           await storage.updateDomain(domain.id, {
             status: 'failed',
