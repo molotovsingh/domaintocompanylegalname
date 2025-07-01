@@ -88,6 +88,13 @@ export class PostgreSQLStorage implements IStorage {
       .offset(offset);
   }
 
+  async getBatchesByStatus(status: string): Promise<Batch[]> {
+    return await db.select()
+      .from(batches)
+      .where(eq(batches.status, status))
+      .orderBy(desc(batches.uploadedAt));
+  }
+
   async createBatch(insertBatch: InsertBatch): Promise<Batch> {
     const result = await db.insert(batches).values(insertBatch).returning();
     return result[0];
