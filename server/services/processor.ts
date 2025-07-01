@@ -268,7 +268,7 @@ export class BatchProcessor {
     try {
       // Skip if already processed successfully (from cache)
       if (domain.status === 'success') {
-        this.processedCount++;
+        
         return;
       }
 
@@ -284,7 +284,7 @@ export class BatchProcessor {
             processedAt: new Date(),
             processingTimeMs: processingTime
           });
-          this.processedCount++;
+          
           return;
         }
       }
@@ -313,7 +313,7 @@ export class BatchProcessor {
           processingTimeMs: processingTime,
         });
         
-        this.processedCount++;
+        
         return;
       }
 
@@ -362,7 +362,7 @@ export class BatchProcessor {
       });
     }
 
-    this.processedCount++;
+    
   }
 
   private async getSuccessfulCount(batchId: string): Promise<number> {
