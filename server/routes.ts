@@ -23,10 +23,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   addNormalizedExportRoute(app);
   addWideExportRoute(app);
   
-  // Get dashboard stats
+  // Get dashboard stats with bottleneck analysis
   app.get("/api/stats", async (req, res) => {
     try {
       const stats = await storage.getProcessingStats();
+      
+      // Add bottleneck analysis for active batches
+      if (stats.processedDomains < stats.totalDomains) {
+        const { bottleneckAnalyzer } = await import('./services/bottleneckAnalyzer');
+        const batches = await storage.getBatches(1, 0);
+        if (batches.length > 0) {
+          const bottlenecks = await bottleneckAnalyzer.analyzeCurrentPerformance(batches[0].id);
+          (stats as any).bottlenecks = bottlenecks;
+        }
+      }
+      
       res.json(stats);
     } catch (error: any) {
       res.status(500).json({ error: error.message });

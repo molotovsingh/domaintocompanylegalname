@@ -5,7 +5,7 @@ import type {
   InsertDomain, Domain, InsertBatch, Batch, InsertActivity, Activity, 
   ProcessingStats, SessionResults, AnalyticsData, GleifCandidate, InsertGleifCandidate,
   GleifEntity, InsertGleifEntity, DomainEntityMapping, InsertDomainEntityMapping,
-  EntityRelationship, InsertEntityRelationship
+  EntityRelationship, InsertEntityRelationship, BottleneckAnalysis
 } from '../shared/schema';
 import type { IStorage } from './storage';
 

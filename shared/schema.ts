@@ -237,6 +237,16 @@ export type InsertEntityRelationship = z.infer<typeof insertEntityRelationshipSc
 export type GleifCandidate = typeof gleifCandidates.$inferSelect;
 export type InsertGleifCandidate = z.infer<typeof insertGleifCandidateSchema>;
 
+export const bottleneckAnalysisSchema = z.object({
+  type: z.enum(['network_timeout', 'anti_bot_protection', 'high_concurrency', 'stuck_domains', 'low_success_rate', 'memory_pressure']),
+  severity: z.enum(['low', 'medium', 'high', 'critical']),
+  title: z.string(),
+  description: z.string(),
+  impact: z.string(),
+  recommendations: z.array(z.string()),
+  metrics: z.record(z.union([z.string(), z.number()])),
+});
+
 export const processingStatsSchema = z.object({
   totalDomains: z.number(),
   processedDomains: z.number(),
@@ -245,6 +255,7 @@ export const processingStatsSchema = z.object({
   eta: z.string(),
   elapsedTime: z.string().optional(),
   processingStartedAt: z.string().optional(),
+  bottlenecks: z.array(bottleneckAnalysisSchema).optional(),
 });
 
 export const sessionResultsSchema = z.object({
@@ -297,6 +308,7 @@ export const analyticsDataSchema = z.object({
   totalProcessingTimeFormatted: z.string(),
 });
 
+export type BottleneckAnalysis = z.infer<typeof bottleneckAnalysisSchema>;
 export type ProcessingStats = z.infer<typeof processingStatsSchema>;
 export type SessionResults = z.infer<typeof sessionResultsSchema>;
 export type AnalyticsData = z.infer<typeof analyticsDataSchema>;
