@@ -1,4 +1,6 @@
 
+import { storage } from '../storage';
+
 export class ProcessingHealthMonitor {
   private intervalId: NodeJS.Timeout | null = null;
   private isRunning: boolean = false;
