@@ -22,9 +22,9 @@ interface AnalyticsData {
 export default function AnalyticsDashboard() {
   const { data: analyticsData, isLoading, refetch } = useQuery<AnalyticsData[]>({
     queryKey: ['/api/analytics'],
-    refetchInterval: 5000, // Faster updates - every 5 seconds
-    refetchOnWindowFocus: true,
-    staleTime: 0, // Always fetch fresh data
+    refetchInterval: 60000, // Analytics don't need frequent updates
+    refetchOnWindowFocus: false,
+    staleTime: 30000,
   });
 
   if (isLoading && !analyticsData) {

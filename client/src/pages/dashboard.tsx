@@ -21,12 +21,14 @@ export default function Dashboard() {
 
   const { data: stats, refetch: refetchStats } = useQuery({
     queryKey: ["/api/stats"],
-    refetchInterval: 5000, // Refetch every 5 seconds for real-time updates
+    refetchInterval: 30000,
+    staleTime: 15000,
   });
 
   const { data: batches } = useQuery({
     queryKey: ["/api/batches"],
-    refetchInterval: 10000,
+    refetchInterval: 30000,
+    staleTime: 20000,
   });
 
   const deleteDatabaseMutation = useMutation({

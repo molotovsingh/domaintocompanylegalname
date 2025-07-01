@@ -12,12 +12,14 @@ interface ProcessingStatusProps {
 export default function ProcessingStatus({ currentBatchId }: ProcessingStatusProps) {
   const { data: batches } = useQuery({
     queryKey: ["/api/batches"],
-    refetchInterval: 3000,
+    refetchInterval: 30000,
+    staleTime: 15000,
   });
 
   const { data: stats } = useQuery({
     queryKey: ["/api/stats"],
-    refetchInterval: 5000,
+    refetchInterval: 15000,
+    staleTime: 10000,
   });
 
   // Type-safe batch data access

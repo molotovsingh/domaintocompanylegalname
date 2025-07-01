@@ -20,7 +20,8 @@ interface Level2Analytics {
 export default function Level2AnalyticsDashboard() {
   const { data: analytics, isLoading } = useQuery<Level2Analytics>({
     queryKey: ['/api/analytics/level2'],
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 60000,
+    staleTime: 30000,
   });
 
   if (isLoading) {
