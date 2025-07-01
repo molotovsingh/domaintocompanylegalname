@@ -256,7 +256,7 @@ export class BatchProcessor {
 
   private async processDomain(domain: Domain): Promise<void> {
     const startTime = Date.now();
-    const maxProcessingTime = 12000; // 12 seconds max per domain (aligned with optimized extractor timeout)
+    const maxProcessingTime = 13000; // 13 seconds max (11s extractor + 2s buffer)
     
     try {
       // Skip if already processed successfully (from cache)
@@ -265,7 +265,7 @@ export class BatchProcessor {
         return;
       }
 
-      // Check for stuck processing (processing for more than 30 seconds)
+      // Check for stuck processing (processing for more than 13 seconds)
       if (domain.status === 'processing' && domain.processingStartedAt) {
         const processingTime = Date.now() - new Date(domain.processingStartedAt).getTime();
         if (processingTime > maxProcessingTime) {
@@ -282,20 +282,21 @@ export class BatchProcessor {
         }
       }
 
-      // Mark as processing and record start time
-      await storage.updateDomain(domain.id, { 
-        status: 'processing',
-        processingStartedAt: new Date()
-      });
+      // Mark as processing and record start time - with timeout protection
+      await Promise.race([
+        storage.updateDomain(domain.id, { 
+          status: 'processing',
+          processingStartedAt: new Date()
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Database update timeout')), 5000))
+      ]);
 
       // Check if we already have a high-confidence result for this domain
-      // BUT only use cache if it has proper legal suffix (quality validation)
       const existingHighConfidence = await storage.getHighConfidenceResult(domain.domain);
       
       if (existingHighConfidence && existingHighConfidence.id !== domain.id && this.hasLegalSuffix(existingHighConfidence.companyName || '')) {
         const processingTime = Date.now() - startTime;
         
-        // Use existing high-confidence result ONLY if it has proper legal suffix
         await storage.updateDomain(domain.id, {
           status: 'success',
           companyName: existingHighConfidence.companyName,
@@ -309,8 +310,13 @@ export class BatchProcessor {
         return;
       }
 
-      // Extract company name with enhanced classification
-      const result = await this.extractor.extractCompanyName(domain.domain);
+      // Extract company name with timeout protection
+      const result = await Promise.race([
+        this.extractor.extractCompanyName(domain.domain),
+        new Promise<any>((_, reject) => 
+          setTimeout(() => reject(new Error('Extraction timeout')), maxProcessingTime)
+        )
+      ]);
 
       const processingTime = Date.now() - startTime;
       
@@ -339,8 +345,8 @@ export class BatchProcessor {
       
       await storage.updateDomain(domain.id, {
         status: 'failed',
-        failureCategory: 'incomplete_low_priority',
-        technicalDetails: 'Processing exception occurred',
+        failureCategory: 'technical_timeout',
+        technicalDetails: `Processing error or timeout: ${error.message}`,
         recommendation: 'Retry with different extraction methods',
         errorMessage: `Processing error: ${error.message}`,
         retryCount: (domain.retryCount || 0) + 1,
@@ -348,6 +354,8 @@ export class BatchProcessor {
         processingTimeMs: processingTime,
       });
     }
+
+    this.processedCount++;
   }
 
   private async getSuccessfulCount(batchId: string): Promise<number> {
