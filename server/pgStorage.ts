@@ -129,7 +129,7 @@ export class PostgreSQLStorage implements IStorage {
       .from(batches)
       .orderBy(sql`uploaded_at DESC`)
       .limit(1);
-    
+
     let batchId = null;
     let recentBatch = null;
     if (recentBatchResult.length > 0) {
@@ -183,14 +183,14 @@ export class PostgreSQLStorage implements IStorage {
         const startTime = typeof activityCreatedAt === 'string' 
           ? new Date(activityCreatedAt) 
           : activityCreatedAt;
-        
+
         if (startTime) {
           const elapsedMs = Date.now() - startTime.getTime();
           const elapsedMinutes = elapsedMs / (1000 * 60);
-          
+
           if (elapsedMinutes > 0) {
             processingRate = processedDomains / elapsedMinutes; // domains per minute
-            
+
             if (processingRate > 0.1) { // Only calculate ETA if meaningful progress
               const etaMinutes = Math.ceil(remaining / processingRate);
               if (etaMinutes < 60) {
@@ -213,39 +213,29 @@ export class PostgreSQLStorage implements IStorage {
     let processingStartedAt: string | undefined;
 
     if (recentBatch) {
-      // Look for processing start time in activities for this specific batch
-      const processingActivity = await db.select()
-        .from(activities)
-        .where(sql`type = 'batch_processing' AND details LIKE '%' || ${batchId} || '%'`)
-        .orderBy(activities.createdAt)
-        .limit(1);
+      // Use batch upload time as the true processing start time
+      const batchStartTime = recentBatch.uploadedAt || recentBatch.createdAt;
 
-      if (processingActivity.length > 0) {
-        const activityCreatedAt = processingActivity[0].createdAt;
-        const startTime = typeof activityCreatedAt === 'string' 
-          ? new Date(activityCreatedAt) 
-          : activityCreatedAt;
-        
-        processingStartedAt = startTime.toISOString();
-        
-        // Calculate elapsed time if batch is still processing or has unprocessed domains
-        if (recentBatch.status === 'processing' || processedDomains < totalDomains) {
-          const now = new Date();
-          const elapsedMs = now.getTime() - startTime.getTime();
-          const elapsedSeconds = Math.floor(elapsedMs / 1000);
-          const minutes = Math.floor(elapsedSeconds / 60);
-          const seconds = elapsedSeconds % 60;
-          const hours = Math.floor(minutes / 60);
-          const displayMinutes = minutes % 60;
-          
-          if (hours > 0) {
-            elapsedTime = `${hours}h ${displayMinutes}m`;
-          } else if (minutes > 0) {
-            elapsedTime = `${minutes}m ${seconds}s`;
-          } else {
-            elapsedTime = `${seconds}s`;
-          }
+      if (batchStartTime) {
+        const startTime = typeof batchStartTime === 'string' 
+          ? new Date(batchStartTime) 
+          : batchStartTime;
+
+        const elapsedMs = Date.now() - startTime.getTime();
+
+        if (elapsedMs < 60000) {
+          elapsedTime = `${Math.round(elapsedMs / 1000)}s`;
+        } else if (elapsedMs < 3600000) {
+          const minutes = Math.floor(elapsedMs / 60000);
+          const seconds = Math.round((elapsedMs % 60000) / 1000);
+          elapsedTime = `${minutes}m ${seconds}s`;
+        } else {
+          const hours = Math.floor(elapsedMs / 3600000);
+          const minutes = Math.round((elapsedMs % 3600000) / 60000);
+          elapsedTime = `${hours}h ${minutes}m`;
         }
+
+        processingStartedAt = startTime.toISOString();
       }
     }
 
@@ -418,7 +408,7 @@ export class PostgreSQLStorage implements IStorage {
     for (const batch of completedBatches) {
       const batchDomains = await this.getDomainsByBatch(batch.id, 1000);
       const successful = batchDomains.filter(d => d.status === 'success');
-      
+
       if (batchDomains.length === 0) continue;
 
       // Calculate median confidence
@@ -426,7 +416,7 @@ export class PostgreSQLStorage implements IStorage {
         .map(d => d.confidenceScore || 0)
         .filter(score => score > 0)
         .sort((a, b) => a - b);
-      
+
       const medianConfidence = confidenceScores.length > 0 
         ? confidenceScores[Math.floor(confidenceScores.length / 2)]
         : 0;
@@ -460,7 +450,7 @@ export class PostgreSQLStorage implements IStorage {
       const totalProcessingTimeMs = batch.completedAt && batch.uploadedAt 
         ? new Date(batch.completedAt).getTime() - new Date(batch.uploadedAt).getTime()
         : 0;
-      
+
       // Format total processing time
       const formatProcessingTime = (ms: number): string => {
         if (ms < 60000) return `${Math.round(ms / 1000)}s`;
@@ -498,7 +488,7 @@ export class PostgreSQLStorage implements IStorage {
     await db.delete(domains);
     await db.delete(batches);
     await db.delete(activities);
-    
+
     // Preserve GLEIF knowledge base tables:
     // - gleifEntities (accumulated entity intelligence)
     // - domainEntityMappings (cross-domain entity mappings) 
@@ -512,11 +502,11 @@ export class PostgreSQLStorage implements IStorage {
       ...candidate,
       domainId
     }));
-    
+
     const result = await db.insert(gleifCandidates)
       .values(candidatesWithDomainId)
       .returning();
-    
+
     return result;
   }
 
@@ -532,7 +522,7 @@ export class PostgreSQLStorage implements IStorage {
     await db.update(gleifCandidates)
       .set({ isPrimarySelection: false })
       .where(eq(gleifCandidates.domainId, domainId));
-    
+
     const selectedCandidate = await db.update(gleifCandidates)
       .set({ isPrimarySelection: true })
       .where(and(
