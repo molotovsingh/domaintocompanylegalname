@@ -236,8 +236,8 @@ export class BatchProcessor {
       });
 
       // Get pending domains for this batch
-      const pendingDomains = await storage.getDomainsByStatus('pending');
-      let batchDomains = pendingDomains.filter(d => d.batchId === batchId);
+      const currentPendingDomains = await storage.getDomainsByStatus('pending');
+      let batchDomains = currentPendingDomains.filter(d => d.batchId === batchId);
 
       // Recovery system: Check for orphaned domains in inconsistent states
       if (batchDomains.length === 0) {
