@@ -307,8 +307,9 @@ export class BatchLogger {
     
     if (existsSync(this.performanceLogPath)) {
       try {
-        const content = require(this.performanceLogPath);
-        trends = content.batches || [];
+        const content = readFileSync(this.performanceLogPath, 'utf8');
+        const parsed = JSON.parse(content);
+        trends = parsed.batches || [];
       } catch (error) {
         console.warn('Failed to read performance trends, creating new file');
       }
