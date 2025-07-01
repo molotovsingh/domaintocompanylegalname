@@ -573,6 +573,15 @@ export class BatchProcessor {
     return this.isProcessing;
   }
 
+  stopProcessing(): boolean {
+    if (this.isProcessing) {
+      console.log('STOP REQUESTED: Gracefully stopping batch processing...');
+      this.isProcessing = false;
+      return true;
+    }
+    return false;
+  }
+
   async processSingleDomain(domain: Domain): Promise<Domain> {
     // For single domain tests, always do fresh processing (skip cache)
     await this.processDomainFresh(domain);

@@ -13,6 +13,7 @@ import { addNormalizedExportRoute } from "./routes-normalized";
 import { addWideExportRoute } from "./routes-wide";
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
+import { Request, Response } from 'express';
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -20,16 +21,16 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  
+
   // Register both database architecture approaches for comparison
   addNormalizedExportRoute(app);
   addWideExportRoute(app);
-  
+
   // Get dashboard stats with bottleneck analysis
   app.get("/api/stats", async (req, res) => {
     try {
       const stats = await storage.getProcessingStats();
-      
+
       // Add bottleneck analysis for active batches
       if (stats.processedDomains < stats.totalDomains) {
         const { bottleneckAnalyzer } = await import('./services/bottleneckAnalyzer');
@@ -39,7 +40,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           (stats as any).bottlenecks = bottlenecks;
         }
       }
-      
+
       res.json(stats);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -56,15 +57,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Upload received: ${req.file.originalname}, size: ${req.file.size} bytes`);
       const content = req.file.buffer.toString('utf-8');
       console.log(`File content preview (first 200 chars): ${content.substring(0, 200)}`);
-      
+
       const domains = parseDomainFile(content, req.file.originalname);
       console.log(`Parsed domains count before deduplication: ${domains.length}`);
-      
+
       // Remove duplicates while preserving order
       const uniqueDomains = [...new Set(domains)];
       console.log(`Unique domains count after deduplication: ${uniqueDomains.length}`);
       console.log(`First 10 unique domains: ${uniqueDomains.slice(0, 10).join(', ')}`);
-      
+
       if (uniqueDomains.length === 0) {
         return res.status(400).json({ error: 'No valid domains found in file' });
       }
@@ -72,7 +73,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check for existing successful domains to avoid reprocessing
       const newDomainsOnly: string[] = [];
       const skippedDomains: string[] = [];
-      
+
       console.log('Checking for existing successful records...');
       for (const domain of uniqueDomains) {
         const existingSuccess = await storage.getHighConfidenceResult(domain.trim());
@@ -96,7 +97,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const batchId = nanoid();
-      
+
       // Create batch
       const batch = await storage.createBatch({
         id: batchId,
@@ -147,21 +148,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Start processing a batch
-  app.post("/api/process/:batchId", async (req, res) => {
+  // Process batch
+  app.post("/api/process/:batchId", async (req: Request, res: Response) => {
     try {
       const { batchId } = req.params;
-      
+
       if (processor.isCurrentlyProcessing()) {
         return res.status(400).json({ error: 'Another batch is currently being processed' });
       }
 
-      // Start processing in background
       processor.processBatch(batchId).catch(console.error);
 
-      res.json({ message: 'Processing started', batchId });
+      res.json({ message: "Processing started", batchId });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Stop processing
+  app.post("/api/stop-processing", async (req: Request, res: Response) => {
+    try {
+      const stopped = processor.stopProcessing();
+
+      if (stopped) {
+        res.json({ 
+          message: "Processing stopped successfully",
+          stopped: true 
+        });
+      } else {
+        res.json({ 
+          message: "No active processing to stop",
+          stopped: false 
+        });
+      }
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
     }
   });
 
@@ -170,7 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { batchId } = req.params;
       const { page = "1", limit = "50", status, search } = req.query;
-      
+
       const pageNum = parseInt(page as string);
       const limitNum = parseInt(limit as string);
       const offset = (pageNum - 1) * limitNum;
@@ -188,7 +209,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const batch = await storage.getBatch(batchId);
-      
+
       res.json({
         domains,
         batch,
@@ -208,7 +229,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { batchId } = req.params;
       const sessionResults = await storage.getSessionResults(batchId);
-      
+
       if (!sessionResults) {
         return res.status(404).json({ error: "Session results not found" });
       }
@@ -225,7 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const limit = parseInt(req.query.limit as string) || 10;
       const offset = parseInt(req.query.offset as string) || 0;
-      
+
       const sessionResults = await storage.getAllSessionResults(limit, offset);
       res.json(sessionResults);
     } catch (error) {
@@ -239,7 +260,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const limit = parseInt(req.query.limit as string) || 50;
       const offset = parseInt(req.query.offset as string) || 0;
-      
+
       const analyticsData = await storage.getAnalyticsData(limit, offset);
       res.json(analyticsData);
     } catch (error) {
@@ -253,15 +274,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { batchId } = req.params;
       const { format = 'csv' } = req.query;
-      
+
       // Get all domains first
       const domains = await storage.getDomainsByBatch(batchId, 100000);
-      
+
       // Process each domain to add GLEIF data if the method exists
       const enhancedDomains = [];
       for (const domain of domains) {
         let candidates = [];
-        
+
         // Safely try to get GLEIF candidates
         if (typeof storage.getGleifCandidates === 'function') {
           try {
@@ -271,7 +292,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             candidates = [];
           }
         }
-        
+
         enhancedDomains.push({
           id: domain.id,
           domain: domain.domain,
@@ -334,23 +355,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/test-domain", async (req, res) => {
     try {
       const { domain } = req.body;
-      
+
       if (!domain || typeof domain !== 'string') {
         return res.status(400).json({ error: 'Domain is required' });
       }
 
       const cleanDomain = domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
-      
+
       if (!isValidDomain(cleanDomain)) {
         return res.status(400).json({ error: 'Invalid domain format' });
       }
 
       console.log(`Testing single domain: ${cleanDomain}`);
-      
+
       // Get or create the shared "Single Domain Tests" batch
       const sharedBatchId = 'single-domain-tests';
       let batch = await storage.getBatch(sharedBatchId);
-      
+
       if (!batch) {
         // Create the shared batch for all single domain tests
         batch = await storage.createBatch({
@@ -372,14 +393,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Process the domain
       const result = await processor.processSingleDomain(domainEntry);
-      
+
       // Update batch counts
       await storage.updateBatch(sharedBatchId, {
         totalDomains: (batch.totalDomains || 0) + 1,
         processedDomains: (batch.processedDomains || 0) + 1,
         status: 'active'
       });
-      
+
       res.json({
         domain: result.domain,
         status: result.status,
@@ -414,12 +435,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Level 2 GLEIF API Endpoints (V2 Enhancement)
-  
+
   // Get GLEIF candidates for a domain
   app.get("/api/domains/:id/candidates", async (req, res) => {
     try {
       const domainId = parseInt(req.params.id);
-      
+
       if (typeof storage.getGleifCandidates === 'function') {
         const candidates = await storage.getGleifCandidates(domainId);
         res.json(candidates);
@@ -437,11 +458,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const domainId = parseInt(req.params.id);
       const { leiCode } = req.body;
-      
+
       if (!leiCode) {
         return res.status(400).json({ error: 'LEI code is required' });
       }
-      
+
       if (typeof storage.updatePrimarySelection === 'function') {
         const updatedDomain = await storage.updatePrimarySelection(domainId, leiCode);
         if (updatedDomain) {
@@ -463,7 +484,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const limit = parseInt(req.query.limit as string) || 50;
       const offset = parseInt(req.query.offset as string) || 0;
-      
+
       if (typeof storage.getManualReviewQueue === 'function') {
         const domains = await storage.getManualReviewQueue(limit, offset);
         res.json(domains);
@@ -481,7 +502,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const limit = parseInt(req.query.limit as string) || 50;
       const offset = parseInt(req.query.offset as string) || 0;
-      
+
       if (typeof storage.getLevel2EligibleDomains === 'function') {
         const domains = await storage.getLevel2EligibleDomains(limit, offset);
         res.json(domains);
@@ -501,12 +522,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Calculate Level 2 analytics from available data
         const allDomains = await storage.getDomainsByStatus('success');
         const failedDomains = await storage.getDomainsByStatus('failed');
-        
+
         // Filter domains that had Level 2 processing
         const level2Domains = [...allDomains, ...failedDomains].filter(d => d.level2Attempted);
         const successfulMatches = level2Domains.filter(d => d.level2Status === 'success');
         const failedMatches = level2Domains.filter(d => d.level2Status === 'failed');
-        
+
         // Calculate aggregate statistics
         const totalLevel2Attempts = level2Domains.length;
         const averageWeightedScore = successfulMatches.length > 0 
@@ -522,7 +543,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           try {
             const candidates = await storage.getGleifCandidates!(domain.id);
             totalCandidatesFound += candidates.length;
-            
+
             candidates.forEach(candidate => {
               if (candidate.jurisdiction) {
                 jurisdictionCounts[candidate.jurisdiction] = (jurisdictionCounts[candidate.jurisdiction] || 0) + 1;
@@ -604,7 +625,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/logs/batches', async (req, res) => {
     try {
       const logsDir = join(process.cwd(), 'logs');
-      
+
       if (!existsSync(logsDir)) {
         return res.json({ 
           batches: [], 
@@ -618,13 +639,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .map(file => {
           const batchId = file.replace('batch-', '').replace('.jsonl', '');
           const filePath = join(logsDir, file);
-          
+
           try {
             const content = readFileSync(filePath, 'utf8');
             const lines = content.trim().split('\n').filter(line => line.trim());
             const firstEntry = lines.length > 0 ? JSON.parse(lines[0]) : null;
             const lastEntry = lines.length > 0 ? JSON.parse(lines[lines.length - 1]) : null;
-            
+
             return {
               batchId,
               fileName: file,
@@ -658,7 +679,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { batchId } = req.params;
       const logsDir = join(process.cwd(), 'logs');
       const logFile = join(logsDir, `batch-${batchId}.jsonl`);
-      
+
       if (!existsSync(logFile)) {
         return res.status(404).json({ error: 'Batch log not found' });
       }
@@ -685,7 +706,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { batchId } = req.params;
       const logsDir = join(process.cwd(), 'logs');
       const analysisFile = join(logsDir, `analysis-${batchId}.json`);
-      
+
       if (!existsSync(analysisFile)) {
         return res.status(404).json({ 
           error: 'Analysis not found',
@@ -708,9 +729,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 // Helper function to parse domain file
 function parseDomainFile(content: string, filename: string): string[] {
   const isCSV = filename.toLowerCase().endsWith('.csv');
-  
+
   console.log(`Parsing file: ${filename}, isCSV: ${isCSV}, content length: ${content.length}`);
-  
+
   let lines: string[];
   if (isCSV) {
     lines = content
@@ -724,25 +745,25 @@ function parseDomainFile(content: string, filename: string): string[] {
       .map(line => line.trim())
       .filter(line => line && line.length > 0);
   }
-  
+
   console.log(`Found ${lines.length} non-empty lines`);
-  
+
   const validDomains = lines.filter(domain => isValidDomain(domain));
   console.log(`${validDomains.length} domains passed validation out of ${lines.length} total lines`);
-  
+
   // Log first few invalid domains for debugging
   const invalidDomains = lines.filter(domain => !isValidDomain(domain)).slice(0, 5);
   if (invalidDomains.length > 0) {
     console.log(`First few invalid domains:`, invalidDomains);
   }
-  
+
   return validDomains;
 }
 
 // Helper function to validate domain
 function isValidDomain(domain: string): boolean {
   if (!domain || typeof domain !== 'string') return false;
-  
+
   // Clean the domain first
   const cleanDomain = domain
     .replace(/^https?:\/\//, '')     // Remove protocol
@@ -750,16 +771,16 @@ function isValidDomain(domain: string): boolean {
     .split('/')[0]                   // Take only domain part
     .trim()                          // Remove whitespace
     .toLowerCase();                  // Normalize case
-  
+
   // More permissive regex - allow single character domains and broader TLDs
   const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.([a-zA-Z]{2,}|[a-zA-Z]{2,}\.[a-zA-Z]{2,})$/;
   const isValid = domainRegex.test(cleanDomain);
-  
+
   // Debug logging for domain validation issues
   if (!isValid && domain.trim().length > 0) {
     console.log(`Domain validation failed for: "${domain}" -> cleaned: "${cleanDomain}"`);
   }
-  
+
   return isValid;
 }
 
@@ -792,7 +813,7 @@ function domainsToCSV(domains: any[]): string {
     'Created At',
     'Processed At'
   ];
-  
+
   const rows = domains.map(d => [
     d.domain,
     d.companyName || '',
@@ -820,7 +841,7 @@ function domainsToCSV(domains: any[]): string {
     d.createdAt ? new Date(d.createdAt).toISOString() : '',
     d.processedAt ? new Date(d.processedAt).toISOString() : ''
   ]);
-  
+
   return [headers, ...rows].map(row => 
     row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
   ).join('\n');
