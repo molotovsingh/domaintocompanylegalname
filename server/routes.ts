@@ -248,32 +248,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Export batch results in CSV or JSON format
-  app.get("/api/export/:batchId", async (req, res) => {
-    try {
-      const { batchId } = req.params;
-      const format = req.query.format as string || 'csv';
-      
-      const domains = await storage.getDomainsByBatch(batchId, 10000); // Get all domains
-      
-      if (format === 'json') {
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Content-Disposition', `attachment; filename="batch_${batchId}_results.json"`);
-        res.json(domains);
-      } else {
-        // CSV format
-        const csvContent = domainsToCSV(domains);
-        res.setHeader('Content-Type', 'text/csv');
-        res.setHeader('Content-Disposition', `attachment; filename="batch_${batchId}_results.csv"`);
-        res.send(csvContent);
-      }
-    } catch (error) {
-      console.error('Export error:', error);
-      res.status(500).json({ error: "Failed to export batch results" });
-    }
-  });
-
-  // Export results with comprehensive GLEIF candidates data
+  // Export batch results with comprehensive GLEIF candidates data
   app.get("/api/export/:batchId", async (req, res) => {
     try {
       const { batchId } = req.params;
@@ -282,29 +257,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get all domains first
       const domains = await storage.getDomainsByBatch(batchId, 100000);
       
-      // Process each domain to add GLEIF data using working storage method
+      // Process each domain to add GLEIF data if the method exists
       const enhancedDomains = [];
       for (const domain of domains) {
-        const candidates = await storage.getGleifCandidates(domain.id);
+        let candidates = [];
+        
+        // Safely try to get GLEIF candidates
+        if (typeof storage.getGleifCandidates === 'function') {
+          try {
+            candidates = await storage.getGleifCandidates(domain.id);
+          } catch (err) {
+            console.warn(`Could not get GLEIF candidates for domain ${domain.id}:`, err);
+            candidates = [];
+          }
+        }
         
         enhancedDomains.push({
           id: domain.id,
           domain: domain.domain,
           companyName: domain.companyName,
-          businessCategory: domain.businessCategory,
           extractionMethod: domain.extractionMethod,
           confidenceScore: domain.confidenceScore,
-          gleifStatus: domain.gleifStatus,
-          leiCode: domain.leiCode,
+          primaryLeiCode: domain.primaryLeiCode || domain.leiCode,
+          primaryGleifName: domain.primaryGleifName,
           guessedCountry: domain.guessedCountry,
-          gleifEnhancedName: domain.gleifEnhancedName,
           gleifCandidateCount: candidates.length,
           allLeiCodes: candidates.map(c => c.leiCode).join('; '),
           allLegalNames: candidates.map(c => c.legalName).join('; '),
           allJurisdictions: candidates.map(c => c.jurisdiction).join('; '),
           allEntityStatuses: candidates.map(c => c.entityStatus).join('; '),
-          geographicMarkers: domain.geographicMarkers,
-          legalJurisdiction: domain.legalJurisdiction,
+          level2Status: domain.level2Status,
+          level2CandidatesCount: domain.level2CandidatesCount,
+          finalLegalName: domain.finalLegalName,
+          finalConfidence: domain.finalConfidence,
           recommendation: domain.recommendation,
           processingTimeMs: domain.processingTimeMs,
           status: domain.status,
@@ -783,20 +768,20 @@ function domainsToCSV(domains: any[]): string {
   const headers = [
     'Domain', 
     'Company Name', 
-    'Business Category', 
     'Extraction Method', 
     'Confidence Score', 
-    'GLEIF Status', 
     'Primary LEI Code', 
+    'Primary GLEIF Name',
     'Country',
-    'GLEIF Enhanced Name',
     'Total GLEIF Candidates',
     'All LEI Codes',
     'All Legal Names',
     'All Jurisdictions',
     'All Entity Statuses',
-    'Geographic Markers',
-    'Legal Jurisdiction',
+    'Level 2 Status',
+    'Level 2 Candidates Count',
+    'Final Legal Name',
+    'Final Confidence',
     'Recommendation', 
     'Processing Time (ms)', 
     'Status', 
@@ -811,20 +796,20 @@ function domainsToCSV(domains: any[]): string {
   const rows = domains.map(d => [
     d.domain,
     d.companyName || '',
-    d.businessCategory || '',
     d.extractionMethod || '',
     d.confidenceScore || '',
-    d.gleifStatus || '',
-    d.leiCode || '',
+    d.primaryLeiCode || '',
+    d.primaryGleifName || '',
     d.guessedCountry || '',
-    d.gleifEnhancedName || '',
-    d.gleifCandidateCount || '',
+    d.gleifCandidateCount || 0,
     d.allLeiCodes || '',
     d.allLegalNames || '',
     d.allJurisdictions || '',
     d.allEntityStatuses || '',
-    d.geographicMarkers || '',
-    d.legalJurisdiction || '',
+    d.level2Status || '',
+    d.level2CandidatesCount || 0,
+    d.finalLegalName || '',
+    d.finalConfidence || '',
     d.recommendation || '',
     d.processingTimeMs || '',
     d.status,
