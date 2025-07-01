@@ -1,0 +1,89 @@
+{
+  "batchId": "AVhBo4cJwtFc4coQZpQ4U",
+  "analysisGeneratedAt": "2025-07-01T06:38:36.720Z",
+  "overview": {
+    "duration": 1175060,
+    "finalStatus": {
+      "processed": 102,
+      "successful": 54,
+      "failed": 48,
+      "totalTimeMs": 181315,
+      "averageTimePerDomain": 1777.5980392156862,
+      "successRate": 52.94117647058824,
+      "completedAt": "2025-07-01T06:38:36.716Z"
+    },
+    "progressCheckpoints": 33,
+    "totalEvents": 140
+  },
+  "timeline": [
+    {
+      "timestamp": "2025-07-01T06:19:01.656Z",
+      "event": "batch_start",
+      "context": {
+        "fileName": "indiadomail - Sheet1.csv",
+        "totalDomains": 103,
+        "uploadedAt": "2025-07-01T06:19:00.742Z",
+        "processingStarted": "2025-07-01T06:19:01.656Z",
+        "configuration": {
+          "concurrency": 3,
+          "timeoutMs": 25000,
+          "retryAttempts": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2025-07-01T06:30:24.557Z",
+      "event": "batch_start",
+      "context": {
+        "fileName": "indiadomail - Sheet1.csv",
+        "totalDomains": 103,
+        "uploadedAt": "2025-07-01T06:19:00.742Z",
+        "processingStarted": "2025-07-01T06:30:24.557Z",
+        "configuration": {
+          "concurrency": 3,
+          "timeoutMs": 25000,
+          "retryAttempts": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2025-07-01T06:35:35.477Z",
+      "event": "batch_start",
+      "context": {
+        "fileName": "indiadomail - Sheet1.csv",
+        "totalDomains": 103,
+        "uploadedAt": "2025-07-01T06:19:00.742Z",
+        "processingStarted": "2025-07-01T06:35:35.477Z",
+        "configuration": {
+          "concurrency": 3,
+          "timeoutMs": 25000,
+          "retryAttempts": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2025-07-01T06:38:36.716Z",
+      "event": "batch_complete",
+      "context": {
+        "processed": 102,
+        "successful": 54,
+        "failed": 48,
+        "totalTimeMs": 181315,
+        "averageTimePerDomain": 1777.5980392156862,
+        "successRate": 52.94117647058824,
+        "completedAt": "2025-07-01T06:38:36.716Z"
+      }
+    }
+  ],
+  "performance": {
+    "totalProcessed": 0,
+    "successCount": 0,
+    "failureCount": 0,
+    "timeoutCount": 0,
+    "averageProcessingTime": 0,
+    "commonFailureReasons": {},
+    "performanceByTimeOfDay": {}
+  },
+  "anomalies": [],
+  "recommendations": []
+}
