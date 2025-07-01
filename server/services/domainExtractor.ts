@@ -2,6 +2,7 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { promisify } from 'util';
 import { exec } from 'child_process';
+import { lookup } from 'dns';
 import { 
   EXTRACTION_METHODS, 
   CONFIDENCE_MODIFIERS, 
@@ -13,6 +14,7 @@ import {
   isMarketingContent
 } from '@shared/parsing-rules';
 const execAsync = promisify(exec);
+const dnsLookup = promisify(lookup);
 
 export interface ExtractionAttempt {
   method: string;
@@ -212,6 +214,121 @@ export class DomainExtractor {
   /**
    * Determine most likely country from geographic markers
    */
+  /**
+   * Detect Cloudflare protection through multiple indicators
+   */
+  /**
+   * Ultra-fast Cloudflare detection via DNS lookup
+   */
+  private async checkCloudflareByDNS(domain: string): Promise<boolean> {
+    try {
+      // Method 1: Check if domain resolves to Cloudflare IP ranges
+      const result = await dnsLookup(domain);
+      const ip = result.address;
+      
+      // Cloudflare IP ranges (most common ones)
+      const cloudflareRanges = [
+        '104.16.', '104.17.', '104.18.', '104.19.', '104.20.', '104.21.', '104.22.', '104.23.', 
+        '104.24.', '104.25.', '104.26.', '104.27.', '104.28.', '104.29.', '104.30.', '104.31.',
+        '172.64.', '172.65.', '172.66.', '172.67.', '172.68.', '172.69.', '172.70.', '172.71.',
+        '173.245.', '188.114.', '190.93.', '197.234.', '198.41.'
+      ];
+      
+      for (const range of cloudflareRanges) {
+        if (ip.startsWith(range)) {
+          console.log(`CLOUDFLARE IP DETECTED: ${domain} -> ${ip} (${range})`);
+          return true;
+        }
+      }
+      
+      // Method 2: Check nameservers for Cloudflare patterns
+      try {
+        const { stdout } = await execAsync(`nslookup -type=ns ${domain}`);
+        const nsOutput = stdout.toLowerCase();
+        
+        if (nsOutput.includes('cloudflare') || 
+            nsOutput.includes('.ns.cloudflare.com') ||
+            nsOutput.includes('andy.ns.cloudflare.com') ||
+            nsOutput.includes('lynn.ns.cloudflare.com')) {
+          console.log(`CLOUDFLARE NS DETECTED: ${domain}`);
+          return true;
+        }
+      } catch (nsError) {
+        // NS lookup failed, continue with IP-based detection only
+      }
+      
+      return false;
+    } catch (error) {
+      // DNS lookup failed, not necessarily Cloudflare
+      return false;
+    }
+  }
+
+  private detectCloudflareProtection(response: any): boolean {
+    const headers = response.headers || {};
+    
+    // Method 1: Direct Cloudflare headers (100% accurate)
+    const cloudflareHeaders = [
+      'cf-ray',           // Always present on Cloudflare
+      'cf-cache-status',  // Cloudflare caching
+      'cf-request-id',    // Cloudflare request tracking
+      'cf-visitor',       // Cloudflare visitor info
+      'cf-connecting-ip', // Original IP header
+      'cf-ipcountry',     // Country detection
+      'cf-edge-cache'     // Edge caching info
+    ];
+    
+    for (const header of cloudflareHeaders) {
+      if (headers[header]) {
+        console.log(`CLOUDFLARE HEADER DETECTED: ${header} = ${headers[header]}`);
+        return true;
+      }
+    }
+    
+    // Method 2: Server identification
+    const server = headers['server']?.toLowerCase() || '';
+    if (server.includes('cloudflare') || server.includes('cf-')) {
+      console.log(`CLOUDFLARE SERVER DETECTED: ${server}`);
+      return true;
+    }
+    
+    // Method 3: Status code patterns (Cloudflare specific)
+    if (response.status === 403 && headers['cf-ray']) {
+      console.log(`CLOUDFLARE 403 + CF-RAY DETECTED`);
+      return true;
+    }
+    
+    // Method 4: Security headers pattern
+    const securityHeaders = headers['x-frame-options'] || headers['x-content-type-options'] || '';
+    if (securityHeaders && (headers['cf-ray'] || server.includes('cloudflare'))) {
+      console.log(`CLOUDFLARE SECURITY PATTERN DETECTED`);
+      return true;
+    }
+    
+    // Method 5: Challenge detection in response body (if available)
+    if (response.data && typeof response.data === 'string') {
+      const challengePatterns = [
+        'checking your browser',
+        'cloudflare',
+        'ray id',
+        'challenge',
+        'just a moment',
+        'enable javascript and cookies',
+        'cf-browser-verification'
+      ];
+      
+      const lowerData = response.data.toLowerCase();
+      for (const pattern of challengePatterns) {
+        if (lowerData.includes(pattern)) {
+          console.log(`CLOUDFLARE CHALLENGE PATTERN DETECTED: ${pattern}`);
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  }
+
   private guessCountryFromMarkers(markers: GeographicMarkers, domain: string): string {
     const countryScores: Record<string, number> = {};
     
@@ -286,8 +403,29 @@ export class DomainExtractor {
     const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].toLowerCase();
     const extractionAttempts: ExtractionAttempt[] = [];
     
+    // STEP 1: Pre-flight Cloudflare DNS detection (ultra-fast)
+    const isCloudflareByDNS = await this.checkCloudflareByDNS(cleanDomain);
+    if (isCloudflareByDNS) {
+      console.log(`DNS CLOUDFLARE DETECTED: ${cleanDomain} - Skipping extraction`);
+      return {
+        companyName: null,
+        method: 'domain_parse',
+        confidence: 0,
+        connectivity: 'protected',
+        error: 'Cloudflare protection detected via DNS',
+        failureCategory: 'protected_manual_review',
+        technicalDetails: 'Domain uses Cloudflare nameservers - anti-bot protection likely',
+        recommendation: 'Manual review needed - Use browser or proxy',
+        extractionAttempts: [{
+          method: 'dns_cloudflare_detection',
+          success: false,
+          error: 'Cloudflare detected via DNS lookup'
+        }]
+      };
+    }
+    
     // Set up timeout protection to prevent infinite processing
-    const timeout = 8000; // Ultra-aggressive 8-second timeout for bot detection
+    const timeout = 6000; // Reduced timeout for faster processing
     const timeoutPromise = new Promise<ExtractionResult>((_, reject) => {
       setTimeout(() => reject(new Error('Extraction timeout')), timeout);
     });
@@ -1752,18 +1890,24 @@ export class DomainExtractor {
     try {
       // Quick HTTP HEAD request (faster than GET, saves bandwidth)
       const response = await axios.head(`https://${domain}`, {
-        timeout: 3000, // Ultra-fast 3-second timeout for bot detection
+        timeout: 2000, // Ultra-fast 2-second timeout for faster bot detection
         headers: { 'User-Agent': this.userAgent },
         validateStatus: () => true, // Accept any status code
-        maxRedirects: 3 // Reduced redirects for speed
+        maxRedirects: 2 // Reduced redirects for speed
       });
       
-      // Check for anti-bot protection
+      // ENHANCED CLOUDFLARE DETECTION - Multi-layer approach
+      const isCloudflareProtected = this.detectCloudflareProtection(response);
+      if (isCloudflareProtected) {
+        console.log(`CLOUDFLARE DETECTED: ${domain} - Protected by anti-bot measures`);
+        return 'protected';
+      }
+      
+      // Check for other anti-bot protection
       if (response.status === 403 || 
-          response.headers['server']?.toLowerCase().includes('cloudflare') ||
-          response.headers['cf-ray'] ||
           response.data?.includes('challenge') ||
-          response.data?.includes('captcha')) {
+          response.data?.includes('captcha') ||
+          response.data?.includes('blocked')) {
         return 'protected';
       }
       

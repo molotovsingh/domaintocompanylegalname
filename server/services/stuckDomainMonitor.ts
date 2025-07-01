@@ -8,8 +8,8 @@ import { storage } from '../storage';
 export class StuckDomainMonitor {
   private intervalId: NodeJS.Timeout | null = null;
   private isRunning: boolean = false;
-  private readonly maxProcessingTime = 8000; // 8 seconds max (aggressive bot detection)
-  private readonly monitorInterval = 5000; // Check every 5 seconds
+  private readonly maxProcessingTime = 6000; // 6 seconds max (ultra-aggressive Cloudflare detection)
+  private readonly monitorInterval = 3000; // Check every 3 seconds for fastest Cloudflare recovery
 
   start(): void {
     if (this.isRunning) {
