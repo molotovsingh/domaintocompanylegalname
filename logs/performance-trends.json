@@ -1,0 +1,19 @@
+{
+  "lastUpdated": "2025-07-01T05:24:28.695Z",
+  "totalBatches": 1,
+  "batches": [
+    {
+      "batchId": "mVauB1NiLnmWIt0BQqlzn",
+      "completedAt": "2025-07-01T05:24:28.695Z",
+      "metrics": {
+        "processed": 19,
+        "successful": 11,
+        "failed": 8,
+        "totalTimeMs": 66609,
+        "averageTimePerDomain": 3505.7368421052633,
+        "successRate": 57.89473684210527
+      },
+      "dailySequence": 1
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "batchId": "mVauB1NiLnmWIt0BQqlzn",
+  "analysisGeneratedAt": "2025-07-01T05:24:28.696Z",
+  "overview": {
+    "duration": null,
+    "finalStatus": "incomplete",
+    "progressCheckpoints": 0,
+    "totalEvents": 0
+  },
+  "timeline": [],
+  "performance": {
+    "totalProcessed": 0,
+    "successCount": 0,
+    "failureCount": 0,
+    "timeoutCount": 0,
+    "averageProcessingTime": 0,
+    "commonFailureReasons": {},
+    "performanceByTimeOfDay": {}
+  },
+  "anomalies": [],
+  "recommendations": []
+}
