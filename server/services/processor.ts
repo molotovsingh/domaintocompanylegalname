@@ -6,7 +6,6 @@ import type { Domain } from '@shared/schema';
 export class BatchProcessor {
   private extractor: DomainExtractor;
   private isProcessing: boolean = false;
-  private processedCount: number = 0;
 
   constructor() {
     this.extractor = new DomainExtractor();
@@ -172,7 +171,6 @@ export class BatchProcessor {
     }
 
     this.isProcessing = true;
-    this.processedCount = 0;
 
     try {
       const batch = await storage.getBatch(batchId);
@@ -202,15 +200,15 @@ export class BatchProcessor {
           const batch = batchDomains.slice(i, i + batchSize);
           await Promise.all(batch.map(domain => this.processDomain(domain)));
           
-          // Update batch progress
-          this.processedCount += batch.length;
-          const processed = Math.min(this.processedCount, batchDomains.length);
+          // Update batch progress - use actual database state instead of counter
+          const allBatchDomains = await storage.getDomainsByBatch(batchId, 10000);
+          const actualProcessed = allBatchDomains.filter(d => d.status !== 'pending').length;
           const successful = await this.getSuccessfulCount(batchId);
           
           await storage.updateBatch(batchId, {
-            processedDomains: processed,
+            processedDomains: actualProcessed,
             successfulDomains: successful,
-            failedDomains: processed - successful
+            failedDomains: actualProcessed - successful
           });
 
           // Small delay to prevent overwhelming and show processing status
@@ -235,13 +233,16 @@ export class BatchProcessor {
       }
 
       // Mark batch as completed
+      const finalBatchDomains = await storage.getDomainsByBatch(batchId, 10000);
+      const finalProcessed = finalBatchDomains.filter(d => d.status !== 'pending').length;
+      
       await storage.updateBatch(batchId, { status: 'completed' });
       await storage.createActivity({
         type: 'batch_complete',
         message: `Batch completed: ${batch.fileName} (Level 2 enhanced: ${level2Eligible.length})`,
         details: JSON.stringify({ 
           batchId, 
-          processed: this.processedCount,
+          processed: finalProcessed,
           successful: await this.getSuccessfulCount(batchId),
           level2Enhanced: level2Eligible.length
         })
