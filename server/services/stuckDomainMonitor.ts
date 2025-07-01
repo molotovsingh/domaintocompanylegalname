@@ -8,8 +8,8 @@ import { storage } from '../storage';
 export class StuckDomainMonitor {
   private intervalId: NodeJS.Timeout | null = null;
   private isRunning: boolean = false;
-  private readonly maxProcessingTime = 11000; // 11 seconds max (matches extractor timeout exactly)
-  private readonly monitorInterval = 30000; // Check every 30 seconds
+  private readonly maxProcessingTime = 8000; // 8 seconds max (aggressive bot detection)
+  private readonly monitorInterval = 5000; // Check every 5 seconds
 
   start(): void {
     if (this.isRunning) {
@@ -18,8 +18,8 @@ export class StuckDomainMonitor {
     }
 
     this.isRunning = true;
-    console.log('Starting stuck domain monitor - checking every 30 seconds');
-    
+    console.log('Starting stuck domain monitor - checking every 5 seconds for ultra-fast bot detection');
+
     // Run immediately, then on interval
     this.checkStuckDomains();
     this.intervalId = setInterval(() => {
@@ -51,11 +51,11 @@ export class StuckDomainMonitor {
 
       if (stuckDomains.length > 0) {
         console.log(`STUCK DOMAIN DETECTION: Found ${stuckDomains.length} stuck domains`);
-        
+
         for (const domain of stuckDomains) {
           const processingTime = Date.now() - new Date(domain.processingStartedAt!).getTime();
           console.log(`CLEARING STUCK DOMAIN: ${domain.domain} (stuck for ${Math.round(processingTime/1000)}s)`);
-          
+
           await storage.updateDomain(domain.id, {
             status: 'failed',
             errorMessage: 'Domain processing timeout - automatically cleared by monitor',

@@ -47,7 +47,7 @@ export interface ExtractionResult {
 }
 
 export class DomainExtractor {
-  private timeout = PROCESSING_TIMEOUTS.htmlExtraction;
+  private timeout = 6000; // Ultra-fast 6-second HTML extraction timeout
   private userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
   
   private geographicPatterns = {
@@ -287,7 +287,7 @@ export class DomainExtractor {
     const extractionAttempts: ExtractionAttempt[] = [];
     
     // Set up timeout protection to prevent infinite processing
-    const timeout = PROCESSING_TIMEOUTS.perDomain; // Use optimized 11-second timeout
+    const timeout = 8000; // Ultra-aggressive 8-second timeout for bot detection
     const timeoutPromise = new Promise<ExtractionResult>((_, reject) => {
       setTimeout(() => reject(new Error('Extraction timeout')), timeout);
     });
@@ -1752,10 +1752,10 @@ export class DomainExtractor {
     try {
       // Quick HTTP HEAD request (faster than GET, saves bandwidth)
       const response = await axios.head(`https://${domain}`, {
-        timeout: 5000, // Increased timeout for more accurate results
+        timeout: 3000, // Ultra-fast 3-second timeout for bot detection
         headers: { 'User-Agent': this.userAgent },
         validateStatus: () => true, // Accept any status code
-        maxRedirects: 5 // Allow more redirects for proper validation
+        maxRedirects: 3 // Reduced redirects for speed
       });
       
       // Check for anti-bot protection
@@ -1785,10 +1785,10 @@ export class DomainExtractor {
       // For other errors (like HTTP method not allowed), try HTTP fallback
       try {
         const httpResponse = await axios.head(`http://${domain}`, {
-          timeout: 5000,
+          timeout: 2000, // Ultra-fast HTTP fallback
           headers: { 'User-Agent': this.userAgent },
           validateStatus: () => true,
-          maxRedirects: 5
+          maxRedirects: 3
         });
         
         return httpResponse.status < 500 ? 'reachable' : 'unreachable';
