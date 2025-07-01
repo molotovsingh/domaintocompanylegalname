@@ -82,9 +82,9 @@ export class GLEIFValidationService {
     warnings.push(...nameValidation.warnings);
 
     return {
-      isValid: confidence >= 50,
+      isValid: confidence >= 30, // Relaxed from 50 for basic integration
       confidence: Math.max(0, Math.min(100, confidence)),
-      reason: confidence >= 50 
+      reason: confidence >= 30 
         ? `Valid match with ${confidence}% confidence`
         : `Invalid match - confidence too low (${confidence}%)`,
       warnings
@@ -110,10 +110,12 @@ export class GLEIFValidationService {
     );
     
     return {
-      isValid: hasCorrelation,
-      confidence: hasCorrelation ? 80 : 20,
+      isValid: hasCorrelation || domainTerms.length === 0, // Accept when no domain terms to analyze
+      confidence: hasCorrelation ? 80 : (domainTerms.length === 0 ? 60 : 20),
       reason: hasCorrelation 
         ? 'Strong domain-entity name correlation found'
+        : domainTerms.length === 0
+        ? 'No domain terms for correlation analysis - allowing match'
         : `No correlation between domain "${rootDomain}" and entity "${entity.legalName}"`,
       warnings: []
     };
@@ -312,7 +314,7 @@ export class GLEIFValidationService {
           validationReasons: [validation.reason, ...validation.warnings]
         };
       })
-      .filter(entity => entity.validationScore >= 30) // Filter out low-quality matches
+      .filter(entity => entity.validationScore >= 15) // Relaxed threshold for basic integration
       .sort((a, b) => b.validationScore - a.validationScore);
   }
 }
