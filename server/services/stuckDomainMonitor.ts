@@ -8,7 +8,7 @@ import { storage } from '../storage';
 export class StuckDomainMonitor {
   private intervalId: NodeJS.Timeout | null = null;
   private isRunning: boolean = false;
-  private readonly maxProcessingTime = 13000; // 13 seconds max (11s extractor + 2s buffer)
+  private readonly maxProcessingTime = 11000; // 11 seconds max (matches extractor timeout exactly)
   private readonly monitorInterval = 30000; // Check every 30 seconds
 
   start(): void {

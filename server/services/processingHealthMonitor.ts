@@ -59,26 +59,29 @@ export class ProcessingHealthMonitor {
       ? Date.now() - new Date(lastProcessedDomain.processedAt!).getTime()
       : Infinity;
     
-    // Auto-resume conditions
+    // Auto-resume conditions - more aggressive detection
     const shouldAutoResume = (
       pendingDomains.length > 0 && 
       processingDomains.length === 0 && 
-      timeSinceLastProgress > this.staleProcessingThreshold
+      (timeSinceLastProgress > this.staleProcessingThreshold || timeSinceLastProgress === Infinity)
     );
 
     if (shouldAutoResume) {
-      console.log(`HEALTH MONITOR: Auto-resuming stalled batch ${batchId} - ${pendingDomains.length} pending domains`);
+      console.log(`HEALTH MONITOR: Auto-resuming stalled batch ${batchId} - ${pendingDomains.length} pending domains (stalled for ${Math.round(timeSinceLastProgress/1000)}s)`);
       
       // Import processor dynamically to avoid circular dependencies
       const { processor } = await import('./processor');
       
       if (!processor.isCurrentlyProcessing()) {
         try {
-          processor.processBatch(batchId).catch(console.error);
-          console.log(`HEALTH MONITOR: Triggered processing for batch ${batchId}`);
+          // Force resume the batch processing
+          await processor.processBatch(batchId);
+          console.log(`HEALTH MONITOR: Successfully triggered processing for batch ${batchId}`);
         } catch (error: any) {
           console.error(`HEALTH MONITOR: Failed to resume batch ${batchId}:`, error.message);
         }
+      } else {
+        console.log(`HEALTH MONITOR: Processor is busy, will retry on next health check`);
       }
     }
 
