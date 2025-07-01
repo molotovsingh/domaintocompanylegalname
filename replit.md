@@ -107,6 +107,7 @@ A production-scale domain intelligence platform that transforms web domains into
 - **CRITICAL PROCESSING LOOP BUG FIXED**: Resolved infinite processing loops caused by domains with minimal footer content getting stuck in repeated extraction attempts (June 28, 2025)
 - **Comprehensive Timeout Protection**: Implemented multi-layer timeout system with 25s extraction limits, 30s processing detection, and automatic stuck domain recovery
 - **Processing Stability Enhanced**: Added early exit for minimal footer content (<50 chars), Promise.race timeout protection, and stuck processing detection
+- **GLEIF KNOWLEDGE BASE PRESERVATION IMPLEMENTED**: Enhanced database clearing to preserve valuable GLEIF entity intelligence while clearing domain processing data - maintains accumulated entities (Brookfield, RBC, Gazprom PAO, etc.) across sessions enabling compound intelligence growth and reducing redundant GLEIF API calls (July 01, 2025)
 - **Database Management Button Added**: Implemented delete database button in dashboard header with proper API endpoint, PostgreSQL clearing functionality, and toast notifications for easy system reset (June 28, 2025)
 
 ## Previous Changes

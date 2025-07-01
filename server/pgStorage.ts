@@ -400,11 +400,18 @@ export class PostgreSQLStorage implements IStorage {
 
   // Database Management
   async clearDatabase(): Promise<void> {
-    // Clear all tables in the correct order (respecting foreign key constraints)
-    await db.delete(gleifCandidates);
+    // Clear domain processing data while preserving GLEIF knowledge base
+    // GLEIF entities and relationships are valuable accumulated intelligence
+    await db.delete(gleifCandidates); // Clear domain-specific GLEIF links
     await db.delete(domains);
     await db.delete(batches);
     await db.delete(activities);
+    
+    // Preserve GLEIF knowledge base tables:
+    // - gleifEntities (accumulated entity intelligence)
+    // - domainEntityMappings (cross-domain entity mappings) 
+    // - entityRelationships (corporate relationship intelligence)
+    console.log('Database cleared - GLEIF knowledge base preserved');
   }
 
   // Level 2 GLEIF Operations (V2 Enhancement)
