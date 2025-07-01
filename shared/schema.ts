@@ -153,15 +153,15 @@ export const gleifCandidates = pgTable("gleif_candidates", {
   registrationStatus: text("registration_status"), // 'ISSUED', 'LAPSED', 'RETIRED'
   
   // Match Scoring
-  gleifMatchScore: integer("gleif_match_score"), // Raw GLEIF API confidence
-  weightedScore: integer("weighted_score"), // Our algorithm score
+  gleifMatchScore: real("gleif_match_score"), // Raw GLEIF API confidence (decimal values)
+  weightedScore: real("weighted_score"), // Our algorithm score (decimal values)
   rankPosition: integer("rank_position"), // 1=primary, 2=alternative, etc.
   
   // Selection Criteria Scoring
-  domainTldScore: integer("domain_tld_score"),
-  fortune500Score: integer("fortune500_score"),
-  nameMatchScore: integer("name_match_score"),
-  entityComplexityScore: integer("entity_complexity_score"),
+  domainTldScore: real("domain_tld_score"), // Decimal scoring
+  fortune500Score: real("fortune500_score"), // Decimal scoring
+  nameMatchScore: real("name_match_score"), // Decimal scoring
+  entityComplexityScore: real("entity_complexity_score"), // Decimal scoring
   
   // Additional Context
   matchMethod: text("match_method"), // 'exact', 'fuzzy', 'geographic'
