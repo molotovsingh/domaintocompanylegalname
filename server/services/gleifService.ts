@@ -462,7 +462,44 @@ export class GLEIFService {
 
   private getJurisdictionFromDomain(domain: string): string {
     const tld = '.' + domain.split('.').pop()?.toLowerCase();
-    return this.tldMapping[tld] || 'US';
+    const jurisdiction = this.tldMapping[tld];
+    
+    // Global jurisdiction fallback logic for 123 jurisdictions
+    if (!jurisdiction) {
+      // Enhanced TLD recognition for global coverage
+      const globalTLDs: Record<string, string> = {
+        '.com': 'global', // Multi-jurisdiction preference
+        '.org': 'global',
+        '.net': 'global',
+        '.biz': 'global',
+        '.info': 'global'
+      };
+      
+      return globalTLDs[tld] || 'US';
+    }
+    
+    return jurisdiction;
+  }
+
+  /**
+   * Enhanced global search with multi-jurisdiction support
+   */
+  async searchGlobalEntity(companyName: string, domain: string, priorityJurisdictions?: string[]): Promise<GLEIFSearchResult> {
+    // Try primary jurisdiction first
+    let result = await this.searchEntity(companyName, domain);
+    
+    // If no results and priority jurisdictions specified, search those
+    if (result.entities.length === 0 && priorityJurisdictions) {
+      for (const jurisdiction of priorityJurisdictions) {
+        result = await this.performGLEIFSearch(companyName, 'geographic', jurisdiction);
+        if (result.entities.length > 0) {
+          console.log(`Global search found entities in jurisdiction: ${jurisdiction}`);
+          break;
+        }
+      }
+    }
+    
+    return result;
   }
 }
 

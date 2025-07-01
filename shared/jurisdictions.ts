@@ -616,3 +616,34 @@ export function getJurisdictionByTLD(domain: string): string | null {
   
   return null;
 }
+
+/**
+ * Global Jurisdiction Expansion Framework
+ * Target: 123 jurisdictions for complete global coverage
+ */
+export interface GlobalExpansionStatus {
+  currentJurisdictions: number;
+  targetJurisdictions: number;
+  completionPercentage: number;
+  nextPriorityRegions: string[];
+  estimatedEntityTypes: number;
+}
+
+export function getGlobalExpansionStatus(): GlobalExpansionStatus {
+  const current = Object.keys(JURISDICTIONS).length;
+  const target = 123;
+  
+  return {
+    currentJurisdictions: current,
+    targetJurisdictions: target,
+    completionPercentage: Math.round((current / target) * 100),
+    nextPriorityRegions: [
+      'European Union (remaining 14 countries)',
+      'Asian-Pacific (remaining 18 countries)', 
+      'Middle East & Africa (remaining 35 countries)',
+      'Americas (remaining 23 countries)',
+      'Caribbean & Pacific Islands (remaining 20 countries)'
+    ],
+    estimatedEntityTypes: Math.round(target * 25) // ~25 entity types per jurisdiction
+  };
+}
