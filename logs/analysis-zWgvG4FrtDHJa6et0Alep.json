@@ -1,0 +1,59 @@
+{
+  "batchId": "zWgvG4FrtDHJa6et0Alep",
+  "analysisGeneratedAt": "2025-07-02T02:50:47.430Z",
+  "overview": {
+    "duration": 500174,
+    "finalStatus": {
+      "processed": 100,
+      "successful": 72,
+      "failed": 28,
+      "totalTimeMs": 500246,
+      "averageTimePerDomain": 5002.46,
+      "successRate": 72,
+      "completedAt": "2025-07-02T02:50:47.429Z"
+    },
+    "progressCheckpoints": 34,
+    "totalEvents": 136
+  },
+  "timeline": [
+    {
+      "timestamp": "2025-07-02T02:42:27.255Z",
+      "event": "batch_start",
+      "context": {
+        "fileName": "french - Sheet1.csv",
+        "totalDomains": 100,
+        "uploadedAt": "2025-07-02T02:42:26.203Z",
+        "processingStarted": "2025-07-02T02:42:27.255Z",
+        "configuration": {
+          "concurrency": 3,
+          "timeoutMs": 25000,
+          "retryAttempts": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2025-07-02T02:50:47.429Z",
+      "event": "batch_complete",
+      "context": {
+        "processed": 100,
+        "successful": 72,
+        "failed": 28,
+        "totalTimeMs": 500246,
+        "averageTimePerDomain": 5002.46,
+        "successRate": 72,
+        "completedAt": "2025-07-02T02:50:47.429Z"
+      }
+    }
+  ],
+  "performance": {
+    "totalProcessed": 0,
+    "successCount": 0,
+    "failureCount": 0,
+    "timeoutCount": 0,
+    "averageProcessingTime": 0,
+    "commonFailureReasons": {},
+    "performanceByTimeOfDay": {}
+  },
+  "anomalies": [],
+  "recommendations": []
+}
