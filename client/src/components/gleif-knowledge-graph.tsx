@@ -249,7 +249,7 @@ export default function GLEIFKnowledgeGraph() {
             Smart Search
           </TabsTrigger>
           <TabsTrigger value="visualization" className="flex items-center gap-2">
-            <GitBranch className="h-4 w-4" />
+            <Eye className="h-4 w-4" />
             Graph Viz
           </TabsTrigger>
           <TabsTrigger value="intelligence" className="flex items-center gap-2">
@@ -341,7 +341,7 @@ export default function GLEIFKnowledgeGraph() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <GitBranch className="h-5 w-5" />
+                <Eye className="h-5 w-5" />
                 Interactive Knowledge Graph Network
               </CardTitle>
             </CardHeader>
