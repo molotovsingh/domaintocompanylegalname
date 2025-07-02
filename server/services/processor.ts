@@ -624,6 +624,38 @@ export class BatchProcessor {
     return updatedDomain!;
   }
 
+  async processLevel2ForBatch(batchId: string, eligibleDomains: Domain[]): Promise<void> {
+    console.log(`Starting manual Level 2 processing for batch ${batchId} with ${eligibleDomains.length} eligible domains`);
+    
+    try {
+      for (const domain of eligibleDomains) {
+        try {
+          console.log(`Processing Level 2 for ${domain.domain}...`);
+          await this.processLevel2Enhancement(domain);
+        } catch (error: any) {
+          console.error(`Level 2 processing failed for ${domain.domain}:`, error.message);
+        }
+      }
+      
+      console.log(`Completed manual Level 2 processing for batch ${batchId}`);
+      
+      await storage.createActivity({
+        type: 'level2_batch_complete',
+        message: `Manual Level 2 processing completed for batch: ${batchId}`,
+        details: JSON.stringify({ batchId, processedCount: eligibleDomains.length })
+      });
+      
+    } catch (error: any) {
+      console.error(`Manual Level 2 batch processing failed for batch ${batchId}:`, error);
+      
+      await storage.createActivity({
+        type: 'error',
+        message: `Manual Level 2 processing failed for batch: ${batchId}`,
+        details: JSON.stringify({ batchId, error: error.message })
+      });
+    }
+  }
+
   private async processDomainFresh(domain: Domain): Promise<void> {
     const startTime = Date.now();
 

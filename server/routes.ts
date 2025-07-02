@@ -186,6 +186,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Reset Level 2 status for a batch
+  app.post("/api/batches/:batchId/reset-level2", async (req, res) => {
+    try {
+      const { batchId } = req.params;
+
+      // Get all domains in the batch
+      const domains = await storage.getDomainsByBatch(batchId, 10000);
+
+      let resetCount = 0;
+      for (const domain of domains) {
+        if (domain.level2Attempted) {
+          await storage.updateDomain(domain.id, {
+            level2Attempted: false,
+            level2Status: null,
+            level2CandidatesCount: null,
+            level2ProcessingTimeMs: null,
+            primaryLeiCode: null,
+            primaryGleifName: null,
+            primarySelectionConfidence: null,
+            selectionAlgorithm: null,
+            manualReviewRequired: null,
+            selectionNotes: null
+          });
+          resetCount++;
+        }
+      }
+
+      // Clear GLEIF candidates if the storage supports it
+      if (typeof storage.clearGleifCandidatesForBatch === 'function') {
+        await storage.clearGleifCandidatesForBatch(batchId);
+      }
+
+      await storage.createActivity({
+        type: 'level2_reset',
+        message: `Level 2 processing reset for batch: ${batchId}`,
+        details: JSON.stringify({ batchId, resetCount })
+      });
+
+      res.json({ 
+        message: `Level 2 processing reset for ${resetCount} domains in batch ${batchId}`,
+        resetCount,
+        batchId
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Manually trigger Level 2 processing for a batch
+  app.post("/api/batches/:batchId/trigger-level2", async (req, res) => {
+    try {
+      const { batchId } = req.params;
+
+      if (processor.isCurrentlyProcessing()) {
+        return res.status(400).json({ 
+          message: "Cannot start Level 2 processing while batch processing is active"
+        });
+      }
+
+      // Get all domains in the batch that are eligible for Level 2
+      const domains = await storage.getDomainsByBatch(batchId, 10000);
+      const level2Eligible = domains.filter(domain => 
+        // Re-check eligibility using the processor's logic
+        !domain.level2Attempted && (
+          (domain.status === 'failed' && domain.companyName && domain.companyName.length > 2) ||
+          (domain.status === 'success' && (domain.confidenceScore || 0) < 95) ||
+          (domain.failureCategory === 'Protected - Manual Review') ||
+          (domain.failureCategory === 'incomplete_low_priority' && domain.companyName) ||
+          (domain.status === 'success' && domain.companyName && domain.companyName.length > 3)
+        )
+      );
+
+      if (level2Eligible.length === 0) {
+        return res.json({ 
+          message: "No domains eligible for Level 2 processing in this batch",
+          eligibleCount: 0,
+          batchId
+        });
+      }
+
+      // Start Level 2 processing in background
+      processor.processLevel2ForBatch(batchId, level2Eligible);
+
+      await storage.createActivity({
+        type: 'level2_triggered',
+        message: `Level 2 processing manually triggered for batch: ${batchId}`,
+        details: JSON.stringify({ batchId, eligibleCount: level2Eligible.length })
+      });
+
+      res.json({ 
+        message: `Level 2 processing started for ${level2Eligible.length} eligible domains`,
+        eligibleCount: level2Eligible.length,
+        batchId
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Get batch results
   app.get("/api/results/:batchId", async (req, res) => {
     try {

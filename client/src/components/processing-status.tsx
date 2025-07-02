@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Settings, Server, CheckCircle, AlertCircle, Clock, StopCircle, AlertTriangle } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { CheckCircle, AlertCircle, Clock, Server, StopCircle, AlertTriangle, RefreshCw, Play } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 
@@ -52,16 +51,15 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
   const currentElapsedTime = (stats as any)?.elapsedTime;
   const currentEta = (stats as any)?.eta;
 
-  const abortProcessing = useMutation({
+const abortProcessing = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/stop-processing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+      const response = await fetch("/api/processing/stop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to stop processing');
+        throw new Error("Failed to stop processing");
       }
 
       return response.json();
@@ -91,6 +89,66 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
       setIsAborting(false);
       toast({
         title: "Abort failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const resetLevel2 = useMutation({
+    mutationFn: async (batchId: string) => {
+      const response = await fetch(`/api/batches/${batchId}/reset-level2`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to reset Level 2");
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Level 2 Reset Complete",
+        description: `Reset ${data.resetCount} domains for Level 2 reprocessing`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/batches"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Reset failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const triggerLevel2 = useMutation({
+    mutationFn: async (batchId: string) => {
+      const response = await fetch(`/api/batches/${batchId}/trigger-level2`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to trigger Level 2");
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Level 2 Processing Started",
+        description: `Processing ${data.eligibleCount} eligible domains`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/batches"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Level 2 trigger failed",
         description: error.message,
         variant: "destructive",
       });
@@ -198,6 +256,40 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+            </div>
+          </div>
+        )}
+
+        {/* Level 2 Controls for Recent Completed Batch */}
+        {completedBatches.length > 0 && (
+          <div className="mt-4 pt-3 border-t border-gray-200">
+            <h4 className="text-sm font-medium text-gray-900 mb-2">Level 2 Controls</h4>
+            <div className="space-y-2">
+              <div className="text-xs text-gray-600 mb-2">
+                Recent batch: <span className="font-medium">{completedBatches[0].fileName}</span>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => resetLevel2.mutate(completedBatches[0].id)}
+                  disabled={resetLevel2.isPending}
+                  className="flex-1"
+                >
+                  <RefreshCw className="h-3 w-3 mr-1" />
+                  {resetLevel2.isPending ? "Resetting..." : "Reset Level 2"}
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => triggerLevel2.mutate(completedBatches[0].id)}
+                  disabled={triggerLevel2.isPending}
+                  className="flex-1"
+                >
+                  <Play className="h-3 w-3 mr-1" />
+                  {triggerLevel2.isPending ? "Starting..." : "Trigger Level 2"}
+                </Button>
+              </div>
             </div>
           </div>
         )}
