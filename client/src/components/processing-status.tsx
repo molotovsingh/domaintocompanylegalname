@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { CheckCircle, AlertCircle, Clock, Server, StopCircle, AlertTriangle, RefreshCw, Play } from "lucide-react";
+import * as React from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2, Play, Square, AlertTriangle, CheckCircle, Settings } from "lucide-react";
 
 interface ProcessingStatusProps {
   currentBatchId: string | null;
 }
 
 export default function ProcessingStatus({ currentBatchId }: ProcessingStatusProps) {
-  const [isAborting, setIsAborting] = useState(false);
+  const [isAborting, setIsAborting] = React.useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 

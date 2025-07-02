@@ -21,6 +21,8 @@ function Router() {
   );
 }
 
+import * as React from "react";
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
