@@ -34,6 +34,13 @@ export interface GeographicMarkers {
   confidenceScore: number;
 }
 
+export interface EntityCategoryPrediction {
+  primaryCategory: string;
+  confidence: number;
+  indicators: string[];
+  alternativeCategories?: { category: string; confidence: number }[];
+}
+
 export interface ExtractionResult {
   companyName: string | null;
   method: 'footer_copyright' | 'about_page' | 'legal_page' | 'structured_data' | 'meta_property' | 'domain_mapping' | 'domain_parse' | 'html_subpage' | 'html_title' | 'html_about' | 'html_legal' | 'meta_description';
@@ -46,6 +53,7 @@ export interface ExtractionResult {
   extractionAttempts?: ExtractionAttempt[];
   geographicMarkers?: GeographicMarkers;
   guessedCountry?: string;
+  entityCategory?: EntityCategoryPrediction;
 }
 
 export class DomainExtractor {
@@ -347,6 +355,169 @@ export class DomainExtractor {
     score += markers.languageIndicators.length * 15;
 
     return Math.min(score, 100); // Cap at 100
+  }
+
+  /**
+   * Predict entity category based on domain, company name, and website content
+   */
+  private predictEntityCategory(domain: string, companyName: string | null, $: cheerio.CheerioAPI): EntityCategoryPrediction {
+    const content = $.text().toLowerCase();
+    const domainLower = domain.toLowerCase();
+    
+    const categoryIndicators = {
+      'Technology/Software': {
+        domainKeywords: ['tech', 'software', 'digital', 'cloud', 'data', 'ai', 'cyber', 'app'],
+        contentKeywords: ['software', 'technology', 'digital', 'platform', 'cloud', 'artificial intelligence', 'machine learning', 'cybersecurity', 'saas', 'api'],
+        tldBonus: ['.io', '.tech', '.ai', '.app'],
+        weight: 1.0
+      },
+      'Financial Services': {
+        domainKeywords: ['bank', 'finance', 'invest', 'capital', 'credit', 'loan', 'insurance'],
+        contentKeywords: ['banking', 'financial', 'investment', 'insurance', 'credit', 'loans', 'wealth management', 'portfolio', 'trading', 'fintech'],
+        businessSuffixes: ['bank', 'capital', 'investments', 'insurance', 'financial'],
+        weight: 1.0
+      },
+      'Healthcare/Pharmaceutical': {
+        domainKeywords: ['health', 'pharma', 'medical', 'bio', 'med', 'care'],
+        contentKeywords: ['healthcare', 'pharmaceutical', 'medicine', 'medical', 'patient', 'therapy', 'drug', 'clinical', 'biotechnology', 'diagnostics'],
+        businessSuffixes: ['healthcare', 'pharmaceuticals', 'medical', 'biotech'],
+        weight: 1.0
+      },
+      'Manufacturing/Industrial': {
+        domainKeywords: ['manufacturing', 'industrial', 'auto', 'steel', 'chemical', 'materials'],
+        contentKeywords: ['manufacturing', 'industrial', 'production', 'automotive', 'steel', 'chemical', 'materials', 'engineering', 'machinery', 'components'],
+        businessSuffixes: ['manufacturing', 'industries', 'industrial', 'automotive'],
+        weight: 0.9
+      },
+      'Energy/Utilities': {
+        domainKeywords: ['energy', 'power', 'electric', 'oil', 'gas', 'renewable', 'utility'],
+        contentKeywords: ['energy', 'electricity', 'power', 'oil', 'gas', 'renewable', 'solar', 'wind', 'utilities', 'petroleum'],
+        businessSuffixes: ['energy', 'power', 'electric', 'utilities'],
+        weight: 1.0
+      },
+      'Retail/Consumer': {
+        domainKeywords: ['retail', 'shop', 'store', 'market', 'consumer', 'brand'],
+        contentKeywords: ['retail', 'shopping', 'consumer', 'products', 'brands', 'merchandise', 'e-commerce', 'marketplace', 'fashion', 'lifestyle'],
+        businessSuffixes: ['retail', 'brands', 'consumer', 'products'],
+        weight: 0.8
+      },
+      'Telecommunications': {
+        domainKeywords: ['telecom', 'mobile', 'network', 'communications', 'wireless'],
+        contentKeywords: ['telecommunications', 'mobile', 'network', 'communications', 'wireless', 'broadband', '5g', 'connectivity', 'internet'],
+        businessSuffixes: ['telecom', 'communications', 'mobile', 'networks'],
+        weight: 1.0
+      },
+      'Aerospace/Defense': {
+        domainKeywords: ['aerospace', 'aviation', 'defense', 'aircraft', 'space'],
+        contentKeywords: ['aerospace', 'aviation', 'aircraft', 'defense', 'space', 'satellite', 'military', 'flight', 'aviation'],
+        businessSuffixes: ['aerospace', 'aviation', 'defense', 'aircraft'],
+        weight: 1.0
+      },
+      'Food/Beverage': {
+        domainKeywords: ['food', 'beverage', 'nutrition', 'restaurant', 'dining'],
+        contentKeywords: ['food', 'beverage', 'nutrition', 'restaurant', 'dining', 'culinary', 'ingredients', 'dairy', 'agriculture'],
+        businessSuffixes: ['foods', 'beverages', 'nutrition', 'agriculture'],
+        weight: 0.9
+      },
+      'Real Estate': {
+        domainKeywords: ['real', 'estate', 'property', 'construction', 'development'],
+        contentKeywords: ['real estate', 'property', 'construction', 'development', 'building', 'residential', 'commercial', 'investment'],
+        businessSuffixes: ['properties', 'development', 'construction', 'realty'],
+        weight: 0.8
+      }
+    };
+
+    const scores: Record<string, { score: number; indicators: string[] }> = {};
+
+    // Initialize scores
+    Object.keys(categoryIndicators).forEach(category => {
+      scores[category] = { score: 0, indicators: [] };
+    });
+
+    // Analyze each category
+    Object.entries(categoryIndicators).forEach(([category, config]) => {
+      let categoryScore = 0;
+      const indicators: string[] = [];
+
+      // Domain keyword analysis
+      config.domainKeywords.forEach(keyword => {
+        if (domainLower.includes(keyword)) {
+          categoryScore += 30;
+          indicators.push(`Domain contains "${keyword}"`);
+        }
+      });
+
+      // Content keyword analysis
+      config.contentKeywords.forEach(keyword => {
+        if (content.includes(keyword)) {
+          categoryScore += 15;
+          indicators.push(`Content mentions "${keyword}"`);
+        }
+      });
+
+      // Company name analysis
+      if (companyName) {
+        const companyLower = companyName.toLowerCase();
+        config.domainKeywords.forEach(keyword => {
+          if (companyLower.includes(keyword)) {
+            categoryScore += 25;
+            indicators.push(`Company name contains "${keyword}"`);
+          }
+        });
+
+        // Business suffix analysis
+        if (config.businessSuffixes) {
+          config.businessSuffixes.forEach(suffix => {
+            if (companyLower.includes(suffix)) {
+              categoryScore += 20;
+              indicators.push(`Company name suggests "${suffix}" business`);
+            }
+          });
+        }
+      }
+
+      // TLD bonus
+      if (config.tldBonus) {
+        config.tldBonus.forEach(tld => {
+          if (domain.endsWith(tld)) {
+            categoryScore += 15;
+            indicators.push(`TLD "${tld}" suggests tech focus`);
+          }
+        });
+      }
+
+      // Apply category weight
+      categoryScore *= config.weight;
+
+      scores[category] = { score: categoryScore, indicators };
+    });
+
+    // Find top category
+    const sortedCategories = Object.entries(scores)
+      .sort(([,a], [,b]) => b.score - a.score)
+      .filter(([,data]) => data.score > 0);
+
+    if (sortedCategories.length === 0) {
+      return {
+        primaryCategory: 'General Business',
+        confidence: 30,
+        indicators: ['No specific industry indicators found'],
+        alternativeCategories: []
+      };
+    }
+
+    const [primaryCategory, primaryData] = sortedCategories[0];
+    const alternatives = sortedCategories.slice(1, 3).map(([cat, data]) => ({
+      category: cat,
+      confidence: Math.min(Math.round((data.score / Math.max(primaryData.score, 1)) * 100), 95)
+    }));
+
+    return {
+      primaryCategory,
+      confidence: Math.min(Math.round(primaryData.score), 95),
+      indicators: primaryData.indicators.slice(0, 5), // Top 5 indicators
+      alternativeCategories: alternatives.length > 0 ? alternatives : undefined
+    };
   }
 
   /**
@@ -1118,10 +1289,12 @@ export class DomainExtractor {
     // Priority 1: Try footer copyright extraction first (most reliable for legal entities)
     const footerResult = this.extractFromFooterCopyright($, domain);
     if (footerResult.companyName && this.isValidCompanyName(footerResult.companyName)) {
+      const entityCategory = this.predictEntityCategory(domain, footerResult.companyName, $);
       return {
         ...footerResult,
         geographicMarkers,
-        guessedCountry
+        guessedCountry,
+        entityCategory
       };
     }
 
@@ -1207,10 +1380,12 @@ export class DomainExtractor {
     if (metaDescription) {
       const companyName = this.extractCompanyFromText(metaDescription);
       if (companyName && this.isValidCompanyName(companyName)) {
+        const entityCategory = this.predictEntityCategory(domain, companyName, $);
         return {
           companyName,
           method: 'meta_description',
           confidence: this.calculateConfidence(companyName, 'meta_description'),
+          entityCategory
         };
       }
     }
