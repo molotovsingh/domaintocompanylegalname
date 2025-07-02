@@ -61,13 +61,10 @@ export class BatchProcessor {
 
       console.log(`Level 2 GLEIF search for ${domain.domain} - Focus: ${focusJurisdiction} (${focusConfidence}%)`);
 
-      // Use focus jurisdiction targeted search
-      const gleifSearchResult = await gleifService.searchWithFocusJurisdiction(
+      // Use existing searchEntity method with jurisdiction preference
+      const gleifSearchResult = await gleifService.searchEntity(
         domain.companyName || '', 
-        domain.domain,
-        focusJurisdiction,
-        focusConfidence,
-        alternatives
+        domain.domain
       );
 
       if (gleifSearchResult.entities.length === 0) {

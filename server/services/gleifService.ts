@@ -482,6 +482,47 @@ export class GLEIFService {
   }
 
   /**
+   * Search with focus jurisdiction for Level 2 processing
+   */
+  async searchWithFocusJurisdiction(
+    companyName: string, 
+    domain: string, 
+    focusJurisdiction?: string,
+    focusConfidence?: number,
+    alternatives?: string[]
+  ): Promise<GLEIFSearchResult> {
+    try {
+      // If we have a high-confidence focus jurisdiction, search there first
+      if (focusJurisdiction && focusConfidence && focusConfidence > 70) {
+        console.log(`Searching GLEIF with focus jurisdiction: ${focusJurisdiction} (${focusConfidence}% confidence)`);
+        const result = await this.performGLEIFSearch(companyName, 'geographic', focusJurisdiction);
+        if (result.entities.length > 0) {
+          return result;
+        }
+      }
+      
+      // Try alternatives if provided
+      if (alternatives && alternatives.length > 0) {
+        for (const altJurisdiction of alternatives.slice(0, 2)) { // Limit to top 2 alternatives
+          const result = await this.performGLEIFSearch(companyName, 'geographic', altJurisdiction);
+          if (result.entities.length > 0) {
+            console.log(`Found entities in alternative jurisdiction: ${altJurisdiction}`);
+            return result;
+          }
+        }
+      }
+      
+      // Fall back to standard search
+      return await this.searchEntity(companyName, domain);
+      
+    } catch (error) {
+      console.error('Focus jurisdiction search failed:', error);
+      // Fall back to standard search on error
+      return await this.searchEntity(companyName, domain);
+    }
+  }
+
+  /**
    * Enhanced global search with multi-jurisdiction support
    */
   async searchGlobalEntity(companyName: string, domain: string, priorityJurisdictions?: string[]): Promise<GLEIFSearchResult> {
