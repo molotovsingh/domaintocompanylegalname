@@ -45,6 +45,11 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Set up additional routes BEFORE vite middleware
+  addWideExportRoute(app);
+  addNormalizedExportRoute(app);
+  app.use(knowledgeGraphRoutes);
+
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -61,11 +66,6 @@ app.use((req, res, next) => {
   } else {
     serveStatic(app);
   }
-
-  // Set up additional routes
-  addWideExportRoute(app);
-  addNormalizedExportRoute(app);
-  app.use(knowledgeGraphRoutes);
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
