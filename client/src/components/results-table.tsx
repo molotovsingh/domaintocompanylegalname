@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Table, Download, FileCode, Globe, CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, Search, Shield, Users, Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,14 +27,14 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
     queryKey: ["/api/results", currentBatchId, page, statusFilter, searchQuery],
     queryFn: () => {
       if (!currentBatchId) return null;
-      
+
       const params = new URLSearchParams({
         page: page.toString(),
         limit: "50",
         ...(statusFilter !== "all" && { status: statusFilter }),
         ...(searchQuery && { search: searchQuery })
       });
-      
+
       return fetch(`/api/results/${currentBatchId}?${params}`)
         .then(res => {
           if (!res.ok) throw new Error('Failed to fetch results');
