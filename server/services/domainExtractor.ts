@@ -32,6 +32,12 @@ export interface GeographicMarkers {
   legalJurisdictions: string[];
   languageIndicators: string[];
   confidenceScore: number;
+  focusJurisdiction?: {
+    jurisdiction: string;
+    confidence: number;
+    reasoning: string[];
+    alternatives: string[];
+  };
 }
 
 export interface ExtractionResult {
@@ -46,6 +52,8 @@ export interface ExtractionResult {
   extractionAttempts?: ExtractionAttempt[];
   geographicMarkers?: GeographicMarkers;
   guessedCountry?: string;
+  focusJurisdiction?: string;
+  focusJurisdictionConfidence?: number;
 }
 
 export class DomainExtractor {
@@ -180,6 +188,15 @@ export class DomainExtractor {
 
     // Calculate confidence score
     markers.confidenceScore = this.calculateGeographicConfidence(markers);
+    
+    // Calculate focus jurisdiction for GLEIF targeting
+    const focusJurisdiction = this.calculateFocusJurisdiction(markers, domain);
+    markers.focusJurisdiction = {
+      jurisdiction: focusJurisdiction.focusJurisdiction,
+      confidence: focusJurisdiction.confidence,
+      reasoning: focusJurisdiction.reasoning,
+      alternatives: focusJurisdiction.alternativeJurisdictions
+    };
 
     return markers;
   }
@@ -209,6 +226,136 @@ export class DomainExtractor {
     score += markers.languageIndicators.length * 15;
     
     return Math.min(score, 100); // Cap at 100
+  }
+
+  /**
+   * Calculate focus jurisdiction with confidence scoring for GLEIF targeting
+   */
+  private calculateFocusJurisdiction(markers: GeographicMarkers, domain: string): {
+    focusJurisdiction: string;
+    confidence: number;
+    reasoning: string[];
+    alternativeJurisdictions: string[];
+  } {
+    const jurisdictionScores: Record<string, number> = {};
+    const reasoning: string[] = [];
+    
+    // TLD-based jurisdiction (strongest signal for business registration)
+    const tldJurisdiction = this.getCountryFromTLD(domain);
+    if (tldJurisdiction) {
+      const tldKey = this.normalizeJurisdictionKey(tldJurisdiction);
+      jurisdictionScores[tldKey] = (jurisdictionScores[tldKey] || 0) + 40;
+      reasoning.push(`TLD jurisdiction: ${tldKey} (+40)`);
+    }
+    
+    // .com domains get special US preference for business entities
+    if (domain.endsWith('.com') && !tldJurisdiction) {
+      jurisdictionScores['us'] = (jurisdictionScores['us'] || 0) + 35;
+      reasoning.push('.com domain: US business preference (+35)');
+    }
+    
+    // Legal jurisdiction mentions (very strong for corporate entities)
+    for (const jurisdiction of markers.legalJurisdictions) {
+      const extractedCountries = this.extractCountriesFromLegalText(jurisdiction);
+      for (const country of extractedCountries) {
+        const key = this.normalizeJurisdictionKey(country);
+        jurisdictionScores[key] = (jurisdictionScores[key] || 0) + 35;
+        reasoning.push(`Legal mention: ${key} (+35)`);
+      }
+    }
+    
+    // Phone country codes (medium-strong business signal)
+    for (const code of markers.phoneCountryCodes) {
+      const country = this.geographicPatterns.phonePatterns[code];
+      if (country) {
+        const key = this.normalizeJurisdictionKey(country);
+        jurisdictionScores[key] = (jurisdictionScores[key] || 0) + 25;
+        reasoning.push(`Phone code ${code}: ${key} (+25)`);
+      }
+    }
+    
+    // Detected countries from content (medium signal)
+    for (const country of markers.detectedCountries) {
+      const key = this.normalizeJurisdictionKey(country);
+      jurisdictionScores[key] = (jurisdictionScores[key] || 0) + 20;
+      reasoning.push(`Content mention: ${key} (+20)`);
+    }
+    
+    // Currency symbols (weak but useful signal)
+    for (const symbol of markers.currencySymbols) {
+      const currency = this.geographicPatterns.currencySymbols[symbol];
+      const country = this.currencyToCountry(currency);
+      if (country) {
+        const key = this.normalizeJurisdictionKey(country);
+        jurisdictionScores[key] = (jurisdictionScores[key] || 0) + 10;
+        reasoning.push(`Currency ${symbol}: ${key} (+10)`);
+      }
+    }
+    
+    // Sort by score and extract results
+    const sortedJurisdictions = Object.entries(jurisdictionScores)
+      .sort(([,a], [,b]) => b - a);
+    
+    const focusJurisdiction = sortedJurisdictions[0]?.[0] || 'us'; // Default to US
+    const confidence = Math.min(sortedJurisdictions[0]?.[1] || 0, 100);
+    const alternativeJurisdictions = sortedJurisdictions.slice(1, 4).map(([key]) => key);
+    
+    return {
+      focusJurisdiction,
+      confidence,
+      reasoning,
+      alternativeJurisdictions
+    };
+  }
+  
+  private normalizeJurisdictionKey(country: string): string {
+    const mapping: Record<string, string> = {
+      'United States': 'us',
+      'US/Canada': 'us', // Phone code ambiguity defaults to US for business
+      'Germany': 'germany', 
+      'United Kingdom': 'uk',
+      'France': 'france',
+      'Japan': 'japan',
+      'Canada': 'canada',
+      'Italy': 'italy',
+      'Spain': 'spain',
+      'Netherlands': 'netherlands',
+      'Australia': 'australia',
+      'Switzerland': 'switzerland',
+      'Austria': 'austria'
+    };
+    
+    return mapping[country] || country.toLowerCase();
+  }
+  
+  private extractCountriesFromLegalText(text: string): string[] {
+    const countries = [];
+    const lowerText = text.toLowerCase();
+    
+    for (const [country, patterns] of Object.entries(this.geographicPatterns.countries)) {
+      for (const pattern of patterns) {
+        if (lowerText.includes(pattern.toLowerCase())) {
+          countries.push(country);
+          break;
+        }
+      }
+    }
+    
+    return countries;
+  }
+  
+  private currencyToCountry(currency: string): string | null {
+    const mapping: Record<string, string> = {
+      'USD': 'United States',
+      'EUR': 'Germany', // Default to Germany for EUR for business purposes
+      'GBP': 'United Kingdom',
+      'JPY': 'Japan',
+      'CAD': 'Canada',
+      'AUD': 'Australia',
+      'CHF': 'Switzerland'
+    };
+    
+    return mapping[currency] || null;
   }
 
   /**
@@ -983,7 +1130,9 @@ export class DomainExtractor {
       return {
         ...footerResult,
         geographicMarkers,
-        guessedCountry
+        guessedCountry,
+        focusJurisdiction: geographicMarkers.focusJurisdiction?.jurisdiction,
+        focusJurisdictionConfidence: geographicMarkers.focusJurisdiction?.confidence
       };
     }
     

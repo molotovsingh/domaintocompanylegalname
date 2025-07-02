@@ -20,7 +20,7 @@ export class BatchProcessor {
   private shouldTriggerLevel2(domain: Domain): boolean {
     // Skip if Level 2 already attempted
     if (domain.level2Attempted === true) return false;
-    
+
     // Trigger Level 2 for these scenarios:
     return (
       // Failed extraction but partial company name detected
@@ -38,7 +38,7 @@ export class BatchProcessor {
 
   private async processLevel2Enhancement(domain: Domain): Promise<void> {
     const level2StartTime = Date.now();
-    
+
     try {
       // Mark Level 2 as attempted
       await storage.updateDomain(domain.id, {
@@ -54,10 +54,23 @@ export class BatchProcessor {
         return;
       }
 
-      // Search GLEIF for candidates
-      const searchResult = await gleifService.searchEntity(domain.companyName, domain.domain);
-      
-      if (searchResult.entities.length === 0) {
+      // Extract focus jurisdiction from Level 1 results for targeted GLEIF search
+      const focusJurisdiction = domain.geographicMarkers?.focusJurisdiction?.jurisdiction;
+      const focusConfidence = domain.geographicMarkers?.focusJurisdiction?.confidence;
+      const alternatives = domain.geographicMarkers?.focusJurisdiction?.alternatives;
+
+      console.log(`Level 2 GLEIF search for ${domain.domain} - Focus: ${focusJurisdiction} (${focusConfidence}%)`);
+
+      // Use focus jurisdiction targeted search
+      const gleifSearchResult = await gleifService.searchWithFocusJurisdiction(
+        domain.companyName || '', 
+        domain.domain,
+        focusJurisdiction,
+        focusConfidence,
+        alternatives
+      );
+
+      if (gleifSearchResult.entities.length === 0) {
         await storage.updateDomain(domain.id, {
           level2Status: 'failed',
           level2ProcessingTimeMs: Date.now() - level2StartTime
@@ -67,9 +80,9 @@ export class BatchProcessor {
 
       // Process multiple candidates
       const selectionResult = await gleifService.processMultipleCandidates(
-        searchResult.entities,
+        gleifSearchResult.entities,
         domain,
-        searchResult.searchMethod
+        gleifSearchResult.searchMethod
       );
 
       // Store all candidates in database
@@ -103,7 +116,7 @@ export class BatchProcessor {
       // Update domain with Level 2 results
       const primaryCandidate = selectionResult.primarySelection;
       const enhancedBusinessCategory = this.determineEnhancedBusinessCategory(domain, selectionResult);
-      
+
       await storage.updateDomain(domain.id, {
         level2Status: 'success',
         level2CandidatesCount: selectionResult.totalCandidates,
@@ -125,7 +138,7 @@ export class BatchProcessor {
 
     } catch (error: any) {
       console.error(`Level 2 processing failed for ${domain.domain}:`, error);
-      
+
       await storage.updateDomain(domain.id, {
         level2Status: 'failed',
         level2ProcessingTimeMs: Date.now() - level2StartTime,
@@ -136,23 +149,23 @@ export class BatchProcessor {
 
   private determineEnhancedBusinessCategory(domain: Domain, selectionResult: any): string {
     const primaryCandidate = selectionResult.primarySelection;
-    
+
     if (primaryCandidate.entityStatus === 'ACTIVE' && primaryCandidate.weightedScore >= 85) {
       return 'GLEIF Verified - High Priority';
     }
-    
+
     if (primaryCandidate.entityStatus === 'ACTIVE' && primaryCandidate.weightedScore >= 70) {
       return 'GLEIF Matched - Good Target';
     }
-    
+
     if (primaryCandidate.entityStatus === 'INACTIVE') {
       return 'GLEIF Historical - Research Required';
     }
-    
+
     if (selectionResult.manualReviewRequired) {
       return 'GLEIF Multiple - Manual Review';
     }
-    
+
     // Fall back to original Level 1 category
     return domain.failureCategory || 'Level 1 Only - Manual Review';
   }
@@ -184,14 +197,14 @@ export class BatchProcessor {
       // Auto-resume logic: Check if batch has pending domains that need processing
       const pendingDomains = await storage.getDomainsByStatus('pending');
       const batchPendingDomains = pendingDomains.filter(d => d.batchId === batchId);
-      
+
       if (batchPendingDomains.length === 0) {
         console.log(`No pending domains for batch ${batchId}. Checking if processing truly complete...`);
-        
+
         // Verify batch completion
         const allBatchDomains = await storage.getDomainsByBatch(batchId, 10000);
         const totalProcessed = allBatchDomains.filter(d => d.status !== 'pending').length;
-        
+
         if (totalProcessed < batch.totalDomains) {
           console.log(`RESUMING: Found ${batch.totalDomains - totalProcessed} unprocessed domains in completed batch`);
           // Force requeue stuck domains that aren't actually processing
@@ -199,18 +212,18 @@ export class BatchProcessor {
             d.status === 'processing' && 
             (!d.processingStartedAt || (Date.now() - new Date(d.processingStartedAt).getTime()) > 30000)
           );
-          
+
           for (const stuckDomain of stuckDomains) {
             await storage.updateDomain(stuckDomain.id, {
               status: 'pending',
               processingStartedAt: null
             });
           }
-          
+
           // Retry getting pending domains
           const retryPendingDomains = await storage.getDomainsByStatus('pending');
           const retryBatchPendingDomains = retryPendingDomains.filter(d => d.batchId === batchId);
-          
+
           if (retryBatchPendingDomains.length > 0) {
             console.log(`REQUEUED: ${retryBatchPendingDomains.length} stuck domains back to pending`);
           }
@@ -242,10 +255,10 @@ export class BatchProcessor {
       // Recovery system: Check for orphaned domains in inconsistent states
       if (batchDomains.length === 0) {
         console.log(`No pending domains found for batch ${batchId}. Running status recovery...`);
-        
+
         const allBatchDomains = await storage.getDomainsByBatch(batchId, 10000);
         const totalProcessed = allBatchDomains.filter(d => d.status !== 'pending').length;
-        
+
         if (totalProcessed < batch.totalDomains) {
           // Find domains that might be in inconsistent states
           const orphanedDomains = allBatchDomains.filter(d => {
@@ -254,19 +267,19 @@ export class BatchProcessor {
                 (Date.now() - new Date(d.processingStartedAt).getTime()) > 60000)) {
               return true;
             }
-            
+
             // Domain failed but has low retry count and could be retried
             if (d.status === 'failed' && (d.retryCount || 0) < 2 && 
                 d.failureCategory !== 'circuit_breaker_skip') {
               return true;
             }
-            
+
             return false;
           });
 
           if (orphanedDomains.length > 0) {
             console.log(`STATUS RECOVERY: Found ${orphanedDomains.length} domains in inconsistent states, resetting to pending`);
-            
+
             for (const orphanedDomain of orphanedDomains) {
               await storage.updateDomain(orphanedDomain.id, {
                 status: 'pending',
@@ -274,14 +287,14 @@ export class BatchProcessor {
                 retryCount: (orphanedDomain.retryCount || 0) + 1
               });
             }
-            
+
             // Refresh pending domains list
             const refreshedPendingDomains = await storage.getDomainsByStatus('pending');
             batchDomains = refreshedPendingDomains.filter(d => d.batchId === batchId);
             console.log(`STATUS RECOVERY: ${batchDomains.length} domains now available for processing`);
           }
         }
-        
+
         if (batchDomains.length === 0) {
           console.log(`Batch ${batchId} processing complete after status recovery`);
         }
@@ -289,35 +302,35 @@ export class BatchProcessor {
 
       if (batchDomains.length > 0) {
         console.log(`Processing ${batchDomains.length} pending domains for batch ${batchId}`);
-        
+
         // Reduced concurrency for Fortune 500 enterprise domains
         const batchSize = 3;
         let processedCount = 0;
-        
+
         for (let i = 0; i < batchDomains.length; i += batchSize) {
           const batch = batchDomains.slice(i, i + batchSize);
-          
+
           // Log start for each domain in batch
           batch.forEach((domain, index) => {
             batchLogger.logDomainStart(domain.domain, i + index + 1);
           });
-          
+
           await Promise.all(batch.map(domain => this.processDomain(domain, batchLogger)));
           processedCount += batch.length;
-          
+
           // Update batch progress - use actual database state instead of counter
           const allBatchDomains = await storage.getDomainsByBatch(batchId, 10000);
           const actualProcessed = allBatchDomains.filter(d => d.status !== 'pending').length;
           const successful = await this.getSuccessfulCount(batchId);
           const failed = actualProcessed - successful;
-          
+
           // Calculate processing rates
           const elapsedMs = Date.now() - batchStartTime;
           const currentRate = (actualProcessed / (elapsedMs / 1000)) * 60; // domains per minute
           const averageRate = (actualProcessed / (elapsedMs / 60000)); // domains per minute
           const estimatedRemainingMs = batchDomains.length > actualProcessed ? 
             ((batchDomains.length - actualProcessed) / currentRate) * 60000 : 0;
-          
+
           // Log batch progress
           batchLogger.logBatchProgress({
             processed: actualProcessed,
@@ -329,7 +342,7 @@ export class BatchProcessor {
             elapsedTimeMs: elapsedMs,
             estimatedRemainingMs: estimatedRemainingMs
           });
-          
+
           await storage.updateBatch(batchId, {
             processedDomains: actualProcessed,
             successfulDomains: successful,
@@ -345,7 +358,7 @@ export class BatchProcessor {
       console.log('Starting Level 2 GLEIF enhancement phase...');
       const allDomains = await storage.getDomainsByBatch(batchId, 10000);
       const level2Eligible = allDomains.filter(domain => this.shouldTriggerLevel2(domain));
-      
+
       if (level2Eligible.length > 0) {
         console.log(`Processing ${level2Eligible.length} domains for Level 2 GLEIF enhancement`);
         for (const domain of level2Eligible) {
@@ -362,7 +375,7 @@ export class BatchProcessor {
       const finalProcessed = finalBatchDomains.filter(d => d.status !== 'pending').length;
       const finalSuccessful = await this.getSuccessfulCount(batchId);
       const totalTimeMs = Date.now() - batchStartTime;
-      
+
       // Log batch completion with comprehensive metrics
       batchLogger.logBatchComplete({
         processed: finalProcessed,
@@ -372,10 +385,10 @@ export class BatchProcessor {
         averageTimePerDomain: finalProcessed > 0 ? totalTimeMs / finalProcessed : 0,
         successRate: finalProcessed > 0 ? (finalSuccessful / finalProcessed) * 100 : 0
       });
-      
+
       // Generate AI analysis summary
       batchLogger.generateAIAnalysisSummary();
-      
+
       await storage.updateBatch(batchId, { status: 'completed' });
       await storage.createActivity({
         type: 'batch_complete',
@@ -404,7 +417,7 @@ export class BatchProcessor {
   private async processDomain(domain: Domain, batchLogger?: any): Promise<void> {
     const startTime = Date.now();
     const maxProcessingTime = 11000; // 11 seconds max (matches extractor timeout)
-    
+
     try {
       // Skip if already processed successfully (from cache)
       if (domain.status === 'success') {
@@ -439,7 +452,7 @@ export class BatchProcessor {
             processedAt: new Date(),
             processingTimeMs: processingTime
           });
-          
+
           return;
         }
       }
@@ -455,10 +468,10 @@ export class BatchProcessor {
 
       // Check if we already have a high-confidence result for this domain
       const existingHighConfidence = await storage.getHighConfidenceResult(domain.domain);
-      
+
       if (existingHighConfidence && existingHighConfidence.id !== domain.id && this.hasLegalSuffix(existingHighConfidence.companyName || '')) {
         const processingTime = Date.now() - startTime;
-        
+
         await storage.updateDomain(domain.id, {
           status: 'success',
           companyName: existingHighConfidence.companyName,
@@ -467,8 +480,8 @@ export class BatchProcessor {
           processedAt: new Date(),
           processingTimeMs: processingTime,
         });
-        
-        
+
+
         return;
       }
 
@@ -481,7 +494,7 @@ export class BatchProcessor {
       ]);
 
       const processingTime = Date.now() - startTime;
-      
+
       // Determine status based on extraction result and confidence
       const isSuccessful = result.companyName && 
                           result.confidence >= 65 && 
@@ -505,15 +518,15 @@ export class BatchProcessor {
     } catch (error: any) {
       const processingTime = Date.now() - startTime;
       const retryCount = (domain.retryCount || 0) + 1;
-      
+
       // Intelligent retry strategy based on error type
       const shouldRetry = this.shouldRetryDomain(error.message, retryCount);
       const finalStatus = shouldRetry ? 'pending' : 'failed';
-      
+
       if (shouldRetry) {
         console.log(`INTELLIGENT RETRY: Queuing ${domain.domain} for retry ${retryCount}/3 - ${error.message}`);
       }
-      
+
       await storage.updateDomain(domain.id, {
         status: finalStatus,
         failureCategory: shouldRetry ? 'retry_queued' : 'technical_timeout',
@@ -527,12 +540,12 @@ export class BatchProcessor {
       });
     }
 
-    
+
   }
 
   private shouldRetryDomain(errorMessage: string, retryCount: number): boolean {
     if (retryCount >= 3) return false;
-    
+
     // Retry network/timeout errors
     if (errorMessage.includes('timeout') || 
         errorMessage.includes('ETIMEDOUT') ||
@@ -540,13 +553,13 @@ export class BatchProcessor {
         errorMessage.includes('ENOTFOUND')) {
       return true;
     }
-    
+
     // Retry rate limiting errors
     if (errorMessage.includes('429') || 
         errorMessage.includes('rate limit')) {
       return true;
     }
-    
+
     // Don't retry permanent errors
     if (errorMessage.includes('404') ||
         errorMessage.includes('403') ||
@@ -554,7 +567,7 @@ export class BatchProcessor {
         errorMessage.includes('SSL')) {
       return false;
     }
-    
+
     // Retry general processing errors on first attempt
     return retryCount <= 1;
   }
@@ -585,10 +598,10 @@ export class BatchProcessor {
   async processSingleDomain(domain: Domain): Promise<Domain> {
     // For single domain tests, always do fresh processing (skip cache)
     await this.processDomainFresh(domain);
-    
+
     // Check if Level 2 GLEIF enhancement should be triggered for single domain
     await this.attemptLevel2Processing(domain.id);
-    
+
     // Return the updated domain from storage
     const updatedDomain = await storage.getDomain(domain.id);
     return updatedDomain!;
@@ -596,7 +609,7 @@ export class BatchProcessor {
 
   private async processDomainFresh(domain: Domain): Promise<void> {
     const startTime = Date.now();
-    
+
     try {
       // Mark as processing and record start time
       await storage.updateDomain(domain.id, { 
@@ -608,7 +621,7 @@ export class BatchProcessor {
       const result = await this.extractor.extractCompanyName(domain.domain);
 
       const processingTime = Date.now() - startTime;
-      
+
       // Determine status based on extraction result and confidence
       const isSuccessful = result.companyName && 
                           result.confidence >= 65 && 
@@ -631,7 +644,7 @@ export class BatchProcessor {
 
     } catch (error: any) {
       const processingTime = Date.now() - startTime;
-      
+
       await storage.updateDomain(domain.id, {
         status: 'failed',
         failureCategory: 'incomplete_low_priority',
