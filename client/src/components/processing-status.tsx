@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Settings, Server, CheckCircle, AlertCircle, Clock, StopCircle, AlertTriangle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,9 +13,6 @@ interface ProcessingStatusProps {
 }
 
 export default function ProcessingStatus({ currentBatchId }: ProcessingStatusProps) {
-  const [elapsedTime, setElapsedTime] = useState<string>("");
-  const [processingRate, setProcessingRate] = useState<number>(0);
-  const [eta, setEta] = useState<string>("");
   const [isAborting, setIsAborting] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -51,8 +49,8 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
   const totalDomains = (stats as any)?.totalDomains || 0;
   const processedDomains = (stats as any)?.processedDomains || 0;
   const progressPercentage = totalDomains > 0 ? Math.round((processedDomains / totalDomains) * 100) : 0;
-  const elapsedTime = (stats as any)?.elapsedTime;
-  const eta = (stats as any)?.eta;
+  const currentElapsedTime = (stats as any)?.elapsedTime;
+  const currentEta = (stats as any)?.eta;
 
   const abortProcessing = useMutation({
     mutationFn: async () => {
@@ -148,15 +146,15 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
                   <span>Elapsed Time</span>
                 </div>
                 <div className="text-sm font-medium text-gray-900">
-                  {elapsedTime || "0s"}
+                  {currentElapsedTime || "0s"}
                 </div>
               </div>
-              <div className={`p-2 rounded-lg ${eta === "Stalled" ? "bg-red-50" : "bg-green-50"}`}>
+              <div className={`p-2 rounded-lg ${currentEta === "Stalled" ? "bg-red-50" : "bg-green-50"}`}>
                 <div className="flex items-center text-xs text-gray-600 mb-1">
                   <Settings className="h-3 w-3 mr-1" />
                   <span>ETA</span></div>
-                <div className={`text-sm font-medium ${eta === "Stalled" ? "text-red-700" : "text-gray-900"}`}>
-                  {eta || "Unknown"}
+                <div className={`text-sm font-medium ${currentEta === "Stalled" ? "text-red-700" : "text-gray-900"}`}>
+                  {currentEta || "Unknown"}
                 </div>
               </div>
             </div>
