@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Play, Square, AlertTriangle, CheckCircle, Settings } from "lucide-react";
+import { Loader2, Play, Square, AlertTriangle, CheckCircle, Settings, Clock, AlertCircle, Server, StopCircle, RefreshCw } from "lucide-react";
 
 interface ProcessingStatusProps {
   currentBatchId: string | null;
