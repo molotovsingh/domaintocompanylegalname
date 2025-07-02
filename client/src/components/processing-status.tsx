@@ -1,15 +1,24 @@
-import { useQuery } from "@tanstack/react-query";
-import { Settings, Server, CheckCircle, AlertCircle, Clock } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Settings, Server, CheckCircle, AlertCircle, Clock, StopCircle, AlertTriangle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProcessingStatusProps {
   currentBatchId: string | null;
 }
 
 export default function ProcessingStatus({ currentBatchId }: ProcessingStatusProps) {
+  const [elapsedTime, setElapsedTime] = useState<string>("");
+  const [processingRate, setProcessingRate] = useState<number>(0);
+  const [eta, setEta] = useState<string>("");
+  const [isAborting, setIsAborting] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   const { data: batches } = useQuery({
     queryKey: ["/api/batches"],
     refetchInterval: 30000,
@@ -27,7 +36,7 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
   const activeBatch = batchesList.find((b: any) => b.status === 'processing');
   const pendingBatches = batchesList.filter((b: any) => b.status === 'pending');
   const completedBatches = batchesList.filter((b: any) => b.status === 'completed');
-  
+
   // Determine system status
   const getSystemStatus = () => {
     if (activeBatch) return { status: 'processing', label: 'Processing', color: 'bg-blue-500', icon: Clock };
@@ -35,7 +44,7 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
     if (completedBatches.length > 0) return { status: 'idle', label: 'Ready', color: 'bg-green-500', icon: CheckCircle };
     return { status: 'idle', label: 'Ready', color: 'bg-gray-500', icon: Server };
   };
-  
+
   const systemStatus = getSystemStatus();
   const StatusIcon = systemStatus.icon;
 
@@ -44,6 +53,52 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
   const progressPercentage = totalDomains > 0 ? Math.round((processedDomains / totalDomains) * 100) : 0;
   const elapsedTime = (stats as any)?.elapsedTime;
   const eta = (stats as any)?.eta;
+
+  const abortProcessing = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/stop-processing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to stop processing');
+      }
+
+      return response.json();
+    },
+    onMutate: () => {
+      setIsAborting(true);
+    },
+    onSuccess: (data) => {
+      setIsAborting(false);
+      if (data.stopped) {
+        toast({
+          title: "Processing stopped",
+          description: "Batch processing has been gracefully aborted",
+        });
+      } else {
+        toast({
+          title: "No active processing",
+          description: "There was no active processing to stop",
+          variant: "destructive",
+        });
+      }
+      // Refresh data
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/batches"] });
+    },
+    onError: (error: Error) => {
+      setIsAborting(false);
+      toast({
+        title: "Abort failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
 
   return (
     <Card className="bg-surface shadow-material border border-gray-200">
@@ -84,7 +139,7 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
               <span>{processedDomains?.toLocaleString()}</span>
               <span>{totalDomains?.toLocaleString()} domains</span>
             </div>
-            
+
             {/* Processing Time Counters */}
             <div className="grid grid-cols-2 gap-3 mt-3">
               <div className="bg-blue-50 p-2 rounded-lg">
@@ -99,12 +154,52 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
               <div className={`p-2 rounded-lg ${eta === "Stalled" ? "bg-red-50" : "bg-green-50"}`}>
                 <div className="flex items-center text-xs text-gray-600 mb-1">
                   <Settings className="h-3 w-3 mr-1" />
-                  <span>ETA</span>
-                </div>
+                  <span>ETA</span></div>
                 <div className={`text-sm font-medium ${eta === "Stalled" ? "text-red-700" : "text-gray-900"}`}>
                   {eta || "Unknown"}
                 </div>
               </div>
+            </div>
+
+            {/* Graceful Abort Button */}
+            <div className="mt-4 pt-3 border-t border-gray-200">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    className="w-full"
+                    disabled={isAborting}
+                  >
+                    <StopCircle className="h-4 w-4 mr-2" />
+                    {isAborting ? "Stopping..." : "Stop Processing"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-amber-500" />
+                      Stop Processing?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will gracefully stop the current batch processing. Domains that are currently being processed will be allowed to complete, but no new domains will be started.
+                      <br /><br />
+                      <strong>Current Progress:</strong> {processedDomains}/{totalDomains} domains ({progressPercentage}%)
+                      <br />
+                      <strong>Remaining:</strong> {(totalDomains || 0) - (processedDomains || 0)} domains
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={() => abortProcessing.mutate()}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Yes, Stop Processing
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         )}

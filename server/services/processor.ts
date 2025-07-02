@@ -587,12 +587,29 @@ export class BatchProcessor {
   }
 
   stopProcessing(): boolean {
-    if (this.isProcessing) {
-      console.log('STOP REQUESTED: Gracefully stopping batch processing...');
-      this.isProcessing = false;
-      return true;
+    if (!this.isProcessing) {
+      console.log('No active processing to stop');
+      return false;
     }
-    return false;
+
+    console.log('Initiating graceful shutdown...');
+    console.log('- Current processing will be stopped');
+    console.log('- Domains currently being processed will complete');
+    console.log('- No new domains will be started');
+
+    this.isProcessing = false;
+
+    // Log the abort event
+    if (this.currentBatchId) {
+      this.batchLogger.logEvent(this.currentBatchId, 'batch_aborted', {
+        message: 'Processing gracefully aborted by user',
+        processedCount: this.processedCount,
+        totalDomains: this.totalDomains,
+        elapsedTimeMs: Date.now() - this.startTime
+      });
+    }
+
+    return true;
   }
 
   async processSingleDomain(domain: Domain): Promise<Domain> {
