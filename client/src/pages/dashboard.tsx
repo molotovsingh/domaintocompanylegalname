@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Globe, User, BarChart3, Trash2, GitBranch } from "lucide-react";
+import { Globe, User, BarChart3, Trash2, GitBranch, Network } from "lucide-react";
 import { Link } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -153,11 +153,11 @@ export default function Dashboard() {
             <TabsTrigger value="session">Session Stats</TabsTrigger>
             <TabsTrigger value="activity">Activity Feed</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="results" className="mt-0">
             <ResultsTable currentBatchId={currentBatchId} />
           </TabsContent>
-          
+
           <TabsContent value="session" className="mt-0">
             {currentBatchId ? (
               <SessionResults batchId={currentBatchId} />
@@ -168,7 +168,7 @@ export default function Dashboard() {
               </div>
             )}
           </TabsContent>
-          
+
           <TabsContent value="activity" className="mt-0">
             <ActivityFeed />
           </TabsContent>

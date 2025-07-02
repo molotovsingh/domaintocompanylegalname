@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, GitBranch, Eye, MapPin, Building2, Users, TrendingUp, Globe } from 'lucide-react';
+import { Search, Eye, Share2, Download, Filter, ArrowRight, ExternalLink, Globe, Building2, Users, TrendingUp, MapPin, Calendar, Hash, Link as LinkIcon, Network } from 'lucide-react';
 
 interface KnowledgeGraphNode {
   id: string;
@@ -175,21 +174,21 @@ export default function GLEIFKnowledgeGraph() {
     graphData.edges.forEach((edge) => {
       const sourceNode = graphData.nodes.find(n => n.id === edge.source);
       const targetNode = graphData.nodes.find(n => n.id === edge.target);
-      
+
       if (sourceNode && targetNode) {
         ctx.beginPath();
         ctx.strokeStyle = '#E0E0E0';
         ctx.lineWidth = edge.weight * 3;
-        
+
         // Simple positioning (circular layout)
         const sourceAngle = (graphData.nodes.indexOf(sourceNode) / graphData.nodes.length) * 2 * Math.PI;
         const targetAngle = (graphData.nodes.indexOf(targetNode) / graphData.nodes.length) * 2 * Math.PI;
-        
+
         const sourceX = centerX + Math.cos(sourceAngle) * 120;
         const sourceY = centerY + Math.sin(sourceAngle) * 120;
         const targetX = centerX + Math.cos(targetAngle) * 120;
         const targetY = centerY + Math.sin(targetAngle) * 120;
-        
+
         ctx.moveTo(sourceX, sourceY);
         ctx.lineTo(targetX, targetY);
         ctx.stroke();
@@ -493,18 +492,18 @@ export default function GLEIFKnowledgeGraph() {
                       <div className="text-lg font-bold text-blue-600">Apple Inc. (US)</div>
                       <div className="text-sm text-gray-500">Parent Entity • LEI: 549300QL3ULKHN32OM67</div>
                     </div>
-                    
+
                     <div className="flex justify-center items-center mb-4">
                       <div className="w-px h-8 bg-gray-300"></div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-3 bg-green-50 rounded-lg">
                         <div className="font-medium text-green-800">Apple Europe Ltd</div>
                         <div className="text-sm text-green-600">Ireland • LEI: 213800QILIUP4CSUZ214</div>
                         <Badge variant="outline" className="mt-1 text-xs">Subsidiary</Badge>
                       </div>
-                      
+
                       <div className="p-3 bg-green-50 rounded-lg">
                         <div className="font-medium text-green-800">Apple Asia Pacific</div>
                         <div className="text-sm text-green-600">Singapore • LEI: 213800ABC123XYZ789</div>
