@@ -141,3 +141,107 @@ router.get('/api/intelligence/stats', async (req, res) => {
 });
 
 export default router;
+
+
+
+// GLEIF Data Completeness Diagnostic
+app.get('/api/gleif/data-completeness/:domain', async (req, res) => {
+  try {
+    const { domain } = req.params;
+    
+    // Get domain intelligence
+    const intelligence = await gleifKnowledgeBase.getDomainIntelligence(domain);
+    
+    if (intelligence.entities.length === 0) {
+      return res.json({
+        domain,
+        status: 'no_entities',
+        message: 'No GLEIF entities found for this domain'
+      });
+    }
+
+    // Analyze data completeness for each entity
+    const entityAnalysis = intelligence.entities.map(entity => {
+      const rawData = entity.gleifFullData ? JSON.parse(entity.gleifFullData) : {};
+      const enhancedData = rawData.enhancedData || {};
+      
+      return {
+        lei: entity.leiCode,
+        legalName: entity.legalName,
+        dataCompleteness: enhancedData.dataCompleteness || {
+          score: 0,
+          availableFields: [],
+          missingFields: [],
+          qualityIndicators: {}
+        },
+        capturedFields: {
+          coreEntityData: {
+            lei: !!entity.leiCode,
+            legalName: !!entity.legalName,
+            entityStatus: !!entity.entityStatus,
+            jurisdiction: !!entity.jurisdiction,
+            legalForm: !!entity.legalForm,
+            registrationStatus: !!entity.registrationStatus
+          },
+          addressIntelligence: {
+            headquartersCountry: !!entity.headquartersCountry,
+            headquartersCity: !!entity.headquartersCity,
+            legalAddressCountry: !!entity.legalAddressCountry,
+            legalAddressCity: !!entity.legalAddressCity
+          },
+          enhancedIntelligence: {
+            legalFormDetails: !!enhancedData.legalFormDetails,
+            registrationAuthority: !!enhancedData.registrationAuthority,
+            entityLifecycle: !!enhancedData.entityLifecycle,
+            businessClassification: !!enhancedData.businessClassification,
+            financialCodes: !!enhancedData.financialCodes,
+            corporateIntelligence: !!enhancedData.corporateIntelligence,
+            extensionData: !!enhancedData.extensionData
+          }
+        },
+        rawDataSize: JSON.stringify(rawData).length,
+        lastUpdated: entity.lastGleifUpdate
+      };
+    });
+
+    // Calculate overall statistics
+    const avgCompleteness = Math.round(
+      entityAnalysis.reduce((sum, e) => sum + e.dataCompleteness.score, 0) / entityAnalysis.length
+    );
+
+    const fieldAvailability = {
+      coreData: entityAnalysis.filter(e => e.dataCompleteness.qualityIndicators?.hasCoreData).length,
+      completeAddress: entityAnalysis.filter(e => e.dataCompleteness.qualityIndicators?.hasCompleteAddress).length,
+      enhancedData: entityAnalysis.filter(e => e.dataCompleteness.qualityIndicators?.hasEnhancedData).length
+    };
+
+    res.json({
+      domain,
+      status: 'analysis_complete',
+      summary: {
+        totalEntities: entityAnalysis.length,
+        averageCompleteness: avgCompleteness,
+        fieldAvailability,
+        dataQuality: avgCompleteness > 80 ? 'excellent' : avgCompleteness > 60 ? 'good' : 'basic'
+      },
+      entities: entityAnalysis,
+      gleifCapabilities: {
+        availableFields: [
+          'LEI Code', 'Legal Name', 'Entity Status', 'Jurisdiction', 'Legal Form',
+          'Registration Status', 'Headquarters Address', 'Legal Address',
+          'Other Entity Names', 'Registration Date', 'Legal Form Details',
+          'Registration Authority', 'Entity Lifecycle', 'Business Classification',
+          'BIC Codes', 'Successor Entity', 'Extension Data'
+        ],
+        dataTypes: ['Core Entity', 'Address Intelligence', 'Corporate Relationships', 'Financial Codes', 'Regulatory Data']
+      }
+    });
+
+  } catch (error) {
+    console.error('GLEIF data completeness analysis failed:', error);
+    res.status(500).json({ 
+      error: 'Failed to analyze GLEIF data completeness',
+      details: error.message 
+    });
+  }
+});

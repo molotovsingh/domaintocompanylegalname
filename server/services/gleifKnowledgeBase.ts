@@ -88,7 +88,7 @@ export class GLEIFKnowledgeBase {
         });
         console.log(`Updated entity frequency for ${entity.lei}: ${existingEntity.discoveryFrequency + 1}`);
       } else {
-        // Create new entity record
+        // Create new entity record with enhanced GLEIF data
         const newEntity: InsertGleifEntity = {
           leiCode: entity.lei,
           legalName: entity.legalName,
@@ -98,7 +98,7 @@ export class GLEIFKnowledgeBase {
           entityCategory: entity.entityCategory,
           registrationStatus: entity.registrationStatus,
           
-          // Address Intelligence
+          // Enhanced Address Intelligence
           headquartersCountry: entity.headquarters.country,
           headquartersCity: entity.headquarters.city,
           headquartersRegion: entity.headquarters.region,
@@ -108,13 +108,42 @@ export class GLEIFKnowledgeBase {
           legalAddressRegion: entity.legalAddress.region,
           legalAddressPostalCode: entity.legalAddress.postalCode,
           
-          // Entity Intelligence
-          otherNames: entity.otherNames,
+          // Enhanced Entity Intelligence
+          otherNames: Array.isArray(entity.otherNames) && entity.otherNames.length > 0 && typeof entity.otherNames[0] === 'object' 
+            ? entity.otherNames.map((n: any) => n.name) 
+            : entity.otherNames,
           registrationDate: entity.registrationDate,
           lastGleifUpdate: entity.lastUpdateDate,
           
-          // Full GLEIF Data Archive
-          gleifFullData: JSON.stringify(entity)
+          // Additional GLEIF Intelligence (stored in JSON)
+          gleifFullData: JSON.stringify({
+            ...entity,
+            enhancedData: {
+              legalFormDetails: {
+                code: entity.legalFormCode,
+                name: entity.legalFormName,
+                abbreviation: entity.legalFormAbbreviation
+              },
+              registrationAuthority: entity.registrationAuthority,
+              entityLifecycle: {
+                nextRenewalDate: entity.nextRenewalDate,
+                lastCorroborationDate: entity.lastCorroborationDate
+              },
+              businessClassification: {
+                category: entity.entityCategory,
+                subCategory: entity.entitySubCategory
+              },
+              financialCodes: {
+                bic: entity.bic
+              },
+              corporateIntelligence: {
+                successorEntity: entity.successorEntity
+              },
+              extensionData: entity.extensionData,
+              captureTimestamp: new Date().toISOString(),
+              dataCompleteness: this.calculateDataCompleteness(entity)
+            }
+          })
         };
         
         await storage.createGleifEntity?.(newEntity);
@@ -359,6 +388,58 @@ export class GLEIFKnowledgeBase {
     };
     
     return { entity, domainMappings, relationships, discoveryHistory };
+  }
+
+  /**
+   * Calculate data completeness score for GLEIF entity
+   */
+  private calculateDataCompleteness(entity: GLEIFEntity): {
+    score: number;
+    availableFields: string[];
+    missingFields: string[];
+    qualityIndicators: any;
+  } {
+    const coreFields = {
+      'lei': entity.lei,
+      'legalName': entity.legalName,
+      'entityStatus': entity.entityStatus,
+      'jurisdiction': entity.jurisdiction,
+      'legalForm': entity.legalForm,
+      'registrationStatus': entity.registrationStatus
+    };
+
+    const addressFields = {
+      'headquartersCountry': entity.headquarters?.country,
+      'headquartersCity': entity.headquarters?.city,
+      'legalAddressCountry': entity.legalAddress?.country,
+      'legalAddressCity': entity.legalAddress?.city
+    };
+
+    const enhancedFields = {
+      'legalFormName': entity.legalFormName,
+      'registrationAuthority': entity.registrationAuthority?.id,
+      'otherNames': entity.otherNames?.length > 0,
+      'bic': entity.bic?.length > 0,
+      'extensionData': entity.extensionData && Object.keys(entity.extensionData).length > 0
+    };
+
+    const allFields = { ...coreFields, ...addressFields, ...enhancedFields };
+    const availableFields = Object.keys(allFields).filter(key => allFields[key]);
+    const missingFields = Object.keys(allFields).filter(key => !allFields[key]);
+    
+    const score = Math.round((availableFields.length / Object.keys(allFields).length) * 100);
+
+    return {
+      score,
+      availableFields,
+      missingFields,
+      qualityIndicators: {
+        hasCoreData: Object.values(coreFields).every(v => v),
+        hasCompleteAddress: Object.values(addressFields).every(v => v),
+        hasEnhancedData: Object.values(enhancedFields).some(v => v),
+        dataFreshness: entity.lastUpdateDate ? new Date(entity.lastUpdateDate) : null
+      }
+    };
   }
 }
 

@@ -11,12 +11,18 @@ export interface GLEIFEntity {
   legalForm: string;
   entityCategory: string;
   registrationStatus: string;
+  
+  // Enhanced address structures with complete GLEIF data
   headquarters: {
     country: string;
     region: string;
     city: string;
     addressLines: string[];
     postalCode: string;
+    firstAddressLine?: string;
+    additionalAddressLine?: string;
+    mailRouting?: string;
+    language?: string;
   };
   legalAddress: {
     country: string;
@@ -24,10 +30,54 @@ export interface GLEIFEntity {
     city: string;
     addressLines: string[];
     postalCode: string;
+    firstAddressLine?: string;
+    additionalAddressLine?: string;
+    mailRouting?: string;
+    language?: string;
   };
-  otherNames: string[];
+  
+  // Enhanced entity names with metadata
+  otherNames: Array<{
+    name: string;
+    type: string;
+    language: string;
+  }> | string[]; // Support both old and new format
+  
+  // Core dates
   registrationDate: string;
   lastUpdateDate: string;
+  
+  // Enhanced legal form information
+  legalFormCode?: string;
+  legalFormName?: string;
+  legalFormAbbreviation?: string;
+  
+  // Registration authority intelligence
+  registrationAuthority?: {
+    id: string;
+    name: string;
+    validationSources: string;
+    validationAuthority: string;
+  };
+  
+  // Entity lifecycle data
+  nextRenewalDate?: string;
+  lastCorroborationDate?: string;
+  
+  // Business classification
+  entitySubCategory?: string;
+  
+  // Financial institution codes
+  bic?: string[];
+  
+  // Corporate restructuring intelligence
+  successorEntity?: string;
+  
+  // Country-specific extension data
+  extensionData?: any;
+  
+  // Complete raw data for advanced analysis
+  rawGleifData?: any;
 }
 
 export interface GLEIFSearchResult {
@@ -239,7 +289,7 @@ export class GLEIFService {
   }
 
   /**
-   * Parse GLEIF API record into our entity format
+   * Parse GLEIF API record into our entity format - Enhanced to capture all valuable GLEIF data
    */
   private parseGLEIFRecord(record: any): GLEIFEntity | null {
     try {
@@ -257,23 +307,78 @@ export class GLEIFService {
         legalForm: entity.legalForm?.id || '',
         entityCategory: entity.category || 'GENERAL',
         registrationStatus: registration?.status || 'UNKNOWN',
+        
+        // Enhanced headquarters data with complete address structure
         headquarters: {
           country: entity.headquartersAddress?.country || '',
           region: entity.headquartersAddress?.region || '',
           city: entity.headquartersAddress?.city || '',
           addressLines: entity.headquartersAddress?.addressLines || [],
-          postalCode: entity.headquartersAddress?.postalCode || ''
+          postalCode: entity.headquartersAddress?.postalCode || '',
+          // Additional address fields from GLEIF
+          firstAddressLine: entity.headquartersAddress?.firstAddressLine || '',
+          additionalAddressLine: entity.headquartersAddress?.additionalAddressLine || '',
+          mailRouting: entity.headquartersAddress?.mailRouting || '',
+          language: entity.headquartersAddress?.language || ''
         },
+        
+        // Enhanced legal address with complete structure
         legalAddress: {
           country: entity.legalAddress?.country || '',
           region: entity.legalAddress?.region || '',
           city: entity.legalAddress?.city || '',
           addressLines: entity.legalAddress?.addressLines || [],
-          postalCode: entity.legalAddress?.postalCode || ''
+          postalCode: entity.legalAddress?.postalCode || '',
+          // Additional legal address fields
+          firstAddressLine: entity.legalAddress?.firstAddressLine || '',
+          additionalAddressLine: entity.legalAddress?.additionalAddressLine || '',
+          mailRouting: entity.legalAddress?.mailRouting || '',
+          language: entity.legalAddress?.language || ''
         },
-        otherNames: entity.otherEntityNames?.map((n: any) => n.name) || [],
+        
+        // Enhanced entity names and identifiers
+        otherNames: entity.otherEntityNames?.map((n: any) => ({
+          name: n.name || '',
+          type: n.type || '',
+          language: n.language || ''
+        })) || [],
+        
+        // Enhanced registration and legal information
         registrationDate: registration?.initialRegistrationDate || '',
-        lastUpdateDate: attributes.lastUpdateDate || ''
+        lastUpdateDate: attributes.lastUpdateDate || '',
+        
+        // Additional valuable GLEIF fields
+        legalFormCode: entity.legalForm?.id || '',
+        legalFormName: entity.legalForm?.name || '',
+        legalFormAbbreviation: entity.legalForm?.abbreviation || '',
+        
+        // Registration authority information
+        registrationAuthority: {
+          id: registration?.managingLOU || '',
+          name: registration?.managingLOUName || '',
+          validationSources: registration?.validationSources || '',
+          validationAuthority: registration?.validationAuthority || ''
+        },
+        
+        // Entity lifecycle information
+        nextRenewalDate: registration?.nextRenewalDate || '',
+        lastCorroborationDate: registration?.lastCorroborationDate || '',
+        
+        // Business classification
+        entityCategory: entity.category || '',
+        entitySubCategory: entity.subCategory || '',
+        
+        // Associated BIC codes (if available)
+        bic: entity.associatedBIC || [],
+        
+        // Successor entity information (for mergers/acquisitions)
+        successorEntity: attributes.successorEntity?.lei || '',
+        
+        // Extension data for additional country-specific information
+        extensionData: attributes.extension || {},
+        
+        // Complete raw GLEIF data for future analysis
+        rawGleifData: record
       };
     } catch (error) {
       console.error('Failed to parse GLEIF record:', error);
