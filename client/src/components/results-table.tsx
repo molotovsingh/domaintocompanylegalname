@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Table, Download, FileCode, Globe, CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, Search, Shield, Users, Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,10 +17,10 @@ interface ResultsTableProps {
 }
 
 export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
-  const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDomainForGleif, setSelectedDomainForGleif] = useState<{ id: number; domain: string } | null>(null);
+  const [page, setPage] = React.useState(1);
+  const [statusFilter, setStatusFilter] = React.useState("all");
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [selectedDomainForGleif, setSelectedDomainForGleif] = React.useState<{ id: number; domain: string } | null>(null);
   const { toast } = useToast();
 
   const { data: resultsData, isLoading } = useQuery({

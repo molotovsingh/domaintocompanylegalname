@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import * as React from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,8 +24,8 @@ interface SingleDomainTestProps {
 }
 
 export default function SingleDomainTest({ onTestCompleted }: SingleDomainTestProps) {
-  const [domain, setDomain] = useState("");
-  const [testResult, setTestResult] = useState<TestResult | null>(null);
+  const [domain, setDomain] = React.useState("");
+  const [testResult, setTestResult] = React.useState<TestResult | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
