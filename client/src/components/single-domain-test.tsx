@@ -38,11 +38,11 @@ export default function SingleDomainTest({ onTestCompleted }: SingleDomainTestPr
         },
         body: JSON.stringify({ domain: testDomain }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to test domain');
       }
-      
+
       return response.json();
     },
     onSuccess: (result) => {
@@ -77,7 +77,7 @@ export default function SingleDomainTest({ onTestCompleted }: SingleDomainTestPr
       });
       return;
     }
-    
+
     const cleanDomain = domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
     testDomainMutation.mutate(cleanDomain);
   };
@@ -108,19 +108,19 @@ export default function SingleDomainTest({ onTestCompleted }: SingleDomainTestPr
     if (result.status === 'success' && result.confidenceScore && result.confidenceScore >= 85) {
       return { label: 'Success', color: 'bg-green-100 text-green-800' };
     }
-    
+
     if (result.failureCategory === 'connectivity_issue') {
       return { label: 'Protected - Manual Review', color: 'bg-yellow-100 text-yellow-800' };
     }
-    
+
     if (result.failureCategory === 'extraction_failed') {
       return { label: 'Good Target - Tech Issue', color: 'bg-blue-100 text-blue-800' };
     }
-    
+
     if (result.status === 'failed') {
       return { label: 'Bad Website - Skip', color: 'bg-red-100 text-red-800' };
     }
-    
+
     return { label: 'Incomplete - Low Priority', color: 'bg-gray-100 text-gray-800' };
   };
 
