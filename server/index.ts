@@ -4,6 +4,9 @@ import { setupVite, serveStatic, log } from "./vite";
 import { gleifUpdateService } from "./services/gleifUpdateService";
 import { stuckDomainMonitor } from "./services/stuckDomainMonitor";
 import { processingHealthMonitor } from './services/processingHealthMonitor';
+import routesWide from './routes-wide';
+import routesNormalized from './routes-normalized';
+import knowledgeGraphRoutes from './routes-knowledge-graph';
 
 const app = express();
 app.use(express.json());
@@ -58,6 +61,10 @@ app.use((req, res, next) => {
   } else {
     serveStatic(app);
   }
+
+  app.use(routesWide);
+  app.use(routesNormalized);
+  app.use(knowledgeGraphRoutes);
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.

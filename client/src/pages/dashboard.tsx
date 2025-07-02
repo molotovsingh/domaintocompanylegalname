@@ -106,6 +106,10 @@ export default function Dashboard() {
               <Link href="/jurisdictional-guide" className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors">
                 Jurisdictions
               </Link>
+              <Link href="/knowledge-graph" className="flex items-center gap-2 px-3 py-2 text-sm text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors">
+                <Network className="h-4 w-4" />
+                Knowledge Graph
+              </Link>
               <Button
                 variant="outline"
                 size="sm"
