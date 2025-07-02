@@ -4,8 +4,8 @@ import { setupVite, serveStatic, log } from "./vite";
 import { gleifUpdateService } from "./services/gleifUpdateService";
 import { stuckDomainMonitor } from "./services/stuckDomainMonitor";
 import { processingHealthMonitor } from './services/processingHealthMonitor';
-import routesWide from './routes-wide';
-import routesNormalized from './routes-normalized';
+import { addWideExportRoute } from './routes-wide';
+import { addNormalizedExportRoute } from './routes-normalized';
 import knowledgeGraphRoutes from './routes-knowledge-graph';
 
 const app = express();
@@ -62,8 +62,9 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  app.use(routesWide);
-  app.use(routesNormalized);
+  // Set up additional routes
+  addWideExportRoute(app);
+  addNormalizedExportRoute(app);
   app.use(knowledgeGraphRoutes);
 
   // ALWAYS serve the app on port 5000
