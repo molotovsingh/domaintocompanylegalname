@@ -1,4 +1,4 @@
-import { AlertTriangle, AlertCircle, Info, Zap, Settings, Network, Shield } from "lucide-react";
+import { AlertTriangle, AlertCircle, Info, Zap, Settings, GitBranch, Shield } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,7 @@ const severityConfig = {
 };
 
 const typeIcons = {
-  network_timeout: Network,
+  network_timeout: GitBranch,
   anti_bot_protection: Shield,
   high_concurrency: Zap,
   stuck_domains: Settings,

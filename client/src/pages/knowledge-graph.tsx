@@ -1,7 +1,7 @@
 
 import GLEIFKnowledgeGraph from "@/components/gleif-knowledge-graph";
 import { Link } from "wouter";
-import { ArrowLeft, Network } from "lucide-react";
+import { ArrowLeft, GitBranch } from "lucide-react";
 
 export default function KnowledgeGraphPage() {
   return (
@@ -17,7 +17,7 @@ export default function KnowledgeGraphPage() {
               </Link>
               <div className="flex items-center space-x-3">
                 <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-2">
-                  <Network className="h-6 w-6" />
+                  <GitBranch className="h-6 w-6" />
                 </div>
                 <div>
                   <h1 className="text-xl font-semibold text-gray-900">GLEIF Knowledge Graph</h1>
