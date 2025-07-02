@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Table, Download, FileCode, Globe, CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, Search, Shield, Users, Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
