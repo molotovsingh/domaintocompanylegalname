@@ -421,9 +421,26 @@ export class BatchProcessor {
         return;
       }
 
-      // Circuit breaker: Skip domains that have failed too many times
+      // Enhanced circuit breaker: Skip problematic domains immediately and others after retries
+      const problematicDomains = ['kddi.com', 'tenaris.com', 'samsung.com', 'orange.com'];
+      const isProblematicDomain = problematicDomains.includes(domain.domain);
       const retryCount = domain.retryCount || 0;
-      if (retryCount >= 3) {
+      
+      if (isProblematicDomain && retryCount >= 1) {
+        console.log(`ENHANCED CIRCUIT BREAKER: Skipping problematic domain ${domain.domain} after ${retryCount} attempt(s)`);
+        await storage.updateDomain(domain.id, {
+          status: 'failed',
+          failureCategory: 'circuit_breaker_skip',
+          errorMessage: 'Problematic domain skipped - known to cause timeout issues',
+          technicalDetails: `Domain ${domain.domain} identified as problematic, limited to 1 retry attempt`,
+          recommendation: 'Manual review required - domain has known processing issues',
+          processedAt: new Date(),
+          processingTimeMs: Date.now() - startTime
+        });
+        return;
+      }
+      
+      if (!isProblematicDomain && retryCount >= 3) {
         console.log(`CIRCUIT BREAKER: Skipping ${domain.domain} - exceeded retry limit (${retryCount} attempts)`);
         await storage.updateDomain(domain.id, {
           status: 'failed',
