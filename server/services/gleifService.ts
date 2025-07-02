@@ -72,11 +72,11 @@ export class GLEIFService {
     try {
       // Try exact search first
       let result = await this.performGLEIFSearch(companyName, 'exact');
-      
+
       if (result.entities.length === 0) {
         // Try fuzzy search if exact fails
         result = await this.performGLEIFSearch(companyName, 'fuzzy');
-        
+
         if (result.entities.length === 0) {
           // Try geographic search with TLD-based jurisdiction
           const jurisdiction = this.getJurisdictionFromDomain(domain);
@@ -124,7 +124,7 @@ export class GLEIFService {
     // Convert validated entities to candidates with enhanced scoring
     const candidates: GLEIFCandidate[] = validatedEntities.map((entity, index) => {
       const scores = this.calculateWeightedScore(entity, domain);
-      
+
       return {
         ...entity,
         gleifMatchScore: this.calculateGLEIFMatchScore(entity, domain.companyName || ''),
@@ -142,7 +142,7 @@ export class GLEIFService {
 
     // Sort candidates by weighted score (descending)
     candidates.sort((a, b) => b.weightedScore - a.weightedScore);
-    
+
     // Update rank positions after sorting
     candidates.forEach((candidate, index) => {
       candidate.rankPosition = index + 1;
@@ -190,14 +190,14 @@ export class GLEIFService {
       // GLEIF provides a free public API for legal entity searches
       const baseUrl = 'https://api.gleif.org/api/v1/lei-records';
       let searchUrl = `${baseUrl}?filter[entity.legalName]=*${encodeURIComponent(searchTerm)}*&page[size]=10`;
-      
+
       // Add jurisdiction filter if provided
       if (jurisdiction) {
         searchUrl += `&filter[entity.legalAddress.country]=${jurisdiction}`;
       }
 
       console.log(`GLEIF API: Searching for "${searchTerm}" using ${method} method`);
-      
+
       const response = await fetch(searchUrl, {
         method: 'GET',
         headers: {
@@ -224,7 +224,7 @@ export class GLEIFService {
       }
 
       console.log(`GLEIF API: Found ${entities.length} entities for "${searchTerm}"`);
-      
+
       return {
         searchTerm,
         totalMatches: data.meta?.pagination?.total || entities.length,
@@ -248,7 +248,7 @@ export class GLEIFService {
 
       const entity = attributes.entity;
       const registration = attributes.registration;
-      
+
       return {
         lei: attributes.lei || '',
         legalName: entity.legalName?.name || '',
@@ -284,8 +284,8 @@ export class GLEIFService {
   /**
    * Calculate weighted score for GLEIF candidate selection
    */
-  private calculateWeightedScore(entity: GLEIFEntity, domain: Domain, focusJurisdiction?: string, focusConfidence?: number) {
-    const domainTldScore = Math.round(this.calculateDomainTldScore(entity, domain.domain, focusJurisdiction, focusConfidence));
+  private calculateWeightedScore(entity: GLEIFEntity, domain: Domain) {
+    const domainTldScore = Math.round(this.calculateDomainTldScore(entity, domain.domain));
     const fortune500Score = Math.round(this.calculateFortune500Score(entity));
     const nameMatchScore = Math.round(this.calculateNameMatchScore(entity, domain.companyName || ''));
     const entityComplexityScore = Math.round(this.calculateEntityComplexityScore(entity, domain.domain));
@@ -312,27 +312,17 @@ export class GLEIFService {
     };
   }
 
-  private calculateDomainTldScore(entity: GLEIFEntity, domain: string, focusJurisdiction?: string, focusConfidence?: number): number {
+  private calculateDomainTldScore(entity: GLEIFEntity, domain: string): number {
     const domainTLD = domain.split('.').pop()?.toLowerCase();
     const entityCountry = entity.jurisdiction.toLowerCase();
-    
-    // ENHANCED: Focus jurisdiction matching takes precedence
-    if (focusJurisdiction && focusConfidence && focusConfidence >= 70) {
-      const normalizedFocus = this.normalizeJurisdictionForGLEIF(focusJurisdiction);
-      if (entityCountry === normalizedFocus) {
-        const bonus = Math.min(focusConfidence / 100 * 30, 30); // Up to 30 point bonus
-        console.log(`FOCUS JURISDICTION MATCH: ${entity.legalName} matches focus ${focusJurisdiction} (+${bonus})`);
-        return 100 + bonus; // Can exceed 100 for perfect focus matches
-      }
-    }
-    
+
     // Enhanced geographic matching with business context priority
-    
+
     // Perfect jurisdiction match
     if (this.tldMapping[`.${domainTLD}`] === entityCountry) {
       return 100;
     }
-    
+
     // Special handling for .com domains - heavily favor US entities
     if (domainTLD === 'com') {
       if (entityCountry === 'us') {
@@ -345,40 +335,21 @@ export class GLEIFService {
       }
       return 15; // Heavy penalty for others
     }
-    
+
     // Generic TLD handling with business context
     if (['org', 'net'].includes(domainTLD || '')) {
       // More neutral for org/net
       if (entityCountry === 'us') return 70;
       return 50;
     }
-    
+
     // Country-specific TLD mismatches
     if (domainTLD && domainTLD.length === 2) {
       // This is a country TLD that doesn't match entity jurisdiction
       return 10; // Heavy penalty for wrong country TLD
     }
-    
+
     return 25; // Default for other mismatches
-  }
-  
-  private normalizeJurisdictionForGLEIF(jurisdiction: string): string {
-    const mapping: Record<string, string> = {
-      'us': 'us',
-      'germany': 'de',
-      'uk': 'gb', 
-      'france': 'fr',
-      'japan': 'jp',
-      'canada': 'ca',
-      'italy': 'it',
-      'spain': 'es',
-      'netherlands': 'nl',
-      'australia': 'au',
-      'switzerland': 'ch',
-      'austria': 'at'
-    };
-    
-    return mapping[jurisdiction.toLowerCase()] || jurisdiction.toLowerCase();
   }
 
   private calculateFortune500Score(entity: GLEIFEntity): number {
@@ -386,12 +357,12 @@ export class GLEIFService {
       'inc', 'corporation', 'corp', 'company', 'co', 'ltd', 'limited',
       'sa', 'se', 'ag', 'gmbh', 'spa', 'srl', 'bv', 'nv'
     ];
-    
+
     const legalName = entity.legalName.toLowerCase();
     const hasF500Indicator = fortune500Indicators.some(indicator => 
       legalName.includes(indicator)
     );
-    
+
     if (hasF500Indicator && entity.entityStatus === 'ACTIVE') {
       return 100;
     } else if (hasF500Indicator) {
@@ -399,41 +370,41 @@ export class GLEIFService {
     } else if (entity.entityStatus === 'ACTIVE') {
       return 50;
     }
-    
+
     return 25;
   }
 
   private calculateNameMatchScore(entity: GLEIFEntity, companyName: string): number {
     if (!companyName) return 0;
-    
+
     const entityName = entity.legalName.toLowerCase();
     const targetName = companyName.toLowerCase();
-    
+
     // Exact match
     if (entityName === targetName) return 100;
-    
+
     // Contains match
     if (entityName.includes(targetName) || targetName.includes(entityName)) return 85;
-    
+
     // Word overlap analysis
     const entityWords = entityName.split(/\s+/);
     const targetWords = targetName.split(/\s+/);
     const overlap = entityWords.filter(word => targetWords.includes(word)).length;
     const maxWords = Math.max(entityWords.length, targetWords.length);
-    
+
     if (overlap > 0) {
       return Math.round((overlap / maxWords) * 80);
     }
-    
+
     return 10; // Minimal score for any match
   }
 
   private calculateEntityComplexityScore(entity: GLEIFEntity, domain: string): number {
     let score = 50; // Base score
-    
+
     // Active status bonus (most important)
     if (entity.entityStatus === 'ACTIVE') score += 25;
-    
+
     // Enhanced registration status handling
     if (entity.registrationStatus === 'ISSUED') {
       score += 15;
@@ -441,23 +412,23 @@ export class GLEIFService {
       // Reduced penalty for lapsed but active entities - common in business
       score += 5; // Still some bonus for active entities
     }
-    
+
     // Business entity type preference for commercial domains
     const isCommercialDomain = domain.endsWith('.com') || domain.endsWith('.biz');
     if (isCommercialDomain) {
       const commercialEntityTypes = ['PJ10', '8888', 'C3VN', 'TXGZ']; // Common commercial forms
       const foundationTypes = ['5WWO', 'PRIV']; // Foundation/trust types
-      
+
       if (commercialEntityTypes.includes(entity.legalForm)) {
         score += 15; // Prefer corporations for .com domains
       } else if (foundationTypes.includes(entity.legalForm)) {
         score -= 10; // Penalize foundations for commercial domains
       }
     }
-    
+
     // Complete address information bonus
     if (entity.headquarters.country && entity.headquarters.city) score += 10;
-    
+
     return Math.min(Math.max(score, 0), 100);
   }
 
@@ -465,12 +436,12 @@ export class GLEIFService {
     nameMatch: number, fortune500: number, tldMatch: number, complexity: number
   ): string {
     const reasons = [];
-    
+
     if (nameMatch >= 85) reasons.push('Strong name match');
     if (fortune500 >= 75) reasons.push('Fortune 500 indicators');
     if (tldMatch >= 75) reasons.push('Jurisdiction alignment');
     if (complexity >= 75) reasons.push('Complete entity profile');
-    
+
     return reasons.length > 0 ? reasons.join(', ') : 'Basic entity match';
   }
 
@@ -481,18 +452,18 @@ export class GLEIFService {
   private requiresManualReview(candidates: GLEIFCandidate[]): boolean {
     if (candidates.length === 0) return false;
     if (candidates.length === 1) return false;
-    
+
     // Manual review if top candidates have similar scores
     const topScore = candidates[0].weightedScore;
     const secondScore = candidates[1]?.weightedScore || 0;
-    
+
     return (topScore - secondScore) < 15; // Less than 15 point difference
   }
 
   private getJurisdictionFromDomain(domain: string): string {
     const tld = '.' + domain.split('.').pop()?.toLowerCase();
     const jurisdiction = this.tldMapping[tld];
-    
+
     // Global jurisdiction fallback logic for 123 jurisdictions
     if (!jurisdiction) {
       // Enhanced TLD recognition for global coverage
@@ -503,52 +474,11 @@ export class GLEIFService {
         '.biz': 'global',
         '.info': 'global'
       };
-      
+
       return globalTLDs[tld] || 'US';
     }
-    
-    return jurisdiction;
-  }
 
-  /**
-   * Enhanced search with focus jurisdiction targeting
-   */
-  async searchWithFocusJurisdiction(
-    companyName: string, 
-    domain: string, 
-    focusJurisdiction?: string,
-    focusConfidence?: number,
-    alternativeJurisdictions?: string[]
-  ): Promise<GLEIFSearchResult> {
-    console.log(`GLEIF FOCUS SEARCH: ${companyName} - Focus: ${focusJurisdiction} (${focusConfidence}% confidence)`);
-    
-    // High confidence focus jurisdiction - search there first
-    if (focusJurisdiction && focusConfidence && focusConfidence >= 70) {
-      console.log(`High confidence focus jurisdiction: ${focusJurisdiction} - searching targeted`);
-      let result = await this.performGLEIFSearch(companyName, 'geographic', focusJurisdiction);
-      
-      if (result.entities.length > 0) {
-        console.log(`Found ${result.entities.length} entities in focus jurisdiction: ${focusJurisdiction}`);
-        return { ...result, searchMethod: 'focus_jurisdiction_targeted' };
-      }
-    }
-    
-    // Medium confidence or no results - try standard search
-    let result = await this.searchEntity(companyName, domain);
-    
-    // If still no results, try alternative jurisdictions from geographic analysis
-    if (result.entities.length === 0 && alternativeJurisdictions) {
-      for (const jurisdiction of alternativeJurisdictions) {
-        console.log(`Trying alternative jurisdiction: ${jurisdiction}`);
-        result = await this.performGLEIFSearch(companyName, 'geographic', jurisdiction);
-        if (result.entities.length > 0) {
-          console.log(`Found entities in alternative jurisdiction: ${jurisdiction}`);
-          return { ...result, searchMethod: 'alternative_jurisdiction' };
-        }
-      }
-    }
-    
-    return result;
+    return jurisdiction;
   }
 
   /**
@@ -557,7 +487,7 @@ export class GLEIFService {
   async searchGlobalEntity(companyName: string, domain: string, priorityJurisdictions?: string[]): Promise<GLEIFSearchResult> {
     // Try primary jurisdiction first
     let result = await this.searchEntity(companyName, domain);
-    
+
     // If no results and priority jurisdictions specified, search those
     if (result.entities.length === 0 && priorityJurisdictions) {
       for (const jurisdiction of priorityJurisdictions) {
@@ -568,7 +498,7 @@ export class GLEIFService {
         }
       }
     }
-    
+
     return result;
   }
 }

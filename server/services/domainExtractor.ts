@@ -1,3 +1,4 @@
+typescript
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { promisify } from 'util';
@@ -32,12 +33,6 @@ export interface GeographicMarkers {
   legalJurisdictions: string[];
   languageIndicators: string[];
   confidenceScore: number;
-  focusJurisdiction?: {
-    jurisdiction: string;
-    confidence: number;
-    reasoning: string[];
-    alternatives: string[];
-  };
 }
 
 export interface ExtractionResult {
@@ -52,14 +47,12 @@ export interface ExtractionResult {
   extractionAttempts?: ExtractionAttempt[];
   geographicMarkers?: GeographicMarkers;
   guessedCountry?: string;
-  focusJurisdiction?: string;
-  focusJurisdictionConfidence?: number;
 }
 
 export class DomainExtractor {
   private timeout = 6000; // Ultra-fast 6-second HTML extraction timeout
   private userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-  
+
   private geographicPatterns = {
     countries: {
       'United States': ['US', 'USA', 'United States', 'America', 'Delaware', 'California', 'New York', 'Texas', 'Florida'],
@@ -105,7 +98,7 @@ export class DomainExtractor {
       'located in': 'location'
     }
   };
-  
+
   private getCountryFromTLD(domain: string): string | null {
     // Import jurisdiction data
     const { getJurisdictionByTLD } = require('@shared/jurisdictions');
@@ -118,7 +111,7 @@ export class DomainExtractor {
   private extractGeographicMarkers($: cheerio.CheerioAPI, domain: string): GeographicMarkers {
     const content = $.text().toLowerCase();
     const html = $.html();
-    
+
     const markers: GeographicMarkers = {
       detectedCountries: [],
       phoneCountryCodes: [],
@@ -128,6 +121,144 @@ export class DomainExtractor {
       languageIndicators: [],
       confidenceScore: 0
     };
+
+    // Enhanced phone number patterns with country codes
+    const phonePatterns = [
+      { pattern: /\+1[\s\-\.]?\(?[0-9]{3}\)?[\s\-\.]?[0-9]{3}[\s\-\.]?[0-9]{4}/, country: 'US', confidence: 90 },
+      { pattern: /\+44[\s\-\.]?[0-9]{2,4}[\s\-\.]?[0-9]{3,4}[\s\-\.]?[0-9]{3,4}/, country: 'GB', confidence: 90 },
+      { pattern: /\+49[\s\-\.]?[0-9]{2,4}[\s\-\.]?[0-9]{3,4}[\s\-\.]?[0-9]{3,4}/, country: 'DE', confidence: 90 },
+      { pattern: /\+33[\s\-\.]?[0-9]{1}[\s\-\.]?[0-9]{2}[\s\-\.]?[0-9]{2}[\s\-\.]?[0-9]{2}[\s\-\.]?[0-9]{2}/, country: 'FR', confidence: 90 },
+      { pattern: /\+55[\s\-\.]?\(?[0-9]{2}\)?[\s\-\.]?[0-9]{4,5}[\s\-\.]?[0-9]{4}/, country: 'BR', confidence: 90 },
+      { pattern: /\+65[\s\-\.]?[0-9]{4}[\s\-\.]?[0-9]{4}/, country: 'SG', confidence: 95 },
+      { pattern: /\+81[\s\-\.]?[0-9]{1,4}[\s\-\.]?[0-9]{1,4}[\s\-\.]?[0-9]{1,4}/, country: 'JP', confidence: 90 },
+      { pattern: /\+86[\s\-\.]?[0-9]{2,4}[\s\-\.]?[0-9]{3,4}[\s\-\.]?[0-9]{3,4}/, country: 'CN', confidence: 90 },
+      { pattern: /\+91[\s\-\.]?[0-9]{4}[\s\-\.]?[0-9]{3}[\s\-\.]?[0-9]{3}/, country: 'IN', confidence: 90 },
+      { pattern: /\+90[\s\-\.]?[0-9]{3}[\s\-\.]?[0-9]{3}[\s\-\.]?[0-9]{2}[\s\-\.]?[0-9]{2}/, country: 'TR', confidence: 90 },
+      { pattern: /\+7[\s\-\.]?[0-9]{3}[\s\-\.]?[0-9]{3}[\s\-\.]?[0-9]{2}[\s\-\.]?[0-9]{2}/, country: 'RU', confidence: 85 },
+      { pattern: /\+52[\s\-\.]?\(?[0-9]{2,3}\)?[\s\-\.]?[0-9]{3,4}[\s\-\.]?[0-9]{4}/, country: 'MX', confidence: 90 }
+    ];
+
+    // Enhanced currency symbols and patterns
+    const currencyPatterns = [
+      { pattern: /\$[0-9,]+(\.[0-9]{2})?(?!\s*(AUD|CAD|NZD|SGD))/i, country: 'US', confidence: 70 },
+      { pattern: /USD?\s*\$?[0-9,]+(\.[0-9]{2})?/i, country: 'US', confidence: 85 },
+      { pattern: /£[0-9,]+(\.[0-9]{2})?/i, country: 'GB', confidence: 95 },
+      { pattern: /GBP\s*£?[0-9,]+(\.[0-9]{2})?/i, country: 'GB', confidence: 95 },
+      { pattern: /€[0-9,]+(\.[0-9]{2})?/i, country: 'EU', confidence: 80 },
+      { pattern: /EUR\s*€?[0-9,]+(\.[0-9]{2})?/i, country: 'EU', confidence: 85 },
+      { pattern: /¥[0-9,]+/i, country: 'JP', confidence: 85 },
+      { pattern: /JPY\s*¥?[0-9,]+/i, country: 'JP', confidence: 90 },
+      { pattern: /R\$[0-9,]+(\.[0-9]{2})?/i, country: 'BR', confidence: 95 },
+      { pattern: /BRL\s*R?\$?[0-9,]+(\.[0-9]{2})?/i, country: 'BR', confidence: 95 },
+      { pattern: /₹[0-9,]+(\.[0-9]{2})?/i, country: 'IN', confidence: 95 },
+      { pattern: /INR\s*₹?[0-9,]+(\.[0-9]{2})?/i, country: 'IN', confidence: 95 },
+      { pattern: /₩[0-9,]+/i, country: 'KR', confidence: 95 },
+      { pattern: /KRW\s*₩?[0-9,]+/i, country: 'KR', confidence: 95 },
+      { pattern: /¥[0-9,]+(?=\s*(RMB|CNY|中国))/i, country: 'CN', confidence: 90 },
+      { pattern: /RMB\s*¥?[0-9,]+(\.[0-9]{2})?/i, country: 'CN', confidence: 95 }
+    ];
+
+    // Enhanced legal jurisdiction and business registration patterns
+    const jurisdictionPatterns = [
+      // United States
+      { pattern: /\b(Delaware|Nevada|California|New York|Texas|Florida)\s+(corporation|corp\.?|inc\.?|LLC)\b/i, country: 'US', confidence: 95 },
+      { pattern: /\b(SEC|Securities and Exchange Commission|IRS|Internal Revenue Service)\b/i, country: 'US', confidence: 90 },
+      { pattern: /\bEIN\s*:?\s*[0-9]{2}-[0-9]{7}\b/i, country: 'US', confidence: 95 },
+
+      // United Kingdom
+      { pattern: /\b(Companies House|UK|United Kingdom|England|Scotland|Wales)\s+(Limited|Ltd\.?|PLC)\b/i, country: 'GB', confidence: 85 },
+      { pattern: /\bCompany\s+Number\s*:?\s*[0-9]{8}\b/i, country: 'GB', confidence: 90 },
+      { pattern: /\bVAT\s+(Registration\s+)?Number\s*:?\s*GB[0-9]{9}\b/i, country: 'GB', confidence: 95 },
+
+      // Germany
+      { pattern: /\b(Handelsregister|Amtsgericht|Registergericht)\b/i, country: 'DE', confidence: 90 },
+      { pattern: /\bHRB\s*[0-9]+\b/i, country: 'DE', confidence: 95 },
+      { pattern: /\bUStIdNr\.?\s*:?\s*DE[0-9]{9}\b/i, country: 'DE', confidence: 95 },
+
+      // France
+      { pattern: /\b(Registre du commerce|SIRET|SIREN|RCS)\b/i, country: 'FR', confidence: 90 },
+      { pattern: /\bSIRET\s*:?\s*[0-9]{14}\b/i, country: 'FR', confidence: 95 },
+      { pattern: /\bSIREN\s*:?\s*[0-9]{9}\b/i, country: 'FR', confidence: 95 },
+
+      // Brazil
+      { pattern: /\b(CNPJ|Receita Federal|Junta Comercial)\b/i, country: 'BR', confidence: 95 },
+      { pattern: /\bCNPJ\s*:?\s*[0-9]{2}\.[0-9]{3}\.[0-9]{3}\/[0-9]{4}-[0-9]{2}\b/i, country: 'BR', confidence: 98 },
+
+      // Singapore
+      { pattern: /\b(ACRA|Singapore|Accounting and Corporate Regulatory Authority)\b/i, country: 'SG', confidence: 95 },
+      { pattern: /\bUEN\s*:?\s*[0-9]{8}[A-Z]\b/i, country: 'SG', confidence: 95 },
+
+      // China
+      { pattern: /\b(中国|People's Republic of China|PRC|工商|营业执照)\b/i, country: 'CN', confidence: 90 },
+      { pattern: /\b统一社会信用代码\s*:?\s*[0-9A-Z]{18}\b/i, country: 'CN', confidence: 95 },
+
+      // India
+      { pattern: /\b(Ministry of Corporate Affairs|MCA|Corporate Identity Number|CIN)\b/i, country: 'IN', confidence: 90 },
+      { pattern: /\bCIN\s*:?\s*[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}\b/i, country: 'IN', confidence: 95 },
+
+      // Turkey
+      { pattern: /\b(Ticaret Sicil|Merkezi Sicil|Vergi Dairesi)\b/i, country: 'TR', confidence: 90 },
+      { pattern: /\bVergi\s+No\s*:?\s*[0-9]{10}\b/i, country: 'TR', confidence: 95 },
+
+      // Russia
+      { pattern: /\b(ОГРН|ИНН|Федеральная налоговая служба|ФНС)\b/i, country: 'RU', confidence: 90 },
+      { pattern: /\bОГРН\s*:?\s*[0-9]{13}\b/i, country: 'RU', confidence: 95 },
+      { pattern: /\bИНН\s*:?\s*[0-9]{10,12}\b/i, country: 'RU', confidence: 95 }
+    ];
+
+    // Enhanced address patterns for global coverage
+    const addressPatterns = [
+      // US States and postal codes
+      { pattern: /\b(Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|New Hampshire|New Jersey|New Mexico|New York|North Carolina|North Dakota|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode Island|South Carolina|South Dakota|Tennessee|Texas|Utah|Vermont|Virginia|Washington|West Virginia|Wisconsin|Wyoming)\b/i, country: 'US', confidence: 75 },
+      { pattern: /\b[0-9]{5}(-[0-9]{4})?\s+(USA|United States)\b/i, country: 'US', confidence: 85 },
+
+      // Major international cities
+      { pattern: /\b(London|Manchester|Birmingham|Edinburgh|Glasgow)\b.*\b(UK|United Kingdom|England|Scotland)\b/i, country: 'GB', confidence: 80 },
+      { pattern: /\b(Berlin|Munich|Hamburg|Frankfurt|Cologne|Stuttgart|Düsseldorf)\b.*\bGermany\b/i, country: 'DE', confidence: 80 },
+      { pattern: /\b(Paris|Lyon|Marseille|Toulouse|Nice|Nantes|Strasbourg)\b.*\bFrance\b/i, country: 'FR', confidence: 80 },
+      { pattern: /\b(São Paulo|Rio de Janeiro|Brasília|Salvador|Fortaleza|Belo Horizonte)\b.*\bBrazil\b/i, country: 'BR', confidence: 80 },
+      { pattern: /\b(Tokyo|Osaka|Kyoto|Yokohama|Nagoya|Sapporo|Fukuoka)\b.*\bJapan\b/i, country: 'JP', confidence: 80 },
+      { pattern: /\b(Beijing|Shanghai|Guangzhou|Shenzhen|Chengdu|Hangzhou|Nanjing)\b.*\bChina\b/i, country: 'CN', confidence: 80 },
+      { pattern: /\b(Mumbai|Delhi|Bangalore|Hyderabad|Chennai|Kolkata|Pune)\b.*\bIndia\b/i, country: 'IN', confidence: 80 },
+      { pattern: /\b(Istanbul|Ankara|Izmir|Bursa|Antalya)\b.*\bTurkey\b/i, country: 'TR', confidence: 80 },
+      { pattern: /\b(Moscow|St\. Petersburg|Novosibirsk|Yekaterinburg|Nizhny Novgorod)\b.*\bRussia\b/i, country: 'RU', confidence: 80 }
+    ];
+
+    // Language detection patterns for additional context
+    const languagePatterns = [
+      { pattern: /\b(privacy policy|terms of service|about us|contact us|copyright|all rights reserved)\b/i, country: 'US', confidence: 30 },
+      { pattern: /\b(política de privacidade|termos de serviço|sobre nós|fale conosco|direitos reservados)\b/i, country: 'BR', confidence: 70 },
+      { pattern: /\b(politique de confidentialité|conditions d'utilisation|à propos|nous contacter|droits réservés)\b/i, country: 'FR', confidence: 70 },
+      { pattern: /\b(datenschutz|nutzungsbedingungen|über uns|kontakt|alle rechte vorbehalten)\b/i, country: 'DE', confidence: 70 },
+      { pattern: /\b(隐私政策|服务条款|关于我们|联系我们|版权所有)\b/i, country: 'CN', confidence: 70 },
+      { pattern: /\b(プライバシーポリシー|利用規約|会社概要|お問い合わせ|著作権)\b/i, country: 'JP', confidence: 70 },
+      { pattern: /\b(gizlilik politikası|kullanım şartları|hakkımızda|iletişim|tüm hakları saklıdır)\b/i, country: 'TR', confidence: 70 },
+      { pattern: /\b(политика конфиденциальности|условия использования|о нас|контакты|все права защищены)\b/i, country: 'RU', confidence: 70 }
+    ];
+
+    // Check all pattern categories
+    const allPatterns = [
+      ...phonePatterns.map(p => ({...p, type: 'phone' as const})),
+      ...currencyPatterns.map(p => ({...p, type: 'currency' as const})),
+      ...jurisdictionPatterns.map(p => ({...p, type: 'jurisdiction' as const})),
+      ...addressPatterns.map(p => ({...p, type: 'address' as const})),
+      ...languagePatterns.map(p => ({...p, type: 'language' as const}))
+    ];
+
+    for (const patternConfig of allPatterns) {
+      const matches = content.match(new RegExp(patternConfig.pattern, 'gi'));
+      if (matches) {
+        if (!markers.detectedCountries.includes(patternConfig.country)) {
+          markers.detectedCountries.push(patternConfig.country);
+        }
+        markers.phoneCountryCodes.push(patternConfig.country);
+        markers.currencySymbols.push(patternConfig.country);
+        markers.legalJurisdictions.push(patternConfig.country);
+        markers.addressMentions.push(patternConfig.country);
+        markers.languageIndicators.push(patternConfig.country);
+        markers.confidenceScore = patternConfig.confidence
+      }
+    }
 
     // Detect country mentions
     for (const [country, patterns] of Object.entries(this.geographicPatterns.countries)) {
@@ -167,13 +298,13 @@ export class DomainExtractor {
     }
 
     // Extract address patterns
-    const addressPatterns = [
+    const addressPatterns2 = [
       /\d+\s+[a-z\s]+(?:street|st|avenue|ave|road|rd|boulevard|blvd|drive|dr|lane|ln)/gi,
       /[a-z\s]+,\s*[a-z]{2}\s+\d{5}/gi, // US ZIP codes
       /[a-z\s]+\s+\d{5}\s+[a-z\s]+/gi, // European postal codes
     ];
-    
-    for (const pattern of addressPatterns) {
+
+    for (const pattern of addressPatterns2) {
       const matches = content.match(pattern);
       if (matches) {
         markers.addressMentions.push(...matches.slice(0, 3)); // Limit to first 3 matches
@@ -188,15 +319,6 @@ export class DomainExtractor {
 
     // Calculate confidence score
     markers.confidenceScore = this.calculateGeographicConfidence(markers);
-    
-    // Calculate focus jurisdiction for GLEIF targeting
-    const focusJurisdiction = this.calculateFocusJurisdiction(markers, domain);
-    markers.focusJurisdiction = {
-      jurisdiction: focusJurisdiction.focusJurisdiction,
-      confidence: focusJurisdiction.confidence,
-      reasoning: focusJurisdiction.reasoning,
-      alternatives: focusJurisdiction.alternativeJurisdictions
-    };
 
     return markers;
   }
@@ -206,156 +328,26 @@ export class DomainExtractor {
    */
   private calculateGeographicConfidence(markers: GeographicMarkers): number {
     let score = 0;
-    
+
     // Country mentions (high value)
     score += markers.detectedCountries.length * 25;
-    
+
     // Phone codes (medium-high value)
     score += markers.phoneCountryCodes.length * 20;
-    
+
     // Legal jurisdictions (high value)
     score += markers.legalJurisdictions.length * 30;
-    
+
     // Address mentions (medium value)
     score += markers.addressMentions.length * 15;
-    
+
     // Currency symbols (low-medium value)
     score += markers.currencySymbols.length * 10;
-    
+
     // Language indicators (medium value)
     score += markers.languageIndicators.length * 15;
-    
-    return Math.min(score, 100); // Cap at 100
-  }
 
-  /**
-   * Calculate focus jurisdiction with confidence scoring for GLEIF targeting
-   */
-  private calculateFocusJurisdiction(markers: GeographicMarkers, domain: string): {
-    focusJurisdiction: string;
-    confidence: number;
-    reasoning: string[];
-    alternativeJurisdictions: string[];
-  } {
-    const jurisdictionScores: Record<string, number> = {};
-    const reasoning: string[] = [];
-    
-    // TLD-based jurisdiction (strongest signal for business registration)
-    const tldJurisdiction = this.getCountryFromTLD(domain);
-    if (tldJurisdiction) {
-      const tldKey = this.normalizeJurisdictionKey(tldJurisdiction);
-      jurisdictionScores[tldKey] = (jurisdictionScores[tldKey] || 0) + 40;
-      reasoning.push(`TLD jurisdiction: ${tldKey} (+40)`);
-    }
-    
-    // .com domains get special US preference for business entities
-    if (domain.endsWith('.com') && !tldJurisdiction) {
-      jurisdictionScores['us'] = (jurisdictionScores['us'] || 0) + 35;
-      reasoning.push('.com domain: US business preference (+35)');
-    }
-    
-    // Legal jurisdiction mentions (very strong for corporate entities)
-    for (const jurisdiction of markers.legalJurisdictions) {
-      const extractedCountries = this.extractCountriesFromLegalText(jurisdiction);
-      for (const country of extractedCountries) {
-        const key = this.normalizeJurisdictionKey(country);
-        jurisdictionScores[key] = (jurisdictionScores[key] || 0) + 35;
-        reasoning.push(`Legal mention: ${key} (+35)`);
-      }
-    }
-    
-    // Phone country codes (medium-strong business signal)
-    for (const code of markers.phoneCountryCodes) {
-      const country = this.geographicPatterns.phonePatterns[code];
-      if (country) {
-        const key = this.normalizeJurisdictionKey(country);
-        jurisdictionScores[key] = (jurisdictionScores[key] || 0) + 25;
-        reasoning.push(`Phone code ${code}: ${key} (+25)`);
-      }
-    }
-    
-    // Detected countries from content (medium signal)
-    for (const country of markers.detectedCountries) {
-      const key = this.normalizeJurisdictionKey(country);
-      jurisdictionScores[key] = (jurisdictionScores[key] || 0) + 20;
-      reasoning.push(`Content mention: ${key} (+20)`);
-    }
-    
-    // Currency symbols (weak but useful signal)
-    for (const symbol of markers.currencySymbols) {
-      const currency = this.geographicPatterns.currencySymbols[symbol];
-      const country = this.currencyToCountry(currency);
-      if (country) {
-        const key = this.normalizeJurisdictionKey(country);
-        jurisdictionScores[key] = (jurisdictionScores[key] || 0) + 10;
-        reasoning.push(`Currency ${symbol}: ${key} (+10)`);
-      }
-    }
-    
-    // Sort by score and extract results
-    const sortedJurisdictions = Object.entries(jurisdictionScores)
-      .sort(([,a], [,b]) => b - a);
-    
-    const focusJurisdiction = sortedJurisdictions[0]?.[0] || 'us'; // Default to US
-    const confidence = Math.min(sortedJurisdictions[0]?.[1] || 0, 100);
-    const alternativeJurisdictions = sortedJurisdictions.slice(1, 4).map(([key]) => key);
-    
-    return {
-      focusJurisdiction,
-      confidence,
-      reasoning,
-      alternativeJurisdictions
-    };
-  }
-  
-  private normalizeJurisdictionKey(country: string): string {
-    const mapping: Record<string, string> = {
-      'United States': 'us',
-      'US/Canada': 'us', // Phone code ambiguity defaults to US for business
-      'Germany': 'germany', 
-      'United Kingdom': 'uk',
-      'France': 'france',
-      'Japan': 'japan',
-      'Canada': 'canada',
-      'Italy': 'italy',
-      'Spain': 'spain',
-      'Netherlands': 'netherlands',
-      'Australia': 'australia',
-      'Switzerland': 'switzerland',
-      'Austria': 'austria'
-    };
-    
-    return mapping[country] || country.toLowerCase();
-  }
-  
-  private extractCountriesFromLegalText(text: string): string[] {
-    const countries = [];
-    const lowerText = text.toLowerCase();
-    
-    for (const [country, patterns] of Object.entries(this.geographicPatterns.countries)) {
-      for (const pattern of patterns) {
-        if (lowerText.includes(pattern.toLowerCase())) {
-          countries.push(country);
-          break;
-        }
-      }
-    }
-    
-    return countries;
-  }
-  
-  private currencyToCountry(currency: string): string | null {
-    const mapping: Record<string, string> = {
-      'USD': 'United States',
-      'EUR': 'Germany', // Default to Germany for EUR for business purposes
-      'GBP': 'United Kingdom',
-      'JPY': 'Japan',
-      'CAD': 'Canada',
-      'AUD': 'Australia',
-      'CHF': 'Switzerland'
-    };
-    
-    return mapping[currency] || null;
+    return Math.min(score, 100); // Cap at 100
   }
 
   /**
@@ -372,7 +364,7 @@ export class DomainExtractor {
       // Method 1: Check if domain resolves to Cloudflare IP ranges
       const result = await dnsLookup(domain);
       const ip = result.address;
-      
+
       // Cloudflare IP ranges (most common ones)
       const cloudflareRanges = [
         '104.16.', '104.17.', '104.18.', '104.19.', '104.20.', '104.21.', '104.22.', '104.23.', 
@@ -380,19 +372,19 @@ export class DomainExtractor {
         '172.64.', '172.65.', '172.66.', '172.67.', '172.68.', '172.69.', '172.70.', '172.71.',
         '173.245.', '188.114.', '190.93.', '197.234.', '198.41.'
       ];
-      
+
       for (const range of cloudflareRanges) {
         if (ip.startsWith(range)) {
           console.log(`CLOUDFLARE IP DETECTED: ${domain} -> ${ip} (${range})`);
           return true;
         }
       }
-      
+
       // Method 2: Check nameservers for Cloudflare patterns
       try {
         const { stdout } = await execAsync(`nslookup -type=ns ${domain}`);
         const nsOutput = stdout.toLowerCase();
-        
+
         if (nsOutput.includes('cloudflare') || 
             nsOutput.includes('.ns.cloudflare.com') ||
             nsOutput.includes('andy.ns.cloudflare.com') ||
@@ -403,7 +395,7 @@ export class DomainExtractor {
       } catch (nsError) {
         // NS lookup failed, continue with IP-based detection only
       }
-      
+
       return false;
     } catch (error) {
       // DNS lookup failed, not necessarily Cloudflare
@@ -413,7 +405,7 @@ export class DomainExtractor {
 
   private detectCloudflareProtection(response: any): boolean {
     const headers = response.headers || {};
-    
+
     // Method 1: Direct Cloudflare headers (100% accurate)
     const cloudflareHeaders = [
       'cf-ray',           // Always present on Cloudflare
@@ -424,34 +416,34 @@ export class DomainExtractor {
       'cf-ipcountry',     // Country detection
       'cf-edge-cache'     // Edge caching info
     ];
-    
+
     for (const header of cloudflareHeaders) {
       if (headers[header]) {
         console.log(`CLOUDFLARE HEADER DETECTED: ${header} = ${headers[header]}`);
         return true;
       }
     }
-    
+
     // Method 2: Server identification
     const server = headers['server']?.toLowerCase() || '';
     if (server.includes('cloudflare') || server.includes('cf-')) {
       console.log(`CLOUDFLARE SERVER DETECTED: ${server}`);
       return true;
     }
-    
+
     // Method 3: Status code patterns (Cloudflare specific)
     if (response.status === 403 && headers['cf-ray']) {
       console.log(`CLOUDFLARE 403 + CF-RAY DETECTED`);
       return true;
     }
-    
+
     // Method 4: Security headers pattern
     const securityHeaders = headers['x-frame-options'] || headers['x-content-type-options'] || '';
     if (securityHeaders && (headers['cf-ray'] || server.includes('cloudflare'))) {
       console.log(`CLOUDFLARE SECURITY PATTERN DETECTED`);
       return true;
     }
-    
+
     // Method 5: Challenge detection in response body (if available)
     if (response.data && typeof response.data === 'string') {
       const challengePatterns = [
@@ -463,7 +455,7 @@ export class DomainExtractor {
         'enable javascript and cookies',
         'cf-browser-verification'
       ];
-      
+
       const lowerData = response.data.toLowerCase();
       for (const pattern of challengePatterns) {
         if (lowerData.includes(pattern)) {
@@ -472,29 +464,29 @@ export class DomainExtractor {
         }
       }
     }
-    
+
     return false;
   }
 
   private guessCountryFromMarkers(markers: GeographicMarkers, domain: string): string {
     const countryScores: Record<string, number> = {};
-    
+
     // TLD-based initial guess
     const tldCountry = this.getCountryFromTLD(domain);
     if (tldCountry) {
       countryScores[tldCountry] = 20;
     }
-    
+
     // .com domains default to US unless strong evidence otherwise
     if (domain.endsWith('.com') && !tldCountry) {
       countryScores['United States'] = 15;
     }
-    
+
     // Score based on detected countries
     for (const country of markers.detectedCountries) {
       countryScores[country] = (countryScores[country] || 0) + 30;
     }
-    
+
     // Score based on phone codes
     for (const code of markers.phoneCountryCodes) {
       const country = this.geographicPatterns.phonePatterns[code];
@@ -502,7 +494,7 @@ export class DomainExtractor {
         countryScores[country] = (countryScores[country] || 0) + 25;
       }
     }
-    
+
     // Score based on legal jurisdictions
     for (const jurisdiction of markers.legalJurisdictions) {
       for (const [country, patterns] of Object.entries(this.geographicPatterns.countries)) {
@@ -513,43 +505,43 @@ export class DomainExtractor {
         }
       }
     }
-    
+
     // Find highest scoring country
     const topCountry = Object.entries(countryScores)
       .sort(([,a], [,b]) => b - a)[0];
-    
+
     return topCountry?.[0] || 'Unknown';
   }
-  
+
   private getCountryLegalSuffixes(country: string): string[] {
     // Import jurisdiction data
     const { getJurisdictionSuffixes, JURISDICTIONS } = require('@shared/jurisdictions');
-    
+
     if (country && JURISDICTIONS[country]) {
       return getJurisdictionSuffixes(country);
     }
-    
+
     // Default to US suffixes if country not found
     return getJurisdictionSuffixes('us');
   }
-  
+
   private extractDomainStem(domain: string): string[] {
     // Remove TLD and common words to get meaningful brand terms
     const domainBase = domain.split('.')[0];
     const commonWords = ['the', 'and', 'group', 'company', 'corp', 'inc', 'ltd', 'llc'];
-    
+
     // Split on hyphens, underscores, numbers
     const parts = domainBase.split(/[-_0-9]+/).filter(part => 
       part.length > 2 && !commonWords.includes(part.toLowerCase())
     );
-    
+
     return [domainBase, ...parts].filter(Boolean);
   }
 
   async extractCompanyName(domain: string): Promise<ExtractionResult> {
     const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].toLowerCase();
     const extractionAttempts: ExtractionAttempt[] = [];
-    
+
     // STEP 1: Pre-flight Cloudflare DNS detection (ultra-fast)
     const isCloudflareByDNS = await this.checkCloudflareByDNS(cleanDomain);
     if (isCloudflareByDNS) {
@@ -570,15 +562,15 @@ export class DomainExtractor {
         }]
       };
     }
-    
+
     // Set up timeout protection to prevent infinite processing
     const timeout = 6000; // Reduced timeout for faster processing
     const timeoutPromise = new Promise<ExtractionResult>((_, reject) => {
       setTimeout(() => reject(new Error('Extraction timeout')), timeout);
     });
-    
+
     const extractionPromise = this.performExtraction(cleanDomain, extractionAttempts);
-    
+
     try {
       return await Promise.race([extractionPromise, timeoutPromise]);
     } catch (error: any) {
@@ -603,7 +595,7 @@ export class DomainExtractor {
       const knownMappings = this.getKnownCompanyMappings();
       console.log(`DOMAIN MAPPING DEBUG: Looking up "${cleanDomain}"`);
       console.log(`DOMAIN MAPPING DEBUG: Available keys: ${Object.keys(knownMappings).filter(k => k.includes(cleanDomain.split('.')[0])).join(', ')}`);
-      
+
       if (knownMappings[cleanDomain]) {
         console.log(`DOMAIN MAPPING SUCCESS: Found "${knownMappings[cleanDomain]}" for ${cleanDomain}`);
         extractionAttempts.push({
@@ -612,7 +604,7 @@ export class DomainExtractor {
           companyName: knownMappings[cleanDomain],
           confidence: 95
         });
-        
+
         return {
           companyName: knownMappings[cleanDomain],
           method: 'domain_mapping',
@@ -632,14 +624,14 @@ export class DomainExtractor {
 
       // Early triage: Quick connectivity check before expensive HTML extraction
       const connectivity = await this.checkConnectivity(cleanDomain);
-      
+
       if (connectivity === 'unreachable') {
         extractionAttempts.push({
           method: 'connectivity_check',
           success: false,
           error: 'Domain unreachable'
         });
-        
+
         return this.classifyFailure({
           companyName: null,
           method: 'domain_parse',
@@ -656,7 +648,7 @@ export class DomainExtractor {
           success: false,
           error: 'Protected by anti-bot measures'
         });
-        
+
         return this.classifyFailure({
           companyName: null,
           method: 'domain_parse',
@@ -670,14 +662,14 @@ export class DomainExtractor {
       // Domain is reachable - try enhanced footer extraction with expected entity names
       try {
         const htmlResult = await this.extractFromHTML(`https://${cleanDomain}`);
-        
+
         extractionAttempts.push({
           method: htmlResult.method,
           success: !!htmlResult.companyName && this.isValidCompanyName(htmlResult.companyName || ''),
           companyName: htmlResult.companyName || undefined,
           confidence: htmlResult.confidence
         });
-        
+
         if (htmlResult.companyName && this.isValidCompanyName(htmlResult.companyName)) {
           return {
             ...htmlResult,
@@ -696,14 +688,14 @@ export class DomainExtractor {
 
       // Fallback to domain parsing if HTML extraction fails
       const domainResult = this.extractFromDomain(cleanDomain);
-      
+
       extractionAttempts.push({
         method: 'domain_parse',
         success: !!domainResult.companyName && this.isValidCompanyName(domainResult.companyName || ''),
         companyName: domainResult.companyName || undefined,
         confidence: domainResult.confidence
       });
-      
+
       if (domainResult.companyName && this.isValidCompanyName(domainResult.companyName)) {
         return {
           ...domainResult,
@@ -712,7 +704,7 @@ export class DomainExtractor {
           extractionAttempts
         };
       }
-      
+
       // All extraction methods failed - classify the failure
       return this.classifyFailure({
         companyName: domainResult.companyName, // Include partial result for analysis
@@ -722,14 +714,14 @@ export class DomainExtractor {
         error: 'Domain accessible but validation failed',
         extractionAttempts
       }, cleanDomain);
-      
+
     } catch (error) {
       extractionAttempts.push({
         method: 'exception_handling',
         success: false,
         error: error instanceof Error ? error.message : 'Unknown extraction error'
       });
-      
+
       // Use domain parsing as final fallback
       const domainResult = this.extractFromDomain(cleanDomain);
       return {
@@ -753,14 +745,14 @@ export class DomainExtractor {
       'nvidia.com': 'NVIDIA Corporation',
       'oracle.com': 'Oracle Corporation',
       'salesforce.com': 'Salesforce, Inc.',
-      
+
       // Fortune 500 - Financial
       'jpmorgan.com': 'JPMorgan Chase & Co.',
       'berkshirehathaway.com': 'Berkshire Hathaway Inc.',
       'wellsfargo.com': 'Wells Fargo & Company',
       'goldmansachs.com': 'The Goldman Sachs Group, Inc.',
       'morganstanley.com': 'Morgan Stanley',
-      
+
       // German Companies (corrected mappings)
       'springer.com': 'Springer Nature Group',
       'rtl.com': 'RTL Group SA',
@@ -782,7 +774,7 @@ export class DomainExtractor {
       'evotec.com': 'Evotec SE',
       'deutsche-boerse.com': 'Deutsche Börse AG',
       'united-internet.de': 'United Internet AG',
-      
+
       // Russian Companies
       'gazprom.com': 'Gazprom PAO',
       'rosneft.com': 'Rosneft Oil Company PAO',
@@ -813,7 +805,7 @@ export class DomainExtractor {
       'gerresheimer.com': 'Gerresheimer AG',
       'symrise.com': 'Symrise AG',
       'rational-online.com': 'RATIONAL AG',
-      
+
       // Indian Companies (corrected mappings)
       'pnbindia.in': 'Punjab National Bank',
       'phonepe.com': 'PhonePe Pvt Ltd',
@@ -857,7 +849,7 @@ export class DomainExtractor {
       'icicibank.com': 'ICICI Bank Ltd',
       'hdfcergo.com': 'HDFC ERGO General Insurance Company Ltd',
       'iciciprulife.com': 'ICICI Prudential Life Insurance Company Ltd',
-      
+
       // French Companies with proper legal entity suffixes
       'matmut.fr': 'Matmut SA',
       'bollore.com': 'Bolloré SE',
@@ -913,7 +905,7 @@ export class DomainExtractor {
       'unibail-rodamco.com': 'Unibail-Rodamco SE',
       'dassault-aviation.com': 'Dassault Aviation SA',
       'schneider-electric.com': 'Schneider Electric SE',
-      
+
       // Additional German Companies (addressing failures)
       'db.com': 'Deutsche Bank AG',
       'deutschebank.com': 'Deutsche Bank AG',
@@ -925,7 +917,7 @@ export class DomainExtractor {
       '1und1.com': '1&1 AG',
       'aixtron.com': 'AIXTRON SE',
       'gea.com': 'GEA Group AG',
-      
+
       // Sri Lankan Companies (major corporations and conglomerates)
       'keells.com': 'John Keells Holdings PLC',
       'johnkeells.com': 'John Keells Holdings PLC',
@@ -982,11 +974,11 @@ export class DomainExtractor {
       'ceylon-tobacco.com': 'Ceylon Tobacco Company PLC',
       'casino.lk': 'Ballys Colombo',
       'colombofort.com': 'Colombo Fort Land & Building PLC',
-      
+
       // Mexican Companies (when needed)
       // Major Mexican companies can be added here with proper legal entity suffixes
       // Examples: 'cemex.com': 'CEMEX S.A.B. de C.V.', 'femsa.com': 'FEMSA S.A. de C.V.', etc.
-      
+
       // Brazilian companies (major corporations)
       'petrobras.com.br': 'Petróleo Brasileiro S.A.',
       'vale.com': 'Vale S.A.',
@@ -1008,7 +1000,7 @@ export class DomainExtractor {
       'mercadolivre.com.br': 'MercadoLibre Brasil Ltda.',
       'oi.com.br': 'Oi S.A.',
       'tim.com.br': 'TIM Brasil S.A.',
-      
+
       // Irish companies (major corporations)
       'ryanair.com': 'Ryanair DAC',
       'aib.ie': 'Allied Irish Banks PLC',
@@ -1033,7 +1025,7 @@ export class DomainExtractor {
       'greencore.com': 'Greencore Group PLC',
       'cairnhomes.com': 'Cairn Homes PLC',
       'dalata.ie': 'Dalata Hotel Group PLC',
-      
+
       // Irish Private Companies (large non-public corporations)
       'musgrave.ie': 'Musgrave Group Limited',
       'applegreen.com': 'Applegreen Limited',
@@ -1059,7 +1051,7 @@ export class DomainExtractor {
       'airbnb.ie': 'Airbnb Ireland UC',
       'uber.ie': 'Uber Ireland Limited',
       'dropbox.ie': 'Dropbox Ireland Limited'
-      
+
       // Italian Companies (when needed)
       // Major Italian companies can be added here with proper legal entity suffixes
       // Examples: 'eni.com': 'Eni S.p.A.', 'telecomitalia.it': 'Telecom Italia S.p.A.', etc.
@@ -1073,11 +1065,11 @@ export class DomainExtractor {
       if (mainResult.companyName && mainResult.confidence >= 60 && this.isValidCompanyName(mainResult.companyName)) {
         return mainResult;
       }
-      
+
       // If main page didn't work, try sub-pages
       const baseUrl = url.replace(/\/$/, '');
       const subPages = ['/about', '/about-us', '/company', '/terms', '/legal'];
-      
+
       for (const subPath of subPages) {
         try {
           const subPageUrl = `${baseUrl}${subPath}`;
@@ -1093,7 +1085,7 @@ export class DomainExtractor {
           continue;
         }
       }
-      
+
       // Return main page result even if low quality
       return mainResult;
     } catch (error) {
@@ -1116,30 +1108,28 @@ export class DomainExtractor {
     });
 
     const $ = cheerio.load(response.data);
-    
+
     // Extract domain from URL for enhanced footer extraction
     const domain = new URL(url).hostname.replace(/^www\./, '');
-    
+
     // Extract geographic markers from page content
     const geographicMarkers = this.extractGeographicMarkers($, domain);
     const guessedCountry = this.guessCountryFromMarkers(geographicMarkers, domain);
-    
+
     // Priority 1: Try footer copyright extraction first (most reliable for legal entities)
     const footerResult = this.extractFromFooterCopyright($, domain);
     if (footerResult.companyName && this.isValidCompanyName(footerResult.companyName)) {
       return {
         ...footerResult,
         geographicMarkers,
-        guessedCountry,
-        focusJurisdiction: geographicMarkers.focusJurisdiction?.jurisdiction,
-        focusJurisdictionConfidence: geographicMarkers.focusJurisdiction?.confidence
+        guessedCountry
       };
     }
-    
+
     // Priority 2: Try meta properties extraction
     const pageTitle = $('title').text() || '';
     const pageMetaDescription = $('meta[name="description"]').attr('content') || '';
-    
+
     if (pageTitle && this.isValidCompanyName(this.cleanCompanyName(pageTitle))) {
       const cleanTitle = this.cleanCompanyName(pageTitle);
       return {
@@ -1148,7 +1138,7 @@ export class DomainExtractor {
         confidence: this.calculateConfidence(cleanTitle, 'meta_property')
       };
     }
-    
+
     // Priority 2: Try About Us/Legal pages for unknown domains
     const aboutUrl = url.replace(/\/$/, '') + '/about';
     try {
@@ -1165,7 +1155,7 @@ export class DomainExtractor {
 
     // HTML title extraction completely removed - proven unreliable source of marketing content
     // Now only uses authoritative sources: Domain mappings → About Us → Legal pages → Domain parsing
-    
+
     // Try about section extraction (high-confidence legal entities)
     const aboutSelectors = [
       'section[class*="about"] p:first-of-type',
@@ -1175,7 +1165,7 @@ export class DomainExtractor {
       '[class*="about"] h1',
       '[class*="company"] h1'
     ];
-    
+
     for (const selector of aboutSelectors) {
       const element = $(selector).first();
       if (element.length) {
@@ -1190,14 +1180,14 @@ export class DomainExtractor {
         }
       }
     }
-    
+
     // Try legal/terms content extraction
     const legalSelectors = [
       '[class*="legal"] p:first-of-type',
       '[class*="terms"] p:first-of-type',
       'footer p:first-of-type'
     ];
-    
+
     for (const selector of legalSelectors) {
       const element = $(selector).first();
       if (element.length) {
@@ -1212,7 +1202,7 @@ export class DomainExtractor {
         }
       }
     }
-    
+
     // Try meta description
     const metaDescription = $('meta[name="description"]').attr('content');
     if (metaDescription) {
@@ -1225,7 +1215,7 @@ export class DomainExtractor {
         };
       }
     }
-    
+
     // Try other common selectors
     const selectors = [
       'h1',
@@ -1236,7 +1226,7 @@ export class DomainExtractor {
       'header h1',
       'nav .brand',
     ];
-    
+
     for (const selector of selectors) {
       const element = $(selector).first();
       if (element.length) {
@@ -1251,7 +1241,7 @@ export class DomainExtractor {
         }
       }
     }
-    
+
     return { companyName: null, method: 'html_title', confidence: 0 };
   }
 
@@ -1261,21 +1251,21 @@ export class DomainExtractor {
       .replace(/^https?:\/\//, '')
       .replace(/^www\./, '')
       .split('/')[0];
-    
+
     // Remove TLD and convert to company name
     const withoutTLD = cleanDomain.replace(/\.(com|org|net|edu|gov|co\.uk|co\.jp|co\.kr|com\.au|com\.br|com\.mx|com\.tr|com\.tw|com\.sg|com\.my|com\.ph|com\.th|com\.vn|com\.cn|co\.in|co\.za|com\.ar|com\.cl|com\.pe|com\.co|io|app|tech|ai|cloud)$/, '');
-    
+
     // Convert to company name format
     const companyName = this.domainToCompanyName(withoutTLD);
-    
+
     // For .io domains and tech companies, be more lenient
     const isTechDomain = /\.(io|tech|ai|app|cloud)$/.test(cleanDomain);
     let confidence = this.calculateConfidence(companyName, 'domain_parse');
-    
+
     if (isTechDomain && companyName.length >= 3) {
       confidence += 15; // Bonus for tech domains that often don't have legal suffixes
     }
-    
+
     return {
       companyName,
       method: 'domain_parse',
@@ -1359,7 +1349,7 @@ export class DomainExtractor {
       'gerresheimer.com': 'Gerresheimer AG',
       'symrise.com': 'Symrise AG',
       'rational-online.com': 'RATIONAL AG',
-      
+
       // US Tech Giants
       'microsoft.com': 'Microsoft Corp.',
       'apple.com': 'Apple Inc.',
@@ -1374,7 +1364,7 @@ export class DomainExtractor {
       'salesforce.com': 'Salesforce Inc.',
       'oracle.com': 'Oracle Corp.',
       'adobe.com': 'Adobe Inc.',
-      
+
       // UK FTSE 100 Companies (Adding missing ones from current batch)
       'shell.com': 'Shell plc',
       'astrazeneca.com': 'AstraZeneca PLC',
@@ -1436,7 +1426,7 @@ export class DomainExtractor {
       'anta.com': 'Anta Sports Products Ltd.',
       'gree.com': 'Gree Electric Appliances Inc.',
       'hengrui.com': 'Jiangsu Hengrui Medicine Co. Ltd.',
-      
+
       // Chinese State-Owned Enterprises (Abbreviations)
       'crcc.cn': 'China Railway Construction Corp.',
       'ccccltd.cn': 'China Communications Construction Corp.',
@@ -1456,7 +1446,7 @@ export class DomainExtractor {
       'cmhk.com': 'China Mobile Hong Kong Co. Ltd.',
       'jxcc.com': 'Jiangxi Copper Co. Ltd.',
       'cqbeer.com': 'Chongqing Brewery Co. Ltd.',
-      
+
       // Previously failing Chinese companies
       'sf-express.com': 'SF Holding Co. Ltd.',
       'fuyaogroup.com': 'Fuyao Glass Industry Group Co. Ltd.',
@@ -1465,7 +1455,7 @@ export class DomainExtractor {
       'zijinmining.com': 'Zijin Mining Group Co. Ltd.',
       'eastmoney.com': 'East Money Information Co. Ltd.',
       'wuxiapptec.com': 'WuXi AppTec Co. Ltd.',
-      
+
       // Brazilian companies (major corporations)
       'petrobras.com.br': 'Petróleo Brasileiro S.A.',
       'vale.com': 'Vale S.A.',
@@ -1491,7 +1481,7 @@ export class DomainExtractor {
       'jsbchina.cn': 'Jiangsu Bank Co. Ltd.',
       'citicbank.com': 'China CITIC Bank Corp. Ltd.',
       'haitian.com': 'Haitian International Holdings Ltd.',
-      
+
       // Singaporean Companies - Major Financial and Technology Corporations
       'dbs.com': 'DBS Group Holdings Ltd',
       'ocbc.com': 'Oversea-Chinese Banking Corporation Ltd',
@@ -1522,7 +1512,7 @@ export class DomainExtractor {
       .replace(/^www\./, '')
       .split('/')[0]
       .split('.')[0];
-    
+
     return cleanDomain
       .replace(/[-_]/g, ' ')
       .replace(/\b\w/g, l => l.toUpperCase())
@@ -1531,20 +1521,20 @@ export class DomainExtractor {
 
   private isValidCompanyName(name: string): boolean {
     if (!name || name.length < 5 || name.length > 100) return false; // Increased minimum to 5 characters
-    
+
     // Tech-friendly validation: Allow "SecureVision" and similar tech company names
     const techKeywords = /\b(secure|vision|tech|data|cloud|app|digital|software|systems|platform|solutions|analytics|cyber|smart|safe|shield|guard|protect)\b/i;
     if (techKeywords.test(name)) {
       return true; // Skip strict validation for tech company names
     }
-    
+
     // ENHANCED: Reject Brazilian/Portuguese fragments and invalid patterns
     const invalidPatterns = [
       // Brazilian fragments
       /^(o|br|ticos|do|da|de|dos|das)\s/i, // Portuguese articles/fragments
       /\s+(o|br|do|da|de|dos|das)$/i, // Ending with Portuguese articles
       /^(o|br|ticos)\s+(s\.a\.|ltda|sa|limitada)/i, // Fragment + suffix only
-      
+
       // Generic business terms
       /^(solutions|technology|systems|platform|global|worldwide|leading|premier)$/i,
       /^(company|business|enterprise|organization|corporation)$/i,
@@ -1582,11 +1572,11 @@ export class DomainExtractor {
       /perfect silicon solutions/i,
       /global leader in energy/i,
       /global lubrication solutions/i,
-      
+
       // Only legal suffix patterns
       /^(inc|ltd|llc|corp|co|company|corporation|limited|ltda|s\.a\.|sa)$/i,
     ];
-    
+
     return !invalidPatterns.some(pattern => pattern.test(name.trim()));
   }
 
@@ -1621,7 +1611,7 @@ export class DomainExtractor {
       /maruti suzuki cars/i,
       /the mahindra group/i,
     ];
-    
+
     return marketingPatterns.some(pattern => pattern.test(text.trim()));
   }
 
@@ -1682,12 +1672,12 @@ export class DomainExtractor {
     // Get base confidence from extraction method configuration
     const extractionMethod = EXTRACTION_METHODS[method] || EXTRACTION_METHODS.domain_parse;
     let confidence = extractionMethod.confidence;
-    
+
     // Calculate using centralized confidence system
     const hasLegalSuffix = this.hasLegalSuffix(companyName);
     const isMarketing = isMarketingContent(companyName);
     const wordCount = companyName.split(/\s+/).length;
-    
+
     confidence = calculateConfidence(
       confidence,
       hasLegalSuffix,
@@ -1696,9 +1686,9 @@ export class DomainExtractor {
       false, // isExpectedEntity - not implemented in this context
       false  // domainMatch - not implemented in this context
     );
-    
+
     console.log(`CONFIDENCE CALCULATION: "${companyName}" method="${method}" base=${extractionMethod.confidence} final=${confidence}`);
-    
+
     return confidence;
   }
 
@@ -1706,7 +1696,7 @@ export class DomainExtractor {
     const country = this.getCountryFromTLD(domain);
     const legalSuffixes = country ? this.getCountryLegalSuffixes(country) : this.getCountryLegalSuffixes('usa');
     const domainStems = this.extractDomainStem(domain);
-    
+
     const footerSelectors = [
       'footer',
       '.footer',
@@ -1719,31 +1709,31 @@ export class DomainExtractor {
       '[class*="copyright"]',
       '[id*="copyright"]'
     ];
-    
+
     let footerText = '';
     for (const selector of footerSelectors) {
       footerText += ' ' + $(selector).text();
     }
-    
+
     // Also check bottom of page content for copyright notices
     const bodyText = $('body').text();
     const bottomText = bodyText.slice(-2000); // Last 2000 characters
     const combinedText = footerText + ' ' + bottomText;
 
     console.log(`ENHANCED FOOTER: Processing ${domain} - Footer text length: ${footerText.length}`);
-    
+
     // Early exit for minimal content to prevent infinite loops
     if (footerText.length < 50) {
       console.log(`ENHANCED FOOTER: Skipping ${domain} - insufficient footer content (${footerText.length} chars)`);
       return { companyName: null, method: 'footer_copyright', confidence: 0 };
     }
-    
+
     // ENHANCED: Dual-layer footer search with expected entity names
-    
+
     // Method 1: Expected entity names + legal suffixes (98% confidence)
     const expectedEntityNames = this.generateExpectedEntityNames(domainStems);
     console.log(`ENHANCED FOOTER: Expected entities for ${domain}: ${expectedEntityNames.join(', ')}`);
-    
+
     for (const expectedName of expectedEntityNames) {
       for (const suffix of legalSuffixes.slice(0, 10)) { // Limit to first 10 suffixes to prevent infinite loops
         const patterns = [
@@ -1751,7 +1741,7 @@ export class DomainExtractor {
           new RegExp(`\\b${this.escapeRegex(expectedName)}\\s*${this.escapeRegex(suffix)}\\b`, 'i'),
           new RegExp(`\\b${this.escapeRegex(expectedName)}[,\\s]*${this.escapeRegex(suffix)}\\b`, 'i')
         ];
-        
+
         for (const pattern of patterns) {
           const match = combinedText.match(pattern);
           if (match) {
@@ -1766,7 +1756,7 @@ export class DomainExtractor {
         }
       }
     }
-    
+
     // Enhanced targeted search approach - NEW INTELLIGENCE
     const targetedResult = this.searchFooterForLegalEntity(combinedText, domainStems, legalSuffixes, country);
     if (targetedResult) {
@@ -1776,7 +1766,7 @@ export class DomainExtractor {
         confidence: targetedResult.confidence
       };
     }
-    
+
     // Fallback to enhanced copyright patterns with strict validation
     const legalEntityPatterns = [
       // Copyright with company name patterns - country-specific suffixes (FIXED: capture complete legal entities)
@@ -1785,7 +1775,7 @@ export class DomainExtractor {
       // Year followed by company name with country-specific suffixes (FIXED: capture complete entities)
       new RegExp(`\\d{4}[^A-Za-z]*([A-Z][\\w\\s&,.'-]+?(?:${legalSuffixes.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}))`, 'i')
     ];
-    
+
     for (const pattern of legalEntityPatterns) {
       const match = combinedText.match(pattern);
       if (match && match[1]) {
@@ -1795,10 +1785,10 @@ export class DomainExtractor {
           .replace(/\s*\.\s*$/, '')
           .replace(/\s*,\s*$/, '')
           .trim();
-        
+
         // Clean up the extracted name
         companyName = this.cleanCompanyName(companyName);
-        
+
         // Enhanced validation for footer extraction - allow longer names for complex entities
         if (companyName && 
             companyName.length <= 80 && 
@@ -1842,7 +1832,7 @@ export class DomainExtractor {
             !companyName.includes(')') &&
             this.isValidCompanyName(companyName) && 
             !this.isMarketingContent(companyName)) {
-          
+
           return {
             companyName,
             method: 'footer_copyright',
@@ -1851,21 +1841,21 @@ export class DomainExtractor {
         }
       }
     }
-    
+
     return { companyName: null, method: 'footer_copyright', confidence: 0 };
   }
-  
+
   private searchFooterForLegalEntity(footerText: string, domainStems: string[], legalSuffixes: string[], country: string | null): { companyName: string; confidence: number } | null {
     // ENHANCED METHOD: Search for expected entity names + legal suffixes (NEW APPROACH)
     const expectedEntityNames = this.generateExpectedEntityNames(domainStems);
-    
+
     // Method 1: Expected entity names + legal suffixes (HIGHEST PRIORITY)
     for (const expectedName of expectedEntityNames) {
       for (const suffix of legalSuffixes) {
         // Look for expected entity name + legal suffix
         const pattern = new RegExp(`\\b${this.escapeRegex(expectedName)}\\s*${this.escapeRegex(suffix)}\\b`, 'i');
         const match = footerText.match(pattern);
-        
+
         if (match) {
           const foundEntity = match[0].trim();
           console.log(`ENHANCED SUCCESS: Found "${foundEntity}" using expected name "${expectedName}" + ${country} suffix "${suffix}"`);
@@ -1876,7 +1866,7 @@ export class DomainExtractor {
         }
       }
     }
-    
+
     // Method 2: Domain stems + legal suffixes (EXISTING APPROACH)
     for (const stem of domainStems) {
       for (const suffix of legalSuffixes) {
@@ -1892,7 +1882,7 @@ export class DomainExtractor {
             return { companyName, confidence: 95 }; // High confidence for exact match
           }
         }
-        
+
         // Pattern 2: Fuzzy stem match + suffix
         const fuzzyPattern = new RegExp(`\\b\\w*${this.escapeRegex(stem)}\\w*[\\s\\w]*?\\b${this.escapeRegex(suffix)}\\b`, 'gi');
         const fuzzyMatch = footerText.match(fuzzyPattern);
@@ -1904,7 +1894,7 @@ export class DomainExtractor {
         }
       }
     }
-    
+
     // Pattern 3: Look for complete company names with legal suffix (improved matching)
     for (const suffix of legalSuffixes) {
       // More precise pattern: 2-4 words before suffix, avoiding fragments
@@ -1922,17 +1912,17 @@ export class DomainExtractor {
         }
       }
     }
-    
+
     return null;
   }
-  
+
   private escapeRegex(string: string): string {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
   private generateExpectedEntityNames(domainStems: string[]): string[] {
     const expectedNames: string[] = [];
-    
+
     // Convert domain stems to expected company name formats
     for (const stem of domainStems) {
       // Convert hyphenated stems to space-separated names (e.g., "mcinc-products" → "Mcinc Products")
@@ -1943,7 +1933,7 @@ export class DomainExtractor {
         expectedNames.push(spacedName);
         console.log(`Generated expected entity name: "${spacedName}" from stem "${stem}"`);
       }
-      
+
       // Convert underscore stems to space-separated names (e.g., "abc_corp" → "Abc Corp")
       if (stem.includes('_')) {
         const spacedName = stem.split('_')
@@ -1952,18 +1942,18 @@ export class DomainExtractor {
         expectedNames.push(spacedName);
         console.log(`Generated expected entity name: "${spacedName}" from stem "${stem}"`);
       }
-      
+
       // Add capitalized single word names
       const capitalizedStem = stem.charAt(0).toUpperCase() + stem.slice(1).toLowerCase();
       expectedNames.push(capitalizedStem);
     }
-    
+
     return Array.from(new Set(expectedNames)); // Remove duplicates
   }
 
   private classifyFailure(result: ExtractionResult, domain: string): ExtractionResult {
     const attempts = result.extractionAttempts || [];
-    
+
     // Analyze extraction attempts to determine failure category
     if (result.connectivity === 'unreachable') {
       return {
@@ -1973,7 +1963,7 @@ export class DomainExtractor {
         recommendation: 'Skip - Website unusable for business research'
       };
     }
-    
+
     if (result.connectivity === 'protected') {
       return {
         ...result,
@@ -1982,16 +1972,16 @@ export class DomainExtractor {
         recommendation: 'Manual review needed - Use browser or proxy'
       };
     }
-    
+
     // Check if we found company information but it failed validation
     const foundCompanyNames = attempts.filter(a => a.companyName && a.companyName.length > 0);
     const isTechDomain = /\.(io|ai|tech|app|cloud)$/.test(domain);
-    
+
     if (foundCompanyNames.length > 0) {
       const bestAttempt = foundCompanyNames.reduce((best, current) => 
         (current.confidence || 0) > (best.confidence || 0) ? current : best
       );
-      
+
       // Check if it's a tech company that failed legal suffix validation
       if (isTechDomain || /\b(secure|vision|tech|data|cloud|app|digital|software|cyber)\b/i.test(bestAttempt.companyName || '')) {
         return {
@@ -2001,7 +1991,7 @@ export class DomainExtractor {
           recommendation: 'Manual review - Likely valid tech company without traditional legal entity structure'
         };
       }
-      
+
       return {
         ...result,
         failureCategory: 'incomplete_low_priority',
@@ -2009,7 +1999,7 @@ export class DomainExtractor {
         recommendation: 'Low priority - Company name detected but quality concerns'
       };
     }
-    
+
     // No company information found at all
     const hasBusinessContent = attempts.some(a => 
       a.error?.includes('marketing') || 
@@ -2017,7 +2007,7 @@ export class DomainExtractor {
       domain.includes('blog') || 
       domain.includes('personal')
     );
-    
+
     if (hasBusinessContent) {
       return {
         ...result,
@@ -2026,7 +2016,7 @@ export class DomainExtractor {
         recommendation: 'Skip - Not a viable business target'
       };
     }
-    
+
     return {
       ...result,
       failureCategory: 'incomplete_low_priority',
@@ -2044,14 +2034,14 @@ export class DomainExtractor {
         validateStatus: () => true, // Accept any status code
         maxRedirects: 2 // Reduced redirects for speed
       });
-      
+
       // ENHANCED CLOUDFLARE DETECTION - Multi-layer approach
       const isCloudflareProtected = this.detectCloudflareProtection(response);
       if (isCloudflareProtected) {
         console.log(`CLOUDFLARE DETECTED: ${domain} - Protected by anti-bot measures`);
         return 'protected';
       }
-      
+
       // Check for other anti-bot protection
       if (response.status === 403 || 
           response.data?.includes('challenge') ||
@@ -2059,7 +2049,7 @@ export class DomainExtractor {
           response.data?.includes('blocked')) {
         return 'protected';
       }
-      
+
       return response.status < 500 ? 'reachable' : 'unreachable';
     } catch (error: any) {
       // Network failures indicate unreachable domains
@@ -2068,13 +2058,13 @@ export class DomainExtractor {
           error.code === 'ECONNRESET') {
         return 'unreachable';
       }
-      
+
       // SSL certificate errors - mark as unreachable for bad certificates
       if (error.code === 'ERR_TLS_CERT_ALTNAME_INVALID' || error.code === 'CERT_HAS_EXPIRED' ||
           error.code === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE' || error.code === 'SELF_SIGNED_CERT_IN_CHAIN') {
         return 'unreachable';
       }
-      
+
       // For other errors (like HTTP method not allowed), try HTTP fallback
       try {
         const httpResponse = await axios.head(`http://${domain}`, {
@@ -2083,7 +2073,7 @@ export class DomainExtractor {
           validateStatus: () => true,
           maxRedirects: 3
         });
-        
+
         return httpResponse.status < 500 ? 'reachable' : 'unreachable';
       } catch (httpError: any) {
         // If HTTP also fails with network errors, mark unreachable
@@ -2092,7 +2082,7 @@ export class DomainExtractor {
             httpError.code === 'ECONNRESET') {
           return 'unreachable';
         }
-        
+
         // If it's just method issues, assume reachable
         return 'reachable';
       }
