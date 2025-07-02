@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { storage } from './pgStorage';
 
@@ -13,7 +12,7 @@ router.get('/api/intelligence/search', async (req, res) => {
     }
 
     const searchTerm = q.toLowerCase();
-    
+
     // Search entities by name or LEI
     const entities = await storage.query(`
       SELECT 
@@ -58,7 +57,7 @@ router.get('/api/intelligence/search', async (req, res) => {
 router.get('/api/intelligence/entity/:leiCode', async (req, res) => {
   try {
     const { leiCode } = req.params;
-    
+
     // Get entity details
     const entity = await storage.getGleifEntity?.(leiCode);
     if (!entity) {
@@ -140,18 +139,14 @@ router.get('/api/intelligence/stats', async (req, res) => {
   }
 });
 
-export default router;
-
-
-
 // GLEIF Data Completeness Diagnostic
-app.get('/api/gleif/data-completeness/:domain', async (req, res) => {
+router.get('/api/gleif/data-completeness/:domain', async (req, res) => {
   try {
     const { domain } = req.params;
-    
+
     // Get domain intelligence
     const intelligence = await gleifKnowledgeBase.getDomainIntelligence(domain);
-    
+
     if (intelligence.entities.length === 0) {
       return res.json({
         domain,
@@ -164,7 +159,7 @@ app.get('/api/gleif/data-completeness/:domain', async (req, res) => {
     const entityAnalysis = intelligence.entities.map(entity => {
       const rawData = entity.gleifFullData ? JSON.parse(entity.gleifFullData) : {};
       const enhancedData = rawData.enhancedData || {};
-      
+
       return {
         lei: entity.leiCode,
         legalName: entity.legalName,
@@ -245,3 +240,5 @@ app.get('/api/gleif/data-completeness/:domain', async (req, res) => {
     });
   }
 });
+
+export default router;
