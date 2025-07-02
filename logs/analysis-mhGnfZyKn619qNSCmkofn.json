@@ -1,0 +1,89 @@
+{
+  "batchId": "mhGnfZyKn619qNSCmkofn",
+  "analysisGeneratedAt": "2025-07-02T10:26:48.021Z",
+  "overview": {
+    "duration": 1290958,
+    "finalStatus": {
+      "processed": 100,
+      "successful": 6,
+      "failed": 94,
+      "totalTimeMs": 311122,
+      "averageTimePerDomain": 3111.22,
+      "successRate": 6,
+      "completedAt": "2025-07-02T10:26:48.020Z"
+    },
+    "progressCheckpoints": 32,
+    "totalEvents": 136
+  },
+  "timeline": [
+    {
+      "timestamp": "2025-07-02T10:05:17.062Z",
+      "event": "batch_start",
+      "context": {
+        "fileName": "acq__ - Sheet1.csv",
+        "totalDomains": 100,
+        "uploadedAt": "2025-07-02T10:05:16.093Z",
+        "processingStarted": "2025-07-02T10:05:17.062Z",
+        "configuration": {
+          "concurrency": 3,
+          "timeoutMs": 25000,
+          "retryAttempts": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2025-07-02T10:10:11.699Z",
+      "event": "batch_start",
+      "context": {
+        "fileName": "acq__ - Sheet1.csv",
+        "totalDomains": 100,
+        "uploadedAt": "2025-07-02T10:05:16.093Z",
+        "processingStarted": "2025-07-02T10:10:11.699Z",
+        "configuration": {
+          "concurrency": 3,
+          "timeoutMs": 25000,
+          "retryAttempts": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2025-07-02T10:21:36.951Z",
+      "event": "batch_start",
+      "context": {
+        "fileName": "acq__ - Sheet1.csv",
+        "totalDomains": 100,
+        "uploadedAt": "2025-07-02T10:05:16.093Z",
+        "processingStarted": "2025-07-02T10:21:36.951Z",
+        "configuration": {
+          "concurrency": 3,
+          "timeoutMs": 25000,
+          "retryAttempts": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2025-07-02T10:26:48.020Z",
+      "event": "batch_complete",
+      "context": {
+        "processed": 100,
+        "successful": 6,
+        "failed": 94,
+        "totalTimeMs": 311122,
+        "averageTimePerDomain": 3111.22,
+        "successRate": 6,
+        "completedAt": "2025-07-02T10:26:48.020Z"
+      }
+    }
+  ],
+  "performance": {
+    "totalProcessed": 0,
+    "successCount": 0,
+    "failureCount": 0,
+    "timeoutCount": 0,
+    "averageProcessingTime": 0,
+    "commonFailureReasons": {},
+    "performanceByTimeOfDay": {}
+  },
+  "anomalies": [],
+  "recommendations": []
+}
