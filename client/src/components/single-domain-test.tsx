@@ -1,23 +1,11 @@
 import * as React from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface TestResult {
-  domain: string;
-  status: string;
-  companyName: string | null;
-  extractionMethod: string | null;
-  confidenceScore: number | null;
-  processingTimeMs: number;
-  failureCategory: string | null;
-  errorMessage: string | null;
-  recommendation: string | null;
-}
+import { Loader2, Search, CheckCircle, XCircle, Globe } from "lucide-react";
 
 interface SingleDomainTestProps {
   onTestCompleted?: () => void;
@@ -25,40 +13,39 @@ interface SingleDomainTestProps {
 
 export default function SingleDomainTest({ onTestCompleted }: SingleDomainTestProps) {
   const [domain, setDomain] = React.useState("");
-  const [testResult, setTestResult] = React.useState<TestResult | null>(null);
+  const [lastResult, setLastResult] = React.useState<any>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const testDomainMutation = useMutation({
-    mutationFn: async (testDomain: string): Promise<TestResult> => {
-      const response = await fetch('/api/test-domain', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ domain: testDomain }),
+    mutationFn: async (domainToTest: string) => {
+      const response = await fetch("/api/test-domain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain: domainToTest }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to test domain');
+        throw new Error("Failed to test domain");
       }
 
       return response.json();
     },
-    onSuccess: (result) => {
-      setTestResult(result);
+    onSuccess: (data) => {
+      setLastResult(data);
       toast({
-        title: "Domain test completed",
-        description: `Processed ${result.domain} in ${result.processingTimeMs}ms`,
+        title: "Test completed",
+        description: `Successfully processed ${domain}`,
       });
-      // Refresh stats and batches to include the new test
+
+      if (onTestCompleted) {
+        onTestCompleted();
+      }
+
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/batches"] });
       queryClient.invalidateQueries({ queryKey: ["/api/results"] });
-      // Notify parent component about the completed test
-      onTestCompleted?.();
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Test failed",
         description: error.message,
@@ -69,85 +56,33 @@ export default function SingleDomainTest({ onTestCompleted }: SingleDomainTestPr
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!domain.trim()) {
-      toast({
-        title: "Invalid input",
-        description: "Please enter a domain name",
-        variant: "destructive",
-      });
-      return;
+    if (domain.trim()) {
+      testDomainMutation.mutate(domain.trim());
     }
-
-    const cleanDomain = domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
-    testDomainMutation.mutate(cleanDomain);
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'success':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'failed':
-        return <XCircle className="h-4 w-4 text-red-600" />;
-      default:
-        return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'success':
-        return 'bg-green-100 text-green-800';
-      case 'failed':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-yellow-100 text-yellow-800';
-    }
-  };
-
-  const getBusinessCategory = (result: TestResult) => {
-    if (result.status === 'success' && result.confidenceScore && result.confidenceScore >= 85) {
-      return { label: 'Success', color: 'bg-green-100 text-green-800' };
-    }
-
-    if (result.failureCategory === 'connectivity_issue') {
-      return { label: 'Protected - Manual Review', color: 'bg-yellow-100 text-yellow-800' };
-    }
-
-    if (result.failureCategory === 'extraction_failed') {
-      return { label: 'Good Target - Tech Issue', color: 'bg-blue-100 text-blue-800' };
-    }
-
-    if (result.status === 'failed') {
-      return { label: 'Bad Website - Skip', color: 'bg-red-100 text-red-800' };
-    }
-
-    return { label: 'Incomplete - Low Priority', color: 'bg-gray-100 text-gray-800' };
   };
 
   return (
-    <Card>
+    <Card className="bg-surface shadow-material border border-gray-200">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Search className="h-5 w-5" />
+        <CardTitle className="flex items-center">
+          <Search className="text-primary-custom mr-2 h-5 w-5" />
           Single Domain Test
         </CardTitle>
-        <CardDescription>
-          Test extraction on a single domain for quick validation
-        </CardDescription>
+        <p className="text-sm text-gray-600">Test extraction on a single domain</p>
       </CardHeader>
       <CardContent className="space-y-4">
-        <form onSubmit={handleSubmit} className="flex gap-2">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <Input
             type="text"
-            placeholder="Enter domain (e.g., example.com)"
+            placeholder="Enter domain (e.g., google.com)"
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
             disabled={testDomainMutation.isPending}
-            className="flex-1"
           />
-          <Button 
-            type="submit" 
-            disabled={testDomainMutation.isPending || !domain.trim()}
+          <Button
+            type="submit"
+            disabled={!domain.trim() || testDomainMutation.isPending}
+            className="w-full"
           >
             {testDomainMutation.isPending ? (
               <>
@@ -155,65 +90,58 @@ export default function SingleDomainTest({ onTestCompleted }: SingleDomainTestPr
                 Testing...
               </>
             ) : (
-              'Test'
+              <>
+                <Search className="mr-2 h-4 w-4" />
+                Test Domain
+              </>
             )}
           </Button>
         </form>
 
-        {testResult && (
-          <div className="border rounded-lg p-4 space-y-3 bg-gray-50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(testResult.status)}
-                <span className="font-medium">{testResult.domain}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge className={getStatusColor(testResult.status)}>
-                  {testResult.status}
+        {lastResult && (
+          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-medium text-sm">
+                <Globe className="inline mr-1 h-3 w-3" />
+                {lastResult.domain}
+              </span>
+              {lastResult.status === 'success' ? (
+                <Badge className="bg-green-100 text-green-800">
+                  <CheckCircle className="mr-1 h-3 w-3" />
+                  Success
                 </Badge>
-                <Badge className={getBusinessCategory(testResult).color}>
-                  {getBusinessCategory(testResult).label}
+              ) : (
+                <Badge variant="destructive">
+                  <XCircle className="mr-1 h-3 w-3" />
+                  Failed
                 </Badge>
-              </div>
+              )}
             </div>
 
-            {testResult.companyName && (
-              <div>
-                <span className="text-sm font-medium text-gray-700">Company Name: </span>
-                <span className="text-sm">{testResult.companyName}</span>
+            {lastResult.status === 'success' && (
+              <div className="space-y-1 text-sm">
+                <div>
+                  <span className="text-gray-600">Company:</span>
+                  <span className="ml-2 font-medium">{lastResult.companyName || 'N/A'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Method:</span>
+                  <span className="ml-2">{lastResult.extractionMethod || 'N/A'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Confidence:</span>
+                  <span className="ml-2">{lastResult.confidenceScore || 0}%</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Time:</span>
+                  <span className="ml-2">{lastResult.processingTimeMs || 0}ms</span>
+                </div>
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="font-medium text-gray-700">Method: </span>
-                <span>{testResult.extractionMethod || 'N/A'}</span>
-              </div>
-              <div>
-                <span className="font-medium text-gray-700">Confidence: </span>
-                <span>{testResult.confidenceScore ? `${testResult.confidenceScore}%` : 'N/A'}</span>
-              </div>
-              <div>
-                <span className="font-medium text-gray-700">Processing Time: </span>
-                <span>{testResult.processingTimeMs}ms</span>
-              </div>
-              <div>
-                <span className="font-medium text-gray-700">Category: </span>
-                <span>{testResult.failureCategory || 'success'}</span>
-              </div>
-            </div>
-
-            {testResult.errorMessage && (
-              <div className="text-sm">
-                <span className="font-medium text-gray-700">Error: </span>
-                <span className="text-red-600">{testResult.errorMessage}</span>
-              </div>
-            )}
-
-            {testResult.recommendation && (
-              <div className="text-sm">
-                <span className="font-medium text-gray-700">Recommendation: </span>
-                <span>{testResult.recommendation}</span>
+            {lastResult.error && (
+              <div className="text-sm text-red-600 mt-2">
+                Error: {lastResult.error}
               </div>
             )}
           </div>
