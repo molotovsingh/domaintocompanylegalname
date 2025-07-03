@@ -425,7 +425,7 @@ export class BatchProcessor {
       const problematicDomains = ['kddi.com', 'tenaris.com', 'samsung.com', 'orange.com'];
       const isProblematicDomain = problematicDomains.includes(domain.domain);
       const retryCount = domain.retryCount || 0;
-      
+
       if (isProblematicDomain && retryCount >= 1) {
         console.log(`ENHANCED CIRCUIT BREAKER: Skipping problematic domain ${domain.domain} after ${retryCount} attempt(s)`);
         await storage.updateDomain(domain.id, {
@@ -439,7 +439,7 @@ export class BatchProcessor {
         });
         return;
       }
-      
+
       if (!isProblematicDomain && retryCount >= 3) {
         console.log(`CIRCUIT BREAKER: Skipping ${domain.domain} - exceeded retry limit (${retryCount} attempts)`);
         await storage.updateDomain(domain.id, {

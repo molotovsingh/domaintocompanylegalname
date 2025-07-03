@@ -11,7 +11,7 @@ export interface GLEIFEntity {
   legalForm: string;
   entityCategory: string;
   registrationStatus: string;
-  
+
   // Enhanced address structures with complete GLEIF data
   headquarters: {
     country: string;
@@ -35,23 +35,23 @@ export interface GLEIFEntity {
     mailRouting?: string;
     language?: string;
   };
-  
+
   // Enhanced entity names with metadata
   otherNames: Array<{
     name: string;
     type: string;
     language: string;
   }> | string[]; // Support both old and new format
-  
+
   // Core dates
   registrationDate: string;
   lastUpdateDate: string;
-  
+
   // Enhanced legal form information
   legalFormCode?: string;
   legalFormName?: string;
   legalFormAbbreviation?: string;
-  
+
   // Registration authority intelligence
   registrationAuthority?: {
     id: string;
@@ -59,23 +59,23 @@ export interface GLEIFEntity {
     validationSources: string;
     validationAuthority: string;
   };
-  
+
   // Entity lifecycle data
   nextRenewalDate?: string;
   lastCorroborationDate?: string;
-  
+
   // Business classification
   entitySubCategory?: string;
-  
+
   // Financial institution codes
   bic?: string[];
-  
+
   // Corporate restructuring intelligence
   successorEntity?: string;
-  
+
   // Country-specific extension data
   extensionData?: any;
-  
+
   // Complete raw data for advanced analysis
   rawGleifData?: any;
 }
@@ -307,7 +307,7 @@ export class GLEIFService {
         legalForm: entity.legalForm?.id || '',
         entityCategory: entity.category || 'GENERAL',
         registrationStatus: registration?.status || 'UNKNOWN',
-        
+
         // Enhanced headquarters data with complete address structure
         headquarters: {
           country: entity.headquartersAddress?.country || '',
@@ -321,7 +321,7 @@ export class GLEIFService {
           mailRouting: entity.headquartersAddress?.mailRouting || '',
           language: entity.headquartersAddress?.language || ''
         },
-        
+
         // Enhanced legal address with complete structure
         legalAddress: {
           country: entity.legalAddress?.country || '',
@@ -335,23 +335,23 @@ export class GLEIFService {
           mailRouting: entity.legalAddress?.mailRouting || '',
           language: entity.legalAddress?.language || ''
         },
-        
+
         // Enhanced entity names and identifiers
         otherNames: entity.otherEntityNames?.map((n: any) => ({
           name: n.name || '',
           type: n.type || '',
           language: n.language || ''
         })) || [],
-        
+
         // Enhanced registration and legal information
         registrationDate: registration?.initialRegistrationDate || '',
         lastUpdateDate: attributes.lastUpdateDate || '',
-        
+
         // Additional valuable GLEIF fields
         legalFormCode: entity.legalForm?.id || '',
         legalFormName: entity.legalForm?.name || '',
         legalFormAbbreviation: entity.legalForm?.abbreviation || '',
-        
+
         // Registration authority information
         registrationAuthority: {
           id: registration?.managingLOU || '',
@@ -359,24 +359,24 @@ export class GLEIFService {
           validationSources: registration?.validationSources || '',
           validationAuthority: registration?.validationAuthority || ''
         },
-        
+
         // Entity lifecycle information
         nextRenewalDate: registration?.nextRenewalDate || '',
         lastCorroborationDate: registration?.lastCorroborationDate || '',
-        
+
         // Business classification
         entityCategory: entity.category || '',
         entitySubCategory: entity.subCategory || '',
-        
+
         // Associated BIC codes (if available)
         bic: entity.associatedBIC || [],
-        
+
         // Successor entity information (for mergers/acquisitions)
         successorEntity: attributes.successorEntity?.lei || '',
-        
+
         // Extension data for additional country-specific information
         extensionData: attributes.extension || {},
-        
+
         // Complete raw GLEIF data for future analysis
         rawGleifData: record
       };
@@ -608,7 +608,7 @@ export class GLEIFService {
           return result;
         }
       }
-      
+
       // Try alternatives if provided
       if (alternatives && alternatives.length > 0) {
         for (const altJurisdiction of alternatives.slice(0, 2)) { // Limit to top 2 alternatives
@@ -619,10 +619,10 @@ export class GLEIFService {
           }
         }
       }
-      
+
       // Fall back to standard search
       return await this.searchEntity(companyName, domain);
-      
+
     } catch (error) {
       console.error('Focus jurisdiction search failed:', error);
       // Fall back to standard search on error
