@@ -579,6 +579,88 @@ export const JURISDICTIONS: Record<string, JurisdictionData> = {
       "Cooperative societies governed by the Co-operative Societies Act",
       "Business-friendly environment allows foreign companies as branch offices"
     ]
+  },
+
+  cz: {
+    name: "Czech Republic",
+    tlds: [".cz"],
+    entities: {
+      limited_liability: {
+        suffixes: ["s.r.o.", "spol. s r.o.", "společnost s ručením omezeným"],
+        description: "Limited liability company, the most common form for small to medium businesses",
+        confidence: 95,
+        mandatory: true
+      },
+      joint_stock: {
+        suffixes: ["a.s.", "akciová společnost"],
+        description: "Joint-stock company, used for larger or publicly traded businesses with limited liability",
+        confidence: 95,
+        mandatory: true
+      },
+      general_partnership: {
+        suffixes: ["v.o.s.", "veřejná obchodní společnost"],
+        description: "General partnership with unlimited liability for all partners",
+        confidence: 95,
+        mandatory: true
+      },
+      limited_partnership: {
+        suffixes: ["k.s.", "komanditní společnost"],
+        description: "Limited partnership with general and limited partners, general partners have unlimited liability",
+        confidence: 95,
+        mandatory: true
+      },
+      cooperative: {
+        suffixes: ["družstvo"],
+        description: "Cooperative, member-owned for mutual benefit, common in agriculture or housing",
+        confidence: 90,
+        mandatory: false
+      },
+      foundation: {
+        suffixes: ["nadace"],
+        description: "Foundation, used for charitable, cultural, or public-benefit purposes, similar to a trust",
+        confidence: 85,
+        mandatory: false
+      },
+      endowment_fund: {
+        suffixes: ["nadační fond"],
+        description: "Endowment fund, a flexible nonprofit entity for charitable or social purposes",
+        confidence: 85,
+        mandatory: false
+      },
+      trust_fund: {
+        suffixes: ["svěřenský fond", "trust"],
+        description: "Trust fund, a trust-like arrangement for asset management or estate planning, not a standalone entity",
+        confidence: 80,
+        mandatory: false
+      },
+      association: {
+        suffixes: ["spolek"],
+        description: "Association, a nonprofit entity for cultural, social, or community purposes",
+        confidence: 85,
+        mandatory: false
+      },
+      institute: {
+        suffixes: ["ústav"],
+        description: "Institute, a nonprofit entity for educational, scientific, or cultural purposes",
+        confidence: 85,
+        mandatory: false
+      }
+    },
+    rules: [
+      "Suffixes like s.r.o., a.s., v.o.s., or k.s. are mandatory in the entity's name to indicate its legal structure under the Corporations Act (Act No. 90/2012 Coll.)",
+      "Limited liability companies (s.r.o.) are the most common form for small to medium businesses",
+      "Joint-stock companies (a.s.) are used for larger or publicly traded businesses",
+      "Trusts ('svěřenský fond') were introduced in the Czech Civil Code (Act No. 89/2012 Coll.) in 2014 for asset management or estate planning but are not legal entities",
+      "Foundations ('nadace') and endowment funds ('nadační fond') serve purposes similar to trusts, often for charitable or cultural activities",
+      "Nonprofit entities like 'spolek' (associations) and 'ústav' (institutes) are common for community or cultural purposes",
+      "Cooperatives ('družstvo') are regulated under the Corporations Act, with names often including 'družstvo'"
+    ],
+    notes: [
+      "Entities are registered with the Commercial Register (Obchodní rejstřík) managed by regional courts, except for certain nonprofits registered with other authorities",
+      "The Czech Republic's civil law system, similar to Germany or Italy, limits common law trusts, but the 2014 reforms introduced trust-like structures",
+      "Public institutions, such as state-owned enterprises or universities, lack standardized suffixes and are identified by name or context",
+      "Czech legal entities follow European Union standards while maintaining distinct national characteristics"
+    ]
   }
 };
 

@@ -69,8 +69,4 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pip install -r requirements.txt"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
 args = "python analytics_server.py"

@@ -647,6 +647,17 @@ export class PostgreSQLStorage implements IStorage {
       .where(eq(entityRelationships.parentLei, leiCode))
       .orderBy(desc(entityRelationships.relationshipConfidence));
   }
+
+  // Raw query method for Knowledge Graph functionality
+  async query(sqlQuery: string, params: any[] = []): Promise<{ rows: any[] }> {
+    try {
+      const result = await db.execute(sql.raw(sqlQuery, params));
+      return { rows: Array.isArray(result) ? result : result.rows || [] };
+    } catch (error) {
+      console.error('Database query error:', error);
+      throw error;
+    }
+  }
 }
 
 export const storage = new PostgreSQLStorage();

@@ -1,0 +1,74 @@
+{
+  "legal_entities": [
+    {
+      "type": "Společnost s ručením omezeným",
+      "suffix": "s.r.o.",
+      "description": "Limited liability company, the most common form for small to medium businesses."
+    },
+    {
+      "type": "Akciová společnost",
+      "suffix": "a.s.",
+      "description": "Joint-stock company, used for larger or publicly traded businesses with limited liability."
+    },
+    {
+      "type": "Veřejná obchodní společnost",
+      "suffix": "v.o.s.",
+      "description": "General partnership with unlimited liability for all partners."
+    },
+    {
+      "type": "Komanditní společnost",
+      "suffix": "k.s.",
+      "description": "Limited partnership with general and limited partners, general partners have unlimited liability."
+    },
+    {
+      "type": "Družstvo",
+      "suffix": "(No specific suffix, often 'družstvo' in name)",
+      "description": "Cooperative, member-owned for mutual benefit, common in agriculture or housing."
+    },
+    {
+      "type": "Fyzická osoba podnikatel",
+      "suffix": "(No specific suffix, often none)",
+      "description": "Sole proprietorship, no separate legal entity, unlimited liability."
+    },
+    {
+      "type": "Nadace",
+      "suffix": "(No specific suffix, often 'nadace' in name)",
+      "description": "Foundation, used for charitable, cultural, or public-benefit purposes, similar to a trust."
+    },
+    {
+      "type": "Nadační fond",
+      "suffix": "(No specific suffix, often 'nadační fond' in name)",
+      "description": "Endowment fund, a flexible nonprofit entity for charitable or social purposes."
+    },
+    {
+      "type": "Svěřenský fond",
+      "suffix": "(No specific suffix, often 'svěřenský fond' or 'trust' in name)",
+      "description": "Trust fund, a trust-like arrangement for asset management or estate planning, not a standalone entity."
+    },
+    {
+      "type": "Spolek",
+      "suffix": "(No specific suffix, often 'spolek' in name)",
+      "description": "Association, a nonprofit entity for cultural, social, or community purposes."
+    },
+    {
+      "type": "Ústav",
+      "suffix": "(No specific suffix, often 'ústav' in name)",
+      "description": "Institute, a nonprofit entity for educational, scientific, or cultural purposes."
+    },
+    {
+      "type": "Veřejná instituce",
+      "suffix": "(No specific suffix, often descriptive name)",
+      "description": "Public institution, such as government agencies, universities, or state-owned enterprises."
+    }
+  ],
+  "notes": [
+    "Suffixes like s.r.o., a.s., v.o.s., or k.s. are mandatory in the entity’s name to indicate its legal structure under the Corporations Act (Act No. 90/2012 Coll.).",
+    "Trusts ('svěřenský fond') were introduced in the Czech Civil Code (Act No. 89/2012 Coll.) in 2014 for asset management or estate planning but are not legal entities; 'svěřenský fond' or 'trust' is included in the name.",
+    "Foundations ('nadace') and endowment funds ('nadační fond') serve purposes similar to trusts, often for charitable or cultural activities, and are registered as legal entities.",
+    "Nonprofit entities like 'spolek' (associations) and 'ústav' (institutes) are common for community or cultural purposes, similar to India’s societies or Singapore’s societies.",
+    "Cooperatives ('družstvo') are regulated under the Corporations Act, with names often including 'družstvo'.",
+    "Public institutions, such as state-owned enterprises or universities, lack standardized suffixes and are identified by name or context.",
+    "Entities are registered with the Commercial Register (Obchodní rejstřík) managed by regional courts, except for certain nonprofits registered with other authorities.",
+    "The Czech Republic’s civil law system, similar to Germany or Italy, limits common law trusts, but the 2014 reforms introduced trust-like structures."
+  ]
+}

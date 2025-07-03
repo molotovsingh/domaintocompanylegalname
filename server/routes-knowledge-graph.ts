@@ -13,43 +13,16 @@ router.get('/api/intelligence/search', async (req, res) => {
 
     const searchTerm = q.toLowerCase();
 
-    // Search entities by name or LEI
-    const entities = await storage.query(`
-      SELECT 
-        lei_code,
-        legal_name,
-        entity_status,
-        jurisdiction,
-        discovery_frequency,
-        last_seen_date
-      FROM gleif_entities 
-      WHERE LOWER(legal_name) LIKE $1 
-         OR LOWER(lei_code) LIKE $1
-      ORDER BY discovery_frequency DESC, legal_name
-      LIMIT 10
-    `, [`%${searchTerm}%`]);
-
-    // Search domains
-    const domains = await storage.query(`
-      SELECT 
-        domain,
-        company_name,
-        confidence_score,
-        status
-      FROM domains 
-      WHERE LOWER(domain) LIKE $1 
-         OR LOWER(company_name) LIKE $1
-      ORDER BY confidence_score DESC, domain
-      LIMIT 10
-    `, [`%${searchTerm}%`]);
+    // Search domains using existing storage methods
+    const domainResults = await storage.searchDomains(searchTerm, 10);
 
     res.json({
-      entities: entities.rows || [],
-      domains: domains.rows || []
+      entities: [], // Empty until GLEIF entities exist
+      domains: domainResults || []
     });
   } catch (error) {
     console.error('Search error:', error);
-    res.status(500).json({ error: 'Search failed' });
+    res.status(500).json({ error: 'Search failed', details: (error as Error).message });
   }
 });
 

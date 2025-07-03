@@ -976,6 +976,26 @@ export class DomainExtractor {
       'symrise.com': 'Symrise AG',
       'rational-online.com': 'RATIONAL AG',
 
+      // Czech Republic Companies
+      'cez.cz': 'ČEZ a.s.',
+      'ceska-sporitelna.cz': 'Česká spořitelna a.s.',
+      'kb.cz': 'Komerční banka a.s.',
+      'csob.cz': 'Československá obchodní banka a.s.',
+      'o2.cz': 'O2 Czech Republic a.s.',
+      'tmobile.cz': 'T-Mobile Czech Republic a.s.',
+      'vodafone.cz': 'Vodafone Czech Republic a.s.',
+      'skoda-auto.cz': 'ŠKODA AUTO a.s.',
+      'zentiva.com': 'Zentiva Group a.s.',
+      'agrofert.cz': 'AGROFERT a.s.',
+      'avast.com': 'Avast Software s.r.o.',
+      'jet-investment.com': 'J&T BANKA a.s.',
+      'moneta.cz': 'Moneta Money Bank a.s.',
+      'air-bank.cz': 'Air Bank a.s.',
+      'unicreditbank.cz': 'UniCredit Bank Czech Republic and Slovakia a.s.',
+      'era.cz': 'ERA a.s.',
+      'nwr.eu': 'New World Resources N.V.',
+      'unipetrol.cz': 'Unipetrol a.s.',
+
       // Indian Companies (corrected mappings)
       'pnbindia.in': 'Punjab National Bank',
       'phonepe.com': 'PhonePe Pvt Ltd',

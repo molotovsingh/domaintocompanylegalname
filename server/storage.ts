@@ -57,6 +57,9 @@ export interface IStorage {
   
   createEntityRelationship?(relationship: InsertEntityRelationship): Promise<EntityRelationship>;
   getEntityRelationships?(leiCode: string): Promise<EntityRelationship[]>;
+  
+  // Raw query method for Knowledge Graph functionality
+  query?(sqlQuery: string, params?: any[]): Promise<{ rows: any[] }>;
 }
 
 export class MemStorage implements IStorage {
