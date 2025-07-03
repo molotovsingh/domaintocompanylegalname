@@ -45,6 +45,31 @@ export const domains = pgTable("domains", {
   finalConfidence: integer("final_confidence"), // Combined confidence score
   finalExtractionMethod: text("final_extraction_method"), // 'level1_only', 'level2_enhanced', 'gleif_verified'
 
+  // Business Intelligence Enhancement Fields
+  primaryBusinessDescription: text("primary_business_description"), // Hero section, mission statements
+  industryContext: text("industry_context"), // Detected industry keywords and patterns
+  corporateHeritage: text("corporate_heritage"), // Timeline indicators (years, established, founded)
+  businessScale: text("business_scale"), // Fortune 500, global operations, size indicators
+  corporateStructure: text("corporate_structure"), // Public/private, subsidiary relationships
+  
+  // Content Analysis Intelligence
+  heroSectionContent: text("hero_section_content"), // Main headlines and taglines
+  aboutSectionSummary: text("about_section_summary"), // Corporate mission and positioning
+  businessFocusKeywords: text("business_focus_keywords"), // JSON array of industry-specific terms
+  geographicPresence: text("geographic_presence"), // Global/regional presence indicators
+  corporateTimeline: text("corporate_timeline"), // Heritage and milestone information
+  
+  // Enhanced Classification
+  businessCategory: text("business_category"), // Technology, Healthcare, Financial, etc.
+  businessSubcategory: text("business_subcategory"), // Software, Pharmaceuticals, Banking, etc.
+  marketPosition: text("market_position"), // Enterprise, SMB, Consumer, etc.
+  companyType: text("company_type"), // Corporation, Partnership, Foundation, etc.
+  
+  // Content Source Attribution
+  contentSources: text("content_sources"), // JSON object tracking where intelligence was extracted
+  extractionTimestamp: timestamp("extraction_timestamp"), // When business intelligence was captured
+  contentQualityScore: integer("content_quality_score"), // 0-100 score for content richness
+  
   // Manual Review Workflow
   manualReviewRequired: boolean("manual_review_required").default(false),
   selectionNotes: text("selection_notes"),
@@ -214,6 +239,32 @@ export const insertEntityRelationshipSchema = createInsertSchema(entityRelations
   createdAt: true,
 });
 
+// Business Intelligence Patterns Table
+export const businessIntelligencePatterns = pgTable("business_intelligence_patterns", {
+  id: serial("id").primaryKey(),
+  patternType: text("pattern_type").notNull(), // 'industry_keyword', 'heritage_indicator', 'scale_marker', 'structure_signal'
+  patternValue: text("pattern_value").notNull(), // The actual text pattern
+  category: text("category").notNull(), // 'technology', 'healthcare', 'financial', etc.
+  subcategory: text("subcategory"), // More specific classification
+  confidenceWeight: integer("confidence_weight").notNull(), // How much this pattern affects confidence
+  matchType: text("match_type").notNull(), // 'exact', 'contains', 'regex', 'fuzzy'
+  description: text("description"), // Human-readable description of what this pattern indicates
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Domain Business Intelligence Matches Table
+export const domainBusinessMatches = pgTable("domain_business_matches", {
+  id: serial("id").primaryKey(),
+  domainId: integer("domain_id").notNull().references(() => domains.id),
+  patternId: integer("pattern_id").notNull().references(() => businessIntelligencePatterns.id),
+  matchedText: text("matched_text").notNull(), // The actual text that matched
+  contentLocation: text("content_location").notNull(), // 'hero_section', 'about_page', 'meta_title', etc.
+  matchConfidence: integer("match_confidence").notNull(), // 0-100 confidence in this match
+  extractedAt: timestamp("extracted_at").defaultNow(),
+});
+
 // GLEIF Candidates Schema (V2) - Backward compatibility
 export const insertGleifCandidateSchema = createInsertSchema(gleifCandidates).omit({
   id: true,
@@ -241,6 +292,24 @@ export type InsertEntityRelationship = z.infer<typeof insertEntityRelationshipSc
 // GLEIF Candidates Types (V2) - Backward compatibility
 export type GleifCandidate = typeof gleifCandidates.$inferSelect;
 export type InsertGleifCandidate = z.infer<typeof insertGleifCandidateSchema>;
+
+// Business Intelligence Types
+export const insertBusinessIntelligencePatternsSchema = createInsertSchema(businessIntelligencePatterns).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertDomainBusinessMatchesSchema = createInsertSchema(domainBusinessMatches).omit({
+  id: true,
+  extractedAt: true,
+});
+
+export type BusinessIntelligencePattern = typeof businessIntelligencePatterns.$inferSelect;
+export type InsertBusinessIntelligencePattern = z.infer<typeof insertBusinessIntelligencePatternsSchema>;
+
+export type DomainBusinessMatch = typeof domainBusinessMatches.$inferSelect;
+export type InsertDomainBusinessMatch = z.infer<typeof insertDomainBusinessMatchesSchema>;
 
 export const bottleneckAnalysisSchema = z.object({
   type: z.enum(['network_timeout', 'anti_bot_protection', 'high_concurrency', 'stuck_domains', 'low_success_rate', 'memory_pressure']),

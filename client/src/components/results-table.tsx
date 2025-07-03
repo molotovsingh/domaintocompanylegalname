@@ -226,7 +226,10 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
                   Company Name
                 </th>
                 <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Business Category
+                  Business Intelligence
+                </th>
+                <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Industry Context
                 </th>
                 <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Source
@@ -280,7 +283,43 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
                     )}
                   </td>
                   <td className="py-3 px-4">
-                    {getStatusBadge(domain.status)}
+                    <div className="flex flex-col space-y-1">
+                      {domain.businessCategory && (
+                        <Badge variant="outline" className="text-xs">
+                          {domain.businessCategory}
+                          {domain.businessSubcategory && ` - ${domain.businessSubcategory}`}
+                        </Badge>
+                      )}
+                      {domain.businessScale && (
+                        <span className="text-xs text-gray-600">{domain.businessScale}</span>
+                      )}
+                      {domain.corporateHeritage && (
+                        <span className="text-xs text-blue-600">{domain.corporateHeritage}</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-3 px-4">
+                    <div className="flex flex-col space-y-1">
+                      {domain.industryContext && (
+                        <span className="text-sm text-gray-900">{domain.industryContext}</span>
+                      )}
+                      {domain.primaryBusinessDescription && (
+                        <span className="text-xs text-gray-600 truncate max-w-xs">
+                          {domain.primaryBusinessDescription}
+                        </span>
+                      )}
+                      {domain.contentQualityScore && (
+                        <div className="flex items-center">
+                          <div className="w-12 bg-gray-200 rounded-full h-1 mr-2">
+                            <div
+                              className="bg-blue-500 h-1 rounded-full"
+                              style={{ width: `${domain.contentQualityScore}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-xs text-gray-500">{domain.contentQualityScore}%</span>
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td className="py-3 px-4">
                     <span className="text-gray-900">
