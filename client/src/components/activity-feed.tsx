@@ -1,13 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import { History } from "lucide-react";
+import { History, RefreshCw } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import type { Activity } from "@shared/schema";
 
 export default function ActivityFeed() {
-  const { data: activities = [] } = useQuery({
+  const { data: activities = [], refetch: refetchActivities } = useQuery({
     queryKey: ["/api/activities"],
-    refetchInterval: 10000, // Refetch every 10 seconds
   });
+
+  const handleRefresh = () => {
+    refetchActivities();
+  };
 
   const getStatusColor = (type: string) => {
     switch (type) {
@@ -36,11 +40,24 @@ export default function ActivityFeed() {
   return (
     <Card className="mt-8 bg-surface shadow-material border border-gray-200">
       <div className="p-6 border-b border-gray-200">
-        <h2 className="text-lg font-medium text-gray-900 flex items-center">
-          <History className="text-primary-custom mr-2 h-5 w-5" />
-          Recent Activity
-        </h2>
-        <p className="text-sm text-gray-600 mt-1">Live feed of processing events and system notifications</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-medium text-gray-900 flex items-center">
+              <History className="text-primary-custom mr-2 h-5 w-5" />
+              Recent Activity
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">Manual refresh for latest events</p>
+          </div>
+          <Button
+            onClick={handleRefresh}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
       </div>
       <CardContent className="p-6">
         <div className="space-y-4 max-h-80 overflow-y-auto">

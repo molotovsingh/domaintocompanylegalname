@@ -30,12 +30,18 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
     ...(searchQuery && { search: searchQuery })
   });
 
-  const { data: resultsData, isLoading } = useQuery({
+  const { data: resultsData, isLoading, refetch: refetchResults } = useQuery({
     queryKey: [`/api/results/${currentBatchId}?${params}`],
     enabled: !!currentBatchId,
-    refetchInterval: 120000, // Reduced to 2 minutes
-    staleTime: 90000,
   });
+
+  const handleRefresh = () => {
+    refetchResults();
+    toast({
+      title: "Results refreshed",
+      description: "Latest extraction results loaded",
+    });
+  };
 
   const domains = resultsData?.domains || [];
   const batch = resultsData?.batch;
@@ -140,6 +146,15 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
             <p className="text-sm text-gray-600 mt-1">Latest processed domains with confidence scores</p>
           </div>
           <div className="flex space-x-2">
+            <Button
+              onClick={handleRefresh}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </Button>
             <Button
               onClick={() => handleExport('csv')}
               className="bg-success hover:bg-green-700 text-white"

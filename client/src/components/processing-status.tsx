@@ -17,17 +17,22 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: batches } = useQuery({
+  const { data: batches, refetch: refetchBatches } = useQuery({
     queryKey: ["/api/batches"],
-    refetchInterval: 120000, // Reduced to 2 minutes
-    staleTime: 90000,
   });
 
-  const { data: stats } = useQuery({
+  const { data: stats, refetch: refetchStats } = useQuery({
     queryKey: ["/api/stats"],
-    refetchInterval: 60000, // Reduced to 1 minute
-    staleTime: 45000,
   });
+
+  const handleRefresh = () => {
+    refetchBatches();
+    refetchStats();
+    toast({
+      title: "Data refreshed",
+      description: "Processing status updated successfully",
+    });
+  };
 
   // Type-safe batch data access with proper types
   interface BatchData {
@@ -201,11 +206,24 @@ const abortProcessing = useMutation({
   return (
     <Card className="bg-surface shadow-material border border-gray-200">
       <div className="p-6 border-b border-gray-200">
-        <h2 className="text-lg font-medium text-gray-900 flex items-center">
-          <Settings className="text-primary-custom mr-2 h-5 w-5" />
-          Processing Status
-        </h2>
-        <p className="text-sm text-gray-600 mt-1">Real-time processing progress</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-medium text-gray-900 flex items-center">
+              <Settings className="text-primary-custom mr-2 h-5 w-5" />
+              Processing Status
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">Manual refresh for latest progress</p>
+          </div>
+          <Button
+            onClick={handleRefresh}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
       </div>
       <CardContent className="p-6">
         {/* Total Processed Counter */}
