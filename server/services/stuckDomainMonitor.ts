@@ -82,5 +82,28 @@ export class StuckDomainMonitor {
   }
 }
 
+class StuckDomainMonitor {
+  private intervalId: NodeJS.Timeout | null = null;
+  private isRunning = false;
+
+  start() {
+    // Completely disabled to prevent extraction_timestamp schema errors
+    console.log('Stuck domain monitor disabled - schema migration pending');
+  }
+
+  stop() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+    this.isRunning = false;
+  }
+
+  private async checkStuckDomains() {
+    // Disabled until schema issues are resolved
+  }
+}
+
 // Export singleton instance
 export const stuckDomainMonitor = new StuckDomainMonitor();
+```
