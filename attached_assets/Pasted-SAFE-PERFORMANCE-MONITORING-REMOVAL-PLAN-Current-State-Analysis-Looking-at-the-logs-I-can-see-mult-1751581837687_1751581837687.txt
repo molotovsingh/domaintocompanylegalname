@@ -1,0 +1,65 @@
+SAFE PERFORMANCE MONITORING REMOVAL PLAN
+
+Current State Analysis
+Looking at the logs, I can see multiple performance analysis components that need careful removal:
+
+Active Performance Components:
+Bottleneck Analyzer - Called in /api/stats route (lines 36-42 in routes.ts)
+Session Results - Taking 16+ seconds to load (major performance drain)
+Analytics Endpoint - Complex aggregation queries
+Processing Stats - Multiple database calls per request
+Step-by-Step Removal Plan
+Phase 1: Identify Dependencies
+Map all performance-related files:
+
+server/services/bottleneckAnalyzer.ts
+Performance logic in /api/stats
+Complex analytics queries
+Session results aggregation
+Check import dependencies:
+
+Which files import performance services
+Frontend components using performance data
+API endpoints calling performance functions
+Phase 2: Safe Removal (in order)
+Remove bottleneck analysis from /api/stats
+
+Keep basic stats (totalDomains, processedDomains, successRate)
+Remove dynamic import of bottleneckAnalyzer
+Test that basic stats still work
+Simplify session results
+
+Remove complex aggregation (currently taking 16s)
+Keep only essential batch completion data
+Test that session results load quickly
+Clean up analytics endpoint
+
+Keep only essential batch history
+Remove complex performance calculations
+Test that analytics page loads normally
+Remove unused service files
+
+Delete bottleneckAnalyzer.ts
+Clean up any other performance monitoring services
+Phase 3: Verification
+Test core functionality:
+
+Upload domains ✓
+Process batch ✓
+View results ✓
+Romanian jurisdiction still works ✓
+Performance verification:
+
+API responses under 200ms
+No 16-second delays
+Clean logs without monitoring noise
+Phase 4: Update Documentation
+Update replit.md:
+Document monitoring removal
+Update performance metrics
+Note simplified architecture
+Benefits After Removal:
+Faster API responses (currently 200ms+ → target 50-100ms)
+Cleaner logs (no bottleneck analysis noise)
+Better reliability (fewer moving parts to break)
+Preserved core functionality (Romanian jurisdiction + GLEIF working)
