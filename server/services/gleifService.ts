@@ -365,7 +365,6 @@ export class GLEIFService {
         lastCorroborationDate: registration?.lastCorroborationDate || '',
 
         // Business classification
-        entityCategory: entity.category || '',
         entitySubCategory: entity.subCategory || '',
 
         // Associated BIC codes (if available)
