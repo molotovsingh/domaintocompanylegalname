@@ -84,3 +84,4 @@ export class StuckDomainMonitor {
 
 // Export singleton instance
 export const stuckDomainMonitor = new StuckDomainMonitor();
+```

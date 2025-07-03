@@ -26,7 +26,9 @@ export class PostgreSQLStorage implements IStorage {
   }
 
   async createDomain(insertDomain: InsertDomain): Promise<Domain> {
-    const result = await db.insert(domains).values(insertDomain).returning();
+    // Remove any extraction_timestamp field if it exists (not in schema)
+    const { extractionTimestamp, ...cleanInsertDomain } = insertDomain as any;
+    const result = await db.insert(domains).values(cleanInsertDomain).returning();
     return result[0];
   }
 

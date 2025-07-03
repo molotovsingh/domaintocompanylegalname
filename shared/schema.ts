@@ -67,7 +67,6 @@ export const domains = pgTable("domains", {
   
   // Content Source Attribution
   contentSources: text("content_sources"), // JSON object tracking where intelligence was extracted
-  extractionTimestamp: timestamp("extraction_timestamp"), // When business intelligence was captured
   contentQualityScore: integer("content_quality_score"), // 0-100 score for content richness
   
   // Manual Review Workflow

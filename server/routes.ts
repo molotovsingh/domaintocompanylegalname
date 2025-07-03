@@ -487,7 +487,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         domainHash: generateDomainHash(cleanDomain),
         domain: cleanDomain,
         batchId: sharedBatchId,
-        status: 'pending'
+        status: 'pending',
+        retryCount: 0
       });
 
       // Process the domain
