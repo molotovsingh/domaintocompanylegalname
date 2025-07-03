@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2025-07-03T04:22:31.506Z",
-  "totalBatches": 10,
+  "lastUpdated": "2025-07-03T22:14:06.555Z",
+  "totalBatches": 11,
   "batches": [
     {
       "batchId": "mVauB1NiLnmWIt0BQqlzn",
@@ -131,6 +131,19 @@
         "successRate": 20
       },
       "dailySequence": 2
+    },
+    {
+      "batchId": "DcYskM1LUz_nfKDLlRCrH",
+      "completedAt": "2025-07-03T22:14:06.555Z",
+      "metrics": {
+        "processed": 19,
+        "successful": 5,
+        "failed": 14,
+        "totalTimeMs": 104817,
+        "averageTimePerDomain": 5516.684210526316,
+        "successRate": 26.31578947368421
+      },
+      "dailySequence": 3
     }
   ]
 }
