@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { Activity } from "@shared/schema";
 
 export default function ActivityFeed() {
-  const { data: activities } = useQuery({
+  const { data: activities = [] } = useQuery({
     queryKey: ["/api/activities"],
     refetchInterval: 10000, // Refetch every 10 seconds
   });
@@ -44,7 +44,7 @@ export default function ActivityFeed() {
       </div>
       <CardContent className="p-6">
         <div className="space-y-4 max-h-80 overflow-y-auto">
-          {activities && activities.length > 0 ? (
+          {activities.length > 0 ? (
             activities.map((activity: Activity) => (
               <div key={activity.id} className="flex items-start space-x-3">
                 <div

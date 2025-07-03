@@ -27,7 +27,7 @@ export function BatchLogs() {
   const [selectedBatch, setSelectedBatch] = useState<string | null>(null);
   const [expandedEntries, setExpandedEntries] = useState<Set<number>>(new Set());
 
-  const { data: batchLogs, isLoading: isLoadingBatches } = useQuery({
+  const { data: batchLogs = { batches: [] }, isLoading: isLoadingBatches } = useQuery({
     queryKey: ['/api/logs/batches'],
     refetchInterval: 30000
   });
@@ -37,7 +37,7 @@ export function BatchLogs() {
     enabled: !!selectedBatch
   });
 
-  const { data: analysisData, isLoading: isLoadingAnalysis } = useQuery({
+  const { data: analysisData = { overview: {}, performance: {}, recommendations: [] }, isLoading: isLoadingAnalysis } = useQuery({
     queryKey: ['/api/logs/analysis', selectedBatch],
     enabled: !!selectedBatch
   });
@@ -96,7 +96,7 @@ export function BatchLogs() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {batchLogs?.batches?.length === 0 ? (
+          {batchLogs.batches.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No batch logs available</p>
@@ -104,7 +104,7 @@ export function BatchLogs() {
             </div>
           ) : (
             <div className="grid gap-3">
-              {batchLogs?.batches?.map((batch: BatchLog) => (
+              {batchLogs.batches.map((batch: BatchLog) => (
                 <div
                   key={batch.batchId}
                   className={`p-4 border rounded-lg cursor-pointer transition-colors ${
@@ -176,7 +176,7 @@ export function BatchLogs() {
                     </div>
                   </div>
                   
-                  {analysisData.recommendations?.length > 0 && (
+                  {analysisData.recommendations && analysisData.recommendations.length > 0 && (
                     <div>
                       <div className="text-sm font-medium mb-2">AI Recommendations</div>
                       <div className="space-y-1">
