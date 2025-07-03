@@ -287,7 +287,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limitNum = parseInt(limit as string);
       const offset = (pageNum - 1) * limitNum;
 
-      let domains;
+      let domains: Domain[];
       if (search) {
         domains = await storage.searchDomains(search as string, limitNum, offset);
       } else {
@@ -844,10 +844,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/batches/:batchId/recover", async (req, res) => {
     try {
       const { batchId } = req.params;
-      
+
       // Find domains stuck in processing status
       const stuckDomains = await storage.getDomainsByBatch(batchId, 'processing');
-      
+
       if (stuckDomains.length === 0) {
         return res.json({ 
           success: true, 
@@ -896,7 +896,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { batchId } = req.params;
       const stuckDomains = await storage.getDomainsByBatch(batchId, 'processing');
-      
+
       res.json({
         batchId,
         stuckCount: stuckDomains.length,

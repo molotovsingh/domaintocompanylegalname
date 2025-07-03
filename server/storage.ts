@@ -3,61 +3,62 @@ import { domains, batches, activities, gleifCandidates, type Domain, type Insert
 export interface IStorage {
   // Domains
   getDomain(id: number): Promise<Domain | undefined>;
-  getDomainsByBatch(batchId: string, status?: string, limit?: number, offset?: number): Promise<Domain[]>;
+  getDomainsByBatch(batchId: string, limit?: number, offset?: number): Promise<Domain[]>;
+  getDomainsByBatchWithStatus?(batchId: string, status?: string, limit?: number, offset?: number): Promise<Domain[]>;
   createDomain(domain: InsertDomain): Promise<Domain>;
   updateDomain(id: number, updates: Partial<Domain>): Promise<Domain | undefined>;
   getDomainsByStatus(status: string): Promise<Domain[]>;
   searchDomains(query: string, limit?: number, offset?: number): Promise<Domain[]>;
   findExistingDomain(domain: string): Promise<Domain | undefined>;
   getHighConfidenceResult(domain: string): Promise<Domain | undefined>;
-  
+
   // Batches
   getBatch(id: string): Promise<Batch | undefined>;
   getBatches(limit?: number, offset?: number): Promise<Batch[]>;
   createBatch(batch: InsertBatch): Promise<Batch>;
   updateBatch(id: string, updates: Partial<Batch>): Promise<Batch | undefined>;
-  
+
   // Activities
   getActivities(limit?: number, offset?: number): Promise<Activity[]>;
   createActivity(activity: InsertActivity): Promise<Activity>;
-  
+
   // Stats
   getProcessingStats(): Promise<ProcessingStats>;
   getDomainCount(): Promise<number>;
   getProcessedCount(): Promise<number>;
   getSuccessRate(): Promise<number>;
-  
+
   // Session Results
   getSessionResults(batchId: string): Promise<SessionResults | undefined>;
   getAllSessionResults(limit?: number, offset?: number): Promise<SessionResults[]>;
-  
+
   // Analytics
   getAnalyticsData(limit?: number, offset?: number): Promise<AnalyticsData[]>;
-  
+
   // Database Management
   clearDatabase?(): Promise<void>;
-  
+
   // Level 2 GLEIF Operations (V2 - Backward Compatible)
   createGleifCandidates?(domainId: number, candidates: InsertGleifCandidate[]): Promise<GleifCandidate[]>;
   getGleifCandidates?(domainId: number): Promise<GleifCandidate[]>;
   updatePrimarySelection?(domainId: number, leiCode: string): Promise<Domain | undefined>;
   getManualReviewQueue?(limit?: number, offset?: number): Promise<Domain[]>;
   getLevel2EligibleDomains?(limit?: number, offset?: number): Promise<Domain[]>;
-  
+
   // Enhanced GLEIF Knowledge Base Operations (V3 - Entity Intelligence)
   createGleifEntity?(entity: InsertGleifEntity): Promise<GleifEntity>;
   getGleifEntity?(leiCode: string): Promise<GleifEntity | undefined>;
   updateGleifEntity?(leiCode: string, updates: Partial<GleifEntity>): Promise<GleifEntity | undefined>;
-  
+
   createDomainEntityMapping?(mapping: InsertDomainEntityMapping): Promise<DomainEntityMapping>;
   getDomainEntityMapping?(domain: string, leiCode: string): Promise<DomainEntityMapping | undefined>;
   getDomainEntityMappings?(domain: string): Promise<DomainEntityMapping[]>;
   getEntityDomainMappings?(leiCode: string): Promise<DomainEntityMapping[]>;
   updateDomainEntityMapping?(id: number, updates: Partial<DomainEntityMapping>): Promise<DomainEntityMapping | undefined>;
-  
+
   createEntityRelationship?(relationship: InsertEntityRelationship): Promise<EntityRelationship>;
   getEntityRelationships?(leiCode: string): Promise<EntityRelationship[]>;
-  
+
   // Raw query method for Knowledge Graph functionality
   query?(sqlQuery: string, params?: any[]): Promise<{ rows: any[] }>;
 }
@@ -84,13 +85,13 @@ export class MemStorage implements IStorage {
   async getDomainsByBatch(batchId: string, status?: string, limit = 50, offset = 0): Promise<Domain[]> {
     let allDomains = Array.from(this.domains.values())
       .filter(domain => domain.batchId === batchId);
-    
+
     if (status) {
       allDomains = allDomains.filter(domain => domain.status === status);
     }
-    
+
     allDomains = allDomains.sort((a, b) => (b.processedAt?.getTime() || 0) - (a.processedAt?.getTime() || 0));
-    
+
     return allDomains.slice(offset, offset + limit);
   }
 
@@ -109,12 +110,12 @@ export class MemStorage implements IStorage {
   async updateDomain(id: number, updates: Partial<Domain>): Promise<Domain | undefined> {
     const domain = this.domains.get(id);
     if (!domain) return undefined;
-    
+
     const updatedDomain = { ...domain, ...updates };
     if (updates.status && updates.status !== "pending" && !domain.processedAt) {
       updatedDomain.processedAt = new Date();
     }
-    
+
     this.domains.set(id, updatedDomain);
     return updatedDomain;
   }
@@ -131,7 +132,7 @@ export class MemStorage implements IStorage {
         domain.companyName?.toLowerCase().includes(lowerQuery)
       )
       .sort((a, b) => (b.processedAt?.getTime() || 0) - (a.processedAt?.getTime() || 0));
-    
+
     return filtered.slice(offset, offset + limit);
   }
 
@@ -142,7 +143,7 @@ export class MemStorage implements IStorage {
   async getBatches(limit = 10, offset = 0): Promise<Batch[]> {
     const allBatches = Array.from(this.batches.values())
       .sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime());
-    
+
     return allBatches.slice(offset, offset + limit);
   }
 
@@ -159,12 +160,12 @@ export class MemStorage implements IStorage {
   async updateBatch(id: string, updates: Partial<Batch>): Promise<Batch | undefined> {
     const batch = this.batches.get(id);
     if (!batch) return undefined;
-    
+
     const updatedBatch = { ...batch, ...updates };
     if (updates.status === "completed" && !batch.completedAt) {
       updatedBatch.completedAt = new Date();
     }
-    
+
     this.batches.set(id, updatedBatch);
     return updatedBatch;
   }
@@ -172,7 +173,7 @@ export class MemStorage implements IStorage {
   async getActivities(limit = 20, offset = 0): Promise<Activity[]> {
     const allActivities = Array.from(this.activities.values())
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-    
+
     return allActivities.slice(offset, offset + limit);
   }
 
@@ -193,9 +194,9 @@ export class MemStorage implements IStorage {
       .filter(domain => domain.status !== "pending").length;
     const successfulDomains = Array.from(this.domains.values())
       .filter(domain => domain.status === "success").length;
-    
+
     const successRate = processedDomains > 0 ? (successfulDomains / processedDomains) * 100 : 0;
-    
+
     // Calculate processing rate (domains per minute) - simplified calculation
     const processingRate = 2340; // Mock rate for now
     const remainingDomains = totalDomains - processedDomains;
@@ -223,10 +224,10 @@ export class MemStorage implements IStorage {
   async getSuccessRate(): Promise<number> {
     const processed = await this.getProcessedCount();
     if (processed === 0) return 0;
-    
+
     const successful = Array.from(this.domains.values())
       .filter(domain => domain.status === "success").length;
-    
+
     return Math.round((successful / processed) * 1000) / 10;
   }
 
@@ -241,7 +242,7 @@ export class MemStorage implements IStorage {
                    d.status === 'success' && 
                    d.confidenceScore && d.confidenceScore >= 85)
       .sort((a, b) => (b.confidenceScore || 0) - (a.confidenceScore || 0));
-    
+
     return existing[0];
   }
 

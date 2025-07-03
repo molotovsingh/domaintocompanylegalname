@@ -317,3 +317,40 @@ export type BottleneckAnalysis = z.infer<typeof bottleneckAnalysisSchema>;
 export type ProcessingStats = z.infer<typeof processingStatsSchema>;
 export type SessionResults = z.infer<typeof sessionResultsSchema>;
 export type AnalyticsData = z.infer<typeof analyticsDataSchema>;
+
+// API Response Types for improved type safety
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+export interface BatchResponse {
+  id: string;
+  fileName: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  totalDomains: number;
+  processedDomains: number;
+  successfulDomains: number;
+  failedDomains: number;
+  uploadedAt: string;
+  completedAt?: string;
+}
+
+export interface StatsResponse {
+  totalDomains: number;
+  processedDomains: number;
+  successRate: number;
+  processingRate: number;
+  eta: string;
+  elapsedTime?: string;
+  processingStartedAt?: string;
+  bottlenecks?: BottleneckAnalysis[];
+}
+
+export interface DomainsResponse {
+  domains: Domain[];
+  total?: number;
+  hasMore?: boolean;
+}

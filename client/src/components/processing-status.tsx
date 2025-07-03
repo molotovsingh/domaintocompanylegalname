@@ -29,19 +29,40 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
     staleTime: 45000,
   });
 
-  // Type-safe batch data access
-  const batchesList = Array.isArray(batches) ? batches : [];
-  const activeBatch = batchesList.find((b: any) => b.status === 'processing');
-  const pendingBatches = batchesList.filter((b: any) => b.status === 'pending');
-  const completedBatches = batchesList.filter((b: any) => b.status === 'completed');
+  // Type-safe batch data access with proper types
+  interface BatchData {
+    id: string;
+    fileName: string;
+    status: 'pending' | 'processing' | 'completed' | 'failed';
+    totalDomains: number;
+    processedDomains?: number;
+    successfulDomains?: number;
+    failedDomains?: number;
+    uploadedAt?: string;
+    completedAt?: string;
+  }
 
+  interface StatsData {
+    totalDomains: number;
+    processedDomains: number;
+    successRate: number;
+    processingRate: number;
+    eta: string;
+    elapsedTime?: string;
+    processingStartedAt?: string;
+  }
 
+  const batchesList: BatchData[] = Array.isArray(batches) ? batches as BatchData[] : [];
+  const activeBatch = batchesList.find((b) => b.status === 'processing');
+  const pendingBatches = batchesList.filter((b) => b.status === 'pending');
+  const completedBatches = batchesList.filter((b) => b.status === 'completed');
 
-  const totalDomains = (stats as any)?.totalDomains || 0;
-  const processedDomains = (stats as any)?.processedDomains || 0;
+  const statsData = stats as StatsData | undefined;
+  const totalDomains = statsData?.totalDomains || 0;
+  const processedDomains = statsData?.processedDomains || 0;
   const progressPercentage = totalDomains > 0 ? Math.round((processedDomains / totalDomains) * 100) : 0;
-  const currentElapsedTime = (stats as any)?.elapsedTime;
-  const currentEta = (stats as any)?.eta;
+  const currentElapsedTime = statsData?.elapsedTime;
+  const currentEta = statsData?.eta;
 
 const abortProcessing = useMutation({
     mutationFn: async () => {
