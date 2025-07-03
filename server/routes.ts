@@ -281,6 +281,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { batchId } = req.params;
       const { page = "1", limit = "50", status, search } = req.query;
 
+      console.log(`🔍 Getting results for batch: ${batchId}, status: ${status}, search: ${search}`);
+
       const pageNum = parseInt(page as string);
       const limitNum = parseInt(limit as string);
       const offset = (pageNum - 1) * limitNum;
@@ -291,8 +293,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         // Pass status as second parameter, or undefined if filtering all
         const statusFilter = status && status !== 'all' ? status as string : undefined;
+        console.log(`🔍 Calling getDomainsByBatch with: batchId=${batchId}, status=${statusFilter}, limit=${limitNum}, offset=${offset}`);
         domains = await storage.getDomainsByBatch(batchId, statusFilter, limitNum, offset);
       }
+
+      console.log(`✅ Found ${domains.length} domains for batch ${batchId}`);
 
       const batch = await storage.getBatch(batchId);
 
@@ -306,6 +311,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
     } catch (error: any) {
+      console.error(`❌ Error in /api/results/:batchId:`, error);
       res.status(500).json({ error: error.message });
     }
   });

@@ -17,17 +17,22 @@ export class PostgreSQLStorage implements IStorage {
   }
 
   async getDomainsByBatch(batchId: string, status?: string, limit = 50, offset = 0): Promise<Domain[]> {
+    console.log(`🔍 pgStorage.getDomainsByBatch called with:`, { batchId, status, limit, offset });
+    
     const conditions = [eq(domains.batchId, batchId)];
     if (status) {
       conditions.push(eq(domains.status, status));
     }
     
-    return await db.select()
+    const result = await db.select()
       .from(domains)
       .where(and(...conditions))
       .orderBy(desc(domains.createdAt))
       .limit(limit)
       .offset(offset);
+      
+    console.log(`✅ pgStorage.getDomainsByBatch returning ${result.length} domains`);
+    return result;
   }
 
   async createDomain(insertDomain: InsertDomain): Promise<Domain> {

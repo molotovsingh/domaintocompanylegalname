@@ -23,25 +23,16 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
   const [selectedDomainForGleif, setSelectedDomainForGleif] = React.useState<{ id: number; domain: string } | null>(null);
   const { toast } = useToast();
 
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: "50",
+    ...(statusFilter !== "all" && { status: statusFilter }),
+    ...(searchQuery && { search: searchQuery })
+  });
+
   const { data: resultsData, isLoading } = useQuery({
-    queryKey: ["/api/results", currentBatchId, page, statusFilter, searchQuery],
-    queryFn: () => {
-      if (!currentBatchId) return null;
-
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: "50",
-        ...(statusFilter !== "all" && { status: statusFilter }),
-        ...(searchQuery && { search: searchQuery })
-      });
-
-      return fetch(`/api/results/${currentBatchId}?${params}`)
-        .then(res => {
-          if (!res.ok) throw new Error('Failed to fetch results');
-          return res.json();
-        });
-    },
-    enabled: !!currentBatchId && currentBatchId !== null,
+    queryKey: [`/api/results/${currentBatchId}?${params}`],
+    enabled: !!currentBatchId,
     refetchInterval: 120000, // Reduced to 2 minutes
     staleTime: 90000,
   });
