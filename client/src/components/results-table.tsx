@@ -42,8 +42,8 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
         });
     },
     enabled: !!currentBatchId && currentBatchId !== null,
-    refetchInterval: 30000,
-    staleTime: 15000,
+    refetchInterval: 120000, // Reduced to 2 minutes
+    staleTime: 90000,
   });
 
   const domains = resultsData?.domains || [];

@@ -19,14 +19,14 @@ export default function ProcessingStatus({ currentBatchId }: ProcessingStatusPro
 
   const { data: batches } = useQuery({
     queryKey: ["/api/batches"],
-    refetchInterval: 30000,
-    staleTime: 15000,
+    refetchInterval: 120000, // Reduced to 2 minutes
+    staleTime: 90000,
   });
 
   const { data: stats } = useQuery({
     queryKey: ["/api/stats"],
-    refetchInterval: 15000,
-    staleTime: 10000,
+    refetchInterval: 60000, // Reduced to 1 minute
+    staleTime: 45000,
   });
 
   // Type-safe batch data access
