@@ -8,6 +8,7 @@ import Analytics from "@/pages/analytics";
 import ParsingRules from "@/pages/parsing-rules";
 import JurisdictionalGuide from "@/pages/jurisdictional-guide";
 import KnowledgeGraphPage from "@/pages/knowledge-graph";
+import DataJourneyPage from "@/pages/data-journey";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/parsing-rules" component={ParsingRules} />
       <Route path="/jurisdictional-guide" component={JurisdictionalGuide} />
       <Route path="/knowledge-graph" component={KnowledgeGraphPage} />
+      <Route path="/data-journey" component={DataJourneyPage} />
       <Route component={NotFound} />
     </Switch>
   );

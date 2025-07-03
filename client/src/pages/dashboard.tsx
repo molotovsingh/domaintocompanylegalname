@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Globe, User, BarChart3, Trash2, GitBranch, Network } from "lucide-react";
+import { Globe, User, BarChart3, Trash2, GitBranch, Network, FileText } from "lucide-react";
 import { Link } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -109,6 +109,10 @@ export default function Dashboard() {
               <Link href="/knowledge-graph" className="flex items-center gap-2 px-3 py-2 text-sm text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors">
                 <GitBranch className="h-4 w-4" />
                 Knowledge Graph
+              </Link>
+              <Link href="/data-journey" className="flex items-center gap-2 px-3 py-2 text-sm text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors">
+                <FileText className="h-4 w-4" />
+                Data Journey
               </Link>
               <Button
                 variant="outline"
