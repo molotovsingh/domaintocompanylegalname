@@ -73,10 +73,8 @@ export default function Dashboard() {
   // Auto-select the most recent batch if none is selected
   useEffect(() => {
     if (!currentBatchId && batches && Array.isArray(batches) && batches.length > 0) {
-      // Prefer the single domain tests batch if it exists, otherwise use the most recent
-      const singleDomainBatch = batches.find(b => b.id === 'single-domain-tests');
-      const batchToSelect = singleDomainBatch ? singleDomainBatch.id : batches[0].id;
-      setCurrentBatchId(batchToSelect);
+      // Use the most recent batch (first in the list)
+      setCurrentBatchId(batches[0].id);
     }
   }, [batches, currentBatchId]);
 

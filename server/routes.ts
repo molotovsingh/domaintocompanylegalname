@@ -289,12 +289,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (search) {
         domains = await storage.searchDomains(search as string, limitNum, offset);
       } else {
-        domains = await storage.getDomainsByBatch(batchId, limitNum, offset);
-      }
-
-      // Filter by status if provided
-      if (status && status !== 'all') {
-        domains = domains.filter(d => d.status === status);
+        // Pass status as second parameter, or undefined if filtering all
+        const statusFilter = status && status !== 'all' ? status as string : undefined;
+        domains = await storage.getDomainsByBatch(batchId, statusFilter, limitNum, offset);
       }
 
       const batch = await storage.getBatch(batchId);
