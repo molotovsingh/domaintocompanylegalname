@@ -395,7 +395,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { format = 'csv' } = req.query;
 
       // Get all domains first
-      const domains = await storage.getDomainsByBatch(batchId, 100000);
+      const domains = await storage.getDomainsByBatch(batchId, undefined, 100000);
 
       // Process each domain to add GLEIF data if the method exists
       const enhancedDomains = [];
