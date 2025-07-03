@@ -428,17 +428,20 @@ export class GLEIFService {
       return 100;
     }
 
-    // Special handling for .com domains - heavily favor US entities
+    // Special handling for .com domains - balanced multinational approach
     if (domainTLD === 'com') {
       if (entityCountry === 'us') {
-        return 95; // Strong preference for US entities on .com
+        return 85; // Preference for US entities but not overwhelming
       }
-      // Significant penalty for non-US entities on .com domains
-      // unless it's a major business jurisdiction
-      if (['ca', 'gb', 'de', 'fr', 'jp', 'au'].includes(entityCountry)) {
-        return 30; // Some allowance for major business centers
+      // Balanced scoring for major business jurisdictions (Fortune 500 headquarters)
+      if (['ca', 'gb', 'de', 'fr', 'jp', 'au', 'nl', 'ch'].includes(entityCountry)) {
+        return 75; // Strong allowance for major business centers
       }
-      return 15; // Heavy penalty for others
+      // Moderate scoring for other developed economies
+      if (['it', 'es', 'se', 'no', 'dk', 'fi', 'be', 'at', 'ie'].includes(entityCountry)) {
+        return 60; // Reasonable allowance for European business centers
+      }
+      return 30; // Moderate penalty for others
     }
 
     // Generic TLD handling with business context
