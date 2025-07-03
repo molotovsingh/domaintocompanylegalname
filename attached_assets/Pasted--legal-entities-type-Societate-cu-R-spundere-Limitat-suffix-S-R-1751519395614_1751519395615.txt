@@ -1,0 +1,74 @@
+{
+  "legal_entities": [
+    {
+      "type": "Societate cu Răspundere Limitată",
+      "suffix": "S.R.L.",
+      "description": "Limited liability company, the most common form for small to medium businesses."
+    },
+    {
+      "type": "Societate pe Acțiuni",
+      "suffix": "S.A.",
+      "description": "Joint-stock company, used for larger or publicly traded businesses with limited liability."
+    },
+    {
+      "type": "Societate în Nume Colectiv",
+      "suffix": "S.N.C.",
+      "description": "General partnership with unlimited liability for all partners."
+    },
+    {
+      "type": "Societate în Comandită Simplă",
+      "suffix": "S.C.S.",
+      "description": "Limited partnership with general and limited partners, general partners have unlimited liability."
+    },
+    {
+      "type": "Societate în Comandită pe Acțiuni",
+      "suffix": "S.C.A.",
+      "description": "Partnership limited by shares, combining partnership and corporate features."
+    },
+    {
+      "type": "Întreprindere Individuală",
+      "suffix": "(No specific suffix, often none)",
+      "description": "Sole proprietorship, no separate legal entity, unlimited liability."
+    },
+    {
+      "type": "Persoană Fizică Autorizată",
+      "suffix": "P.F.A.",
+      "description": "Authorized individual, a registered sole proprietorship for professionals or freelancers."
+    },
+    {
+      "type": "Cooperativă",
+      "suffix": "(No specific suffix, often 'Cooperativă' or 'Coop' in name)",
+      "description": "Cooperative, member-owned for mutual benefit, common in agriculture or consumer sectors."
+    },
+    {
+      "type": "Asociație",
+      "suffix": "(No specific suffix, often 'Asociație' in name)",
+      "description": "Nonprofit association for cultural, social, or charitable purposes."
+    },
+    {
+      "type": "Fundație",
+      "suffix": "(No specific suffix, often 'Fundație' in name)",
+      "description": "Foundation, used for charitable, cultural, or public-benefit purposes, similar to a trust."
+    },
+    {
+      "type": "Fiducie",
+      "suffix": "(No specific suffix, often 'Fiducie' or 'Trust' in name)",
+      "description": "Trust-like arrangement for asset management or estate planning, not a standalone entity."
+    },
+    {
+      "type": "Instituție Publică",
+      "suffix": "(No specific suffix, often descriptive name)",
+      "description": "Public institution, such as government agencies, universities, or state-owned enterprises."
+    }
+  ],
+  "notes": [
+    "Suffixes like S.R.L., S.A., S.N.C., S.C.S., or S.C.A. are mandatory in the entity’s name to indicate its legal structure under the Companies Law (Law No. 31/1990).",
+    "Trusts ('fiducie') were introduced in the Romanian Civil Code (2011) for asset management or estate planning, but they are not legal entities; 'fiducie' or 'trust' is included in the name.",
+    "Foundations ('fundație') and associations ('asociație') serve purposes similar to trusts, often for charitable or cultural activities, and are registered as legal entities.",
+    "Nonprofit entities like 'asociație' are common for community or charitable purposes, similar to the Czech Republic’s spolek or India’s societies.",
+    "Cooperatives are regulated under specific laws, with names often including 'cooperativă' or 'coop'.",
+    "Public institutions, such as state-owned enterprises or universities, lack standardized suffixes and are identified by name or context.",
+    "Entities are registered with the National Trade Register Office (ONRC), except for certain nonprofits or trusts, which may require additional registrations.",
+    "Romania’s civil law system, similar to the Czech Republic or Italy, limits common law trusts, but the 2011 Civil Code introduced the 'fiducie' as a trust-like mechanism."
+  ]
+}

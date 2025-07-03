@@ -661,6 +661,95 @@ export const JURISDICTIONS: Record<string, JurisdictionData> = {
       "Public institutions, such as state-owned enterprises or universities, lack standardized suffixes and are identified by name or context",
       "Czech legal entities follow European Union standards while maintaining distinct national characteristics"
     ]
+  },
+
+  romania: {
+    name: "Romania",
+    tlds: [".ro"],
+    entities: {
+      limited_liability_company: {
+        suffixes: ["S.R.L.", "SRL"],
+        description: "Limited liability company, the most common form for small to medium businesses",
+        confidence: 95,
+        mandatory: true
+      },
+      joint_stock_company: {
+        suffixes: ["S.A.", "SA"],
+        description: "Joint-stock company, used for larger or publicly traded businesses with limited liability",
+        confidence: 95,
+        mandatory: true
+      },
+      general_partnership: {
+        suffixes: ["S.N.C.", "SNC"],
+        description: "General partnership with unlimited liability for all partners",
+        confidence: 95,
+        mandatory: true
+      },
+      limited_partnership: {
+        suffixes: ["S.C.S.", "SCS"],
+        description: "Limited partnership with general and limited partners, general partners have unlimited liability",
+        confidence: 95,
+        mandatory: true
+      },
+      partnership_limited_by_shares: {
+        suffixes: ["S.C.A.", "SCA"],
+        description: "Partnership limited by shares, combining partnership and corporate features",
+        confidence: 95,
+        mandatory: true
+      },
+      authorized_individual: {
+        suffixes: ["P.F.A.", "PFA"],
+        description: "Authorized individual, a registered sole proprietorship for professionals or freelancers",
+        confidence: 90,
+        mandatory: false
+      },
+      cooperative: {
+        suffixes: ["Cooperativă", "Coop"],
+        description: "Cooperative, member-owned for mutual benefit, common in agriculture or consumer sectors",
+        confidence: 85,
+        mandatory: false
+      },
+      association: {
+        suffixes: ["Asociație"],
+        description: "Nonprofit association for cultural, social, or charitable purposes",
+        confidence: 80,
+        mandatory: false
+      },
+      foundation: {
+        suffixes: ["Fundație"],
+        description: "Foundation, used for charitable, cultural, or public-benefit purposes, similar to a trust",
+        confidence: 80,
+        mandatory: false
+      },
+      trust: {
+        suffixes: ["Fiducie", "Trust"],
+        description: "Trust-like arrangement for asset management or estate planning, not a standalone entity",
+        confidence: 75,
+        mandatory: false
+      },
+      public_institution: {
+        suffixes: [],
+        description: "Public institution, such as government agencies, universities, or state-owned enterprises",
+        confidence: 70,
+        mandatory: false
+      }
+    },
+    rules: [
+      "Suffixes like S.R.L., S.A., S.N.C., S.C.S., or S.C.A. are mandatory in the entity's name to indicate its legal structure under the Companies Law (Law No. 31/1990)",
+      "Limited liability companies (S.R.L.) are the most common form for small to medium businesses",
+      "Joint-stock companies (S.A.) are used for larger or publicly traded businesses",
+      "Trusts ('fiducie') were introduced in the Romanian Civil Code (2011) for asset management or estate planning, but they are not legal entities",
+      "Foundations ('fundație') and associations ('asociație') serve purposes similar to trusts, often for charitable or cultural activities",
+      "Nonprofit entities like 'asociație' are common for community or charitable purposes, similar to the Czech Republic's spolek or India's societies",
+      "Cooperatives are regulated under specific laws, with names often including 'cooperativă' or 'coop'",
+      "Public institutions, such as state-owned enterprises or universities, lack standardized suffixes and are identified by name or context"
+    ],
+    notes: [
+      "Entities are registered with the National Trade Register Office (ONRC), except for certain nonprofits or trusts, which may require additional registrations",
+      "Romania's civil law system, similar to the Czech Republic or Italy, limits common law trusts, but the 2011 Civil Code introduced the 'fiducie' as a trust-like mechanism",
+      "Romanian legal entities follow European Union standards while maintaining distinct national characteristics",
+      "The S.R.L. and S.A. structures are similar to other EU jurisdictions but with specific Romanian regulatory requirements"
+    ]
   }
 };
 
