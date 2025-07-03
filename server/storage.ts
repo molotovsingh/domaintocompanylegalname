@@ -3,7 +3,7 @@ import { domains, batches, activities, gleifCandidates, type Domain, type Insert
 export interface IStorage {
   // Domains
   getDomain(id: number): Promise<Domain | undefined>;
-  getDomainsByBatch(batchId: string, limit?: number, offset?: number): Promise<Domain[]>;
+  getDomainsByBatch(batchId: string, status?: string, limit?: number, offset?: number): Promise<Domain[]>;
   createDomain(domain: InsertDomain): Promise<Domain>;
   updateDomain(id: number, updates: Partial<Domain>): Promise<Domain | undefined>;
   getDomainsByStatus(status: string): Promise<Domain[]>;
@@ -81,10 +81,15 @@ export class MemStorage implements IStorage {
     return this.domains.get(id);
   }
 
-  async getDomainsByBatch(batchId: string, limit = 50, offset = 0): Promise<Domain[]> {
-    const allDomains = Array.from(this.domains.values())
-      .filter(domain => domain.batchId === batchId)
-      .sort((a, b) => (b.processedAt?.getTime() || 0) - (a.processedAt?.getTime() || 0));
+  async getDomainsByBatch(batchId: string, status?: string, limit = 50, offset = 0): Promise<Domain[]> {
+    let allDomains = Array.from(this.domains.values())
+      .filter(domain => domain.batchId === batchId);
+    
+    if (status) {
+      allDomains = allDomains.filter(domain => domain.status === status);
+    }
+    
+    allDomains = allDomains.sort((a, b) => (b.processedAt?.getTime() || 0) - (a.processedAt?.getTime() || 0));
     
     return allDomains.slice(offset, offset + limit);
   }

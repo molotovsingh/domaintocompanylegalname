@@ -182,7 +182,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { batchId } = req.params;
 
       // Get all domains in the batch
-      const domains = await storage.getDomainsByBatch(batchId, 10000);
+      const domains = await storage.getDomainsByBatch(batchId, undefined, 10000);
 
       let resetCount = 0;
       for (const domain of domains) {
@@ -236,7 +236,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get all domains in the batch that are eligible for Level 2
-      const domains = await storage.getDomainsByBatch(batchId, 10000);
+      const domains = await storage.getDomainsByBatch(batchId, undefined, 10000);
       const level2Eligible = domains.filter(domain => 
         // Re-check eligibility using the processor's logic
         !domain.level2Attempted && (
