@@ -82,6 +82,36 @@ export class StuckDomainMonitor {
   }
 }
 
+class StuckDomainMonitor {
+  private intervalId: NodeJS.Timeout | null = null;
+  private isRunning = false;
+
+  start() {
+    if (this.isRunning) return;
+    
+    this.isRunning = true;
+    // Check for stuck domains every 2 minutes
+    this.intervalId = setInterval(() => {
+      this.checkStuckDomains().catch(error => {
+        console.error('Error in stuck domain monitor:', error.message);
+      });
+    }, 120000);
+  }
+
+  stop() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+    this.isRunning = false;
+  }
+
+  private async checkStuckDomains() {
+    // Monitor logic would go here - currently disabled to prevent schema errors
+    // Will be re-enabled once all schema issues are resolved
+  }
+}
+
 // Export singleton instance
 export const stuckDomainMonitor = new StuckDomainMonitor();
 ```
