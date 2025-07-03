@@ -29,18 +29,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Basic processing statistics
   app.get('/api/stats', async (req, res) => {
     try {
-      const totalDomains = await storage.getTotalDomains();
-      const processedDomains = await storage.getProcessedDomains();
-      const successfulDomains = await storage.getSuccessfulDomains();
-      const successRate = processedDomains > 0 ? (successfulDomains / processedDomains) * 100 : 0;
-
-      res.json({
-        totalDomains,
-        processedDomains,
-        successfulDomains,
-        failedDomains: processedDomains - successfulDomains,
-        successRate: Math.round(successRate * 10) / 10
-      });
+      const stats = await storage.getProcessingStats();
+      res.json(stats);
     } catch (error: any) {
       console.error('Error getting stats:', error);
       res.status(500).json({ error: 'Failed to get stats' });
