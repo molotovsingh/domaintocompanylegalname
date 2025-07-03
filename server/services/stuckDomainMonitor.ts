@@ -18,7 +18,7 @@ export class StuckDomainMonitor {
     }
 
     this.isRunning = true;
-    console.log('Starting stuck domain monitor - checking every 5 seconds for ultra-fast bot detection');
+    console.log('Starting stuck domain monitor - checking every 3 seconds for ultra-fast bot detection');
 
     // Run immediately, then on interval
     this.checkStuckDomains();
@@ -82,28 +82,5 @@ export class StuckDomainMonitor {
   }
 }
 
-class StuckDomainMonitor {
-  private intervalId: NodeJS.Timeout | null = null;
-  private isRunning = false;
-
-  start() {
-    // Completely disabled to prevent extraction_timestamp schema errors
-    console.log('Stuck domain monitor disabled - schema migration pending');
-  }
-
-  stop() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-    }
-    this.isRunning = false;
-  }
-
-  private async checkStuckDomains() {
-    // Disabled until schema issues are resolved
-  }
-}
-
 // Export singleton instance
 export const stuckDomainMonitor = new StuckDomainMonitor();
-```

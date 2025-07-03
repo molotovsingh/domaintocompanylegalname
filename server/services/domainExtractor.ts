@@ -713,24 +713,29 @@ export class DomainExtractor {
     const extractionAttempts: ExtractionAttempt[] = [];
 
     // STEP 1: Pre-flight Cloudflare DNS detection (ultra-fast)
-    const isCloudflareByDNS = await this.checkCloudflareByDNS(cleanDomain);
-    if (isCloudflareByDNS) {
-      console.log(`DNS CLOUDFLARE DETECTED: ${cleanDomain} - Skipping extraction`);
-      return {
-        companyName: null,
-        method: 'domain_parse',
-        confidence: 0,
-        connectivity: 'protected',
-        error: 'Cloudflare protection detected via DNS',
-        failureCategory: 'protected_manual_review',
-        technicalDetails: 'Domain uses Cloudflare nameservers - anti-bot protection likely',
-        recommendation: 'Manual review needed - Use browser or proxy',
-        extractionAttempts: [{
-          method: 'dns_cloudflare_detection',
-          success: false,
-          error: 'Cloudflare detected via DNS lookup'
-        }]
-      };
+    try {
+      const isCloudflareByDNS = await this.checkCloudflareByDNS(cleanDomain);
+      if (isCloudflareByDNS) {
+        console.log(`DNS CLOUDFLARE DETECTED: ${cleanDomain} - Skipping extraction`);
+        return {
+          companyName: null,
+          method: 'domain_parse',
+          confidence: 0,
+          connectivity: 'protected',
+          error: 'Cloudflare protection detected via DNS',
+          failureCategory: 'protected_manual_review',
+          technicalDetails: 'Domain uses Cloudflare nameservers - anti-bot protection likely',
+          recommendation: 'Manual review needed - Use browser or proxy',
+          extractionAttempts: [{
+            method: 'dns_cloudflare_detection',
+            success: false,
+            error: 'Cloudflare detected via DNS lookup'
+          }]
+        };
+      }
+    } catch (dnsError) {
+      console.log(`DNS CHECK FAILED for ${cleanDomain}: ${dnsError instanceof Error ? dnsError.message : 'Unknown error'} - Continuing with extraction`);
+      // Continue with extraction if DNS check fails
     }
 
     // Set up timeout protection to prevent infinite processing
@@ -1714,12 +1719,24 @@ export class DomainExtractor {
   }
 
   private isValidCompanyName(name: string): boolean {
-    if (!name || name.length < 5 || name.length > 100) return false; // Increased minimum to 5 characters
+    if (!name || name.length < 3 || name.length > 100) return false; // Reduced back to 3 characters
+
+    // Global brand validation: Allow well-known company names without legal suffixes
+    const globalBrands = /\b(shell|bmw|volkswagen|bosch|mercedes|toyota|honda|samsung|sony|microsoft|apple|google|amazon|facebook|tesla|netflix|nike|adidas|coca-cola|pepsi|mcdonalds|walmart|target|costco|ikea|h&m|zara|uniqlo)\b/i;
+    if (globalBrands.test(name)) {
+      return true; // Global brands are always valid
+    }
 
     // Tech-friendly validation: Allow "SecureVision" and similar tech company names
     const techKeywords = /\b(secure|vision|tech|data|cloud|app|digital|software|systems|platform|solutions|analytics|cyber|smart|safe|shield|guard|protect)\b/i;
     if (techKeywords.test(name)) {
       return true; // Skip strict validation for tech company names
+    }
+
+    // Government domains: Allow shorter names for government entities
+    const govPatterns = /\b(council|ministry|department|agency|authority|commission|bureau|office|gov|government)\b/i;
+    if (govPatterns.test(name)) {
+      return true; // Government entities often have shorter names
     }
 
     // ENHANCED: Reject Brazilian/Portuguese fragments and invalid patterns
