@@ -156,6 +156,35 @@ const abortProcessing = useMutation({
     },
   });
 
+  const recoverBatch = useMutation({
+    mutationFn: async (batchId: string) => {
+      const response = await fetch(`/api/batches/${batchId}/recover`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to recover batch");
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Batch Recovery Complete",
+        description: data.message,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/batches"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Recovery failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   return (
     <Card className="bg-surface shadow-material border border-gray-200">
@@ -217,6 +246,50 @@ const abortProcessing = useMutation({
                 </div>
               </div>
             </div>
+
+            {/* Batch Recovery Button - Show when stalled */}
+            {currentEta === "Stalled" && (
+              <div className="mt-4 pt-3 border-t border-red-200">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full border-orange-300 bg-orange-50 hover:bg-orange-100 text-orange-700"
+                      disabled={recoverBatch.isPending}
+                    >
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      {recoverBatch.isPending ? "Recovering..." : "Restart Stuck Batch"}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-orange-500" />
+                        Restart Stuck Batch?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        The batch appears to be stalled with no progress. This will:
+                        <br />• Clear any domains stuck in "processing" status
+                        <br />• Mark stuck domains as failed with timeout error
+                        <br />• Allow processing to continue with remaining domains
+                        <br /><br />
+                        <strong>Current Progress:</strong> {processedDomains}/{totalDomains} domains ({progressPercentage}%)
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={() => recoverBatch.mutate(activeBatch.id)}
+                        className="bg-orange-600 hover:bg-orange-700"
+                      >
+                        Restart Batch
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            )}
 
             {/* Graceful Abort Button */}
             <div className="mt-4 pt-3 border-t border-gray-200">

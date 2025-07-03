@@ -837,6 +837,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to read analysis' });    }
   });
 
+  // Batch Recovery API Endpoints
+  app.post("/api/batches/:batchId/recover", async (req, res) => {
+    try {
+      const { batchId } = req.params;
+      
+      // Find domains stuck in processing status
+      const stuckDomains = await storage.getDomainsByBatch(batchId, 'processing');
+      
+      if (stuckDomains.length === 0) {
+        return res.json({ 
+          success: true, 
+          cleared: 0, 
+          restarted: false,
+          message: 'No stuck domains found' 
+        });
+      }
+
+      // Clear stuck domains (mark as failed)
+      let clearedCount = 0;
+      for (const domain of stuckDomains) {
+        await storage.updateDomain(domain.id, {
+          status: 'failed',
+          companyName: null,
+          confidenceScore: 0,
+          recommendation: 'Manual recovery cleared stuck processing',
+          failureCategory: 'timeout',
+          technicalDetails: 'Stuck in processing - cleared by manual recovery',
+          errorMessage: 'Processing timeout - cleared by recovery system'
+        });
+        clearedCount++;
+      }
+
+      // Check if batch has pending domains
+      const pendingDomains = await storage.getDomainsByBatch(batchId, 'pending');
+      const hasRestarted = pendingDomains.length > 0;
+
+      console.log(`✅ Manual recovery: cleared ${clearedCount} stuck domains from batch ${batchId}`);
+
+      res.json({
+        success: true,
+        cleared: clearedCount,
+        restarted: hasRestarted,
+        message: `Cleared ${clearedCount} stuck domains. ${hasRestarted ? 'Processing can be restarted.' : 'No pending domains to process.'}`
+      });
+
+    } catch (error: any) {
+      console.error('Batch recovery error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get stuck domains for a batch (diagnostic endpoint)
+  app.get("/api/batches/:batchId/stuck", async (req, res) => {
+    try {
+      const { batchId } = req.params;
+      const stuckDomains = await storage.getDomainsByBatch(batchId, 'processing');
+      
+      res.json({
+        batchId,
+        stuckCount: stuckDomains.length,
+        stuckDomains: stuckDomains.map(d => ({
+          id: d.id,
+          domain: d.domain,
+          processingStartedAt: d.processingStartedAt,
+          processedAt: d.processedAt
+        }))
+      });
+    } catch (error: any) {
+      console.error('Get stuck domains error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
