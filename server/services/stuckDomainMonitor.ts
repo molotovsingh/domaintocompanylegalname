@@ -18,7 +18,7 @@ export class StuckDomainMonitor {
     }
 
     this.isRunning = true;
-    console.log('Starting stuck domain monitor - checking every 3 seconds for ultra-fast bot detection');
+    console.log('Starting stuck domain monitor - checking every 5 seconds for ultra-fast bot detection');
 
     // Run immediately, then on interval
     this.checkStuckDomains();

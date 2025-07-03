@@ -51,7 +51,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pkill -f \"npm run dev\" || true"
+args = "pkill -f \"server/index.ts\" || true"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
