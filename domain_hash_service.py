@@ -66,20 +66,31 @@ async def get_domain_hash(domain: str, db: Session = Depends(get_db)):
     domain_hash = generate_domain_hash(domain)
     
     # Query all instances of this domain across batches
+    # Fixed: Remove DISTINCT from window functions (PostgreSQL limitation)
     query = text("""
+        WITH domain_stats AS (
+            SELECT 
+                domain_hash,
+                COUNT(*) as total_attempts,
+                COUNT(DISTINCT batch_id) as batch_count
+            FROM domains 
+            WHERE domain_hash = :domain_hash
+            GROUP BY domain_hash
+        )
         SELECT 
-            domain,
-            domain_hash,
-            batch_id,
-            status,
-            company_name,
-            confidence_score,
-            created_at,
-            COUNT(*) OVER (PARTITION BY domain_hash) as total_attempts,
-            COUNT(DISTINCT batch_id) OVER (PARTITION BY domain_hash) as batch_count
-        FROM domains 
-        WHERE domain_hash = :domain_hash
-        ORDER BY created_at DESC
+            d.domain,
+            d.domain_hash,
+            d.batch_id,
+            d.status,
+            d.company_name,
+            d.confidence_score,
+            d.created_at,
+            ds.total_attempts,
+            ds.batch_count
+        FROM domains d
+        JOIN domain_stats ds ON d.domain_hash = ds.domain_hash
+        WHERE d.domain_hash = :domain_hash
+        ORDER BY d.created_at DESC
     """)
     
     results = db.execute(query, {"domain_hash": domain_hash}).fetchall()
@@ -232,24 +243,34 @@ async def cross_batch_intelligence(db: Session = Depends(get_db)):
     query = text("""
         WITH cross_batch_analysis AS (
             SELECT 
-                domain_hash,
-                domain,
-                COUNT(DISTINCT batch_id) as batch_appearances,
-                array_agg(DISTINCT batch_id ORDER BY batch_id) as batches,
+                d.domain_hash,
+                d.domain,
+                COUNT(DISTINCT d.batch_id) as batch_appearances,
+                array_agg(DISTINCT d.batch_id ORDER BY d.batch_id) as batches,
                 COUNT(*) as total_processing_attempts,
-                MAX(confidence_score) as best_confidence,
-                MIN(confidence_score) as worst_confidence,
-                COUNT(DISTINCT company_name) FILTER (WHERE company_name IS NOT NULL) as name_variations,
-                string_agg(DISTINCT company_name, ' | ' ORDER BY company_name) FILTER (WHERE company_name IS NOT NULL) as all_names,
-                bool_or(status = 'success') as ever_successful,
+                MAX(d.confidence_score) as best_confidence,
+                MIN(d.confidence_score) as worst_confidence,
+                COUNT(DISTINCT d.company_name) FILTER (WHERE d.company_name IS NOT NULL) as name_variations,
+                string_agg(DISTINCT d.company_name, ' | ' ORDER BY d.company_name) FILTER (WHERE d.company_name IS NOT NULL) as all_names,
+                bool_or(d.status = 'success') as ever_successful
+            FROM domains d
+            GROUP BY d.domain_hash, d.domain
+            HAVING COUNT(DISTINCT d.batch_id) > 1
+        ),
+        lei_counts AS (
+            SELECT 
+                d.domain_hash,
                 COUNT(DISTINCT gc.lei_code) as unique_lei_codes
             FROM domains d
             LEFT JOIN gleif_candidates gc ON d.id = gc.domain_id
-            GROUP BY domain_hash, domain
-            HAVING COUNT(DISTINCT batch_id) > 1
+            GROUP BY d.domain_hash
         )
-        SELECT * FROM cross_batch_analysis
-        ORDER BY best_confidence DESC NULLS LAST, domain
+        SELECT 
+            cba.*,
+            COALESCE(lc.unique_lei_codes, 0) as unique_lei_codes
+        FROM cross_batch_analysis cba
+        LEFT JOIN lei_counts lc ON cba.domain_hash = lc.domain_hash
+        ORDER BY cba.best_confidence DESC NULLS LAST, cba.domain
         LIMIT 20
     """)
     
