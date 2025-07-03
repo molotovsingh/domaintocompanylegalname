@@ -26,24 +26,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   addNormalizedExportRoute(app);
   addWideExportRoute(app);
 
-  // Get dashboard stats with bottleneck analysis
-  app.get("/api/stats", async (req, res) => {
+  // Basic processing statistics
+  app.get('/api/stats', async (req, res) => {
     try {
-      const stats = await storage.getProcessingStats();
+      const totalDomains = await storage.getTotalDomains();
+      const processedDomains = await storage.getProcessedDomains();
+      const successfulDomains = await storage.getSuccessfulDomains();
+      const successRate = processedDomains > 0 ? (successfulDomains / processedDomains) * 100 : 0;
 
-      // Add bottleneck analysis for active batches
-      if (stats.processedDomains < stats.totalDomains) {
-        const { bottleneckAnalyzer } = await import('./services/bottleneckAnalyzer');
-        const batches = await storage.getBatches(1, 0);
-        if (batches.length > 0) {
-          const bottlenecks = await bottleneckAnalyzer.analyzeCurrentPerformance(batches[0].id);
-          (stats as any).bottlenecks = bottlenecks;
-        }
-      }
-
-      res.json(stats);
+      res.json({
+        totalDomains,
+        processedDomains,
+        successfulDomains,
+        failedDomains: processedDomains - successfulDomains,
+        successRate: Math.round(successRate * 10) / 10
+      });
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      console.error('Error getting stats:', error);
+      res.status(500).json({ error: 'Failed to get stats' });
     }
   });
 
@@ -340,33 +340,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all session results for QC dashboard
-  app.get("/api/session-results", async (req, res) => {
+  // Session Results - Simplified for fast loading
+  app.get('/api/session-results', async (req, res) => {
     try {
-      const limit = parseInt(req.query.limit as string) || 10;
-      const offset = parseInt(req.query.offset as string) || 0;
+      const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
 
-      const sessionResults = await storage.getAllSessionResults(limit, offset);
+      // Get recent batches with basic metrics only
+      const batches = await storage.getRecentBatches(limit);
+
+      const sessionResults = batches.map(batch => ({
+        batchId: batch.id,
+        fileName: batch.fileName,
+        uploadedAt: batch.uploadedAt,
+        totalDomains: batch.totalDomains,
+        processedDomains: batch.processedDomains || 0,
+        successfulDomains: batch.successfulDomains || 0,
+        successRate: batch.processedDomains > 0 ? 
+          Math.round((batch.successfulDomains || 0) / batch.processedDomains * 100 * 10) / 10 : 0,
+        status: batch.status
+      }));
+
       res.json(sessionResults);
-    } catch (error) {
-      console.error('All session results error:', error);
-      res.status(500).json({ error: "Failed to get session results" });
+    } catch (error: any) {
+      console.error('Error getting session results:', error);
+      res.status(500).json({ error: 'Failed to get session results' });
     }
   });
 
-  // Get analytics data for time-based performance tracking
-  app.get("/api/analytics", async (req, res) => {
+  // Analytics - Essential batch history only
+  app.get('/api/analytics', async (req, res) => {
     try {
-      const limit = parseInt(req.query.limit as string) || 50;
-      const offset = parseInt(req.query.offset as string) || 0;
+      const limit = Math.min(parseInt(req.query.limit as string) || 100, 500);
 
-      const analyticsData = await storage.getAnalyticsData(limit, offset);
-      res.json(analyticsData);
-    } catch (error) {
-      console.error('Analytics data error:', error);
-      res.status(500).json({ error: "Failed to get analytics data" });
-    }
-  });
+      // Get basic batch data for analytics
+      const batches = await storage.getRecentBatches(limit);
+
+      const analytics = batches.map(batch => ({
+        batchId: batch.id,
+        fileName: batch.fileName,
+        uploadedAt: batch.uploadedAt?.toISOString(),
+        totalDomains: batch.totalDomains,
+        processedDomains: batch.processedDomains || 0,
+        successfulDomains: batch.successfulDomains || 0,
+        failedDomains: (batch.processedDomains || 0) - (batch.successfulDomains || 0),
+        successRate: batch.processedDomains > 0 ? 
+          Math.round((batch.successfulDomains || 0) / batch.processedDomains * 100 * 10) / 10 : 0,
+        status: batch.status
+      }));
+
+    res.json(analytics);
+  } catch (error: any) {
+    console.error('Error getting analytics:', error);
+    res.status(500).json({ error: 'Failed to get analytics' });
+  }
+});
 
   // Export batch results with comprehensive GLEIF candidates data
   app.get("/api/export/:batchId", async (req, res) => {
@@ -817,8 +844,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(analysis);
     } catch (error) {
       console.error('Error reading analysis:', error);
-      res.status(500).json({ error: 'Failed to read analysis' });
-    }
+      res.status(500).json({ error: 'Failed to read analysis' });    }
   });
 
   const httpServer = createServer(app);

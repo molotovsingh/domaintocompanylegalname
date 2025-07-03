@@ -133,7 +133,7 @@ export default function Dashboard() {
         <StatsCards stats={stats as any} />
 
         {/* Performance Bottleneck Analysis */}
-        <BottleneckAnalysisComponent bottlenecks={(stats as any)?.bottlenecks} />
+        <BottleneckAnalysisComponent />
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Upload Section */}
