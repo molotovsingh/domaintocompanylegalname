@@ -48,15 +48,15 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
   const pagination = resultsData?.pagination;
 
   const handleExport = async (format: 'csv' | 'json') => {
-    if (!currentBatchId) return;
+    if (!batch?.id) return;
 
     try {
-      const response = await apiRequest('GET', `/api/export/${currentBatchId}?format=${format}`);
+      const response = await apiRequest('GET', `/api/export/${batch?.id}?format=${format}`);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `domains_${currentBatchId}.${format}`;
+      a.download = `domains_${batch?.id}.${format}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -69,6 +69,35 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
     } catch (error: any) {
       toast({
         title: "Export failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEnhancedExport = async (format: 'csv' | 'json') => {
+    if (!batch?.id) return;
+
+    try {
+      const response = await apiRequest('GET', `/api/export-enhanced/${batch?.id}?format=${format}&fields=comprehensive&includeGleifCandidates=true&includeRelationships=true`);
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `enhanced_export_${batch?.id}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "Enhanced Export successful",
+        description: `${format.toUpperCase()} enhanced file downloaded successfully`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Enhanced Export failed",
         description: error.message,
         variant: "destructive",
       });
@@ -169,6 +198,14 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
             >
               <FileCode className="mr-2 h-4 w-4" />
               Export JSON
+            </Button>
+            <Button
+              onClick={() => handleEnhancedExport('csv')}
+              variant="outline"
+              className="text-secondary-custom border-gray-300 hover:bg-gray-50"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Enhanced Export
             </Button>
           </div>
         </div>
