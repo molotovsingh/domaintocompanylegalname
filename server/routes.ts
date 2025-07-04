@@ -291,10 +291,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (search) {
         domains = await storage.searchDomains(search as string, limitNum, offset);
       } else {
-        // Pass status as second parameter, or undefined if filtering all
+        // Use separate method for status filtering to match interface
         const statusFilter = status && status !== 'all' ? status as string : undefined;
         console.log(`🔍 Calling getDomainsByBatch with: batchId=${batchId}, status=${statusFilter}, limit=${limitNum}, offset=${offset}`);
-        domains = await storage.getDomainsByBatch(batchId, statusFilter, limitNum, offset);
+        
+        if (statusFilter && storage.getDomainsByBatchWithStatus) {
+          domains = await storage.getDomainsByBatchWithStatus(batchId, statusFilter, limitNum, offset);
+        } else {
+          domains = await storage.getDomainsByBatch(batchId, limitNum, offset);
+        }
       }
 
       console.log(`✅ Found ${domains.length} domains for batch ${batchId}`);
