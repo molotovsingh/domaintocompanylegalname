@@ -1,0 +1,59 @@
+{
+  "batchId": "d0p9z2Tk_LUyzvgXRx9hs",
+  "analysisGeneratedAt": "2025-07-04T16:38:09.218Z",
+  "overview": {
+    "duration": 1900,
+    "finalStatus": {
+      "processed": 1,
+      "successful": 1,
+      "failed": 0,
+      "totalTimeMs": 1949,
+      "averageTimePerDomain": 1949,
+      "successRate": 100,
+      "completedAt": "2025-07-04T16:38:09.217Z"
+    },
+    "progressCheckpoints": 1,
+    "totalEvents": 4
+  },
+  "timeline": [
+    {
+      "timestamp": "2025-07-04T16:38:07.317Z",
+      "event": "batch_start",
+      "context": {
+        "fileName": "radmons-single - Sheet1.csv",
+        "totalDomains": 1,
+        "uploadedAt": "2025-07-04T16:38:06.840Z",
+        "processingStarted": "2025-07-04T16:38:07.317Z",
+        "configuration": {
+          "concurrency": 3,
+          "timeoutMs": 25000,
+          "retryAttempts": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2025-07-04T16:38:09.217Z",
+      "event": "batch_complete",
+      "context": {
+        "processed": 1,
+        "successful": 1,
+        "failed": 0,
+        "totalTimeMs": 1949,
+        "averageTimePerDomain": 1949,
+        "successRate": 100,
+        "completedAt": "2025-07-04T16:38:09.217Z"
+      }
+    }
+  ],
+  "performance": {
+    "totalProcessed": 0,
+    "successCount": 0,
+    "failureCount": 0,
+    "timeoutCount": 0,
+    "averageProcessingTime": 0,
+    "commonFailureReasons": {},
+    "performanceByTimeOfDay": {}
+  },
+  "anomalies": [],
+  "recommendations": []
+}
