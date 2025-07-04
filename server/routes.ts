@@ -238,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get all domains in the batch that are eligible for Level 2
-      const domains = await storage.getDomainsByBatch(batchId, 10000);
+      const domains = await storage.getDomainsByBatch(batchId, 10000, 0);
       
       console.log(`🔍 Level 2 Debug: Found ${domains.length} total domains in batch`);
       console.log(`🔍 Level 2 Debug: Domains with company names:`, 
