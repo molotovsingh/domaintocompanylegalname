@@ -970,6 +970,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Emergency batch restart endpoint
+  app.post("/api/batches/:batchId/restart", async (req, res) => {
+    try {
+      const { batchId } = req.params;
+
+      if (processor.isCurrentlyProcessing()) {
+        return res.status(400).json({ 
+          message: "Cannot restart batch while processing is active"
+        });
+      }
+
+      // Check for pending domains
+      const pendingDomains = await storage.getDomainsByBatchWithStatus?.(batchId, 'pending') || [];
+      
+      if (pendingDomains.length === 0) {
+        return res.json({ 
+          success: false, 
+          message: 'No pending domains found to restart' 
+        });
+      }
+
+      console.log(`🚀 Restarting batch processing for ${batchId} with ${pendingDomains.length} pending domains`);
+
+      // Start processing asynchronously
+      processor.processBatch(batchId).catch(error => {
+        console.error('Batch processing error:', error);
+      });
+
+      res.json({
+        success: true,
+        message: `Batch processing restarted for ${pendingDomains.length} pending domains`,
+        pendingDomains: pendingDomains.length
+      });
+
+    } catch (error: any) {
+      console.error('Batch restart error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
