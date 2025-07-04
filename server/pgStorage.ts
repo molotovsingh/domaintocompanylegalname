@@ -26,16 +26,21 @@ export class PostgreSQLStorage implements IStorage {
   }
 
   async getDomainsByBatchWithStatus(batchId: string, status?: string, limit = 50, offset = 0): Promise<Domain[]> {
-    let query = db.select().from(domains).where(eq(domains.batchId, batchId));
-
     if (status) {
-      query = query.where(and(eq(domains.batchId, batchId), eq(domains.status, status)));
+      return await db.select()
+        .from(domains)
+        .where(and(eq(domains.batchId, batchId), eq(domains.status, status)))
+        .orderBy(desc(domains.createdAt))
+        .limit(limit)
+        .offset(offset);
+    } else {
+      return await db.select()
+        .from(domains)
+        .where(eq(domains.batchId, batchId))
+        .orderBy(desc(domains.createdAt))
+        .limit(limit)
+        .offset(offset);
     }
-
-    return await query
-      .orderBy(desc(domains.createdAt))
-      .limit(limit)
-      .offset(offset);
   }
 
   async createDomain(insertDomain: InsertDomain): Promise<Domain> {
@@ -227,7 +232,7 @@ export class PostgreSQLStorage implements IStorage {
 
     if (recentBatch) {
       // Use batch upload time as the true processing start time
-      const batchStartTime = recentBatch.uploadedAt || recentBatch.createdAt;
+      const batchStartTime = recentBatch.uploadedAt;
 
       if (batchStartTime) {
         const startTime = typeof batchStartTime === 'string' 
@@ -373,6 +378,13 @@ export class PostgreSQLStorage implements IStorage {
       averageConfidence: confidenceCount > 0 ? Math.round(totalConfidence / confidenceCount) : 0,
       extractionMethods,
       processingTime,
+      manualReviewRequired: batchDomains.filter(d => d.manualReviewRequired).length,
+      level2AttemptedCount: batchDomains.filter(d => d.level2Attempted).length,
+      level2SuccessCount: batchDomains.filter(d => d.level2Attempted && d.primaryLeiCode).length,
+      gleifVerifiedCount: batchDomains.filter(d => d.primaryLeiCode).length,
+      leiCodesFound: batchDomains.filter(d => d.primaryLeiCode).length,
+      corporateEntitiesIdentified: batchDomains.filter(d => d.status === 'success').length,
+      multipleCandidatesFound: batchDomains.filter(d => d.level2CandidatesCount && d.level2CandidatesCount > 1).length,
       completedAt: batch.completedAt ? (typeof batch.completedAt === 'string' ? batch.completedAt : batch.completedAt.toISOString()) : new Date().toISOString(),
       qualityMetrics: {
         highConfidenceCount,
@@ -592,6 +604,19 @@ export class PostgreSQLStorage implements IStorage {
       .offset(offset);
   }
 
+  async clearGleifCandidatesForBatch(batchId: string): Promise<void> {
+    await db.delete(gleifCandidates)
+      .where(sql`domain_id IN (SELECT id FROM domains WHERE batch_id = ${batchId})`);
+  }
+
+  async getRecentBatches(limit = 10, offset = 0): Promise<Batch[]> {
+    return await db.select()
+      .from(batches)
+      .orderBy(desc(batches.uploadedAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
   // Enhanced GLEIF Knowledge Base Operations (V3 - Entity Intelligence)
   async createGleifEntity(entity: InsertGleifEntity): Promise<GleifEntity> {
     const result = await db.insert(gleifEntities).values(entity).returning();
@@ -664,7 +689,7 @@ export class PostgreSQLStorage implements IStorage {
   // Raw query method for Knowledge Graph functionality
   async query(sqlQuery: string, params: any[] = []): Promise<{ rows: any[] }> {
     try {
-      const result = await db.execute(sql.raw(sqlQuery, params));
+      const result = await db.execute(sql.raw(sqlQuery));
       return { rows: Array.isArray(result) ? result : result.rows || [] };
     } catch (error) {
       console.error('Database query error:', error);

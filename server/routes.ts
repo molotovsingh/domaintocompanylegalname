@@ -6,7 +6,7 @@ import multer from 'multer';
 import { nanoid } from 'nanoid';
 import axios from 'axios';
 import { db } from "./db";
-import { gleifCandidates } from "../shared/schema";
+import { gleifCandidates, type Domain } from "../shared/schema";
 import { sql, inArray, eq, asc } from "drizzle-orm";
 import { generateDomainHash } from "../shared/domain-hash";
 import { addNormalizedExportRoute } from "./routes-normalized";
@@ -353,8 +353,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalDomains: batch.totalDomains,
         processedDomains: batch.processedDomains || 0,
         successfulDomains: batch.successfulDomains || 0,
-        successRate: batch.processedDomains > 0 ? 
-          Math.round((batch.successfulDomains || 0) / batch.processedDomains * 100 * 10) / 10 : 0,
+        successRate: (batch.processedDomains || 0) > 0 ? 
+          Math.round((batch.successfulDomains || 0) / (batch.processedDomains || 1) * 100 * 10) / 10 : 0,
         status: batch.status
       }));
 
@@ -381,8 +381,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         processedDomains: batch.processedDomains || 0,
         successfulDomains: batch.successfulDomains || 0,
         failedDomains: (batch.processedDomains || 0) - (batch.successfulDomains || 0),
-        successRate: batch.processedDomains > 0 ? 
-          Math.round((batch.successfulDomains || 0) / batch.processedDomains * 100 * 10) / 10 : 0,
+        successRate: (batch.processedDomains || 0) > 0 ? 
+          Math.round((batch.successfulDomains || 0) / (batch.processedDomains || 1) * 100 * 10) / 10 : 0,
         status: batch.status
       }));
 
@@ -405,7 +405,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Process each domain to add GLEIF data if the method exists
       const enhancedDomains = [];
       for (const domain of domains) {
-        let candidates = [];
+        let candidates: any[] = [];
 
         // Safely try to get GLEIF candidates
         if (typeof storage.getGleifCandidates === 'function') {
@@ -423,7 +423,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           companyName: domain.companyName,
           extractionMethod: domain.extractionMethod,
           confidenceScore: domain.confidenceScore,
-          primaryLeiCode: domain.primaryLeiCode || domain.leiCode,
+          primaryLeiCode: domain.primaryLeiCode,
           primaryGleifName: domain.primaryGleifName,
           guessedCountry: domain.guessedCountry,
           gleifCandidateCount: candidates.length,
@@ -851,7 +851,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { batchId } = req.params;
 
       // Find domains stuck in processing status
-      const stuckDomains = await storage.getDomainsByBatch(batchId, 'processing');
+      const stuckDomains = await storage.getDomainsByBatchWithStatus?.(batchId, 'processing') || [];
 
       if (stuckDomains.length === 0) {
         return res.json({ 
@@ -878,7 +878,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if batch has pending domains
-      const pendingDomains = await storage.getDomainsByBatch(batchId, 'pending');
+      const pendingDomains = await storage.getDomainsByBatchWithStatus?.(batchId, 'pending') || [];
       const hasRestarted = pendingDomains.length > 0;
 
       console.log(`✅ Manual recovery: cleared ${clearedCount} stuck domains from batch ${batchId}`);
@@ -900,7 +900,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/batches/:batchId/stuck", async (req, res) => {
     try {
       const { batchId } = req.params;
-      const stuckDomains = await storage.getDomainsByBatch(batchId, 'processing');
+      const stuckDomains = await storage.getDomainsByBatchWithStatus?.(batchId, 'processing') || [];
 
       res.json({
         batchId,

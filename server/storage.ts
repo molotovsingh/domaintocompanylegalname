@@ -15,6 +15,7 @@ export interface IStorage {
   // Batches
   getBatch(id: string): Promise<Batch | undefined>;
   getBatches(limit?: number, offset?: number): Promise<Batch[]>;
+  getRecentBatches?(limit?: number, offset?: number): Promise<Batch[]>;
   createBatch(batch: InsertBatch): Promise<Batch>;
   updateBatch(id: string, updates: Partial<Batch>): Promise<Batch | undefined>;
 
@@ -44,6 +45,7 @@ export interface IStorage {
   updatePrimarySelection?(domainId: number, leiCode: string): Promise<Domain | undefined>;
   getManualReviewQueue?(limit?: number, offset?: number): Promise<Domain[]>;
   getLevel2EligibleDomains?(limit?: number, offset?: number): Promise<Domain[]>;
+  clearGleifCandidatesForBatch?(batchId: string): Promise<void>;
 
   // Enhanced GLEIF Knowledge Base Operations (V3 - Entity Intelligence)
   createGleifEntity?(entity: InsertGleifEntity): Promise<GleifEntity>;
@@ -82,7 +84,16 @@ export class MemStorage implements IStorage {
     return this.domains.get(id);
   }
 
-  async getDomainsByBatch(batchId: string, status?: string, limit = 50, offset = 0): Promise<Domain[]> {
+  async getDomainsByBatch(batchId: string, limit = 50, offset = 0): Promise<Domain[]> {
+    let allDomains = Array.from(this.domains.values())
+      .filter(domain => domain.batchId === batchId);
+
+    allDomains = allDomains.sort((a, b) => (b.processedAt?.getTime() || 0) - (a.processedAt?.getTime() || 0));
+
+    return allDomains.slice(offset, offset + limit);
+  }
+
+  async getDomainsByBatchWithStatus(batchId: string, status?: string, limit = 50, offset = 0): Promise<Domain[]> {
     let allDomains = Array.from(this.domains.values())
       .filter(domain => domain.batchId === batchId);
 
@@ -100,8 +111,37 @@ export class MemStorage implements IStorage {
     const domain: Domain = {
       ...insertDomain,
       id,
+      status: insertDomain.status || "pending",
+      companyName: insertDomain.companyName || null,
+      extractionMethod: insertDomain.extractionMethod || null,
+      confidenceScore: insertDomain.confidenceScore || null,
+      guessedCountry: insertDomain.guessedCountry || null,
+      retryCount: insertDomain.retryCount || 0,
+      errorMessage: insertDomain.errorMessage || null,
+      failureCategory: insertDomain.failureCategory || null,
+      technicalDetails: insertDomain.technicalDetails || null,
+      extractionAttempts: insertDomain.extractionAttempts || null,
+      recommendation: insertDomain.recommendation || null,
+      predictedEntityCategory: insertDomain.predictedEntityCategory || null,
+      entityCategoryConfidence: insertDomain.entityCategoryConfidence || null,
+      entityCategoryIndicators: insertDomain.entityCategoryIndicators || null,
+      level2Attempted: insertDomain.level2Attempted || false,
+      level2Status: insertDomain.level2Status || null,
+      level2CandidatesCount: insertDomain.level2CandidatesCount || 0,
+      level2ProcessingTimeMs: insertDomain.level2ProcessingTimeMs || null,
+      primaryLeiCode: insertDomain.primaryLeiCode || null,
+      primaryGleifName: insertDomain.primaryGleifName || null,
+      primarySelectionConfidence: insertDomain.primarySelectionConfidence || null,
+      selectionAlgorithm: insertDomain.selectionAlgorithm || null,
+      finalLegalName: insertDomain.finalLegalName || null,
+      finalConfidence: insertDomain.finalConfidence || null,
+      finalExtractionMethod: insertDomain.finalExtractionMethod || null,
+      manualReviewRequired: insertDomain.manualReviewRequired || false,
+      selectionNotes: insertDomain.selectionNotes || null,
       createdAt: new Date(),
       processedAt: null,
+      processingStartedAt: null,
+      processingTimeMs: null,
     };
     this.domains.set(id, domain);
     return domain;
@@ -142,7 +182,11 @@ export class MemStorage implements IStorage {
 
   async getBatches(limit = 10, offset = 0): Promise<Batch[]> {
     const allBatches = Array.from(this.batches.values())
-      .sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime());
+      .sort((a, b) => {
+        const dateA = a.uploadedAt?.getTime() || 0;
+        const dateB = b.uploadedAt?.getTime() || 0;
+        return dateB - dateA;
+      });
 
     return allBatches.slice(offset, offset + limit);
   }
@@ -150,6 +194,10 @@ export class MemStorage implements IStorage {
   async createBatch(insertBatch: InsertBatch): Promise<Batch> {
     const batch: Batch = {
       ...insertBatch,
+      status: insertBatch.status || "pending",
+      processedDomains: insertBatch.processedDomains || 0,
+      successfulDomains: insertBatch.successfulDomains || 0,
+      failedDomains: insertBatch.failedDomains || 0,
       uploadedAt: new Date(),
       completedAt: null,
     };
@@ -172,7 +220,11 @@ export class MemStorage implements IStorage {
 
   async getActivities(limit = 20, offset = 0): Promise<Activity[]> {
     const allActivities = Array.from(this.activities.values())
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      .sort((a, b) => {
+        const dateA = a.createdAt?.getTime() || 0;
+        const dateB = b.createdAt?.getTime() || 0;
+        return dateB - dateA;
+      });
 
     return allActivities.slice(offset, offset + limit);
   }
@@ -182,6 +234,7 @@ export class MemStorage implements IStorage {
     const activity: Activity = {
       ...insertActivity,
       id,
+      details: insertActivity.details || null,
       createdAt: new Date(),
     };
     this.activities.set(id, activity);
@@ -302,7 +355,7 @@ export class MemStorage implements IStorage {
       averageConfidence: confidenceCount > 0 ? Math.round(totalConfidence / confidenceCount) : 0,
       extractionMethods,
       processingTime,
-      completedAt: batch.completedAt || new Date().toISOString(),
+      completedAt: batch.completedAt ? batch.completedAt.toISOString() : new Date().toISOString(),
       qualityMetrics: {
         highConfidenceCount,
         mediumConfidenceCount,
@@ -311,6 +364,10 @@ export class MemStorage implements IStorage {
         htmlExtractionCount,
       },
       failureReasons,
+      manualReviewRequired: domains.filter(d => d.manualReviewRequired).length,
+      level2AttemptedCount: domains.filter(d => d.level2Attempted).length,
+      level2SuccessCount: domains.filter(d => d.level2Status === 'success').length,
+      gleifVerifiedCount: domains.filter(d => d.primaryLeiCode).length
     };
   }
 
@@ -328,6 +385,35 @@ export class MemStorage implements IStorage {
     }
 
     return results;
+  }
+
+  async getAnalyticsData(limit = 50, offset = 0): Promise<AnalyticsData[]> {
+    const batches = await this.getBatches(limit, offset);
+    const analyticsData: AnalyticsData[] = [];
+
+    for (const batch of batches) {
+      const batchDomains = await this.getDomainsByBatch(batch.id);
+      const successful = batchDomains.filter(d => d.status === 'success');
+      const totalProcessingTime = batchDomains.reduce((sum, d) => sum + (d.processingTimeMs || 0), 0);
+      const confidences = successful.map(d => d.confidenceScore || 0).filter(c => c > 0);
+      
+      analyticsData.push({
+        batchId: batch.id,
+        fileName: batch.fileName,
+        completedAt: batch.completedAt ? batch.completedAt.toISOString() : new Date().toISOString(),
+        totalDomains: batch.totalDomains,
+        successRate: Math.round((successful.length / batch.totalDomains) * 100),
+        averageConfidence: confidences.length ? Math.round(confidences.reduce((a, b) => a + b, 0) / confidences.length) : 0,
+        medianConfidence: confidences.length ? confidences.sort((a, b) => a - b)[Math.floor(confidences.length / 2)] : 0,
+        domainMappingPercentage: Math.round((successful.filter(d => d.extractionMethod === 'domain_mapping').length / batch.totalDomains) * 100),
+        avgProcessingTimePerDomain: Math.round(totalProcessingTime / batch.totalDomains),
+        highConfidencePercentage: Math.round((successful.filter(d => (d.confidenceScore || 0) >= 85).length / batch.totalDomains) * 100),
+        totalProcessingTimeMs: totalProcessingTime,
+        totalProcessingTimeFormatted: `${Math.round(totalProcessingTime / 1000)}s`
+      });
+    }
+
+    return analyticsData;
   }
 }
 
