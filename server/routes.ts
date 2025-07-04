@@ -11,6 +11,8 @@ import { sql, inArray, eq, asc } from "drizzle-orm";
 import { generateDomainHash } from "../shared/domain-hash";
 import { addNormalizedExportRoute } from "./routes-normalized";
 import { addWideExportRoute } from "./routes-wide";
+import { enhancedExportService } from "./services/enhancedExportService";
+import { defaultExportFields, comprehensiveExportFields } from "../shared/enhanced-export-schema";
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { Request, Response } from 'express';
@@ -393,7 +395,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 });
 
-  // Export batch results with comprehensive GLEIF candidates data
+  // Standard export - original implementation for UI compatibility
   app.get("/api/export/:batchId", async (req, res) => {
     try {
       const { batchId } = req.params;
@@ -460,6 +462,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error: any) {
       console.error('Export error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Enhanced export - comprehensive business intelligence export
+  app.get("/api/export-enhanced/:batchId", async (req, res) => {
+    try {
+      const { batchId } = req.params;
+      const { 
+        format = 'csv',
+        includeGleifCandidates = 'true',
+        includeRelationships = 'true', 
+        includeEntityMappings = 'true',
+        qualityThreshold,
+        fields = 'default'
+      } = req.query;
+
+      const options = {
+        format: format as 'csv' | 'json' | 'xlsx',
+        includeGleifCandidates: includeGleifCandidates === 'true',
+        includeRelationships: includeRelationships === 'true',
+        includeEntityMappings: includeEntityMappings === 'true',
+        qualityThreshold: qualityThreshold ? parseInt(qualityThreshold as string) : undefined,
+        fields: fields === 'comprehensive' ? comprehensiveExportFields : 
+                fields === 'default' ? defaultExportFields :
+                (fields as string).split(',')
+      };
+
+      const enhancedRecords = await enhancedExportService.generateEnhancedExport(batchId, options);
+      const exportContent = enhancedExportService.formatExport(enhancedRecords, options.format, options.fields);
+
+      // Set appropriate headers based on format
+      const fileExtension = options.format === 'xlsx' ? 'xlsx' : options.format;
+      const contentType = {
+        'csv': 'text/csv',
+        'json': 'application/json',
+        'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      }[options.format];
+
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `attachment; filename="enhanced_export_${batchId}.${fileExtension}"`);
+
+      if (options.format === 'xlsx') {
+        res.send(exportContent);
+      } else {
+        res.send(exportContent);
+      }
+
+    } catch (error: any) {
+      console.error('Enhanced export error:', error);
       res.status(500).json({ error: error.message });
     }
   });
