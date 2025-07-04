@@ -238,38 +238,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get all domains in the batch that are eligible for Level 2
-      const domains = await storage.getDomainsByBatch(batchId, undefined, 10000);
-      const level2Eligible = domains.filter(domain => 
-        // Re-check eligibility using the processor's logic
-        !domain.level2Attempted && (
+      const domains = await storage.getDomainsByBatch(batchId, 10000);
+      
+      console.log(`🔍 Level 2 Debug: Found ${domains.length} total domains in batch`);
+      console.log(`🔍 Level 2 Debug: Domains with company names:`, 
+        domains.filter(d => d.companyName).map(d => `${d.domain}: "${d.companyName}" (${d.status}, ${d.confidenceScore}%, attempted: ${d.level2Attempted})`));
+      
+      const level2Eligible = domains.filter(domain => {
+        const eligible = !domain.level2Attempted && (
           (domain.status === 'failed' && domain.companyName && domain.companyName.length > 2) ||
           (domain.status === 'success' && (domain.confidenceScore || 0) < 95) ||
           (domain.failureCategory === 'Protected - Manual Review') ||
           (domain.failureCategory === 'incomplete_low_priority' && domain.companyName) ||
           (domain.status === 'success' && domain.companyName && domain.companyName.length > 3)
-        )
-      );
+        );
+        
+        if (domain.companyName) {
+          console.log(`🔍 Level 2 Debug: ${domain.domain} (${domain.companyName}) - Eligible: ${eligible}`);
+          console.log(`   Status: ${domain.status}, Confidence: ${domain.confidenceScore}, Attempted: ${domain.level2Attempted}`);
+        }
+        
+        return eligible;
+      });
 
-      if (level2Eligible.length === 0) {
+      // Check for domains already marked as pending for Level 2
+      const pendingLevel2Domains = domains.filter(d => d.level2Status === 'pending');
+      
+      if (level2Eligible.length === 0 && pendingLevel2Domains.length === 0) {
         return res.json({ 
           message: "No domains eligible for Level 2 processing in this batch",
           eligibleCount: 0,
           batchId
         });
       }
+      
+      // Use pending domains if available, otherwise use eligible domains
+      const domainsToProcess = pendingLevel2Domains.length > 0 ? pendingLevel2Domains : level2Eligible;
 
       // Start Level 2 processing in background
-      processor.processLevel2ForBatch(batchId, level2Eligible);
+      processor.processLevel2ForBatch(batchId, domainsToProcess);
 
       await storage.createActivity({
         type: 'level2_triggered',
         message: `Level 2 processing manually triggered for batch: ${batchId}`,
-        details: JSON.stringify({ batchId, eligibleCount: level2Eligible.length })
+        details: JSON.stringify({ batchId, eligibleCount: domainsToProcess.length })
       });
 
       res.json({ 
-        message: `Level 2 processing started for ${level2Eligible.length} eligible domains`,
-        eligibleCount: level2Eligible.length,
+        message: `Level 2 processing started for ${domainsToProcess.length} domains`,
+        eligibleCount: domainsToProcess.length,
         batchId
       });
     } catch (error: any) {
@@ -966,6 +983,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       console.error('Get stuck domains error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Direct Level 2 processing for pending domains
+  app.post("/api/batches/:batchId/process-pending-level2", async (req, res) => {
+    try {
+      const { batchId } = req.params;
+      
+      // Get domains already marked as pending for Level 2
+      const domains = await storage.getDomainsByBatch(batchId, 1000);
+      const pendingLevel2 = domains.filter(d => d.level2Status === 'pending');
+      
+      if (pendingLevel2.length === 0) {
+        return res.json({ 
+          message: "No domains pending Level 2 processing",
+          count: 0
+        });
+      }
+      
+      console.log(`🚀 Starting Level 2 processing for ${pendingLevel2.length} pending domains`);
+      
+      // Process each domain individually for Level 2 GLEIF enhancement
+      for (const domain of pendingLevel2) {
+        console.log(`🔍 Processing Level 2 for ${domain.domain}: "${domain.companyName}"`);
+        // Start processing in background
+        processor.processLevel2ForBatch(batchId, [domain]).catch(error => {
+          console.error(`Level 2 processing error for ${domain.domain}:`, error);
+        });
+      }
+      
+      res.json({
+        message: `Level 2 processing started for ${pendingLevel2.length} domains`,
+        domains: pendingLevel2.map(d => ({ domain: d.domain, companyName: d.companyName })),
+        count: pendingLevel2.length
+      });
+      
+    } catch (error: any) {
+      console.error('Direct Level 2 processing error:', error);
       res.status(500).json({ error: error.message });
     }
   });
