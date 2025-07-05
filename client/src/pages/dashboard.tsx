@@ -112,6 +112,10 @@ export default function Dashboard() {
                 <GitBranch className="h-4 w-4" />
                 Knowledge Graph
               </Link>
+              <Link href="/smoke-testing" className="flex items-center gap-2 px-3 py-2 text-sm text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors">
+                <TestTube className="h-4 w-4" />
+                Smoke Testing
+              </Link>
               <Button
                 variant="outline"
                 size="sm"
