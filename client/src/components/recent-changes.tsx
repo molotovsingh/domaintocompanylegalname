@@ -45,9 +45,18 @@ const getTextColor = (type: string) => {
 
 export default function RecentChanges() {
   const { data: changesData, error, isLoading } = useQuery({
-    queryKey: ["/api/changes"],
+    queryKey: ["changes"],
+    queryFn: async () => {
+      const response = await fetch('/api/changes');
+      if (!response.ok) {
+        throw new Error('Failed to fetch changes');
+      }
+      return response.json();
+    },
     refetchInterval: 30000,
     staleTime: 15000,
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 
   const changes = changesData?.changes || [];
