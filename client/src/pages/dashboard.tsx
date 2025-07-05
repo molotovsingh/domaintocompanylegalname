@@ -119,6 +119,11 @@ export default function Dashboard() {
                       Jurisdictions
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/recent-changes" className="w-full">
+                      Recent Changes
+                    </Link>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 

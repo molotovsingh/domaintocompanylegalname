@@ -11,6 +11,7 @@ import KnowledgeGraphPage from "@/pages/knowledge-graph";
 import SmokeTestingPage from "@/pages/smoke-testing";
 import BetaTestingPage from "@/pages/beta-testing";
 import NotFound from "@/pages/not-found";
+import { lazy } from "react";
 
 function Router() {
   return (
@@ -19,9 +20,7 @@ function Router() {
       <Route path="/analytics" component={Analytics} />
       <Route path="/parsing-rules" component={ParsingRules} />
       <Route path="/jurisdictional-guide" component={JurisdictionalGuide} />
-      <Route path="/knowledge-graph" component={KnowledgeGraphPage} />
-      <Route path="/smoke-testing" component={SmokeTestingPage} />
-      <Route path="/beta-testing" component={BetaTestingPage} />
+      <Route path="/recent-changes" component={lazy(() => import("./pages/recent-changes"))} />
       <Route component={NotFound} />
     </Switch>
   );
