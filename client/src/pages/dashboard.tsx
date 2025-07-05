@@ -1,23 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Globe, User, BarChart3, Trash2, GitBranch, Network, Zap } from "lucide-react";
+import { Globe, User, BarChart3, Trash2, Settings, ChevronDown } from "lucide-react";
 import { Link } from "wouter";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import StatsCards from "@/components/stats-cards";
 import FileUpload from "@/components/file-upload";
 import ProcessingStatus from "@/components/processing-status";
 import ResultsTable from "@/components/results-table";
-import ActivityFeed from "@/components/activity-feed";
-import SessionResults from "@/components/session-results";
-import SingleDomainTest from "@/components/single-domain-test";
-import RecentChanges from "@/components/recent-changes";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { AlertCircle, CheckCircle, Clock, XCircle, Upload, Play, Square, Settings, Beaker, Activity, GitCommit } from "lucide-react";
-
 
 export default function Dashboard() {
   const [currentBatchId, setCurrentBatchId] = useState<string | null>(null);
@@ -26,13 +17,13 @@ export default function Dashboard() {
 
   const { data: stats, refetch: refetchStats } = useQuery({
     queryKey: ["/api/stats"],
-    refetchInterval: 60000, // Reduced from 30s to 60s
+    refetchInterval: 60000,
     staleTime: 45000,
   });
 
   const { data: batches } = useQuery({
     queryKey: ["/api/batches"],
-    refetchInterval: 120000, // Reduced from 30s to 2 minutes
+    refetchInterval: 120000,
     staleTime: 90000,
   });
 
@@ -70,53 +61,16 @@ export default function Dashboard() {
     refetchStats();
   };
 
-  const handleTestCompleted = () => {
-    // Switch to the shared single domain tests batch
-    setCurrentBatchId('single-domain-tests');
-  };
-
   // Auto-select the most recent batch if none is selected
   useEffect(() => {
     if (!currentBatchId && batches && Array.isArray(batches) && batches.length > 0) {
-      // Use the most recent batch (first in the list)
       setCurrentBatchId(batches[0].id);
     }
   }, [batches, currentBatchId]);
 
-    const recentActivity = [
-        {
-            type: "Upload",
-            description: "Uploaded a new batch of domains.",
-            timestamp: "Today, 10:30 AM"
-        },
-        {
-            type: "Processing",
-            description: "Started processing domain data.",
-            timestamp: "Today, 10:45 AM"
-        },
-        {
-            type: "Export",
-            description: "Exported results to CSV.",
-            timestamp: "Today, 11:00 AM"
-        }
-    ];
-
-    const getActivityIcon = (type: string) => {
-        switch (type) {
-            case "Upload":
-                return <Upload className="w-4 h-4 text-blue-500" />;
-            case "Processing":
-                return <Play className="w-4 h-4 text-yellow-500" />;
-            case "Export":
-                return <Square className="w-4 h-4 text-green-500" />;
-            default:
-                return <Settings className="w-4 h-4 text-gray-500" />;
-        }
-    };
-
   return (
     <div className="min-h-screen bg-background font-sans">
-      {/* Header */}
+      {/* Simplified Header */}
       <header className="bg-surface shadow-material border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
@@ -134,20 +88,40 @@ export default function Dashboard() {
                 <BarChart3 className="h-4 w-4" />
                 Analytics
               </Link>
-              <Link href="/parsing-rules" className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors">
-                Parsing Rules
-              </Link>
-              <Link href="/jurisdictional-guide" className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors">
-                Jurisdictions
-              </Link>
-              <Link href="/knowledge-graph" className="flex items-center gap-2 px-3 py-2 text-sm text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors">
-                <GitBranch className="h-4 w-4" />
-                Knowledge Graph
-              </Link>
-              <Link href="/beta-testing" className="flex items-center gap-2 px-3 py-2 text-sm text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded-lg transition-colors">
-                <Beaker className="h-4 w-4" />
-                Beta Testing
-              </Link>
+
+              {/* Settings Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    Settings
+                    <ChevronDown className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link href="/beta-testing" className="w-full">
+                      Beta Testing
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/knowledge-graph" className="w-full">
+                      Knowledge Graph
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/parsing-rules" className="w-full">
+                      Parsing Rules
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/jurisdictional-guide" className="w-full">
+                      Jurisdictions
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -158,6 +132,7 @@ export default function Dashboard() {
                 <Trash2 className="h-4 w-4" />
                 {deleteDatabaseMutation.isPending ? "Clearing..." : "Clear DB"}
               </Button>
+
               <div className="w-8 h-8 bg-primary-custom rounded-full flex items-center justify-center text-white text-sm font-medium">
                 <User className="h-4 w-4" />
               </div>
@@ -170,90 +145,14 @@ export default function Dashboard() {
         {/* Stats Cards */}
         <StatsCards stats={stats as any} />
 
-
-
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {/* Upload Section */}
+        {/* Upload and Processing Section */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
           <FileUpload onBatchUploaded={handleBatchUploaded} />
-
-          {/* Single Domain Test */}
-          <SingleDomainTest onTestCompleted={handleTestCompleted} />
-
-          {/* Processing Status */}
           <ProcessingStatus currentBatchId={currentBatchId} />
         </div>
 
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="results" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="results">Results & Export</TabsTrigger>
-            <TabsTrigger value="session">Session Stats</TabsTrigger>
-            <TabsTrigger value="activity">Activity Feed</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="results" className="mt-0">
-            <ResultsTable currentBatchId={currentBatchId} />
-          </TabsContent>
-
-          <TabsContent value="session" className="mt-0">
-            {currentBatchId ? (
-              <SessionResults batchId={currentBatchId} />
-            ) : (
-              <div className="bg-white rounded-lg shadow-sm border p-8 text-center text-gray-500">
-                <p className="text-lg">Select a batch to view session statistics</p>
-                <p className="text-sm mt-2">Upload and process a file to see detailed metrics including duplicate detection stats</p>
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="activity" className="mt-0">
-            <ActivityFeed />
-          </TabsContent>
-        </Tabs>
-<div>
-
-      {/* Recent Changes Log */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <GitCommit className="w-5 h-5 mr-2" />
-            Recent Changes
-          </CardTitle>
-          <CardDescription>
-            Development updates for agent awareness
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <RecentChanges />
-        </CardContent>
-      </Card>
-
-      {/* Activity Feed */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Activity className="w-5 h-5 mr-2" />
-            Recent Activity
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
-                <div className="flex items-center space-x-3">
-                  {getActivityIcon(activity.type)}
-                  <div>
-                    <div className="font-medium">{activity.description}</div>
-                    <div className="text-sm text-muted-foreground">{activity.timestamp}</div>
-                  </div>
-                </div>
-                <Badge variant="outline">{activity.type}</Badge>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-</div>
+        {/* Results Section */}
+        <ResultsTable currentBatchId={currentBatchId} />
       </main>
     </div>
   );
