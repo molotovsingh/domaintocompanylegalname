@@ -466,24 +466,30 @@ export class DomainExtractor {
         });
 
         // Business suffix analysis
-        if (config.businessSuffixes) {
-          config.businessSuffixes.forEach(suffix => {
-            if (companyLower.includes(suffix)) {
-              categoryScore += 20;
-              indicators.push(`Company name suggests "${suffix}" business`);
-            }
-          });
+        if ('businessSuffixes' in config) {
+          const configWithSuffixes = config as any;
+          if (configWithSuffixes.businessSuffixes) {
+            configWithSuffixes.businessSuffixes.forEach((suffix: string) => {
+              if (companyLower.includes(suffix)) {
+                categoryScore += 20;
+                indicators.push(`Company name suggests "${suffix}" business`);
+              }
+            });
+          }
         }
       }
 
       // TLD bonus
-      if (config.tldBonus) {
-        config.tldBonus.forEach(tld => {
-          if (domain.endsWith(tld)) {
-            categoryScore += 15;
-            indicators.push(`TLD "${tld}" suggests tech focus`);
-          }
-        });
+      if ('tldBonus' in config) {
+        const configWithTldBonus = config as any;
+        if (configWithTldBonus.tldBonus) {
+          configWithTldBonus.tldBonus.forEach((tld: string) => {
+            if (domain.endsWith(tld)) {
+              categoryScore += 15;
+              indicators.push(`TLD "${tld}" suggests tech focus`);
+            }
+          });
+        }
       }
 
       // Apply category weight
@@ -933,6 +939,38 @@ export class DomainExtractor {
       'nvidia.com': 'NVIDIA Corporation',
       'oracle.com': 'Oracle Corporation',
       'salesforce.com': 'Salesforce, Inc.',
+      'sony.com': 'Sony Corporation',
+      'netflix.com': 'Netflix, Inc.',
+      'adobe.com': 'Adobe Inc.',
+      'intel.com': 'Intel Corporation',
+      'cisco.com': 'Cisco Systems, Inc.',
+      'ibm.com': 'International Business Machines Corporation',
+
+      // Fortune 500 - Retail & Consumer
+      'walmart.com': 'Walmart Inc.',
+      'target.com': 'Target Corporation',
+      'nike.com': 'NIKE, Inc.',
+      'homedepot.com': 'The Home Depot, Inc.',
+      'lowes.com': 'Lowe\'s Companies, Inc.',
+      'costco.com': 'Costco Wholesale Corporation',
+      'macys.com': 'Macy\'s, Inc.',
+      'gap.com': 'The Gap, Inc.',
+      'starbucks.com': 'Starbucks Corporation',
+      'mcdonalds.com': 'McDonald\'s Corporation',
+
+      // Fortune 500 - Healthcare & Pharma
+      'jnj.com': 'Johnson & Johnson',
+      'pfizer.com': 'Pfizer Inc.',
+      'abbvie.com': 'AbbVie Inc.',
+      'merck.com': 'Merck & Co., Inc.',
+      'lilly.com': 'Eli Lilly and Company',
+      'bms.com': 'Bristol-Myers Squibb Company',
+      'gilead.com': 'Gilead Sciences, Inc.',
+
+      // Fortune 500 - Automotive
+      'gm.com': 'General Motors Company',
+      'ford.com': 'Ford Motor Company',
+      'stellantis.com': 'Stellantis N.V.',
 
       // Fortune 500 - Financial
       'jpmorgan.com': 'JPMorgan Chase & Co.',

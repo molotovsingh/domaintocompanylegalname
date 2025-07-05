@@ -24,15 +24,15 @@ export class BatchProcessor {
     // Trigger Level 2 for these scenarios:
     return (
       // Failed extraction but partial company name detected
-      (domain.status === 'failed' && domain.companyName && domain.companyName.length > 2) ||
+      (domain.status === 'failed' && Boolean(domain.companyName) && (domain.companyName?.length || 0) > 2) ||
       // Low confidence successful extraction (increased threshold for testing)
       (domain.status === 'success' && (domain.confidenceScore || 0) < 95) ||
       // Protected sites requiring manual review
       (domain.failureCategory === 'Protected - Manual Review') ||
       // Incomplete extractions with potential
-      (domain.failureCategory === 'incomplete_low_priority' && domain.companyName) ||
+      (domain.failureCategory === 'incomplete_low_priority' && Boolean(domain.companyName)) ||
       // All successful extractions with company names (for comprehensive GLEIF verification)
-      (domain.status === 'success' && domain.companyName && domain.companyName.length > 3)
+      (domain.status === 'success' && Boolean(domain.companyName) && (domain.companyName?.length || 0) > 3)
     );
   }
 
@@ -494,7 +494,9 @@ export class BatchProcessor {
       // Check if we already have a high-confidence result for this domain
       const existingHighConfidence = await storage.getHighConfidenceResult(domain.domain);
 
-      if (existingHighConfidence && existingHighConfidence.id !== domain.id && this.hasLegalSuffix(existingHighConfidence.companyName || '')) {
+      if (existingHighConfidence && existingHighConfidence.id !== domain.id && 
+          this.hasLegalSuffix(existingHighConfidence.companyName || '') &&
+          (existingHighConfidence.confidenceScore || 0) >= 65) {
         const processingTime = Date.now() - startTime;
 
         await storage.updateDomain(domain.id, {
@@ -505,7 +507,6 @@ export class BatchProcessor {
           processedAt: new Date(),
           processingTimeMs: processingTime,
         });
-
 
         return;
       }
@@ -630,16 +631,6 @@ export class BatchProcessor {
     console.log('- No new domains will be started');
 
     this.isProcessing = false;
-
-    // Log the abort event
-    if (this.currentBatchId) {
-      this.batchLogger.logEvent(this.currentBatchId, 'batch_aborted', {
-        message: 'Processing gracefully aborted by user',
-        processedCount: this.processedCount,
-        totalDomains: this.totalDomains,
-        elapsedTimeMs: Date.now() - this.startTime
-      });
-    }
 
     return true;
   }
