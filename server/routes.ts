@@ -1077,33 +1077,129 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Beta Testing API Routes (proxy to beta server)
+  // Beta Testing API Routes with on-demand server startup
+  let betaServerProcess: any = null;
+  let betaServerStarting = false;
+  let betaServerReady = false;
+
+  async function ensureBetaServerRunning(): Promise<boolean> {
+    // If already ready, return immediately
+    if (betaServerReady) {
+      try {
+        // Quick health check to ensure it's still alive
+        await axios.get('http://localhost:3001/api/beta/health', { timeout: 1000 });
+        return true;
+      } catch {
+        // Server died, reset state
+        betaServerReady = false;
+        betaServerProcess = null;
+      }
+    }
+
+    // If already starting, wait for it
+    if (betaServerStarting) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return betaServerReady;
+    }
+
+    // Start the server
+    betaServerStarting = true;
+    console.log('🚀 Starting beta server on demand...');
+
+    try {
+      const { spawn } = await import('child_process');
+      betaServerProcess = spawn('tsx', ['server/betaIndex.ts'], {
+        detached: false,
+        stdio: 'inherit'
+      });
+
+      // Wait for server to be ready (max 10 seconds)
+      for (let i = 0; i < 20; i++) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        try {
+          await axios.get('http://localhost:3001/api/beta/health', { timeout: 1000 });
+          betaServerReady = true;
+          betaServerStarting = false;
+          console.log('✅ Beta server ready');
+          return true;
+        } catch {
+          // Not ready yet
+        }
+      }
+
+      throw new Error('Beta server failed to start in 10 seconds');
+    } catch (error) {
+      console.error('Failed to start beta server:', error);
+      betaServerStarting = false;
+      betaServerReady = false;
+      return false;
+    }
+  }
+
+  // Beta server status endpoint
+  app.get('/api/beta/status', async (req, res) => {
+    if (betaServerReady) {
+      res.json({ status: 'ready' });
+    } else if (betaServerStarting) {
+      res.json({ status: 'starting' });
+    } else {
+      res.json({ status: 'stopped' });
+    }
+  });
+
   app.get('/api/beta/experiments', async (req, res) => {
     try {
+      const isRunning = await ensureBetaServerRunning();
+      if (!isRunning) {
+        return res.status(503).json({ 
+          success: false, 
+          error: 'Beta server is starting, please wait...',
+          status: 'starting'
+        });
+      }
+
       const response = await axios.get('http://localhost:3001/api/beta/experiments');
       res.json(response.data);
     } catch (error) {
-      res.status(500).json({ success: false, error: 'Beta server unavailable' });
+      res.status(500).json({ success: false, error: 'Beta server error' });
     }
   });
 
   app.get('/api/beta/smoke-test/results', async (req, res) => {
     try {
+      const isRunning = await ensureBetaServerRunning();
+      if (!isRunning) {
+        return res.status(503).json({ 
+          success: false, 
+          error: 'Beta server is starting, please wait...',
+          status: 'starting'
+        });
+      }
+
       const response = await axios.get('http://localhost:3001/api/beta/smoke-test/results');
       res.json(response.data);
     } catch (error) {
-      res.status(500).json({ success: false, error: 'Beta server unavailable' });
+      res.status(500).json({ success: false, error: 'Beta server error' });
     }
   });
 
   app.post('/api/beta/smoke-test', async (req, res) => {
     try {
+      const isRunning = await ensureBetaServerRunning();
+      if (!isRunning) {
+        return res.status(503).json({ 
+          success: false, 
+          error: 'Beta server is starting, please wait...',
+          status: 'starting'
+        });
+      }
+
       const response = await axios.post('http://localhost:3001/api/beta/smoke-test', req.body, {
         headers: { 'Content-Type': 'application/json' }
       });
       res.json(response.data);
     } catch (error) {
-      res.status(500).json({ success: false, error: 'Beta server unavailable' });
+      res.status(500).json({ success: false, error: 'Beta server error' });
     }
   });
 

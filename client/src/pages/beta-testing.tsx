@@ -15,7 +15,16 @@ import {
   Database, 
   Cpu, 
   BarChart3,
-  ExternalLink
+  ExternalLink,
+  RefreshCw,
+  Activity,
+  AlertTriangle,
+  Play,
+  CheckCircle,
+  Target,
+  Trophy,
+  Gauge,
+  GitCompare
 } from 'lucide-react';
 
 interface BetaExperiment {
@@ -44,22 +53,62 @@ export default function BetaTesting() {
   const [smokeTestResults, setSmokeTestResults] = useState<BetaSmokeTestResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [serverStatus, setServerStatus] = useState<'stopped' | 'starting' | 'ready' | 'error'>('stopped');
+  const [startupProgress, setStartupProgress] = useState(0);
 
   // Load experiments on mount
   useEffect(() => {
-    loadExperiments();
-    loadSmokeTestResults();
+    checkServerAndLoad();
   }, []);
+
+  // Poll server status when starting
+  useEffect(() => {
+    if (serverStatus === 'starting') {
+      const interval = setInterval(() => {
+        checkServerStatus();
+        setStartupProgress(prev => Math.min(prev + 10, 90));
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [serverStatus]);
+
+  const checkServerStatus = async () => {
+    try {
+      const response = await fetch('/api/beta/status');
+      const data = await response.json();
+      setServerStatus(data.status);
+      if (data.status === 'ready') {
+        setStartupProgress(100);
+      }
+    } catch (error) {
+      console.error('Failed to check server status:', error);
+    }
+  };
+
+  const checkServerAndLoad = async () => {
+    await checkServerStatus();
+    await loadExperiments();
+    await loadSmokeTestResults();
+  };
 
   const loadExperiments = async () => {
     try {
       const response = await fetch('/api/beta/experiments');
       const data = await response.json();
+      
+      if (response.status === 503 && data.status === 'starting') {
+        setServerStatus('starting');
+        setStartupProgress(10);
+        return;
+      }
+      
       if (data.success) {
         setExperiments(data.experiments);
+        setServerStatus('ready');
       }
     } catch (error) {
       console.error('Failed to load beta experiments:', error);
+      setServerStatus('error');
     }
   };
 
@@ -67,6 +116,12 @@ export default function BetaTesting() {
     try {
       const response = await fetch('/api/beta/smoke-test/results');
       const data = await response.json();
+      
+      if (response.status === 503 && data.status === 'starting') {
+        setServerStatus('starting');
+        return;
+      }
+      
       if (data.success) {
         setSmokeTestResults(data.results);
       }
@@ -139,6 +194,73 @@ export default function BetaTesting() {
     }
   };
 
+  // Show loading screen when beta server is starting
+  if (serverStatus === 'starting' || (serverStatus === 'stopped' && experiments.length === 0)) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <CardTitle className="flex items-center justify-center gap-2">
+                <Beaker className="w-6 h-6 text-blue-500 animate-pulse" />
+                Starting Beta Environment
+              </CardTitle>
+              <CardDescription>
+                Initializing isolated testing environment on port 3001...
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Progress value={startupProgress} className="w-full" />
+              <div className="text-center text-sm text-muted-foreground">
+                {startupProgress < 30 && "Creating isolated database connection..."}
+                {startupProgress >= 30 && startupProgress < 60 && "Starting beta server process..."}
+                {startupProgress >= 60 && startupProgress < 90 && "Loading experimental features..."}
+                {startupProgress >= 90 && "Almost ready..."}
+              </div>
+              <Alert className="bg-blue-50 border-blue-200">
+                <Shield className="h-4 w-4 text-blue-500" />
+                <AlertDescription className="text-blue-700">
+                  The beta environment runs in complete isolation from production data
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error screen if server failed to start
+  if (serverStatus === 'error') {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Card className="w-full max-w-md border-red-200">
+            <CardHeader className="text-center">
+              <CardTitle className="flex items-center justify-center gap-2 text-red-600">
+                <AlertTriangle className="w-6 h-6" />
+                Beta Server Error
+              </CardTitle>
+              <CardDescription>
+                Failed to start the beta testing environment
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={checkServerAndLoad} 
+                className="w-full"
+                variant="outline"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -159,6 +281,10 @@ export default function BetaTesting() {
           <Badge variant="outline" className="text-sm">
             <Shield className="w-4 h-4 mr-1" />
             Port 3001
+          </Badge>
+          <Badge className="bg-green-500 text-white">
+            <Activity className="w-4 h-4 mr-1" />
+            Server Ready
           </Badge>
         </div>
       </div>
