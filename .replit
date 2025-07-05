@@ -78,3 +78,20 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python analytics_server.py"
+
+[[workflows.workflow]]
+name = "Beta Testing Server"
+author = 24794172
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev &"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "sleep 3"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd server && npx tsx betaIndex.ts"

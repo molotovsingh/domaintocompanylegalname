@@ -43,6 +43,7 @@ export default function BetaTesting() {
   const [smokeTestDomain, setSmokeTestDomain] = useState('');
   const [smokeTestResults, setSmokeTestResults] = useState<BetaSmokeTestResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   // Load experiments on mount
   useEffect(() => {
@@ -74,30 +75,58 @@ export default function BetaTesting() {
     }
   };
 
-  const runBetaSmokeTest = async () => {
-    if (!smokeTestDomain.trim()) return;
-    
-    setIsRunning(true);
+  const runBetaSmokeTest = async (domain: string, method: string) => {
     try {
+      const startTime = Date.now();
       const response = await fetch('http://localhost:3001/api/beta/smoke-test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          domain: smokeTestDomain.trim(), 
-          method: 'beta_extraction' 
-        })
+        body: JSON.stringify({ domain, method })
       });
       
       const result = await response.json();
-      if (result.success) {
-        loadSmokeTestResults(); // Refresh results
-        setSmokeTestDomain('');
-      }
+      const processingTime = Date.now() - startTime;
+      
+      return {
+        domain,
+        method,
+        processingTime,
+        ...result
+      };
     } catch (error) {
-      console.error('Beta smoke test failed:', error);
-    } finally {
-      setIsRunning(false);
+      return {
+        domain,
+        method,
+        processingTime: Date.now() - Date.now(),
+        companyName: null,
+        confidence: 0,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
     }
+  };
+
+  const runSingleBetaTest = async () => {
+    if (!smokeTestDomain.trim()) return;
+    
+    setIsRunning(true);
+    setProgress(0);
+    
+    const results = [];
+    const methods = ['axios_cheerio', 'puppeteer', 'playwright'];
+    
+    for (let i = 0; i < methods.length; i++) {
+      const method = methods[i];
+      setProgress((i / methods.length) * 100);
+      
+      const result = await runBetaSmokeTest(smokeTestDomain.trim(), method);
+      results.push(result);
+    }
+    
+    setSmokeTestResults(results);
+    setProgress(100);
+    setIsRunning(false);
+    setSmokeTestDomain('');
   };
 
   const getStatusBadgeColor = (status: string) => {
@@ -254,15 +283,53 @@ export default function BetaTesting() {
                   placeholder="Enter domain (e.g., example.com)"
                   value={smokeTestDomain}
                   onChange={(e) => setSmokeTestDomain(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && runBetaSmokeTest()}
+                  onKeyPress={(e) => e.key === 'Enter' && runSingleBetaTest()}
                 />
                 <Button 
-                  onClick={runBetaSmokeTest} 
+                  onClick={runSingleBetaTest} 
                   disabled={isRunning || !smokeTestDomain.trim()}
                 >
                   {isRunning ? 'Testing...' : 'Run Beta Test'}
                 </Button>
               </div>
+
+              {isRunning && (
+                <div className="space-y-2">
+                  <div className="text-sm text-muted-foreground">
+                    Testing across all methods...
+                  </div>
+                  <Progress value={progress} className="w-full" />
+                </div>
+              )}
+
+              {smokeTestResults.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="font-semibold">Beta Test Results</h3>
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {smokeTestResults.map((result, index) => (
+                      <div key={index} className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <Badge variant={result.success ? "default" : "destructive"}>
+                            {result.method?.replace('_', ' ').toUpperCase()}
+                          </Badge>
+                          <Badge variant={result.success ? "default" : "destructive"}>
+                            {result.success ? "Success" : "Failed"}
+                          </Badge>
+                        </div>
+                        <div className="space-y-1 text-sm">
+                          <div><strong>Domain:</strong> {result.domain}</div>
+                          <div><strong>Company:</strong> {result.companyName || 'Not found'}</div>
+                          <div><strong>Confidence:</strong> {result.confidence}%</div>
+                          <div><strong>Time:</strong> {result.processingTime}ms</div>
+                          {result.error && (
+                            <div className="text-red-600"><strong>Error:</strong> {result.error}</div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}</div>
 
               {smokeTestResults.length > 0 && (
                 <div className="space-y-2">
