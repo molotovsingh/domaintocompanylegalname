@@ -116,6 +116,10 @@ export default function Dashboard() {
                 <TestTube className="h-4 w-4" />
                 Smoke Testing
               </Link>
+              <Link href="/beta-testing" className="flex items-center gap-2 px-3 py-2 text-sm text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded-lg transition-colors">
+                <Beaker className="h-4 w-4" />
+                Beta Testing
+              </Link>
               <Button
                 variant="outline"
                 size="sm"
