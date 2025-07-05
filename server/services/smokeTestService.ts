@@ -136,102 +136,173 @@ export class SmokeTestService {
       // Wait a bit for dynamic content
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Extract company information using multiple strategies
+      // Extract company information focusing on footer and bottom 10% of page
       const extractionResult = await page.evaluate(() => {
-        // Strategy 1: Footer copyright extraction
+        console.log('🎯 PUPPETEER: Starting footer-focused extraction');
+        
+        // Get page dimensions to focus on bottom 10%
+        const pageHeight = Math.max(
+          document.body.scrollHeight,
+          document.body.offsetHeight,
+          document.documentElement.clientHeight,
+          document.documentElement.scrollHeight,
+          document.documentElement.offsetHeight
+        );
+        
+        const bottom10PercentStart = pageHeight * 0.9;
+        console.log(`📏 Page height: ${pageHeight}px, bottom 10% starts at: ${bottom10PercentStart}px`);
+        
+        // Strategy 1: Targeted footer element extraction
         const footerSelectors = [
           'footer',
           '.footer',
           '#footer',
           '[class*="footer"]',
+          '.site-footer',
+          '.page-footer',
           '.copyright',
-          '[class*="copyright"]'
+          '[class*="copyright"]',
+          '.legal',
+          '[class*="legal"]'
         ];
         
         let footerText = '';
+        let foundFooterElements = 0;
+        
         for (const selector of footerSelectors) {
           const elements = document.querySelectorAll(selector);
           elements.forEach(el => {
-            footerText += ' ' + el.textContent;
+            const rect = el.getBoundingClientRect();
+            const elementTop = rect.top + window.scrollY;
+            
+            // Only include elements in bottom portion of page
+            if (elementTop >= bottom10PercentStart || rect.bottom >= window.innerHeight * 0.7) {
+              footerText += ' ' + el.textContent;
+              foundFooterElements++;
+            }
           });
         }
         
-        // Look for copyright patterns
+        console.log(`🔍 Found ${foundFooterElements} footer elements in bottom region`);
+        
+        // Strategy 2: Bottom 10% text extraction (fallback)
+        if (footerText.length < 100) {
+          console.log('📄 Footer text insufficient, extracting from bottom 10% of all text');
+          
+          const allTextNodes = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+          );
+          
+          const bottomTexts = [];
+          let node;
+          while (node = allTextNodes.nextNode()) {
+            const parent = node.parentElement;
+            if (parent) {
+              const rect = parent.getBoundingClientRect();
+              const elementTop = rect.top + window.scrollY;
+              
+              if (elementTop >= bottom10PercentStart && node.textContent.trim().length > 10) {
+                bottomTexts.push(node.textContent.trim());
+              }
+            }
+          }
+          
+          footerText += ' ' + bottomTexts.join(' ');
+          console.log(`📝 Added ${bottomTexts.length} text nodes from bottom 10%`);
+        }
+        
+        console.log(`📊 Total footer text length: ${footerText.length} characters`);
+        
+        // Enhanced copyright patterns for legal entities
         const copyrightPatterns = [
-          /©\s*\d{4}[^A-Za-z]*([A-Z][a-zA-Z\s&,.'-]+(?:Inc\.?|Corp\.?|LLC|Ltd\.?|Limited|Company|Co\.?|Group|Holdings|AG|GmbH|SA|SAS|SARL))/i,
-          /copyright\s*©?\s*\d{4}[^A-Za-z]*([A-Z][a-zA-Z\s&,.'-]+(?:Inc\.?|Corp\.?|LLC|Ltd\.?|Limited|Company|Co\.?|Group|Holdings|AG|GmbH|SA|SAS|SARL))/i
+          // Standard copyright with full legal entities
+          /©\s*\d{4}[^A-Za-z]*([A-Z][\w\s&,.'-]+?(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|Co\.?|Group|Holdings|AG|GmbH|SA|SAS|SARL|Ltda\.?|S\.A\.?|Pte\.?\s*Ltd\.?|Pvt\.?\s*Ltd\.?))/gi,
+          
+          // Copyright without symbol
+          /copyright\s*©?\s*\d{4}[^A-Za-z]*([A-Z][\w\s&,.'-]+?(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|Co\.?|Group|Holdings|AG|GmbH|SA|SAS|SARL|Ltda\.?|S\.A\.?|Pte\.?\s*Ltd\.?|Pvt\.?\s*Ltd\.?))/gi,
+          
+          // Year-first pattern
+          /\d{4}[^A-Za-z]*([A-Z][\w\s&,.'-]+?(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|Co\.?|Group|Holdings|AG|GmbH|SA|SAS|SARL|Ltda\.?|S\.A\.?|Pte\.?\s*Ltd\.?|Pvt\.?\s*Ltd\.?))/gi,
+          
+          // All rights reserved pattern
+          /([A-Z][\w\s&,.'-]+?(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|Co\.?|Group|Holdings|AG|GmbH|SA|SAS|SARL|Ltda\.?|S\.A\.?|Pte\.?\s*Ltd\.?|Pvt\.?\s*Ltd\.?))[^A-Za-z]*all\s*rights\s*reserved/gi
         ];
         
-        for (const pattern of copyrightPatterns) {
+        console.log('🔍 Testing copyright patterns...');
+        
+        for (let i = 0; i < copyrightPatterns.length; i++) {
+          const pattern = copyrightPatterns[i];
+          const matches = [...footerText.matchAll(pattern)];
+          
+          console.log(`Pattern ${i + 1}: Found ${matches.length} matches`);
+          
+          if (matches.length > 0) {
+            for (const match of matches) {
+              let companyName = match[1]?.trim();
+              if (companyName) {
+                // Clean up the company name
+                companyName = companyName
+                  .replace(/^\s*-\s*/, '')
+                  .replace(/\s*all rights reserved.*$/i, '')
+                  .replace(/\s*\.\s*$/, '')
+                  .replace(/\s*,\s*$/, '')
+                  .trim();
+                
+                // Validate company name
+                if (companyName.length >= 3 && 
+                    companyName.length <= 80 && 
+                    !companyName.toLowerCase().includes('javascript') &&
+                    !companyName.toLowerCase().includes('loading') &&
+                    !companyName.toLowerCase().includes('menu') &&
+                    !companyName.toLowerCase().includes('button')) {
+                  
+                  console.log(`✅ Found valid company: "${companyName}"`);
+                  
+                  return {
+                    companyName,
+                    method: 'puppeteer_footer_copyright',
+                    confidence: 85,
+                    source: 'footer_bottom10'
+                  };
+                }
+              }
+            }
+          }
+        }
+        
+        console.log('❌ No valid copyright matches found');
+        
+        // Strategy 3: Legal disclaimers in bottom region
+        const legalPatterns = [
+          /(?:operated|owned|managed)\s+by\s+([A-Z][\w\s&,.'-]+?(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|Co\.?))/gi,
+          /a\s+(?:subsidiary|division|brand)\s+of\s+([A-Z][\w\s&,.'-]+?(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|Co\.?))/gi
+        ];
+        
+        for (const pattern of legalPatterns) {
           const match = footerText.match(pattern);
           if (match && match[1]) {
-            const companyName = match[1].trim()
-              .replace(/^\s*-\s*/, '')
-              .replace(/\s*all rights reserved.*$/i, '')
-              .replace(/\s*\.\s*$/, '')
-              .trim();
-            
-            if (companyName.length > 3 && companyName.length < 80) {
+            const companyName = match[1].trim();
+            if (companyName.length >= 3 && companyName.length <= 60) {
+              console.log(`✅ Found legal entity: "${companyName}"`);
               return {
                 companyName,
-                method: 'puppeteer_footer_copyright',
-                confidence: 85,
-                source: 'footer'
-              };
-            }
-          }
-        }
-        
-
-        
-        // Strategy 3: About us section
-        const aboutSelectors = [
-          'section[class*="about"]',
-          '.about-section',
-          '#about',
-          '[class*="company-info"]'
-        ];
-        
-        for (const selector of aboutSelectors) {
-          const element = document.querySelector(selector);
-          if (element) {
-            const text = element.textContent || '';
-            const aboutPattern = /(?:we are|about)\s+([A-Z][a-zA-Z\s&,.'-]+(?:Inc\.?|Corp\.?|LLC|Ltd\.?|Limited|Company|Co\.?))/i;
-            const match = text.match(aboutPattern);
-            if (match && match[1]) {
-              return {
-                companyName: match[1].trim(),
-                method: 'puppeteer_about',
+                method: 'puppeteer_legal_disclaimer',
                 confidence: 75,
-                source: 'about'
+                source: 'footer_legal'
               };
             }
           }
         }
         
-        // Strategy 4: Meta description
-        const metaDesc = document.querySelector('meta[name="description"]');
-        if (metaDesc) {
-          const content = metaDesc.getAttribute('content') || '';
-          const words = content.split(/\s+/).slice(0, 5);
-          if (words.length >= 2) {
-            const potential = words.join(' ').trim();
-            if (potential.length > 3 && potential.length < 40) {
-              return {
-                companyName: potential,
-                method: 'puppeteer_meta',
-                confidence: 50,
-                source: 'meta'
-              };
-            }
-          }
-        }
-        
+        console.log('❌ No extraction successful');
         return {
           companyName: null,
           method: 'puppeteer_failed',
           confidence: 0,
-          source: 'none'
+          source: 'footer_focused_failed'
         };
       });
       
