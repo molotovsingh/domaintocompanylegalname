@@ -40,12 +40,15 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
   const [selectedDomainForGleif, setSelectedDomainForGleif] = React.useState<{ id: number; domain: string } | null>(null);
   const { toast } = useToast();
 
-  const params = new URLSearchParams({
-    page: page.toString(),
-    limit: "50",
-    ...(statusFilter !== "all" && { status: statusFilter }),
-    ...(searchQuery && { search: searchQuery })
-  });
+  const params = React.useMemo(() => {
+    const urlParams = new URLSearchParams({
+      page: page.toString(),
+      limit: "50",
+      ...(statusFilter !== "all" && { status: statusFilter }),
+      ...(searchQuery && { search: searchQuery })
+    });
+    return urlParams.toString();
+  }, [page, statusFilter, searchQuery]);
 
   const { data: resultsData, isLoading, refetch: refetchResults } = useQuery<ResultsResponse>({
     queryKey: [`/api/results/${currentBatchId}?${params}`],
