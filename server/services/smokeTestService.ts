@@ -339,7 +339,7 @@ export class SmokeTestService {
     const startTime = Date.now();
     
     try {
-      console.log(`Testing ${domain} with Playwright`);
+      console.log(`🎭 Testing ${domain} with Playwright`);
       
       // Dynamic import for Playwright
       const { chromium } = await import('playwright');
@@ -355,7 +355,10 @@ export class SmokeTestService {
           '--no-zygote',
           '--disable-gpu',
           '--disable-web-security',
-          '--disable-features=VizDisplayCompositor'
+          '--disable-features=VizDisplayCompositor',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding'
         ]
       });
       
@@ -363,109 +366,192 @@ export class SmokeTestService {
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         viewport: { width: 1920, height: 1080 },
         locale: 'en-US',
-        timezoneId: 'America/New_York'
+        timezoneId: 'America/New_York',
+        extraHTTPHeaders: {
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.5',
+          'Accept-Encoding': 'gzip, deflate',
+          'DNT': '1',
+          'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1'
+        }
       });
       
       const page = await context.newPage();
       
-      // Set reasonable timeouts
-      page.setDefaultTimeout(15000);
-      page.setDefaultNavigationTimeout(15000);
+      // Optimized timeouts
+      page.setDefaultTimeout(12000);
+      page.setDefaultNavigationTimeout(12000);
       
       // Navigate to the page
       const url = domain.startsWith('http') ? domain : `https://${domain}`;
-      await page.goto(url, { waitUntil: 'domcontentloaded' });
-      
-      // Wait for dynamic content and scroll to bottom to trigger lazy loading
-      await page.waitForTimeout(2000);
-      await page.evaluate(() => {
-        window.scrollTo(0, document.body.scrollHeight);
+      await page.goto(url, { 
+        waitUntil: 'domcontentloaded',
+        timeout: 12000
       });
-      await page.waitForTimeout(1000);
       
-      // Enhanced extraction with multiple strategies
+      // Optimized loading strategy - reduce wait times
+      await page.waitForTimeout(1500);
+      
+      // Smart scrolling to trigger lazy loading
+      await page.evaluate(() => {
+        // Quick scroll to bottom and back to trigger any lazy loading
+        const originalScrollTop = window.pageYOffset;
+        window.scrollTo(0, document.body.scrollHeight);
+        setTimeout(() => window.scrollTo(0, originalScrollTop), 100);
+      });
+      
+      await page.waitForTimeout(800);
+      
+      // Enhanced extraction with priority-based strategies
       const extractionResult = await page.evaluate(() => {
-        console.log('🎭 PLAYWRIGHT: Starting multi-strategy extraction');
+        console.log('🎭 PLAYWRIGHT: Starting enhanced multi-strategy extraction');
         
-        // Strategy 1: Advanced footer analysis with structured data
-        const footerSelectors = [
-          'footer',
-          '.footer',
-          '#footer',
-          '[class*="footer"]',
-          '.site-footer',
-          '.page-footer',
-          '.copyright',
-          '[class*="copyright"]',
-          '.legal',
-          '[class*="legal"]',
-          '.company-info',
-          '[class*="company"]',
-          '.about-us',
-          '[class*="about"]'
-        ];
-        
-        let footerTexts = [];
-        for (const selector of footerSelectors) {
-          const elements = document.querySelectorAll(selector);
-          elements.forEach(el => {
-            const text = el.textContent?.trim();
-            if (text && text.length > 20) {
-              footerTexts.push(text);
-            }
-          });
-        }
-        
-        console.log(`📄 Found ${footerTexts.length} footer sections`);
-        
-        // Strategy 2: Structured data extraction (JSON-LD, microdata)
+        // PRIORITY 1: Structured Data Extraction (Highest Confidence)
         const structuredData = [];
         
-        // JSON-LD extraction
+        // Enhanced JSON-LD extraction with better parsing
         const jsonLdScripts = document.querySelectorAll('script[type="application/ld+json"]');
-        jsonLdScripts.forEach(script => {
+        console.log(`🔍 Found ${jsonLdScripts.length} JSON-LD scripts`);
+        
+        jsonLdScripts.forEach((script, index) => {
           try {
-            const data = JSON.parse(script.textContent || '');
-            if (data.name || data.legalName || data.organizationName) {
-              structuredData.push({
-                name: data.name || data.legalName || data.organizationName,
-                type: 'json-ld',
-                confidence: 90
-              });
-            }
+            const content = script.textContent?.trim();
+            if (!content) return;
+            
+            const data = JSON.parse(content);
+            console.log(`📊 JSON-LD ${index + 1}:`, typeof data, Array.isArray(data) ? data.length + ' items' : 'single object');
+            
+            // Handle both single objects and arrays
+            const items = Array.isArray(data) ? data : [data];
+            
+            items.forEach((item, itemIndex) => {
+              // Look for organization/company data
+              if (item['@type'] && (
+                item['@type'].includes('Organization') || 
+                item['@type'].includes('Corporation') ||
+                item['@type'].includes('LocalBusiness') ||
+                item['@type'].includes('Company')
+              )) {
+                const companyName = item.name || item.legalName || item.organizationName || item.brand?.name;
+                if (companyName && typeof companyName === 'string') {
+                  console.log(`✅ JSON-LD Organization found: "${companyName}"`);
+                  structuredData.push({
+                    name: companyName.trim(),
+                    type: 'json-ld-organization',
+                    confidence: 95,
+                    source: `script_${index + 1}_item_${itemIndex + 1}`
+                  });
+                }
+              }
+              
+              // Fallback: any name field in structured data
+              if (item.name && typeof item.name === 'string' && !structuredData.some(s => s.name === item.name)) {
+                console.log(`📋 JSON-LD name found: "${item.name}"`);
+                structuredData.push({
+                  name: item.name.trim(),
+                  type: 'json-ld-general',
+                  confidence: 88,
+                  source: `script_${index + 1}_name`
+                });
+              }
+            });
           } catch (e) {
-            // Ignore invalid JSON
+            console.log(`❌ JSON-LD parsing error in script ${index + 1}:`, e.message.substring(0, 100));
           }
         });
         
-        // Microdata extraction
-        const microdataElements = document.querySelectorAll('[itemtype*="Organization"]');
-        microdataElements.forEach(el => {
+        // Enhanced Microdata extraction
+        const microdataElements = document.querySelectorAll('[itemtype*="Organization"], [itemtype*="LocalBusiness"], [itemtype*="Corporation"]');
+        console.log(`🏗️ Found ${microdataElements.length} microdata organization elements`);
+        
+        microdataElements.forEach((el, index) => {
           const nameEl = el.querySelector('[itemprop="name"]');
           const legalNameEl = el.querySelector('[itemprop="legalName"]');
-          if (nameEl || legalNameEl) {
+          const brandEl = el.querySelector('[itemprop="brand"]');
+          
+          const name = nameEl?.textContent?.trim() || legalNameEl?.textContent?.trim() || brandEl?.textContent?.trim();
+          if (name) {
+            console.log(`✅ Microdata organization found: "${name}"`);
             structuredData.push({
-              name: nameEl?.textContent || legalNameEl?.textContent,
-              type: 'microdata',
-              confidence: 85
+              name: name,
+              type: 'microdata-organization',
+              confidence: 92,
+              source: `microdata_${index + 1}`
             });
           }
         });
         
-        console.log(`🏗️ Found ${structuredData.length} structured data entries`);
+        console.log(`🏗️ Total structured data entries: ${structuredData.length}`);
         
-        // Strategy 3: Meta tag analysis
-        const metaCompany = document.querySelector('meta[name="author"]')?.getAttribute('content') ||
-                           document.querySelector('meta[name="company"]')?.getAttribute('content') ||
-                           document.querySelector('meta[name="organization"]')?.getAttribute('content') ||
-                           document.querySelector('meta[property="og:site_name"]')?.getAttribute('content');
+        // PRIORITY 2: Enhanced Meta Tag Analysis
+        const metaTags = [
+          { selector: 'meta[name="author"]', confidence: 82, type: 'meta-author' },
+          { selector: 'meta[name="company"]', confidence: 90, type: 'meta-company' },
+          { selector: 'meta[name="organization"]', confidence: 88, type: 'meta-organization' },
+          { selector: 'meta[property="og:site_name"]', confidence: 85, type: 'meta-og-site' },
+          { selector: 'meta[name="application-name"]', confidence: 83, type: 'meta-app-name' },
+          { selector: 'meta[property="og:title"]', confidence: 75, type: 'meta-og-title' },
+          { selector: 'meta[name="twitter:site"]', confidence: 78, type: 'meta-twitter-site' },
+          { selector: 'meta[name="publisher"]', confidence: 87, type: 'meta-publisher' }
+        ];
         
-        if (metaCompany) {
-          console.log(`🏷️ Found meta company: "${metaCompany}"`);
+        const metaResults = [];
+        metaTags.forEach(meta => {
+          const element = document.querySelector(meta.selector);
+          const content = element?.getAttribute('content')?.trim();
+          if (content && content.length >= 2 && content.length <= 80) {
+            // Clean up meta content
+            const cleanContent = content
+              .replace(/^@/, '') // Remove @ prefix from Twitter handles
+              .replace(/\s*-.*$/, '') // Remove description suffixes
+              .trim();
+            
+            if (cleanContent && cleanContent.length >= 2) {
+              console.log(`🏷️ Found ${meta.type}: "${cleanContent}"`);
+              metaResults.push({
+                name: cleanContent,
+                type: meta.type,
+                confidence: meta.confidence,
+                source: meta.selector
+              });
+            }
+          }
+        });
+        
+        console.log(`🏷️ Total meta tag results: ${metaResults.length}`);
+        
+        // PRIORITY 3: Advanced Footer Analysis
+        const footerSelectors = [
+          'footer', '.footer', '#footer', '[class*="footer"]',
+          '.site-footer', '.page-footer', '.copyright', '[class*="copyright"]',
+          '.legal', '[class*="legal"]', '.company-info', '[class*="company"]',
+          '.about-company', '.corporate-info', '.site-info'
+        ];
+        
+        let footerTexts = [];
+        let footerElementCount = 0;
+        
+        for (const selector of footerSelectors) {
+          const elements = document.querySelectorAll(selector);
+          elements.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            const isInFooterRegion = rect.top > window.innerHeight * 0.6; // Bottom 40% of viewport
+            
+            if (isInFooterRegion || selector.includes('footer') || selector.includes('copyright')) {
+              const text = el.textContent?.trim();
+              if (text && text.length > 15) {
+                footerTexts.push(text);
+                footerElementCount++;
+              }
+            }
+          });
         }
         
-        // Strategy 4: Enhanced copyright patterns with international support
-        const allText = footerTexts.join(' ') + ' ' + document.body.textContent;
+        console.log(`📄 Found ${footerElementCount} footer elements with ${footerTexts.join(' ').length} characters`);
+        
+        // PRIORITY 4: Enhanced copyright patterns with international support
+        const allText = footerTexts.join(' ');
         
         const copyrightPatterns = [
           // Enhanced legal entity patterns with international support
@@ -478,27 +564,81 @@ export class SmokeTestService {
           /(?:™|®|℠)\s*([A-Z][\w\s&,.'-]+?(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|Co\.?|Group|Holdings|AG|GmbH|SA|SAS|SARL|Ltda\.?|S\.A\.?|Pte\.?\s*Ltd\.?|Pvt\.?\s*Ltd\.?|PLC|plc|B\.V\.?|N\.V\.?|S\.L\.?|S\.R\.L\.?|Oy|AB|AS|ApS|KG|OHG|e\.V\.?|gGmbH|UG|SE|SCE))/gi
         ];
         
-        // Check structured data first (highest confidence)
-        for (const data of structuredData) {
-          if (data.name && data.name.length >= 3 && data.name.length <= 80) {
-            console.log(`✅ Found structured data: "${data.name}"`);
-            return {
-              companyName: data.name.trim(),
-              method: `playwright_${data.type}`,
-              confidence: data.confidence,
-              source: 'structured_data'
-            };
+        // Enhanced company name validation function
+        function isValidCompanyName(name) {
+          if (!name || typeof name !== 'string') return false;
+          
+          const cleanName = name.trim();
+          if (cleanName.length < 2 || cleanName.length > 80) return false;
+          
+          // Invalid patterns
+          const invalidPatterns = [
+            /^(home|about|contact|menu|login|search|nav|button|link|image|logo)$/i,
+            /^(javascript|css|html|loading|error|404|503)$/i,
+            /^(cookie|privacy|terms|policy|gdpr)$/i,
+            /^(en|de|fr|es|it|pt|ru|cn|jp|kr)$/i, // Language codes
+            /^[0-9\s\-_.,;:!?()[\]{}'"]+$/, // Only punctuation/numbers
+            /^(www\.|\.|http|https|com|org|net|gov|edu)$/i,
+            /^[\s\-_.,;:!?()[\]{}'"]*$/
+          ];
+          
+          for (const pattern of invalidPatterns) {
+            if (pattern.test(cleanName)) return false;
           }
+          
+          // Must contain at least one letter
+          if (!/[a-zA-Z]/.test(cleanName)) return false;
+          
+          return true;
         }
         
-        // Check meta tags
-        if (metaCompany && metaCompany.length >= 3 && metaCompany.length <= 80) {
-          console.log(`✅ Found meta company: "${metaCompany}"`);
+        // PRIORITY-BASED RESULT SELECTION
+        
+        // Priority 1: High-confidence structured data
+        const highConfidenceStructured = structuredData
+          .filter(data => isValidCompanyName(data.name) && data.confidence >= 90)
+          .sort((a, b) => b.confidence - a.confidence);
+        
+        if (highConfidenceStructured.length > 0) {
+          const best = highConfidenceStructured[0];
+          console.log(`✅ HIGH CONFIDENCE: Found structured data: "${best.name}" (${best.confidence}%)`);
           return {
-            companyName: metaCompany.trim(),
-            method: 'playwright_meta',
-            confidence: 80,
-            source: 'meta_tags'
+            companyName: best.name.trim(),
+            method: `playwright_${best.type}`,
+            confidence: best.confidence,
+            source: best.source || 'structured_data'
+          };
+        }
+        
+        // Priority 2: Medium-confidence structured data
+        const mediumConfidenceStructured = structuredData
+          .filter(data => isValidCompanyName(data.name) && data.confidence >= 85)
+          .sort((a, b) => b.confidence - a.confidence);
+        
+        if (mediumConfidenceStructured.length > 0) {
+          const best = mediumConfidenceStructured[0];
+          console.log(`✅ MEDIUM CONFIDENCE: Found structured data: "${best.name}" (${best.confidence}%)`);
+          return {
+            companyName: best.name.trim(),
+            method: `playwright_${best.type}`,
+            confidence: best.confidence,
+            source: best.source || 'structured_data'
+          };
+        }
+        
+        // Priority 3: High-confidence meta tags
+        const highConfidenceMeta = metaResults
+          .filter(meta => isValidCompanyName(meta.name) && meta.confidence >= 85)
+          .sort((a, b) => b.confidence - a.confidence);
+        
+        if (highConfidenceMeta.length > 0) {
+          const best = highConfidenceMeta[0];
+          console.log(`✅ META TAG: Found "${best.name}" (${best.confidence}%)`);
+          return {
+            companyName: best.name.trim(),
+            method: `playwright_${best.type}`,
+            confidence: best.confidence,
+            source: best.source || 'meta_tags'
           };
         }
         
