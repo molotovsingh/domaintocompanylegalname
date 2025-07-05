@@ -5,6 +5,7 @@ import { gleifUpdateService } from "./services/gleifUpdateService";
 import { addWideExportRoute } from './routes-wide';
 import { addNormalizedExportRoute } from './routes-normalized';
 import knowledgeGraphRoutes from './routes-knowledge-graph';
+import smokeTestRoutes from './routes-smoke-test';
 
 const app = express();
 app.use(express.json());
@@ -47,6 +48,7 @@ app.use((req, res, next) => {
   addWideExportRoute(app);
   addNormalizedExportRoute(app);
   app.use(knowledgeGraphRoutes);
+  app.use('/api/smoke-test', smokeTestRoutes);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
