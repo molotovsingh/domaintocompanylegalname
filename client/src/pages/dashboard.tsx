@@ -12,6 +12,10 @@ import ResultsTable from "@/components/results-table";
 import ActivityFeed from "@/components/activity-feed";
 import SessionResults from "@/components/session-results";
 import SingleDomainTest from "@/components/single-domain-test";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { AlertCircle, CheckCircle, Clock, XCircle, Upload, Play, Square, BarChart3, Settings, Globe, Network, TestTube } from "lucide-react";
 
 
 export default function Dashboard() {
