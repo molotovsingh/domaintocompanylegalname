@@ -182,24 +182,7 @@ export class SmokeTestService {
           }
         }
         
-        // Strategy 2: Title extraction
-        const title = document.title;
-        if (title) {
-          const cleanTitle = title
-            .replace(/\s*[-|–]\s*.*$/, '')
-            .replace(/\s*\|\s*.*$/, '')
-            .replace(/^\s*Welcome to\s*/i, '')
-            .trim();
-          
-          if (cleanTitle.length > 3 && cleanTitle.length < 50) {
-            return {
-              companyName: cleanTitle,
-              method: 'puppeteer_title',
-              confidence: 60,
-              source: 'title'
-            };
-          }
-        }
+
         
         // Strategy 3: About us section
         const aboutSelectors = [
