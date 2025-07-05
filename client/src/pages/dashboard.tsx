@@ -12,6 +12,7 @@ import ResultsTable from "@/components/results-table";
 import ActivityFeed from "@/components/activity-feed";
 import SessionResults from "@/components/session-results";
 import SingleDomainTest from "@/components/single-domain-test";
+import RecentChanges from "@/components/recent-changes";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -223,51 +224,7 @@ export default function Dashboard() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
-              <Badge className="bg-blue-500 text-white">Feature</Badge>
-              <div className="flex-1">
-                <div className="font-medium">Smoke Testing Removed from Main Dashboard</div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  Cleaned up navigation - smoke testing now accessible via Beta Testing page and direct URL
-                </div>
-                <div className="text-xs text-blue-600 mt-1">Today, 1:15 PM</div>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
-              <Badge className="bg-green-500 text-white">System</Badge>
-              <div className="flex-1">
-                <div className="font-medium">On-Demand Beta Server Architecture</div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  Beta environment now starts automatically when accessed, with intelligent loading screens
-                </div>
-                <div className="text-xs text-green-600 mt-1">July 05, 2025</div>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3 p-3 bg-purple-50 rounded-lg">
-              <Badge className="bg-purple-500 text-white">Fix</Badge>
-              <div className="flex-1">
-                <div className="font-medium">Critical GLEIF Processing Restored</div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  Fixed confidence score database schema - Level 2 processing now working at 100% success rate
-                </div>
-                <div className="text-xs text-purple-600 mt-1">July 05, 2025</div>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3 p-3 bg-orange-50 rounded-lg">
-              <Badge className="bg-orange-500 text-white">Enhancement</Badge>
-              <div className="flex-1">
-                <div className="font-medium">Czech Republic Jurisdiction Added</div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  Comprehensive Czech legal entity recognition with 10+ business structure types
-                </div>
-                <div className="text-xs text-orange-600 mt-1">July 03, 2025</div>
-              </div>
-            </div>
-          </div>
+          <RecentChanges />
         </CardContent>
       </Card>
 
