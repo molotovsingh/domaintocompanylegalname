@@ -108,7 +108,7 @@ export default function SmokeTesting() {
     setProgress(0);
     
     const results: SmokeTestResult[] = [];
-    const methods: SmokeTestResult['method'][] = ['axios_cheerio', 'puppeteer'];
+    const methods: SmokeTestResult['method'][] = ['axios_cheerio', 'puppeteer', 'playwright'];
     
     for (let i = 0; i < methods.length; i++) {
       const method = methods[i];
@@ -137,16 +137,17 @@ export default function SmokeTesting() {
       // Run all methods for this domain
       const axiosResult = await runSingleDomainTest(domain, 'axios_cheerio');
       const puppeteerResult = await runSingleDomainTest(domain, 'puppeteer');
+      const playwrightResult = await runSingleDomainTest(domain, 'playwright');
       
       // Determine winner and analysis
-      const winner = determineWinner(axiosResult, puppeteerResult);
-      const analysis = generateAnalysis(axiosResult, puppeteerResult);
+      const winner = determineWinner(axiosResult, puppeteerResult, playwrightResult);
+      const analysis = generateAnalysis(axiosResult, puppeteerResult, playwrightResult);
       
       const comparisonResult: ComparisonResult = {
         domain,
         axiosResult,
         puppeteerResult,
-        playwrightResult: null, // Will implement later
+        playwrightResult,
         winner,
         analysis
       };
@@ -159,42 +160,69 @@ export default function SmokeTesting() {
     setIsRunning(false);
   };
 
-  const determineWinner = (axios: SmokeTestResult, puppeteer: SmokeTestResult): string => {
-    if (!axios.success && !puppeteer.success) return 'Both Failed';
-    if (axios.success && !puppeteer.success) return 'Axios/Cheerio';
-    if (!axios.success && puppeteer.success) return 'Puppeteer';
+  const determineWinner = (axios: SmokeTestResult, puppeteer: SmokeTestResult, playwright?: SmokeTestResult): string => {
+    const methods = [
+      { name: 'Axios/Cheerio', result: axios, speedBonus: axios.processingTime < 2000 ? 20 : 0 },
+      { name: 'Puppeteer', result: puppeteer, speedBonus: puppeteer.processingTime < 5000 ? 10 : 0 }
+    ];
     
-    // Both succeeded - compare quality
-    const axiosScore = (axios.confidence || 0) + (axios.processingTime < 2000 ? 20 : 0);
-    const puppeteerScore = (puppeteer.confidence || 0) + (puppeteer.processingTime < 5000 ? 10 : 0);
+    if (playwright) {
+      methods.push({ name: 'Playwright', result: playwright, speedBonus: playwright.processingTime < 5000 ? 10 : 0 });
+    }
     
-    if (axiosScore > puppeteerScore) return 'Axios/Cheerio';
-    if (puppeteerScore > axiosScore) return 'Puppeteer';
+    const successfulMethods = methods.filter(m => m.result.success);
+    
+    if (successfulMethods.length === 0) return 'All Failed';
+    if (successfulMethods.length === 1) return successfulMethods[0].name;
+    
+    // Multiple successful - compare scores
+    const scored = successfulMethods.map(m => ({
+      name: m.name,
+      score: (m.result.confidence || 0) + m.speedBonus
+    }));
+    
+    scored.sort((a, b) => b.score - a.score);
+    
+    if (scored[0].score > scored[1].score) return scored[0].name;
     return 'Tie';
   };
 
-  const generateAnalysis = (axios: SmokeTestResult, puppeteer: SmokeTestResult): string => {
+  const generateAnalysis = (axios: SmokeTestResult, puppeteer: SmokeTestResult, playwright?: SmokeTestResult): string => {
     const analyses: string[] = [];
+    const methods = [axios, puppeteer];
+    if (playwright) methods.push(playwright);
     
-    if (axios.success && puppeteer.success) {
-      analyses.push(`Both methods succeeded`);
-      if (Math.abs((axios.confidence || 0) - (puppeteer.confidence || 0)) > 20) {
-        analyses.push(`Significant confidence difference`);
-      }
-      if (puppeteer.processingTime > axios.processingTime * 3) {
-        analyses.push(`Puppeteer 3x+ slower`);
-      }
+    const successCount = methods.filter(m => m.success).length;
+    
+    if (successCount === methods.length) {
+      analyses.push(`All ${methods.length} methods succeeded`);
+    } else if (successCount === 2) {
+      analyses.push(`Two methods succeeded`);
+    } else if (successCount === 1) {
+      analyses.push(`Only one method succeeded`);
     }
     
-    if (!axios.success && puppeteer.success) {
-      analyses.push(`Puppeteer bypassed protection/issues`);
+    // Check for protection bypassing
+    if (!axios.success && (puppeteer.success || playwright?.success)) {
+      analyses.push(`Browser methods bypassed protection`);
     }
     
-    if (axios.success && !puppeteer.success) {
-      analyses.push(`Axios sufficient for this domain`);
+    // Check for structured data advantages
+    if (playwright?.extractionMethod?.includes('json-ld') || 
+        playwright?.extractionMethod?.includes('microdata')) {
+      analyses.push(`Playwright found structured data`);
     }
     
-    if (axios.connectivity === 'protected' || puppeteer.connectivity === 'protected') {
+    // Performance analysis
+    const times = methods.map(m => m.processingTime);
+    const maxTime = Math.max(...times);
+    const minTime = Math.min(...times);
+    
+    if (maxTime > minTime * 5) {
+      analyses.push(`Significant performance difference`);
+    }
+    
+    if (methods.some(m => m.connectivity === 'protected' || m.error?.includes('cloudflare'))) {
       analyses.push(`Anti-bot protection detected`);
     }
     
@@ -286,7 +314,7 @@ export default function SmokeTesting() {
               </div>
 
               {singleResults.length > 0 && (
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {singleResults.map((result, index) => (
                     <Card key={index} className="border-l-4 border-l-blue-500">
                       <CardHeader className="pb-3">
@@ -358,7 +386,7 @@ export default function SmokeTesting() {
                         <CardDescription>{result.analysis}</CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="grid gap-4 md:grid-cols-2">
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                           {result.axiosResult && (
                             <div className="p-3 border rounded">
                               <div className="flex items-center justify-between mb-2">
@@ -391,6 +419,27 @@ export default function SmokeTesting() {
                                 <div>Company: {result.puppeteerResult.companyName || 'Not found'}</div>
                                 <div>Confidence: {result.puppeteerResult.confidence}%</div>
                                 <div>Time: {result.puppeteerResult.processingTime}ms</div>
+                              </div>
+                            </div>
+                          )}
+
+                          {result.playwrightResult && (
+                            <div className="p-3 border rounded">
+                              <div className="flex items-center justify-between mb-2">
+                                <Badge className="bg-green-500">Playwright</Badge>
+                                {result.playwrightResult.success ? (
+                                  <CheckCircle className="w-4 h-4 text-green-500" />
+                                ) : (
+                                  <XCircle className="w-4 h-4 text-red-500" />
+                                )}
+                              </div>
+                              <div className="text-sm space-y-1">
+                                <div>Company: {result.playwrightResult.companyName || 'Not found'}</div>
+                                <div>Confidence: {result.playwrightResult.confidence}%</div>
+                                <div>Time: {result.playwrightResult.processingTime}ms</div>
+                                {result.playwrightResult.extractionMethod && (
+                                  <div>Method: {result.playwrightResult.extractionMethod}</div>
+                                )}
                               </div>
                             </div>
                           )}
