@@ -603,7 +603,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         processingTimeMs: result.processingTimeMs,
         failureCategory: result.failureCategory,
         errorMessage: result.errorMessage,
-        recommendation: result.recommendation
+        recommendation: result.recommendation,
+        // GLEIF Assessment Results
+        level2Status: result.level2Status,
+        level2CandidatesCount: result.level2CandidatesCount,
+        primaryLeiCode: result.primaryLeiCode,
+        primaryGleifName: result.primaryGleifName,
+        finalLegalName: result.finalLegalName,
+        primarySelectionConfidence: result.primarySelectionConfidence,
+        selectionAlgorithm: result.selectionAlgorithm,
+        // Geographic Intelligence
+        guessedCountry: result.guessedCountry,
+        geographicPresence: result.geographicPresence
       });
 
     } catch (error: any) {

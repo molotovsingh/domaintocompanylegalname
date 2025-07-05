@@ -122,7 +122,14 @@ export default function SingleDomainTest({ onTestCompleted }: SingleDomainTestPr
               <div className="space-y-1 text-sm">
                 <div>
                   <span className="text-gray-600">Company:</span>
-                  <span className="ml-2 font-medium">{lastResult.companyName || 'N/A'}</span>
+                  <span className="ml-2 font-medium">
+                    {lastResult.finalLegalName || lastResult.primaryGleifName || lastResult.companyName || 'N/A'}
+                  </span>
+                  {lastResult.finalLegalName && lastResult.companyName && lastResult.finalLegalName !== lastResult.companyName && (
+                    <div className="ml-2 text-xs text-gray-500">
+                      Original: {lastResult.companyName}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <span className="text-gray-600">Method:</span>
@@ -136,6 +143,67 @@ export default function SingleDomainTest({ onTestCompleted }: SingleDomainTestPr
                   <span className="text-gray-600">Time:</span>
                   <span className="ml-2">{lastResult.processingTimeMs || 0}ms</span>
                 </div>
+                
+                {/* GLEIF Assessment Section */}
+                {lastResult.level2Status && (
+                  <>
+                    <div className="border-t pt-2 mt-2">
+                      <div className="font-medium text-gray-700 mb-1">GLEIF Assessment</div>
+                      <div>
+                        <span className="text-gray-600">GLEIF Status:</span>
+                        <span className="ml-2">
+                          {lastResult.level2Status === 'success' ? (
+                            <Badge className="bg-green-100 text-green-800 border-green-200">
+                              <CheckCircle className="mr-1 h-3 w-3" />
+                              Verified
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary">
+                              {lastResult.level2Status}
+                            </Badge>
+                          )}
+                        </span>
+                      </div>
+                      {lastResult.primaryLeiCode && (
+                        <div>
+                          <span className="text-gray-600">LEI Code:</span>
+                          <span className="ml-2 font-mono text-xs">{lastResult.primaryLeiCode}</span>
+                        </div>
+                      )}
+                      {lastResult.level2CandidatesCount && (
+                        <div>
+                          <span className="text-gray-600">GLEIF Candidates:</span>
+                          <span className="ml-2">{lastResult.level2CandidatesCount}</span>
+                        </div>
+                      )}
+                      {lastResult.primarySelectionConfidence && (
+                        <div>
+                          <span className="text-gray-600">Selection Confidence:</span>
+                          <span className="ml-2">{lastResult.primarySelectionConfidence}%</span>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+                
+                {/* Geographic Intelligence */}
+                {(lastResult.guessedCountry || lastResult.geographicPresence) && (
+                  <div className="border-t pt-2 mt-2">
+                    <div className="font-medium text-gray-700 mb-1">Geographic Intelligence</div>
+                    {lastResult.guessedCountry && (
+                      <div>
+                        <span className="text-gray-600">Country:</span>
+                        <span className="ml-2">{lastResult.guessedCountry}</span>
+                      </div>
+                    )}
+                    {lastResult.geographicPresence && (
+                      <div>
+                        <span className="text-gray-600">Geographic Markers:</span>
+                        <span className="ml-2 text-xs">{lastResult.geographicPresence}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
