@@ -53,7 +53,7 @@ export default function BetaTesting() {
 
   const loadExperiments = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/beta/experiments');
+      const response = await fetch('/api/beta/experiments');
       const data = await response.json();
       if (data.success) {
         setExperiments(data.experiments);
@@ -65,7 +65,7 @@ export default function BetaTesting() {
 
   const loadSmokeTestResults = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/beta/smoke-test/results');
+      const response = await fetch('/api/beta/smoke-test/results');
       const data = await response.json();
       if (data.success) {
         setSmokeTestResults(data.results);
@@ -78,7 +78,7 @@ export default function BetaTesting() {
   const runBetaSmokeTest = async (domain: string, method: string) => {
     try {
       const startTime = Date.now();
-      const response = await fetch('http://localhost:3001/api/beta/smoke-test', {
+      const response = await fetch('/api/beta/smoke-test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ domain, method })

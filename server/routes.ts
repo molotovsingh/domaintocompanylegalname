@@ -1077,6 +1077,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Beta Testing API Routes (proxy to beta server)
+  app.get('/api/beta/experiments', async (req, res) => {
+    try {
+      const response = await axios.get('http://localhost:3001/api/beta/experiments');
+      res.json(response.data);
+    } catch (error) {
+      res.status(500).json({ success: false, error: 'Beta server unavailable' });
+    }
+  });
+
+  app.get('/api/beta/smoke-test/results', async (req, res) => {
+    try {
+      const response = await axios.get('http://localhost:3001/api/beta/smoke-test/results');
+      res.json(response.data);
+    } catch (error) {
+      res.status(500).json({ success: false, error: 'Beta server unavailable' });
+    }
+  });
+
+  app.post('/api/beta/smoke-test', async (req, res) => {
+    try {
+      const response = await axios.post('http://localhost:3001/api/beta/smoke-test', req.body, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      res.json(response.data);
+    } catch (error) {
+      res.status(500).json({ success: false, error: 'Beta server unavailable' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
