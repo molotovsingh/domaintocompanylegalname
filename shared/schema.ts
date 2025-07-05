@@ -28,6 +28,25 @@ export const domains = pgTable("domains", {
   entityCategoryConfidence: integer('entity_category_confidence'),
   entityCategoryIndicators: text('entity_category_indicators'), // JSON array of indicators
 
+  // Geographic Intelligence Collection
+  geographicPresence: text('geographic_presence'), // JSON string of GeographicMarkers
+  businessScale: text('business_scale'),
+  corporateStructure: text('corporate_structure'),
+  industryContext: text('industry_context'),
+  businessFocusKeywords: text('business_focus_keywords'),
+  corporateHeritage: text('corporate_heritage'),
+  primaryBusinessDescription: text('primary_business_description'),
+  heroSectionContent: text('hero_section_content'),
+  aboutSectionSummary: text('about_section_summary'),
+  corporateTimeline: text('corporate_timeline'),
+  businessCategory: text('business_category'),
+  businessSubcategory: text('business_subcategory'),
+  marketPosition: text('market_position'),
+  companyType: text('company_type'),
+  contentSources: text('content_sources'),
+  extractionTimestamp: timestamp('extraction_timestamp'),
+  contentQualityScore: integer('content_quality_score'),
+
   // Level 2 GLEIF Enhancement Fields (V2 - Backward Compatible)
   level2Attempted: boolean("level2_attempted").default(false),
   level2Status: text("level2_status"), // 'success', 'multiple_candidates', 'failed', 'not_applicable'

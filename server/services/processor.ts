@@ -55,9 +55,20 @@ export class BatchProcessor {
       }
 
       // Extract focus jurisdiction from Level 1 results for targeted GLEIF search
-      const focusJurisdiction = domain.geographicMarkers?.focusJurisdiction?.jurisdiction;
-      const focusConfidence = domain.geographicMarkers?.focusJurisdiction?.confidence;
-      const alternatives = domain.geographicMarkers?.focusJurisdiction?.alternatives;
+      let focusJurisdiction = null;
+      let focusConfidence = null;
+      let alternatives = null;
+      
+      if (domain.geographicPresence) {
+        try {
+          const parsedGeo = JSON.parse(domain.geographicPresence);
+          focusJurisdiction = parsedGeo?.focusJurisdiction?.jurisdiction;
+          focusConfidence = parsedGeo?.focusJurisdiction?.confidence;
+          alternatives = parsedGeo?.focusJurisdiction?.alternatives;
+        } catch (e) {
+          // Handle invalid JSON gracefully
+        }
+      }
 
       console.log(`Level 2 GLEIF search for ${domain.domain} - Focus: ${focusJurisdiction} (${focusConfidence}%)`);
 
@@ -526,7 +537,14 @@ export class BatchProcessor {
         extractionAttempts: result.extractionAttempts ? JSON.stringify(result.extractionAttempts) : null,
         recommendation: result.recommendation,
         processedAt: new Date(),
-        processingTimeMs: processingTime
+        processingTimeMs: processingTime,
+        // Geographic data storage
+        guessedCountry: result.guessedCountry || null,
+        geographicPresence: result.geographicMarkers ? JSON.stringify(result.geographicMarkers) : null,
+        // Entity category data storage
+        predictedEntityCategory: result.entityCategory?.primaryCategory || null,
+        entityCategoryConfidence: result.entityCategory?.confidence || null,
+        entityCategoryIndicators: result.entityCategory?.indicators ? JSON.stringify(result.entityCategory.indicators) : null
       });
 
     } catch (error: any) {
@@ -702,7 +720,14 @@ export class BatchProcessor {
         extractionAttempts: result.extractionAttempts ? JSON.stringify(result.extractionAttempts) : null,
         recommendation: result.recommendation,
         processedAt: new Date(),
-        processingTimeMs: processingTime
+        processingTimeMs: processingTime,
+        // Geographic data storage
+        guessedCountry: result.guessedCountry || null,
+        geographicPresence: result.geographicMarkers ? JSON.stringify(result.geographicMarkers) : null,
+        // Entity category data storage
+        predictedEntityCategory: result.entityCategory?.primaryCategory || null,
+        entityCategoryConfidence: result.entityCategory?.confidence || null,
+        entityCategoryIndicators: result.entityCategory?.indicators ? JSON.stringify(result.entityCategory.indicators) : null
       });
 
     } catch (error: any) {

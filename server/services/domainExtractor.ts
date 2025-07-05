@@ -867,8 +867,26 @@ export class DomainExtractor {
       });
 
       if (domainResult.companyName && this.isValidCompanyName(domainResult.companyName)) {
+        // Try to get geographic data from HTML even if company name came from domain parse
+        let geographicData = {};
+        try {
+          const htmlResponse = await axios.get(`https://${cleanDomain}`, {
+            timeout: 3000,
+            headers: { 'User-Agent': this.userAgent },
+            maxRedirects: 3
+          });
+          const $ = cheerio.load(htmlResponse.data);
+          const geographicMarkers = this.extractGeographicMarkers($, cleanDomain);
+          const guessedCountry = this.guessCountryFromMarkers(geographicMarkers, cleanDomain);
+          const entityCategory = this.predictEntityCategory(cleanDomain, domainResult.companyName, $);
+          geographicData = { geographicMarkers, guessedCountry, entityCategory };
+        } catch (error) {
+          // HTML not available, continue without geographic data
+        }
+
         return {
           ...domainResult,
+          ...geographicData,
           connectivity: 'reachable',
           failureCategory: 'success',
           extractionAttempts
@@ -1405,6 +1423,8 @@ export class DomainExtractor {
           companyName,
           method: 'meta_description',
           confidence: this.calculateConfidence(companyName, 'meta_description'),
+          geographicMarkers,
+          guessedCountry,
           entityCategory
         };
       }
@@ -1427,16 +1447,29 @@ export class DomainExtractor {
         const text = element.text().trim();
         const companyName = this.cleanCompanyName(text);
         if (companyName && this.isValidCompanyName(companyName)) {
+          const entityCategory = this.predictEntityCategory(domain, companyName, $);
           return {
             companyName,
             method: 'html_title',
             confidence: this.calculateConfidence(companyName, 'html_title') - 10,
+            geographicMarkers,
+            guessedCountry,
+            entityCategory
           };
         }
       }
     }
 
-    return { companyName: null, method: 'html_title', confidence: 0 };
+    // Return geographic data even if no company name found
+    const entityCategory = this.predictEntityCategory(domain, null, $);
+    return { 
+      companyName: null, 
+      method: 'html_title', 
+      confidence: 0,
+      geographicMarkers,
+      guessedCountry,
+      entityCategory
+    };
   }
 
   private extractFromDomain(domain: string): ExtractionResult {
