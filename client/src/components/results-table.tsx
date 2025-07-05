@@ -12,6 +12,23 @@ import { apiRequest } from "@/lib/queryClient";
 import GLEIFCandidatesModal from "./gleif-candidates-modal";
 import type { Domain } from "@shared/schema";
 
+interface ResultsResponse {
+  domains: Domain[];
+  batch?: {
+    id: string;
+    fileName: string;
+    domainCount: number;
+    processedCount: number;
+    successCount: number;
+  };
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
 interface ResultsTableProps {
   currentBatchId: string | null;
 }
@@ -30,10 +47,29 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
     ...(searchQuery && { search: searchQuery })
   });
 
-  const { data: resultsData, isLoading, refetch: refetchResults } = useQuery({
+  const { data: resultsData, isLoading, refetch: refetchResults } = useQuery<ResultsResponse>({
     queryKey: [`/api/results/${currentBatchId}?${params}`],
     enabled: !!currentBatchId,
   });
+
+  const domains = resultsData?.domains || [];
+  const batch = resultsData?.batch;
+  const pagination = resultsData?.pagination;
+
+  // Check if any domains are still processing
+  const hasProcessingDomains = domains.some((d: Domain) => 
+    d.status === 'processing' || d.status === 'pending'
+  );
+
+  // Auto-refresh when domains are processing
+  React.useEffect(() => {
+    if (hasProcessingDomains) {
+      const interval = setInterval(() => {
+        refetchResults();
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [hasProcessingDomains, refetchResults]);
 
   const handleRefresh = () => {
     refetchResults();
@@ -42,10 +78,6 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
       description: "Latest extraction results loaded",
     });
   };
-
-  const domains = resultsData?.domains || [];
-  const batch = resultsData?.batch;
-  const pagination = resultsData?.pagination;
 
   const handleExport = async (format: 'csv' | 'json') => {
     if (!batch?.id) return;
@@ -171,8 +203,19 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
             <h2 className="text-lg font-medium text-gray-900 flex items-center">
               <Table className="text-primary-custom mr-2 h-5 w-5" />
               Extraction Results
+              {hasProcessingDomains && (
+                <span className="ml-2 text-sm font-normal text-blue-600 flex items-center">
+                  <Clock className="h-4 w-4 mr-1 animate-pulse" />
+                  Processing...
+                </span>
+              )}
             </h2>
-            <p className="text-sm text-gray-600 mt-1">Latest processed domains with confidence scores</p>
+            <p className="text-sm text-gray-600 mt-1">
+              {hasProcessingDomains 
+                ? `Processing ${domains.filter(d => d.status === 'processing' || d.status === 'pending').length} domains...`
+                : 'Latest processed domains with confidence scores'
+              }
+            </p>
           </div>
           <div className="flex space-x-2">
             <Button
@@ -184,29 +227,33 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
               <RefreshCw className="h-4 w-4" />
               Refresh
             </Button>
-            <Button
-              onClick={() => handleExport('csv')}
-              className="bg-success hover:bg-green-700 text-white"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Export CSV
-            </Button>
-            <Button
-              onClick={() => handleExport('json')}
-              variant="outline"
-              className="text-secondary-custom border-gray-300 hover:bg-gray-50"
-            >
-              <FileCode className="mr-2 h-4 w-4" />
-              Export JSON
-            </Button>
-            <Button
-              onClick={() => handleEnhancedExport('csv')}
-              variant="outline"
-              className="text-secondary-custom border-gray-300 hover:bg-gray-50"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Enhanced Export
-            </Button>
+            {!hasProcessingDomains && domains.length > 0 && (
+              <>
+                <Button
+                  onClick={() => handleExport('csv')}
+                  className="bg-success hover:bg-green-700 text-white"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Export CSV
+                </Button>
+                <Button
+                  onClick={() => handleExport('json')}
+                  variant="outline"
+                  className="text-secondary-custom border-gray-300 hover:bg-gray-50"
+                >
+                  <FileCode className="mr-2 h-4 w-4" />
+                  Export JSON
+                </Button>
+                <Button
+                  onClick={() => handleEnhancedExport('csv')}
+                  variant="outline"
+                  className="text-secondary-custom border-gray-300 hover:bg-gray-50"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Enhanced Export
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

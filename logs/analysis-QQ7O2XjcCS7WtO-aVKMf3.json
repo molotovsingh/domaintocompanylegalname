@@ -1,0 +1,59 @@
+{
+  "batchId": "QQ7O2XjcCS7WtO-aVKMf3",
+  "analysisGeneratedAt": "2025-07-05T01:19:47.080Z",
+  "overview": {
+    "duration": 32811,
+    "finalStatus": {
+      "processed": 10,
+      "successful": 6,
+      "failed": 4,
+      "totalTimeMs": 32863,
+      "averageTimePerDomain": 3286.3,
+      "successRate": 60,
+      "completedAt": "2025-07-05T01:19:47.074Z"
+    },
+    "progressCheckpoints": 4,
+    "totalEvents": 16
+  },
+  "timeline": [
+    {
+      "timestamp": "2025-07-05T01:19:14.263Z",
+      "event": "batch_start",
+      "context": {
+        "fileName": "random20_3 - Sheet1.csv",
+        "totalDomains": 10,
+        "uploadedAt": "2025-07-05T01:19:13.742Z",
+        "processingStarted": "2025-07-05T01:19:14.263Z",
+        "configuration": {
+          "concurrency": 3,
+          "timeoutMs": 25000,
+          "retryAttempts": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2025-07-05T01:19:47.074Z",
+      "event": "batch_complete",
+      "context": {
+        "processed": 10,
+        "successful": 6,
+        "failed": 4,
+        "totalTimeMs": 32863,
+        "averageTimePerDomain": 3286.3,
+        "successRate": 60,
+        "completedAt": "2025-07-05T01:19:47.074Z"
+      }
+    }
+  ],
+  "performance": {
+    "totalProcessed": 0,
+    "successCount": 0,
+    "failureCount": 0,
+    "timeoutCount": 0,
+    "averageProcessingTime": 0,
+    "commonFailureReasons": {},
+    "performanceByTimeOfDay": {}
+  },
+  "anomalies": [],
+  "recommendations": []
+}
