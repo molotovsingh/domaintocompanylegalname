@@ -252,7 +252,9 @@ export default function AnalyticsDashboard() {
                   <div className={`w-2 h-2 rounded-full ${index === 0 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
                   <div>
                     <p className="font-medium text-sm">{batch.fileName}</p>
-                    <p className="text-xs text-gray-600">{format(new Date(batch.completedAt), 'MMM dd, HH:mm')}</p>
+                    <p className="text-xs text-gray-600">
+                      {batch.completedAt ? format(new Date(batch.completedAt), 'MMM dd, HH:mm') : 'In progress'}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
