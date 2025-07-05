@@ -44,13 +44,29 @@ const getTextColor = (type: string) => {
 };
 
 export default function RecentChanges() {
-  const { data: changesData } = useQuery({
+  const { data: changesData, error, isLoading } = useQuery({
     queryKey: ["/api/changes"],
     refetchInterval: 30000,
     staleTime: 15000,
   });
 
   const changes = changesData?.changes || [];
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-6 text-muted-foreground">
+        <p>Loading recent changes...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-6 text-red-600">
+        <p>Error loading changes: {error.message}</p>
+      </div>
+    );
+  }
 
   if (changes.length === 0) {
     return (
