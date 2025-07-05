@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { 
-  Flask, 
+  Beaker, 
   TestTube, 
   Zap, 
   Shield, 
@@ -144,7 +144,7 @@ export default function BetaTesting() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold flex items-center">
-            <Flask className="w-8 h-8 mr-3 text-blue-500" />
+            <Beaker className="w-8 h-8 mr-3 text-blue-500" />
             Beta Testing Platform
           </h1>
           <p className="text-muted-foreground mt-2">
@@ -329,7 +329,7 @@ export default function BetaTesting() {
                     ))}
                   </div>
                 </div>
-              )}</div>
+              )}
 
               {smokeTestResults.length > 0 && (
                 <div className="space-y-2">

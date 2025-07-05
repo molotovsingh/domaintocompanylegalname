@@ -15,7 +15,7 @@ import SingleDomainTest from "@/components/single-domain-test";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { AlertCircle, CheckCircle, Clock, XCircle, Upload, Play, Square, Settings, TestTube, Flask } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, XCircle, Upload, Play, Square, Settings, TestTube, Beaker } from "lucide-react";
 
 
 export default function Dashboard() {

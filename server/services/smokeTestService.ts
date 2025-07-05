@@ -192,8 +192,7 @@ export class SmokeTestService {
           const allTextNodes = document.createTreeWalker(
             document.body,
             NodeFilter.SHOW_TEXT,
-            null,
-            false
+            null
           );
           
           const bottomTexts = [];
@@ -204,7 +203,7 @@ export class SmokeTestService {
               const rect = parent.getBoundingClientRect();
               const elementTop = rect.top + window.scrollY;
               
-              if (elementTop >= bottom10PercentStart && node.textContent.trim().length > 10) {
+              if (elementTop >= bottom10PercentStart && node.textContent && node.textContent.trim().length > 10) {
                 bottomTexts.push(node.textContent.trim());
               }
             }
