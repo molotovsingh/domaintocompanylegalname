@@ -21,6 +21,7 @@ interface SmokeTestResult {
   connectivity?: string;
   failureCategory?: string;
   recommendation?: string;
+  technicalDetails?: string;
 }
 
 interface ComparisonResult {

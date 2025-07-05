@@ -336,16 +336,286 @@ export class SmokeTestService {
   }
 
   async testWithPlaywright(domain: string): Promise<SmokeTestResult> {
-    // Placeholder for Playwright implementation
-    return {
-      domain,
-      method: 'playwright',
-      companyName: null,
-      confidence: 0,
-      processingTime: 0,
-      success: false,
-      error: 'Playwright not implemented yet'
-    };
+    const startTime = Date.now();
+    
+    try {
+      console.log(`Testing ${domain} with Playwright`);
+      
+      // Dynamic import for Playwright
+      const { chromium } = await import('playwright');
+      
+      const browser = await chromium.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--disable-gpu',
+          '--disable-web-security',
+          '--disable-features=VizDisplayCompositor'
+        ]
+      });
+      
+      const context = await browser.newContext({
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        viewport: { width: 1920, height: 1080 },
+        locale: 'en-US',
+        timezoneId: 'America/New_York'
+      });
+      
+      const page = await context.newPage();
+      
+      // Set reasonable timeouts
+      page.setDefaultTimeout(15000);
+      page.setDefaultNavigationTimeout(15000);
+      
+      // Navigate to the page
+      const url = domain.startsWith('http') ? domain : `https://${domain}`;
+      await page.goto(url, { waitUntil: 'domcontentloaded' });
+      
+      // Wait for dynamic content and scroll to bottom to trigger lazy loading
+      await page.waitForTimeout(2000);
+      await page.evaluate(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+      await page.waitForTimeout(1000);
+      
+      // Enhanced extraction with multiple strategies
+      const extractionResult = await page.evaluate(() => {
+        console.log('🎭 PLAYWRIGHT: Starting multi-strategy extraction');
+        
+        // Strategy 1: Advanced footer analysis with structured data
+        const footerSelectors = [
+          'footer',
+          '.footer',
+          '#footer',
+          '[class*="footer"]',
+          '.site-footer',
+          '.page-footer',
+          '.copyright',
+          '[class*="copyright"]',
+          '.legal',
+          '[class*="legal"]',
+          '.company-info',
+          '[class*="company"]',
+          '.about-us',
+          '[class*="about"]'
+        ];
+        
+        let footerTexts = [];
+        for (const selector of footerSelectors) {
+          const elements = document.querySelectorAll(selector);
+          elements.forEach(el => {
+            const text = el.textContent?.trim();
+            if (text && text.length > 20) {
+              footerTexts.push(text);
+            }
+          });
+        }
+        
+        console.log(`📄 Found ${footerTexts.length} footer sections`);
+        
+        // Strategy 2: Structured data extraction (JSON-LD, microdata)
+        const structuredData = [];
+        
+        // JSON-LD extraction
+        const jsonLdScripts = document.querySelectorAll('script[type="application/ld+json"]');
+        jsonLdScripts.forEach(script => {
+          try {
+            const data = JSON.parse(script.textContent || '');
+            if (data.name || data.legalName || data.organizationName) {
+              structuredData.push({
+                name: data.name || data.legalName || data.organizationName,
+                type: 'json-ld',
+                confidence: 90
+              });
+            }
+          } catch (e) {
+            // Ignore invalid JSON
+          }
+        });
+        
+        // Microdata extraction
+        const microdataElements = document.querySelectorAll('[itemtype*="Organization"]');
+        microdataElements.forEach(el => {
+          const nameEl = el.querySelector('[itemprop="name"]');
+          const legalNameEl = el.querySelector('[itemprop="legalName"]');
+          if (nameEl || legalNameEl) {
+            structuredData.push({
+              name: nameEl?.textContent || legalNameEl?.textContent,
+              type: 'microdata',
+              confidence: 85
+            });
+          }
+        });
+        
+        console.log(`🏗️ Found ${structuredData.length} structured data entries`);
+        
+        // Strategy 3: Meta tag analysis
+        const metaCompany = document.querySelector('meta[name="author"]')?.getAttribute('content') ||
+                           document.querySelector('meta[name="company"]')?.getAttribute('content') ||
+                           document.querySelector('meta[name="organization"]')?.getAttribute('content') ||
+                           document.querySelector('meta[property="og:site_name"]')?.getAttribute('content');
+        
+        if (metaCompany) {
+          console.log(`🏷️ Found meta company: "${metaCompany}"`);
+        }
+        
+        // Strategy 4: Enhanced copyright patterns with international support
+        const allText = footerTexts.join(' ') + ' ' + document.body.textContent;
+        
+        const copyrightPatterns = [
+          // Enhanced legal entity patterns with international support
+          /©\s*\d{4}[^A-Za-z]*([A-Z][\w\s&,.'-]+?(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|Co\.?|Group|Holdings|AG|GmbH|SA|SAS|SARL|Ltda\.?|S\.A\.?|Pte\.?\s*Ltd\.?|Pvt\.?\s*Ltd\.?|PLC|plc|B\.V\.?|N\.V\.?|S\.L\.?|S\.R\.L\.?|Oy|AB|AS|ApS|KG|OHG|e\.V\.?|gGmbH|UG|SE|SCE))/gi,
+          
+          // Multi-language copyright patterns
+          /(?:copyright|©|℗|copyrights?|tous droits réservés|alle rechte vorbehalten|todos los derechos reservados|tutti i diritti riservati|版权所有|著作権)\s*(?:©|℗)?\s*\d{4}[^A-Za-z]*([A-Z][\w\s&,.'-]+?(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|Co\.?|Group|Holdings|AG|GmbH|SA|SAS|SARL|Ltda\.?|S\.A\.?|Pte\.?\s*Ltd\.?|Pvt\.?\s*Ltd\.?|PLC|plc|B\.V\.?|N\.V\.?|S\.L\.?|S\.R\.L\.?|Oy|AB|AS|ApS|KG|OHG|e\.V\.?|gGmbH|UG|SE|SCE))/gi,
+          
+          // Trademark patterns
+          /(?:™|®|℠)\s*([A-Z][\w\s&,.'-]+?(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|Co\.?|Group|Holdings|AG|GmbH|SA|SAS|SARL|Ltda\.?|S\.A\.?|Pte\.?\s*Ltd\.?|Pvt\.?\s*Ltd\.?|PLC|plc|B\.V\.?|N\.V\.?|S\.L\.?|S\.R\.L\.?|Oy|AB|AS|ApS|KG|OHG|e\.V\.?|gGmbH|UG|SE|SCE))/gi
+        ];
+        
+        // Check structured data first (highest confidence)
+        for (const data of structuredData) {
+          if (data.name && data.name.length >= 3 && data.name.length <= 80) {
+            console.log(`✅ Found structured data: "${data.name}"`);
+            return {
+              companyName: data.name.trim(),
+              method: `playwright_${data.type}`,
+              confidence: data.confidence,
+              source: 'structured_data'
+            };
+          }
+        }
+        
+        // Check meta tags
+        if (metaCompany && metaCompany.length >= 3 && metaCompany.length <= 80) {
+          console.log(`✅ Found meta company: "${metaCompany}"`);
+          return {
+            companyName: metaCompany.trim(),
+            method: 'playwright_meta',
+            confidence: 80,
+            source: 'meta_tags'
+          };
+        }
+        
+        // Check copyright patterns
+        for (let i = 0; i < copyrightPatterns.length; i++) {
+          const pattern = copyrightPatterns[i];
+          const matches = [...allText.matchAll(pattern)];
+          
+          console.log(`🔍 Pattern ${i + 1}: Found ${matches.length} matches`);
+          
+          if (matches.length > 0) {
+            for (const match of matches) {
+              let companyName = match[1]?.trim();
+              if (companyName) {
+                // Clean up the company name
+                companyName = companyName
+                  .replace(/^\s*-\s*/, '')
+                  .replace(/\s*all rights reserved.*$/i, '')
+                  .replace(/\s*tous droits réservés.*$/i, '')
+                  .replace(/\s*alle rechte vorbehalten.*$/i, '')
+                  .replace(/\s*\.\s*$/, '')
+                  .replace(/\s*,\s*$/, '')
+                  .trim();
+                
+                // Enhanced validation
+                if (companyName.length >= 3 && 
+                    companyName.length <= 80 && 
+                    !companyName.toLowerCase().includes('javascript') &&
+                    !companyName.toLowerCase().includes('loading') &&
+                    !companyName.toLowerCase().includes('menu') &&
+                    !companyName.toLowerCase().includes('button') &&
+                    !companyName.toLowerCase().includes('cookie') &&
+                    !companyName.toLowerCase().includes('privacy') &&
+                    !/^\d+$/.test(companyName)) {
+                  
+                  console.log(`✅ Found valid company: "${companyName}"`);
+                  
+                  return {
+                    companyName,
+                    method: `playwright_copyright_${i + 1}`,
+                    confidence: 85 - (i * 5), // Slightly lower confidence for later patterns
+                    source: 'copyright_extraction'
+                  };
+                }
+              }
+            }
+          }
+        }
+        
+        // Strategy 5: Advanced header analysis (company logos, nav branding)
+        const headerSelectors = [
+          'header .logo',
+          '.header .logo',
+          '.navbar .brand',
+          '.navigation .brand',
+          '.masthead .company',
+          '[class*="logo"] img[alt]',
+          '.brand-name',
+          '.company-name',
+          'h1.company',
+          '.site-title'
+        ];
+        
+        for (const selector of headerSelectors) {
+          const elements = document.querySelectorAll(selector);
+          elements.forEach(el => {
+            const text = el.textContent?.trim() || el.getAttribute('alt')?.trim();
+            if (text && text.length >= 3 && text.length <= 50 && 
+                !text.toLowerCase().includes('logo') && 
+                !text.toLowerCase().includes('image')) {
+              console.log(`✅ Found header brand: "${text}"`);
+              return {
+                companyName: text,
+                method: 'playwright_header_brand',
+                confidence: 75,
+                source: 'header_branding'
+              };
+            }
+          });
+        }
+        
+        console.log('❌ No extraction successful');
+        return {
+          companyName: null,
+          method: 'playwright_failed',
+          confidence: 0,
+          source: 'extraction_failed'
+        };
+      });
+      
+      await browser.close();
+      const processingTime = Date.now() - startTime;
+      
+      return {
+        domain,
+        method: 'playwright',
+        companyName: extractionResult.companyName,
+        confidence: extractionResult.confidence,
+        processingTime,
+        success: !!extractionResult.companyName,
+        extractionMethod: extractionResult.method,
+        technicalDetails: `Extracted from ${extractionResult.source}`
+      };
+      
+    } catch (error) {
+      console.error(`Playwright test failed for ${domain}:`, error);
+      return {
+        domain,
+        method: 'playwright',
+        companyName: null,
+        confidence: 0,
+        processingTime: Date.now() - startTime,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        technicalDetails: 'Playwright navigation or extraction failed'
+      };
+    }
   }
 
   async runSingleTest(domain: string, method: SmokeTestResult['method']): Promise<SmokeTestResult> {
@@ -366,30 +636,43 @@ export class SmokeTestService {
   async runComparison(domain: string): Promise<{
     axiosResult: SmokeTestResult;
     puppeteerResult: SmokeTestResult;
+    playwrightResult: SmokeTestResult;
     winner: string;
     analysis: string;
   }> {
     console.log(`Running comparison test for ${domain}`);
     
-    const [axiosResult, puppeteerResult] = await Promise.all([
+    const [axiosResult, puppeteerResult, playwrightResult] = await Promise.all([
       this.testWithAxiosCheerio(domain),
-      this.testWithPuppeteer(domain)
+      this.testWithPuppeteer(domain),
+      this.testWithPlaywright(domain)
     ]);
     
-    // Determine winner
-    let winner = 'Both Failed';
-    if (axiosResult.success && !puppeteerResult.success) {
-      winner = 'Axios/Cheerio';
-    } else if (!axiosResult.success && puppeteerResult.success) {
-      winner = 'Puppeteer';
-    } else if (axiosResult.success && puppeteerResult.success) {
-      const axiosScore = axiosResult.confidence + (axiosResult.processingTime < 2000 ? 20 : 0);
-      const puppeteerScore = puppeteerResult.confidence + (puppeteerResult.processingTime < 5000 ? 10 : 0);
+    // Determine winner with three-way comparison
+    const results = [
+      { name: 'Axios/Cheerio', result: axiosResult, speedBonus: axiosResult.processingTime < 2000 ? 20 : 0 },
+      { name: 'Puppeteer', result: puppeteerResult, speedBonus: puppeteerResult.processingTime < 5000 ? 10 : 0 },
+      { name: 'Playwright', result: playwrightResult, speedBonus: playwrightResult.processingTime < 5000 ? 10 : 0 }
+    ];
+    
+    const successfulResults = results.filter(r => r.result.success);
+    
+    let winner = 'All Failed';
+    if (successfulResults.length === 0) {
+      winner = 'All Failed';
+    } else if (successfulResults.length === 1) {
+      winner = successfulResults[0].name;
+    } else {
+      // Multiple successful results - compare quality
+      const scored = successfulResults.map(r => ({
+        name: r.name,
+        score: r.result.confidence + r.speedBonus
+      }));
       
-      if (axiosScore > puppeteerScore) {
-        winner = 'Axios/Cheerio';
-      } else if (puppeteerScore > axiosScore) {
-        winner = 'Puppeteer';
+      scored.sort((a, b) => b.score - a.score);
+      
+      if (scored[0].score > scored[1].score) {
+        winner = scored[0].name;
       } else {
         winner = 'Tie';
       }
@@ -397,22 +680,34 @@ export class SmokeTestService {
     
     // Generate analysis
     const analyses: string[] = [];
-    if (axiosResult.success && puppeteerResult.success) {
-      analyses.push('Both methods succeeded');
-      if (Math.abs(axiosResult.confidence - puppeteerResult.confidence) > 20) {
-        analyses.push('Significant confidence difference');
-      }
-      if (puppeteerResult.processingTime > axiosResult.processingTime * 3) {
-        analyses.push('Puppeteer significantly slower');
-      }
+    const successCount = successfulResults.length;
+    
+    if (successCount === 3) {
+      analyses.push('All three methods succeeded');
+    } else if (successCount === 2) {
+      analyses.push('Two methods succeeded');
+    } else if (successCount === 1) {
+      analyses.push('Only one method succeeded');
     }
     
-    if (!axiosResult.success && puppeteerResult.success) {
-      analyses.push('Puppeteer bypassed protection/issues');
+    // Check for protection bypassing
+    if (!axiosResult.success && (puppeteerResult.success || playwrightResult.success)) {
+      analyses.push('Browser methods bypassed protection');
     }
     
-    if (axiosResult.success && !puppeteerResult.success) {
-      analyses.push('Axios sufficient for this domain');
+    // Check for structured data advantages
+    if (playwrightResult.extractionMethod?.includes('json-ld') || 
+        playwrightResult.extractionMethod?.includes('microdata')) {
+      analyses.push('Playwright found structured data');
+    }
+    
+    // Performance analysis
+    const times = [axiosResult.processingTime, puppeteerResult.processingTime, playwrightResult.processingTime];
+    const maxTime = Math.max(...times);
+    const minTime = Math.min(...times);
+    
+    if (maxTime > minTime * 5) {
+      analyses.push('Significant performance difference');
     }
     
     if (axiosResult.connectivity === 'protected' || axiosResult.error?.includes('cloudflare')) {
@@ -424,6 +719,7 @@ export class SmokeTestService {
     return {
       axiosResult,
       puppeteerResult,
+      playwrightResult,
       winner,
       analysis
     };

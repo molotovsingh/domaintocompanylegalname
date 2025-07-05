@@ -108,13 +108,24 @@ router.get('/health', async (req, res) => {
     await smokeTestService.initializePuppeteer();
     await smokeTestService.cleanup();
     
+    // Test if Playwright can be initialized
+    let playwrightWorking = false;
+    try {
+      const { chromium } = await import('playwright');
+      const browser = await chromium.launch({ headless: true });
+      await browser.close();
+      playwrightWorking = true;
+    } catch (playwrightError) {
+      console.warn('Playwright not available:', playwrightError.message);
+    }
+    
     res.json({
       success: true,
       message: 'Smoke testing service is healthy',
       capabilities: {
         axios_cheerio: true,
         puppeteer: true,
-        playwright: false
+        playwright: playwrightWorking
       }
     });
   } catch (error) {
