@@ -5,7 +5,7 @@
     pkgs.python311
     pkgs.python311Packages.pip
     pkgs.postgresql
-    # Puppeteer dependencies
+    # Puppeteer and Playwright dependencies
     pkgs.chromium
     pkgs.glib
     pkgs.nss
@@ -27,5 +27,15 @@
     pkgs.mesa
     pkgs.expat
     pkgs.alsa-lib
+    # Additional Playwright dependencies
+    pkgs.libxkbcommon
+    pkgs.udev
+    pkgs.fontconfig
+    pkgs.freetype
+    pkgs.harfbuzz
+    pkgs.icu
+    pkgs.libjpeg
+    pkgs.libpng
+    pkgs.glibc
   ];
 }
