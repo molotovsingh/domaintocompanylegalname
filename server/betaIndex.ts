@@ -142,6 +142,7 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🧪 Beta Testing Platform running on port ${PORT}`);
   console.log(`🔬 Complete database isolation from production`);
   console.log(`🚀 Ready for experimental features`);
+  console.log(`🌐 Accessible at http://0.0.0.0:${PORT}`);
   
   // Initialize experiments
   await initializeBetaExperiments();
