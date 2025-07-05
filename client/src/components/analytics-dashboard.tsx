@@ -254,8 +254,12 @@ export default function AnalyticsDashboard() {
                     <p className="font-medium text-sm">{batch.fileName}</p>
                     <p className="text-xs text-gray-600">
                       {batch.completedAt ? (() => {
-                        const date = new Date(batch.completedAt);
-                        return isNaN(date.getTime()) ? 'Invalid date' : format(date, 'MMM dd, HH:mm');
+                        try {
+                          const date = new Date(batch.completedAt);
+                          return isNaN(date.getTime()) ? 'Invalid date' : format(date, 'MMM dd, HH:mm');
+                        } catch (error) {
+                          return 'Invalid date';
+                        }
                       })() : 'In progress'}
                     </p>
                   </div>

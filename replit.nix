@@ -1,5 +1,6 @@
 { pkgs }: {
   deps = [
+    pkgs.cups
     pkgs.nodejs_20
     pkgs.python311
     pkgs.python311Packages.pip

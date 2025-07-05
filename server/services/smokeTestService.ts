@@ -30,7 +30,7 @@ export class SmokeTestService {
       try {
         this.browser = await puppeteer.launch({
           headless: true,
-          executablePath: '/nix/store/*-chromium-*/bin/chromium',
+          executablePath: '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium-browser',
           args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -134,7 +134,7 @@ export class SmokeTestService {
       await page.goto(url, { waitUntil: 'domcontentloaded' });
       
       // Wait a bit for dynamic content
-      await page.waitForTimeout(2000);
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Extract company information using multiple strategies
       const extractionResult = await page.evaluate(() => {
