@@ -565,10 +565,10 @@ export class SmokeTestService {
         ];
         
         // Enhanced company name validation function
-        function isValidCompanyName(name) {
-          if (!name || typeof name !== 'string') return false;
+        function validateCompanyName(companyName) {
+          if (!companyName || typeof companyName !== 'string') return false;
           
-          const cleanName = name.trim();
+          const cleanName = companyName.trim();
           if (cleanName.length < 2 || cleanName.length > 80) return false;
           
           // Invalid patterns
@@ -596,7 +596,7 @@ export class SmokeTestService {
         
         // Priority 1: High-confidence structured data
         const highConfidenceStructured = structuredData
-          .filter(data => isValidCompanyName(data.name) && data.confidence >= 90)
+          .filter(data => validateCompanyName(data.name) && data.confidence >= 90)
           .sort((a, b) => b.confidence - a.confidence);
         
         if (highConfidenceStructured.length > 0) {
@@ -612,7 +612,7 @@ export class SmokeTestService {
         
         // Priority 2: Medium-confidence structured data
         const mediumConfidenceStructured = structuredData
-          .filter(data => isValidCompanyName(data.name) && data.confidence >= 85)
+          .filter(data => validateCompanyName(data.name) && data.confidence >= 85)
           .sort((a, b) => b.confidence - a.confidence);
         
         if (mediumConfidenceStructured.length > 0) {
@@ -628,7 +628,7 @@ export class SmokeTestService {
         
         // Priority 3: High-confidence meta tags
         const highConfidenceMeta = metaResults
-          .filter(meta => isValidCompanyName(meta.name) && meta.confidence >= 85)
+          .filter(meta => validateCompanyName(meta.name) && meta.confidence >= 85)
           .sort((a, b) => b.confidence - a.confidence);
         
         if (highConfidenceMeta.length > 0) {
