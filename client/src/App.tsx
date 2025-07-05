@@ -9,6 +9,7 @@ import ParsingRules from "@/pages/parsing-rules";
 import JurisdictionalGuide from "@/pages/jurisdictional-guide";
 import KnowledgeGraphPage from "@/pages/knowledge-graph";
 import SmokeTestingPage from "@/pages/smoke-testing";
+import BetaTestingPage from "@/pages/beta-testing";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/jurisdictional-guide" component={JurisdictionalGuide} />
       <Route path="/knowledge-graph" component={KnowledgeGraphPage} />
       <Route path="/smoke-testing" component={SmokeTestingPage} />
+      <Route path="/beta-testing" component={BetaTestingPage} />
       <Route component={NotFound} />
     </Switch>
   );
