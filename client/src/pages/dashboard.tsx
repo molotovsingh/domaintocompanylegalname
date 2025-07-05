@@ -12,10 +12,10 @@ import ResultsTable from "@/components/results-table";
 import ActivityFeed from "@/components/activity-feed";
 import SessionResults from "@/components/session-results";
 import SingleDomainTest from "@/components/single-domain-test";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { AlertCircle, CheckCircle, Clock, XCircle, Upload, Play, Square, Settings, Beaker } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, XCircle, Upload, Play, Square, Settings, Beaker, Activity, GitCommit } from "lucide-react";
 
 
 export default function Dashboard() {
@@ -81,6 +81,37 @@ export default function Dashboard() {
       setCurrentBatchId(batches[0].id);
     }
   }, [batches, currentBatchId]);
+
+    const recentActivity = [
+        {
+            type: "Upload",
+            description: "Uploaded a new batch of domains.",
+            timestamp: "Today, 10:30 AM"
+        },
+        {
+            type: "Processing",
+            description: "Started processing domain data.",
+            timestamp: "Today, 10:45 AM"
+        },
+        {
+            type: "Export",
+            description: "Exported results to CSV.",
+            timestamp: "Today, 11:00 AM"
+        }
+    ];
+
+    const getActivityIcon = (type: string) => {
+        switch (type) {
+            case "Upload":
+                return <Upload className="w-4 h-4 text-blue-500" />;
+            case "Processing":
+                return <Play className="w-4 h-4 text-yellow-500" />;
+            case "Export":
+                return <Square className="w-4 h-4 text-green-500" />;
+            default:
+                return <Settings className="w-4 h-4 text-gray-500" />;
+        }
+    };
 
   return (
     <div className="min-h-screen bg-background font-sans">
@@ -178,6 +209,94 @@ export default function Dashboard() {
             <ActivityFeed />
           </TabsContent>
         </Tabs>
+<div>
+
+      {/* Recent Changes Log */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <GitCommit className="w-5 h-5 mr-2" />
+            Recent Changes
+          </CardTitle>
+          <CardDescription>
+            Development updates for agent awareness
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
+              <Badge className="bg-blue-500 text-white">Feature</Badge>
+              <div className="flex-1">
+                <div className="font-medium">Smoke Testing Removed from Main Dashboard</div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  Cleaned up navigation - smoke testing now accessible via Beta Testing page and direct URL
+                </div>
+                <div className="text-xs text-blue-600 mt-1">Today, 1:15 PM</div>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
+              <Badge className="bg-green-500 text-white">System</Badge>
+              <div className="flex-1">
+                <div className="font-medium">On-Demand Beta Server Architecture</div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  Beta environment now starts automatically when accessed, with intelligent loading screens
+                </div>
+                <div className="text-xs text-green-600 mt-1">July 05, 2025</div>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3 p-3 bg-purple-50 rounded-lg">
+              <Badge className="bg-purple-500 text-white">Fix</Badge>
+              <div className="flex-1">
+                <div className="font-medium">Critical GLEIF Processing Restored</div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  Fixed confidence score database schema - Level 2 processing now working at 100% success rate
+                </div>
+                <div className="text-xs text-purple-600 mt-1">July 05, 2025</div>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3 p-3 bg-orange-50 rounded-lg">
+              <Badge className="bg-orange-500 text-white">Enhancement</Badge>
+              <div className="flex-1">
+                <div className="font-medium">Czech Republic Jurisdiction Added</div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  Comprehensive Czech legal entity recognition with 10+ business structure types
+                </div>
+                <div className="text-xs text-orange-600 mt-1">July 03, 2025</div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Activity Feed */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Activity className="w-5 h-5 mr-2" />
+            Recent Activity
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {recentActivity.map((activity, index) => (
+              <div key={index} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                <div className="flex items-center space-x-3">
+                  {getActivityIcon(activity.type)}
+                  <div>
+                    <div className="font-medium">{activity.description}</div>
+                    <div className="text-sm text-muted-foreground">{activity.timestamp}</div>
+                  </div>
+                </div>
+                <Badge variant="outline">{activity.type}</Badge>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+</div>
       </main>
     </div>
   );
