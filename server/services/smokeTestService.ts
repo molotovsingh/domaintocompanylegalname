@@ -30,6 +30,7 @@ export class SmokeTestService {
       try {
         this.browser = await puppeteer.launch({
           headless: true,
+          executablePath: '/nix/store/*-chromium-*/bin/chromium',
           args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -37,13 +38,35 @@ export class SmokeTestService {
             '--disable-accelerated-2d-canvas',
             '--no-first-run',
             '--no-zygote',
-            '--disable-gpu'
+            '--disable-gpu',
+            '--disable-web-security',
+            '--disable-features=VizDisplayCompositor'
           ]
         });
         console.log('Puppeteer browser launched successfully');
       } catch (error) {
         console.error('Failed to launch Puppeteer:', error);
-        throw new Error('Puppeteer initialization failed');
+        // Fallback to system detection
+        try {
+          this.browser = await puppeteer.launch({
+            headless: true,
+            args: [
+              '--no-sandbox',
+              '--disable-setuid-sandbox',
+              '--disable-dev-shm-usage',
+              '--disable-accelerated-2d-canvas',
+              '--no-first-run',
+              '--no-zygote',
+              '--disable-gpu',
+              '--disable-web-security',
+              '--disable-features=VizDisplayCompositor'
+            ]
+          });
+          console.log('Puppeteer browser launched with fallback configuration');
+        } catch (fallbackError) {
+          console.error('Fallback Puppeteer launch also failed:', fallbackError);
+          throw new Error('Puppeteer initialization failed');
+        }
       }
     }
   }
