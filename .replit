@@ -100,3 +100,12 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd server && npx tsx betaIndex.ts"
+
+[[workflows.workflow]]
+name = "Start Beta Server"
+author = 24794172
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd server && npx tsx betaIndex.ts"
