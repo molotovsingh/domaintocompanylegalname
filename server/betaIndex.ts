@@ -96,19 +96,31 @@ app.post('/api/beta/smoke-test', async (req, res) => {
   }
 });
 
-// Start server
-app.listen(PORT, '0.0.0.0', () => {
+// Start server with better error handling
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🧪 Beta Testing Server running on port ${PORT}`);
-  console.log(`🌐 Health check: http://localhost:${PORT}/api/beta/health`);
+  console.log(`🌐 Health check: http://0.0.0.0:${PORT}/api/beta/health`);
+});
+
+server.on('error', (error: any) => {
+  console.error('❌ Beta server error:', error);
+  if (error.code === 'EADDRINUSE') {
+    console.error(`💥 Port ${PORT} is already in use`);
+    process.exit(1);
+  }
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('🛑 Beta server shutting down gracefully...');
-  process.exit(0);
+  server.close(() => {
+    process.exit(0);
+  });
 });
 
 process.on('SIGINT', () => {
   console.log('🛑 Beta server shutting down gracefully...');
-  process.exit(0);
+  server.close(() => {
+    process.exit(0);
+  });
 });

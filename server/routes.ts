@@ -239,11 +239,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get all domains in the batch that are eligible for Level 2
       const domains = await storage.getDomainsByBatch(batchId, 10000, 0);
-      
+
       console.log(`🔍 Level 2 Debug: Found ${domains.length} total domains in batch`);
       console.log(`🔍 Level 2 Debug: Domains with company names:`, 
         domains.filter(d => d.companyName).map(d => `${d.domain}: "${d.companyName}" (${d.status}, ${d.confidenceScore}%, attempted: ${d.level2Attempted})`));
-      
+
       const level2Eligible = domains.filter(domain => {
         const eligible = !domain.level2Attempted && (
           (domain.status === 'failed' && domain.companyName && domain.companyName.length > 2) ||
@@ -252,18 +252,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           (domain.failureCategory === 'incomplete_low_priority' && domain.companyName) ||
           (domain.status === 'success' && domain.companyName && domain.companyName.length > 3)
         );
-        
+
         if (domain.companyName) {
           console.log(`🔍 Level 2 Debug: ${domain.domain} (${domain.companyName}) - Eligible: ${eligible}`);
           console.log(`   Status: ${domain.status}, Confidence: ${domain.confidenceScore}, Attempted: ${domain.level2Attempted}`);
         }
-        
+
         return eligible;
       });
 
       // Check for domains already marked as pending for Level 2
       const pendingLevel2Domains = domains.filter(d => d.level2Status === 'pending');
-      
+
       if (level2Eligible.length === 0 && pendingLevel2Domains.length === 0) {
         return res.json({ 
           message: "No domains eligible for Level 2 processing in this batch",
@@ -271,7 +271,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           batchId
         });
       }
-      
+
       // Use pending domains if available, otherwise use eligible domains
       const domainsToProcess = pendingLevel2Domains.length > 0 ? pendingLevel2Domains : level2Eligible;
 
@@ -313,7 +313,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Use separate method for status filtering to match interface
         const statusFilter = status && status !== 'all' ? status as string : undefined;
         console.log(`🔍 Calling getDomainsByBatch with: batchId=${batchId}, status=${statusFilter}, limit=${limitNum}, offset=${offset}`);
-        
+
         if (statusFilter && storage.getDomainsByBatchWithStatus) {
           domains = await storage.getDomainsByBatchWithStatus(batchId, statusFilter, limitNum, offset);
         } else {
@@ -822,7 +822,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: error.message });
     }
   });
-
   // ===== BATCH LOGGING API ENDPOINTS =====
 
   // Get batch log files
@@ -1002,20 +1001,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/batches/:batchId/process-pending-level2", async (req, res) => {
     try {
       const { batchId } = req.params;
-      
+
       // Get domains already marked as pending for Level 2
       const domains = await storage.getDomainsByBatch(batchId, 1000);
       const pendingLevel2 = domains.filter(d => d.level2Status === 'pending');
-      
+
       if (pendingLevel2.length === 0) {
         return res.json({ 
           message: "No domains pending Level 2 processing",
           count: 0
         });
       }
-      
+
       console.log(`🚀 Starting Level 2 processing for ${pendingLevel2.length} pending domains`);
-      
+
       // Process each domain individually for Level 2 GLEIF enhancement
       for (const domain of pendingLevel2) {
         console.log(`🔍 Processing Level 2 for ${domain.domain}: "${domain.companyName}"`);
@@ -1024,13 +1023,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.error(`Level 2 processing error for ${domain.domain}:`, error);
         });
       }
-      
+
       res.json({
         message: `Level 2 processing started for ${pendingLevel2.length} domains`,
         domains: pendingLevel2.map(d => ({ domain: d.domain, companyName: d.companyName })),
         count: pendingLevel2.length
       });
-      
+
     } catch (error: any) {
       console.error('Direct Level 2 processing error:', error);
       res.status(500).json({ error: error.message });
@@ -1050,7 +1049,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check for pending domains
       const pendingDomains = await storage.getDomainsByBatchWithStatus?.(batchId, 'pending') || [];
-      
+
       if (pendingDomains.length === 0) {
         return res.json({ 
           success: false, 
@@ -1115,7 +1114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const { spawn } = await import('child_process');
-      
+
       // Kill any existing process on port 3001
       try {
         const { exec } = await import('child_process');
@@ -1139,7 +1138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`[Beta Server] ${data.toString().trim()}`);
         });
       }
-      
+
       if (betaServerProcess.stderr) {
         betaServerProcess.stderr.on('data', (data) => {
           console.error(`[Beta Server Error] ${data.toString().trim()}`);
@@ -1178,13 +1177,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Failed to start beta server:', error);
       betaServerStarting = false;
       betaServerReady = false;
-      
+
       // Clean up process if it exists
       if (betaServerProcess) {
         betaServerProcess.kill();
         betaServerProcess = null;
       }
-      
+
       return false;
     }
   }
