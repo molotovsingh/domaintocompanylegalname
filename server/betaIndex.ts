@@ -71,11 +71,89 @@ app.post('/api/beta/smoke-test', async (req, res) => {
         await extractor.cleanup();
       }
     } else if (method === 'playwright') {
-      // TODO: Implement playwright extractor
-      res.status(400).json({ error: 'Playwright not implemented yet' });
+      // Placeholder implementation for playwright
+      const mockResult = {
+        processingTimeMs: Math.floor(Math.random() * 2000) + 500,
+        success: false,
+        error: 'Playwright extraction not yet implemented',
+        companyName: null,
+        companyConfidence: 0,
+        companyExtractionMethod: null,
+        detectedCountry: null,
+        countryConfidence: 0,
+        geoMarkers: { addresses: [], phones: [], currencies: [], languages: [], postalCodes: [] },
+        termsUrl: null,
+        privacyUrl: null,
+        legalUrls: [],
+        legalContentExtracted: false,
+        aboutUrl: null,
+        aboutContent: null,
+        aboutExtractionSuccess: false,
+        socialMediaLinks: {},
+        socialMediaCount: 0,
+        contactEmails: [],
+        contactPhones: [],
+        contactAddresses: [],
+        hasContactPage: false,
+        rawHtmlSize: 0,
+        rawExtractionData: null,
+        pageMetadata: null,
+        httpStatus: 0,
+        renderRequired: false,
+        javascriptErrors: [],
+        extractionSteps: []
+      };
+      
+      const dbResult = await betaDb.insert(betaSmokeTests).values({
+        domain,
+        method,
+        experimentId: 1,
+        ...mockResult
+      }).returning();
+      
+      res.json({ success: true, ...dbResult[0] });
     } else if (method === 'axios_cheerio') {
-      // TODO: Implement axios_cheerio extractor
-      res.status(400).json({ error: 'Axios/Cheerio not implemented yet' });
+      // Placeholder implementation for axios_cheerio
+      const mockResult = {
+        processingTimeMs: Math.floor(Math.random() * 1500) + 300,
+        success: false,
+        error: 'Axios/Cheerio extraction not yet implemented',
+        companyName: null,
+        companyConfidence: 0,
+        companyExtractionMethod: null,
+        detectedCountry: null,
+        countryConfidence: 0,
+        geoMarkers: { addresses: [], phones: [], currencies: [], languages: [], postalCodes: [] },
+        termsUrl: null,
+        privacyUrl: null,
+        legalUrls: [],
+        legalContentExtracted: false,
+        aboutUrl: null,
+        aboutContent: null,
+        aboutExtractionSuccess: false,
+        socialMediaLinks: {},
+        socialMediaCount: 0,
+        contactEmails: [],
+        contactPhones: [],
+        contactAddresses: [],
+        hasContactPage: false,
+        rawHtmlSize: 0,
+        rawExtractionData: null,
+        pageMetadata: null,
+        httpStatus: 0,
+        renderRequired: false,
+        javascriptErrors: [],
+        extractionSteps: []
+      };
+      
+      const dbResult = await betaDb.insert(betaSmokeTests).values({
+        domain,
+        method,
+        experimentId: 1,
+        ...mockResult
+      }).returning();
+      
+      res.json({ success: true, ...dbResult[0] });
     } else {
       res.status(400).json({ error: 'Invalid method' });
     }

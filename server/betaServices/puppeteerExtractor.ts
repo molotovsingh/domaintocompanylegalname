@@ -320,12 +320,12 @@ export class PuppeteerExtractor {
         // Geographic
         detectedCountry: detectedCountry.country,
         countryConfidence: detectedCountry.confidence,
-        geoMarkers: JSON.stringify(extractedData.geoMarkers),
+        geoMarkers: extractedData.geoMarkers,
         
         // Legal
         termsUrl: extractedData.legal.termsUrl,
         privacyUrl: extractedData.legal.privacyUrl,
-        legalUrls: JSON.stringify(extractedData.legal.legalUrls),
+        legalUrls: extractedData.legal.legalUrls,
         legalContentExtracted: extractedData.legal.legalUrls.length > 0,
         
         // About
@@ -334,25 +334,25 @@ export class PuppeteerExtractor {
         aboutExtractionSuccess: aboutSuccess,
         
         // Social Media
-        socialMediaLinks: JSON.stringify(extractedData.socialMedia),
+        socialMediaLinks: extractedData.socialMedia,
         socialMediaCount: Object.keys(extractedData.socialMedia).length,
         
         // Contact Information
-        contactEmails: JSON.stringify(extractedData.contactInfo.emails),
-        contactPhones: JSON.stringify(extractedData.contactInfo.phones),
-        contactAddresses: JSON.stringify(extractedData.contactInfo.addresses),
+        contactEmails: extractedData.contactInfo.emails,
+        contactPhones: extractedData.contactInfo.phones,
+        contactAddresses: extractedData.contactInfo.addresses,
         hasContactPage: extractedData.contactInfo.hasContactPage,
         
         // Raw data
         rawHtmlSize: extractedData.htmlSize,
-        rawExtractionData: JSON.stringify(extractedData),
-        pageMetadata: JSON.stringify(extractedData.pageMetadata),
+        rawExtractionData: extractedData,
+        pageMetadata: extractedData.pageMetadata,
         
         // Technical
         httpStatus,
         renderRequired: true,
-        javascriptErrors: JSON.stringify(jsErrors),
-        extractionSteps: JSON.stringify(this.steps)
+        javascriptErrors: jsErrors,
+        extractionSteps: this.steps
       };
       
     } catch (error) {
@@ -368,27 +368,27 @@ export class PuppeteerExtractor {
         companyExtractionMethod: null,
         detectedCountry: null,
         countryConfidence: 0,
-        geoMarkers: JSON.stringify({ addresses: [], phones: [], currencies: [], languages: [], postalCodes: [] }),
+        geoMarkers: { addresses: [], phones: [], currencies: [], languages: [], postalCodes: [] },
         termsUrl: null,
         privacyUrl: null,
-        legalUrls: JSON.stringify([]),
+        legalUrls: [],
         legalContentExtracted: false,
         aboutUrl: null,
         aboutContent: null,
         aboutExtractionSuccess: false,
-        socialMediaLinks: JSON.stringify({}),
+        socialMediaLinks: {},
         socialMediaCount: 0,
-        contactEmails: JSON.stringify([]),
-        contactPhones: JSON.stringify([]),
-        contactAddresses: JSON.stringify([]),
+        contactEmails: [],
+        contactPhones: [],
+        contactAddresses: [],
         hasContactPage: false,
         rawHtmlSize: 0,
         rawExtractionData: null,
         pageMetadata: null,
         httpStatus: 0,
         renderRequired: true,
-        javascriptErrors: JSON.stringify([]),
-        extractionSteps: JSON.stringify(this.steps)
+        javascriptErrors: [],
+        extractionSteps: this.steps
       };
     }
   }

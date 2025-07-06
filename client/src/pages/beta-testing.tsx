@@ -41,10 +41,14 @@ interface BetaSmokeTestResult {
   domain: string;
   method: string;
   companyName: string | null;
-  confidence: number;
-  processingTime: number;
+  companyConfidence: number;
+  processingTimeMs: number;
   success: boolean;
   error: string | null;
+  detectedCountry?: string | null;
+  countryConfidence?: number;
+  socialMediaCount?: number;
+  legalContentExtracted?: boolean;
 }
 
 export default function BetaTesting() {
@@ -152,9 +156,9 @@ export default function BetaTesting() {
       return {
         domain,
         method,
-        processingTime: Date.now() - Date.now(),
+        processingTimeMs: Date.now() - startTime,
         companyName: null,
-        confidence: 0,
+        companyConfidence: 0,
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
       };
@@ -445,8 +449,14 @@ export default function BetaTesting() {
                         <div className="space-y-1 text-sm">
                           <div><strong>Domain:</strong> {result.domain}</div>
                           <div><strong>Company:</strong> {result.companyName || 'Not found'}</div>
-                          <div><strong>Confidence:</strong> {result.confidence}%</div>
-                          <div><strong>Time:</strong> {result.processingTime}ms</div>
+                          <div><strong>Confidence:</strong> {result.companyConfidence || 0}%</div>
+                          <div><strong>Time:</strong> {result.processingTimeMs || 0}ms</div>
+                          {result.detectedCountry && (
+                            <div><strong>Country:</strong> {result.detectedCountry} ({result.countryConfidence}%)</div>
+                          )}
+                          {result.socialMediaCount !== undefined && (
+                            <div><strong>Social Media:</strong> {result.socialMediaCount} found</div>
+                          )}
                           {result.error && (
                             <div className="text-red-600"><strong>Error:</strong> {result.error}</div>
                           )}

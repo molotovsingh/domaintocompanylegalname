@@ -1,5 +1,6 @@
 
-import { pgTable, text, serial, integer, boolean, timestamp, real } from "drizzle-orm/pg-core";
+
+import { pgTable, text, serial, integer, boolean, timestamp, real, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -17,13 +18,13 @@ export const betaExperiments = pgTable("beta_experiments", {
   createdBy: text("created_by").default("system"),
 });
 
-// Enhanced Beta Smoke Test Results
+// Enhanced Beta Smoke Test Results - matching exact database column names
 export const betaSmokeTests = pgTable("beta_smoke_tests", {
   id: serial("id").primaryKey(),
   
   // Test Metadata
   domain: text("domain").notNull(),
-  method: text("method").notNull(), // puppeteer, playwright, axios_cheerio
+  method: text("method").notNull(),
   experimentId: integer("experiment_id").references(() => betaExperiments.id),
   createdAt: timestamp("created_at").defaultNow(),
   
@@ -40,12 +41,12 @@ export const betaSmokeTests = pgTable("beta_smoke_tests", {
   // Geographic Intelligence
   detectedCountry: text("detected_country"),
   countryConfidence: integer("country_confidence"),
-  geoMarkers: text("geo_markers"), // JSON string
+  geoMarkers: jsonb("geo_markers"),
   
   // Legal Document Discovery
   termsUrl: text("terms_url"),
   privacyUrl: text("privacy_url"),
-  legalUrls: text("legal_urls"), // JSON array
+  legalUrls: jsonb("legal_urls"),
   legalContentExtracted: boolean("legal_content_extracted").default(false),
   
   // About Us Extraction
@@ -54,25 +55,25 @@ export const betaSmokeTests = pgTable("beta_smoke_tests", {
   aboutExtractionSuccess: boolean("about_extraction_success").default(false),
   
   // Social Media Discovery
-  socialMediaLinks: text("social_media_links"), // JSON
+  socialMediaLinks: jsonb("social_media_links"),
   socialMediaCount: integer("social_media_count").default(0),
   
   // Contact Information
-  contactEmails: text("contact_emails"), // JSON array
-  contactPhones: text("contact_phones"), // JSON array
-  contactAddresses: text("contact_addresses"), // JSON array
+  contactEmails: jsonb("contact_emails"),
+  contactPhones: jsonb("contact_phones"),
+  contactAddresses: jsonb("contact_addresses"),
   hasContactPage: boolean("has_contact_page").default(false),
   
   // Raw Data Storage
   rawHtmlSize: integer("raw_html_size"),
-  rawExtractionData: text("raw_extraction_data"), // JSON
-  pageMetadata: text("page_metadata"), // JSON
+  rawExtractionData: jsonb("raw_extraction_data"),
+  pageMetadata: jsonb("page_metadata"),
   
   // Technical Details
   httpStatus: integer("http_status"),
   renderRequired: boolean("render_required"),
-  javascriptErrors: text("javascript_errors"), // JSON
-  extractionSteps: text("extraction_steps"), // JSON
+  javascriptErrors: jsonb("javascript_errors"),
+  extractionSteps: jsonb("extraction_steps"),
 });
 
 // Beta Performance Metrics
@@ -100,3 +101,4 @@ export type BetaExperiment = typeof betaExperiments.$inferSelect;
 export type InsertBetaExperiment = z.infer<typeof insertBetaExperimentSchema>;
 export type BetaSmokeTest = typeof betaSmokeTests.$inferSelect;
 export type InsertBetaSmokeTest = z.infer<typeof insertBetaSmokeTestSchema>;
+
