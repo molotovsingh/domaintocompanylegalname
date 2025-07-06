@@ -40,6 +40,16 @@ CREATE TABLE beta_smoke_tests (
   about_content TEXT, -- First 1000 chars of about content
   about_extraction_success BOOLEAN DEFAULT FALSE,
   
+  -- Social Media Discovery
+  social_media_links JSONB, -- {twitter: '...', linkedin: '...', facebook: '...'}
+  social_media_count INTEGER DEFAULT 0,
+  
+  -- Contact Information
+  contact_emails JSONB, -- ['info@example.com', 'sales@example.com']
+  contact_phones JSONB, -- ['+1-555-0123', '1-800-COMPANY']
+  contact_addresses JSONB, -- ['123 Main St, City, State']
+  has_contact_page BOOLEAN DEFAULT FALSE,
+  
   -- Raw Data Storage (for debugging)
   raw_html_size INTEGER, -- Size in bytes
   raw_extraction_data JSONB, -- All extracted data in structured format

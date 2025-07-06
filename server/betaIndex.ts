@@ -4,6 +4,7 @@ import cors from 'cors';
 import { betaDb } from './betaDb';
 import { betaExperiments, betaSmokeTests, insertBetaSmokeTestSchema } from '../shared/betaSchema';
 import { eq, desc } from 'drizzle-orm';
+import { PuppeteerExtractor } from './betaServices/puppeteerExtractor';
 
 const app = express();
 const PORT = 3001;
@@ -38,66 +39,48 @@ app.get('/api/beta/experiments', async (req, res) => {
 
 // Beta smoke test endpoint
 app.post('/api/beta/smoke-test', async (req, res) => {
+  const { domain, method } = req.body;
+  
+  if (!domain || !method) {
+    return res.status(400).json({ error: 'Domain and method are required' });
+  }
+  
   try {
-    const { domain, method } = req.body;
+    let extractor: PuppeteerExtractor | null = null;
+    let result: any = null;
     
-    // Enhanced beta smoke test with realistic simulation
-    const startTime = Date.now();
-    
-    // Simulate different success rates and characteristics for each method
-    let success, confidence, processingTime, extractionMethod, technicalDetails;
-    
-    switch (method) {
-      case 'axios_cheerio':
-        success = Math.random() > 0.4; // 60% success rate
-        confidence = success ? Math.floor(Math.random() * 25) + 65 : 0;
-        processingTime = Math.floor(Math.random() * 1500) + 500; // 500-2000ms
-        extractionMethod = success ? 'cheerio_selector' : null;
-        technicalDetails = success ? 'Fast DOM parsing' : 'Anti-bot protection detected';
-        break;
+    if (method === 'puppeteer') {
+      // Use real puppeteer extraction
+      extractor = new PuppeteerExtractor();
+      await extractor.initialize();
+      
+      try {
+        console.log(`[Beta] Testing ${domain} with puppeteer...`);
+        result = await extractor.extractFromDomain(domain);
         
-      case 'puppeteer':
-        success = Math.random() > 0.25; // 75% success rate
-        confidence = success ? Math.floor(Math.random() * 20) + 70 : 0;
-        processingTime = Math.floor(Math.random() * 3000) + 2000; // 2000-5000ms
-        extractionMethod = success ? 'puppeteer_headless' : null;
-        technicalDetails = success ? 'Browser automation successful' : 'JavaScript rendering failed';
-        break;
+        // Store in beta database with experiment ID
+        const dbResult = await betaDb.insert(betaSmokeTests).values({
+          domain,
+          method,
+          experimentId: 1, // Smoke testing experiment
+          ...result
+        }).returning();
         
-      case 'playwright':
-        success = Math.random() > 0.2; // 80% success rate
-        confidence = success ? Math.floor(Math.random() * 15) + 80 : 0;
-        processingTime = Math.floor(Math.random() * 2500) + 1500; // 1500-4000ms
-        extractionMethod = success ? 'playwright_structured' : null;
-        technicalDetails = success ? 'Structured data extraction' : 'Network timeout';
-        break;
-        
-      default:
-        success = Math.random() > 0.3;
-        confidence = success ? Math.floor(Math.random() * 30) + 70 : 0;
-        processingTime = Math.floor(Math.random() * 2000) + 1000;
-        extractionMethod = success ? 'beta_extraction' : null;
-        technicalDetails = 'Beta testing simulation';
+        res.json({ success: true, ...dbResult[0] });
+      } finally {
+        await extractor.cleanup();
+      }
+    } else if (method === 'playwright') {
+      // TODO: Implement playwright extractor
+      res.status(400).json({ error: 'Playwright not implemented yet' });
+    } else if (method === 'axios_cheerio') {
+      // TODO: Implement axios_cheerio extractor
+      res.status(400).json({ error: 'Axios/Cheerio not implemented yet' });
+    } else {
+      res.status(400).json({ error: 'Invalid method' });
     }
-    
-    const result = {
-      domain,
-      method,
-      companyName: success ? `${domain.split('.')[0].charAt(0).toUpperCase() + domain.split('.')[0].slice(1)} Corp` : null,
-      confidence,
-      processingTime,
-      success,
-      error: success ? null : `Beta ${method} extraction failed`,
-      extractionMethod,
-      technicalDetails,
-      experimentId: 1, // Smoke testing experiment
-    };
-    
-    // Store in beta database
-    await betaDb.insert(betaSmokeTests).values(result);
-    
-    res.json({ success: true, ...result });
   } catch (error) {
+    console.error('[Beta] Error in smoke test:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

@@ -179,6 +179,67 @@ export class PuppeteerExtractor {
           return aboutLink?.href || null;
         };
         
+        // Extract social media links
+        const findSocialMedia = () => {
+          const links = Array.from(document.querySelectorAll('a'));
+          const socialMedia: any = {};
+          
+          // Common social media patterns
+          const patterns = {
+            twitter: /twitter\.com|x\.com/i,
+            linkedin: /linkedin\.com/i,
+            facebook: /facebook\.com/i,
+            instagram: /instagram\.com/i,
+            youtube: /youtube\.com/i,
+            github: /github\.com/i,
+            tiktok: /tiktok\.com/i
+          };
+          
+          for (const link of links) {
+            const href = link.href || '';
+            for (const [platform, pattern] of Object.entries(patterns)) {
+              if (pattern.test(href) && !socialMedia[platform]) {
+                socialMedia[platform] = href;
+              }
+            }
+          }
+          
+          return socialMedia;
+        };
+        
+        // Extract contact information
+        const extractContactInfo = () => {
+          const text = document.body.textContent || '';
+          const html = document.body.innerHTML || '';
+          
+          // Extract emails
+          const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+          const emails = [...new Set(text.match(emailRegex) || [])].filter(email => 
+            !email.includes('example.com') && !email.includes('@2x')
+          ).slice(0, 5);
+          
+          // Extract phone numbers (enhanced)
+          const phoneRegex = /(\+?\d{1,4}[\s.-]?)?\(?\d{1,4}\)?[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}/g;
+          const phones = [...new Set(text.match(phoneRegex) || [])]
+            .filter(phone => phone.length >= 10 && phone.length <= 20)
+            .slice(0, 5);
+          
+          // Extract addresses (basic pattern)
+          const addressRegex = /\d+\s+[\w\s]+(?:street|st|avenue|ave|road|rd|boulevard|blvd|lane|ln|drive|dr|court|ct|plaza|place|pl)[\s,]+[\w\s]+(?:,\s*[\w\s]+)?(?:\s+\d{5})?/gi;
+          const addresses = [...new Set(text.match(addressRegex) || [])].slice(0, 3);
+          
+          // Check for contact page
+          const hasContactPage = !!document.querySelector('a[href*="contact"]') || 
+                                text.toLowerCase().includes('contact us');
+          
+          return {
+            emails,
+            phones,
+            addresses,
+            hasContactPage
+          };
+        };
+        
         // Get page metadata
         const getPageMetadata = () => {
           return {
@@ -196,6 +257,8 @@ export class PuppeteerExtractor {
           geoMarkers: extractGeoMarkers(),
           legal: findLegalUrls(),
           aboutUrl: findAboutUrl(),
+          socialMedia: findSocialMedia(),
+          contactInfo: extractContactInfo(),
           pageMetadata: getPageMetadata(),
           htmlSize: document.documentElement.outerHTML.length
         };
@@ -261,6 +324,16 @@ export class PuppeteerExtractor {
         aboutContent: aboutContent,
         aboutExtractionSuccess: aboutSuccess,
         
+        // Social Media
+        socialMediaLinks: JSON.stringify(extractedData.socialMedia),
+        socialMediaCount: Object.keys(extractedData.socialMedia).length,
+        
+        // Contact Information
+        contactEmails: JSON.stringify(extractedData.contactInfo.emails),
+        contactPhones: JSON.stringify(extractedData.contactInfo.phones),
+        contactAddresses: JSON.stringify(extractedData.contactInfo.addresses),
+        hasContactPage: extractedData.contactInfo.hasContactPage,
+        
         // Raw data
         rawHtmlSize: extractedData.htmlSize,
         rawExtractionData: JSON.stringify(extractedData),
@@ -294,6 +367,12 @@ export class PuppeteerExtractor {
         aboutUrl: null,
         aboutContent: null,
         aboutExtractionSuccess: false,
+        socialMediaLinks: JSON.stringify({}),
+        socialMediaCount: 0,
+        contactEmails: JSON.stringify([]),
+        contactPhones: JSON.stringify([]),
+        contactAddresses: JSON.stringify([]),
+        hasContactPage: false,
         rawHtmlSize: 0,
         rawExtractionData: null,
         pageMetadata: null,

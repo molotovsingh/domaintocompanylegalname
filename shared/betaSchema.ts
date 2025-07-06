@@ -53,6 +53,16 @@ export const betaSmokeTests = pgTable("beta_smoke_tests", {
   aboutContent: text("about_content"),
   aboutExtractionSuccess: boolean("about_extraction_success").default(false),
   
+  // Social Media Discovery
+  socialMediaLinks: text("social_media_links"), // JSON
+  socialMediaCount: integer("social_media_count").default(0),
+  
+  // Contact Information
+  contactEmails: text("contact_emails"), // JSON array
+  contactPhones: text("contact_phones"), // JSON array
+  contactAddresses: text("contact_addresses"), // JSON array
+  hasContactPage: boolean("has_contact_page").default(false),
+  
   // Raw Data Storage
   rawHtmlSize: integer("raw_html_size"),
   rawExtractionData: text("raw_extraction_data"), // JSON
