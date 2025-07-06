@@ -1,3 +1,4 @@
+
 import { pgTable, serial, text, timestamp, integer, boolean, real, jsonb } from 'drizzle-orm/pg-core';
 
 export const betaExperiments = pgTable('beta_experiments', {
@@ -6,6 +7,7 @@ export const betaExperiments = pgTable('beta_experiments', {
   description: text('description'),
   status: text('status').notNull().default('alpha'),
   createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
   lastUsedAt: timestamp('last_used_at').defaultNow(),
   usageCount: integer('usage_count').default(0),
   successRate: real('success_rate'),
@@ -27,9 +29,9 @@ export const betaSmokeTests = pgTable('beta_smoke_tests', {
   success: boolean('success').default(false),
   error: text('error'),
 
-  // Company Extraction Results
+  // Company Extraction Results - matching database column names exactly
   companyName: text('company_name'),
-  confidence: integer('confidence'), // This matches the database column name
+  companyConfidence: integer('company_confidence'),
   companyExtractionMethod: text('company_extraction_method'),
 
   // Geographic Intelligence
@@ -68,6 +70,15 @@ export const betaSmokeTests = pgTable('beta_smoke_tests', {
   renderRequired: boolean('render_required'),
   javascriptErrors: jsonb('javascript_errors'),
   extractionSteps: jsonb('extraction_steps')
+});
+
+export const betaPerformanceMetrics = pgTable('beta_performance_metrics', {
+  id: serial('id').primaryKey(),
+  experimentId: integer('experiment_id').references(() => betaExperiments.id),
+  metricName: text('metric_name').notNull(),
+  metricValue: real('metric_value').notNull(),
+  metricUnit: text('metric_unit'),
+  recordedAt: timestamp('recorded_at').defaultNow()
 });
 
 export type BetaExperiment = typeof betaExperiments.$inferSelect;
