@@ -62,7 +62,7 @@ app.post('/api/beta/smoke-test', async (req, res) => {
       domain: result.domain,
       method: result.method,
       companyName: result.companyName,
-      companyConfidence: result.confidence,
+      confidence: result.confidence, // Fixed column name
       processingTimeMs: result.processingTime,
       success: result.success,
       error: result.error,
