@@ -1,71 +1,47 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { 
   Beaker, 
-  TestTube, 
-  Zap, 
   Shield, 
   Database, 
-  Cpu, 
-  BarChart3,
-  ExternalLink,
-  RefreshCw,
   Activity,
   AlertTriangle,
+  RefreshCw,
   Play,
   CheckCircle,
-  Target,
-  Trophy,
-  Gauge,
-  GitCompare
+  XCircle,
+  Clock
 } from 'lucide-react';
 
-interface BetaExperiment {
-  id: number;
-  name: string;
-  description: string;
-  status: 'alpha' | 'beta' | 'ready_for_production' | 'archived';
-  usageCount: number;
-  successRate: number;
-  averageResponseTime: number;
-}
-
-interface BetaSmokeTestResult {
+interface BetaTestResult {
   domain: string;
   method: string;
   companyName: string | null;
-  companyConfidence: number;
-  processingTimeMs: number;
+  confidence: number;
+  processingTime: number;
   success: boolean;
   error: string | null;
-  detectedCountry?: string | null;
-  countryConfidence?: number;
-  socialMediaCount?: number;
-  legalContentExtracted?: boolean;
+  extractionMethod: string | null;
+  technicalDetails: string | null;
 }
 
 export default function BetaTesting() {
-  const [experiments, setExperiments] = useState<BetaExperiment[]>([]);
-  const [smokeTestDomain, setSmokeTestDomain] = useState('');
-  const [smokeTestResults, setSmokeTestResults] = useState<BetaSmokeTestResult[]>([]);
+  const [serverStatus, setServerStatus] = useState<'stopped' | 'starting' | 'ready' | 'error'>('stopped');
+  const [testDomain, setTestDomain] = useState('');
+  const [testResults, setTestResults] = useState<BetaTestResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [serverStatus, setServerStatus] = useState<'stopped' | 'starting' | 'ready' | 'error'>('stopped');
   const [startupProgress, setStartupProgress] = useState(0);
 
-  // Load experiments on mount
   useEffect(() => {
-    checkServerAndLoad();
+    checkServerStatus();
   }, []);
 
-  // Poll server status when starting
   useEffect(() => {
     if (serverStatus === 'starting') {
       const interval = setInterval(() => {
@@ -86,55 +62,11 @@ export default function BetaTesting() {
       }
     } catch (error) {
       console.error('Failed to check server status:', error);
-    }
-  };
-
-  const checkServerAndLoad = async () => {
-    await checkServerStatus();
-    await loadExperiments();
-    await loadSmokeTestResults();
-  };
-
-  const loadExperiments = async () => {
-    try {
-      const response = await fetch('/api/beta/experiments');
-      const data = await response.json();
-      
-      if (response.status === 503 && data.status === 'starting') {
-        setServerStatus('starting');
-        setStartupProgress(10);
-        return;
-      }
-      
-      if (data.success) {
-        setExperiments(data.experiments);
-        setServerStatus('ready');
-      }
-    } catch (error) {
-      console.error('Failed to load beta experiments:', error);
       setServerStatus('error');
     }
   };
 
-  const loadSmokeTestResults = async () => {
-    try {
-      const response = await fetch('/api/beta/smoke-test/results');
-      const data = await response.json();
-      
-      if (response.status === 503 && data.status === 'starting') {
-        setServerStatus('starting');
-        return;
-      }
-      
-      if (data.success) {
-        setSmokeTestResults(data.results);
-      }
-    } catch (error) {
-      console.error('Failed to load smoke test results:', error);
-    }
-  };
-
-  const runBetaSmokeTest = async (domain: string, method: string) => {
+  const runBetaTest = async (domain: string, method: string): Promise<BetaTestResult> => {
     try {
       const startTime = Date.now();
       const response = await fetch('/api/beta/smoke-test', {
@@ -142,64 +74,61 @@ export default function BetaTesting() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ domain, method })
       });
-      
+
       const result = await response.json();
       const processingTime = Date.now() - startTime;
-      
+
       return {
         domain,
         method,
         processingTime,
-        ...result
+        companyName: result.companyName,
+        confidence: result.confidence || 0,
+        success: result.success,
+        error: result.error,
+        extractionMethod: result.extractionMethod,
+        technicalDetails: result.technicalDetails
       };
     } catch (error) {
       return {
         domain,
         method,
-        processingTimeMs: Date.now() - startTime,
+        processingTime: Date.now() - Date.now(),
         companyName: null,
-        companyConfidence: 0,
+        confidence: 0,
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        extractionMethod: null,
+        technicalDetails: null
       };
     }
   };
 
-  const runSingleBetaTest = async () => {
-    if (!smokeTestDomain.trim()) return;
-    
+  const runFullTest = async () => {
+    if (!testDomain.trim()) return;
+
     setIsRunning(true);
     setProgress(0);
-    
-    const results = [];
-    const methods = ['axios_cheerio', 'puppeteer', 'playwright'];
-    
+    setTestResults([]);
+
+    const methods = ['axios_cheerio', 'puppeteer'];
+    const results: BetaTestResult[] = [];
+
     for (let i = 0; i < methods.length; i++) {
       const method = methods[i];
       setProgress((i / methods.length) * 100);
-      
-      const result = await runBetaSmokeTest(smokeTestDomain.trim(), method);
+
+      const result = await runBetaTest(testDomain.trim(), method);
       results.push(result);
+      setTestResults([...results]);
     }
-    
-    setSmokeTestResults(results);
+
     setProgress(100);
     setIsRunning(false);
-    setSmokeTestDomain('');
   };
 
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'alpha': return 'bg-red-500';
-      case 'beta': return 'bg-yellow-500';
-      case 'ready_for_production': return 'bg-green-500';
-      case 'archived': return 'bg-gray-500';
-      default: return 'bg-blue-500';
-    }
-  };
-
-  // Show loading screen when beta server is starting
-  if (serverStatus === 'starting' || (serverStatus === 'stopped' && experiments.length === 0)) {
+  // Loading screen when beta server is starting
+  if (serverStatus === 'starting' || serverStatus === 'stopped') {
     return (
       <div className="container mx-auto p-6">
         <div className="flex items-center justify-center min-h-[60vh]">
@@ -210,21 +139,21 @@ export default function BetaTesting() {
                 Starting Beta Environment
               </CardTitle>
               <CardDescription>
-                Initializing isolated testing environment on port 3001...
+                Initializing isolated testing environment...
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <Progress value={startupProgress} className="w-full" />
               <div className="text-center text-sm text-muted-foreground">
-                {startupProgress < 30 && "Creating isolated database connection..."}
-                {startupProgress >= 30 && startupProgress < 60 && "Starting beta server process..."}
-                {startupProgress >= 60 && startupProgress < 90 && "Loading experimental features..."}
+                {startupProgress < 30 && "Starting beta server..."}
+                {startupProgress >= 30 && startupProgress < 60 && "Loading extraction services..."}
+                {startupProgress >= 60 && startupProgress < 90 && "Preparing test environment..."}
                 {startupProgress >= 90 && "Almost ready..."}
               </div>
               <Alert className="bg-blue-50 border-blue-200">
                 <Shield className="h-4 w-4 text-blue-500" />
                 <AlertDescription className="text-blue-700">
-                  The beta environment runs in complete isolation from production data
+                  Beta environment runs isolated from production
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -234,7 +163,7 @@ export default function BetaTesting() {
     );
   }
 
-  // Show error screen if server failed to start
+  // Error screen if server failed to start
   if (serverStatus === 'error') {
     return (
       <div className="container mx-auto p-6">
@@ -251,7 +180,7 @@ export default function BetaTesting() {
             </CardHeader>
             <CardContent>
               <Button 
-                onClick={checkServerAndLoad} 
+                onClick={checkServerStatus} 
                 className="w-full"
                 variant="outline"
               >
@@ -267,6 +196,7 @@ export default function BetaTesting() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold flex items-center">
@@ -274,7 +204,7 @@ export default function BetaTesting() {
             Beta Testing Platform
           </h1>
           <p className="text-muted-foreground mt-2">
-            Experimental features sandbox - completely isolated from production
+            Test experimental extraction methods in isolated environment
           </p>
         </div>
         <div className="flex items-center space-x-4">
@@ -293,275 +223,159 @@ export default function BetaTesting() {
         </div>
       </div>
 
+      {/* Info Alert */}
       <Alert>
-        <TestTube className="h-4 w-4" />
+        <Shield className="h-4 w-4" />
         <AlertDescription>
-          <strong>Beta Environment:</strong> All experiments run in complete isolation from production data. 
-          Safe to test destructive operations and experimental features.
+          <strong>Beta Environment:</strong> All tests run in complete isolation from production data. 
+          Safe to test experimental features and methods.
         </AlertDescription>
       </Alert>
 
-      <Tabs defaultValue="experiments" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="experiments">Active Experiments</TabsTrigger>
-          <TabsTrigger value="smoke-testing">Smoke Testing</TabsTrigger>
-          <TabsTrigger value="performance">Performance Lab</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="experiments" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {/* Smoke Testing Experiment */}
-            <Card className="border-l-4 border-l-blue-500">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Smoke Testing v2</CardTitle>
-                  <Badge className="bg-yellow-500">Beta</Badge>
-                </div>
-                <CardDescription>
-                  Enhanced smoke testing with new extraction methods
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>Success Rate:</span>
-                    <span className="font-medium">87%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Avg Response:</span>
-                    <span className="font-medium">1.2s</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Tests Run:</span>
-                    <span className="font-medium">245</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Performance Monitoring */}
-            <Card className="border-l-4 border-l-green-500">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Performance Monitor</CardTitle>
-                  <Badge className="bg-red-500">Alpha</Badge>
-                </div>
-                <CardDescription>
-                  Real-time scraping performance analytics
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>Memory Usage:</span>
-                    <span className="font-medium">342 MB</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>CPU Usage:</span>
-                    <span className="font-medium">23%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Queue Size:</span>
-                    <span className="font-medium">12</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* New Scraper Library */}
-            <Card className="border-l-4 border-l-purple-500">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Scraper v3</CardTitle>
-                  <Badge className="bg-red-500">Alpha</Badge>
-                </div>
-                <CardDescription>
-                  Next-generation scraping with AI assistance
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>AI Accuracy:</span>
-                    <span className="font-medium">94%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Protected Sites:</span>
-                    <span className="font-medium">78%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Speed Gain:</span>
-                    <span className="font-medium">+45%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+      {/* Test Interface */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Domain Extraction Test</CardTitle>
+          <CardDescription>
+            Test domain extraction using experimental methods (Axios/Cheerio and Puppeteer)
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex space-x-2">
+            <Input
+              placeholder="Enter domain (e.g., example.com)"
+              value={testDomain}
+              onChange={(e) => setTestDomain(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && runFullTest()}
+              disabled={isRunning}
+            />
+            <Button 
+              onClick={runFullTest} 
+              disabled={isRunning || !testDomain.trim()}
+            >
+              <Play className="w-4 h-4 mr-2" />
+              {isRunning ? 'Testing...' : 'Run Test'}
+            </Button>
           </div>
-        </TabsContent>
 
-        <TabsContent value="smoke-testing" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Beta Smoke Testing</CardTitle>
-              <CardDescription>
-                Test domains using experimental extraction methods
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex space-x-2">
-                <Input
-                  placeholder="Enter domain (e.g., example.com)"
-                  value={smokeTestDomain}
-                  onChange={(e) => setSmokeTestDomain(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && runSingleBetaTest()}
-                />
-                <Button 
-                  onClick={runSingleBetaTest} 
-                  disabled={isRunning || !smokeTestDomain.trim()}
-                >
-                  {isRunning ? 'Testing...' : 'Run Beta Test'}
-                </Button>
+          {isRunning && (
+            <div className="space-y-2">
+              <div className="text-sm text-muted-foreground">
+                Testing extraction methods...
               </div>
+              <Progress value={progress} className="w-full" />
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-              {isRunning && (
-                <div className="space-y-2">
-                  <div className="text-sm text-muted-foreground">
-                    Testing across all methods...
+      {/* Test Results */}
+      {testResults.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Test Results</CardTitle>
+            <CardDescription>
+              Comparison of extraction methods for {testResults[0]?.domain}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              {testResults.map((result, index) => (
+                <div key={index} className="p-4 border rounded-lg">
+                  <div className="flex items-center justify-between mb-3">
+                    <Badge variant={result.success ? "default" : "destructive"}>
+                      {result.method.replace('_', ' ').toUpperCase()}
+                    </Badge>
+                    <div className="flex items-center gap-2">
+                      {result.success ? (
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-red-500" />
+                      )}
+                      <Badge variant={result.success ? "default" : "destructive"}>
+                        {result.success ? "Success" : "Failed"}
+                      </Badge>
+                    </div>
                   </div>
-                  <Progress value={progress} className="w-full" />
-                </div>
-              )}
 
-              {smokeTestResults.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="font-semibold">Beta Test Results</h3>
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {smokeTestResults.map((result, index) => (
-                      <div key={index} className="p-4 border rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <Badge variant={result.success ? "default" : "destructive"}>
-                            {result.method?.replace('_', ' ').toUpperCase()}
-                          </Badge>
-                          <Badge variant={result.success ? "default" : "destructive"}>
-                            {result.success ? "Success" : "Failed"}
-                          </Badge>
-                        </div>
-                        <div className="space-y-1 text-sm">
-                          <div><strong>Domain:</strong> {result.domain}</div>
-                          <div><strong>Company:</strong> {result.companyName || 'Not found'}</div>
-                          <div><strong>Confidence:</strong> {result.companyConfidence || 0}%</div>
-                          <div><strong>Time:</strong> {result.processingTimeMs || 0}ms</div>
-                          {result.detectedCountry && (
-                            <div><strong>Country:</strong> {result.detectedCountry} ({result.countryConfidence}%)</div>
-                          )}
-                          {result.socialMediaCount !== undefined && (
-                            <div><strong>Social Media:</strong> {result.socialMediaCount} found</div>
-                          )}
-                          {result.error && (
-                            <div className="text-red-600"><strong>Error:</strong> {result.error}</div>
-                          )}
-                        </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div><strong>Company:</strong></div>
+                      <div>{result.companyName || 'Not found'}</div>
+
+                      <div><strong>Confidence:</strong></div>
+                      <div>{result.confidence}%</div>
+
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        <strong>Time:</strong>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                      <div>{result.processingTime}ms</div>
 
-              {smokeTestResults.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Recent Beta Test Results</h3>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {smokeTestResults.slice(0, 10).map((result, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 border rounded">
-                        <div className="flex items-center space-x-2">
-                          <Badge variant={result.success ? "default" : "destructive"}>
-                            {result.success ? "Success" : "Failed"}
-                          </Badge>
-                          <span className="font-medium">{result.domain}</span>
-                          {result.companyName && (
-                            <span className="text-muted-foreground">→ {result.companyName}</span>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-2 text-sm">
-                          <span>{result.confidence}%</span>
-                          <span>{result.processingTime}ms</span>
-                        </div>
+                      {result.extractionMethod && (
+                        <>
+                          <div><strong>Method:</strong></div>
+                          <div className="text-xs">{result.extractionMethod}</div>
+                        </>
+                      )}
+                    </div>
+
+                    {result.error && (
+                      <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded text-red-600 text-xs">
+                        <strong>Error:</strong> {result.error}
                       </div>
-                    ))}
+                    )}
+
+                    {result.technicalDetails && (
+                      <div className="mt-3 p-2 bg-gray-50 border border-gray-200 rounded text-xs">
+                        <strong>Technical:</strong> {result.technicalDetails}
+                      </div>
+                    )}
                   </div>
                 </div>
-              )}
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Quick Stats */}
+      {testResults.length > 0 && (
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {testResults.filter(r => r.success).length}
+                </div>
+                <div className="text-sm text-muted-foreground">Successful</div>
+              </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="performance" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Cpu className="w-5 h-5 mr-2" />
-                  System Performance
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>CPU Usage</span>
-                      <span>23%</span>
-                    </div>
-                    <Progress value={23} />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Memory Usage</span>
-                      <span>67%</span>
-                    </div>
-                    <Progress value={67} />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Database Load</span>
-                      <span>12%</span>
-                    </div>
-                    <Progress value={12} />
-                  </div>
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">
+                  {Math.round(testResults.reduce((acc, r) => acc + r.processingTime, 0) / testResults.length)}ms
                 </div>
-              </CardContent>
-            </Card>
+                <div className="text-sm text-muted-foreground">Avg Time</div>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <BarChart3 className="w-5 h-5 mr-2" />
-                  Experiment Metrics
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span>Active Experiments:</span>
-                    <Badge>3</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Tests Run Today:</span>
-                    <Badge>127</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Success Rate:</span>
-                    <Badge className="bg-green-500">85%</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Avg Response Time:</span>
-                    <Badge>1.4s</Badge>
-                  </div>
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">
+                  {Math.round(testResults.reduce((acc, r) => acc + r.confidence, 0) / testResults.length)}%
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+                <div className="text-sm text-muted-foreground">Avg Confidence</div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
