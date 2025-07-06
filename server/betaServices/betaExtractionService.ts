@@ -1,3 +1,4 @@
+
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { chromium } from 'playwright';
@@ -22,51 +23,100 @@ export class BetaExtractionService {
     }
   };
 
+  async testDomain(domain: string, method: string): Promise<BetaExtractionResult> {
+    const startTime = Date.now();
+    
+    try {
+      switch (method.toLowerCase()) {
+        case 'axios_cheerio':
+          return await this.testWithAxiosCheerio(domain);
+        case 'playwright':
+          return await this.testWithPlaywright(domain);
+        case 'puppeteer':
+          return await this.testWithPuppeteer(domain);
+        default:
+          throw new Error(`Unknown extraction method: ${method}`);
+      }
+    } catch (error) {
+      return {
+        domain,
+        method,
+        companyName: null,
+        confidence: 0,
+        processingTime: Date.now() - startTime,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        extractionMethod: null,
+        technicalDetails: null
+      };
+    }
+  }
+
   async testWithAxiosCheerio(domain: string): Promise<BetaExtractionResult> {
     const startTime = Date.now();
     
     try {
-      const url = `https://${domain}`;
+      const url = domain.startsWith('http') ? domain : `https://${domain}`;
       const response = await axios.get(url, this.axiosConfig);
       const $ = cheerio.load(response.data);
       
-      // Try different extraction methods
-      let companyName = null;
-      let extractionMethod = null;
-      let confidence = 0;
+      // Extract company name using various selectors
+      let companyName: string | null = null;
+      let extractionMethod: string | null = null;
       
-      // Method 1: Meta property
-      const metaName = $('meta[property="og:site_name"]').attr('content') ||
-                      $('meta[name="application-name"]').attr('content');
-      if (metaName) {
-        companyName = metaName.trim();
-        extractionMethod = 'meta_property';
-        confidence = 75;
-      }
+      // Try meta tags first
+      const metaTags = [
+        'meta[property="og:site_name"]',
+        'meta[name="application-name"]',
+        'meta[name="author"]',
+        'meta[property="og:title"]'
+      ];
       
-      // Method 2: Title fallback
-      if (!companyName) {
-        const title = $('title').text();
-        if (title) {
-          companyName = title.split(/[-|]/)[0].trim();
-          extractionMethod = 'title_tag';
-          confidence = 55;
+      for (const selector of metaTags) {
+        const content = $(selector).attr('content');
+        if (content && content.trim()) {
+          companyName = content.trim();
+          extractionMethod = `meta_tag_${selector}`;
+          break;
         }
       }
       
-      const processingTime = Date.now() - startTime;
+      // Try title tag if no meta tags found
+      if (!companyName) {
+        const title = $('title').text().trim();
+        if (title) {
+          companyName = title.split('|')[0].split('-')[0].trim();
+          extractionMethod = 'title_tag';
+        }
+      }
+      
+      // Try common header selectors
+      if (!companyName) {
+        const headerSelectors = ['h1', '.logo', '#logo', '.brand', '.company-name'];
+        for (const selector of headerSelectors) {
+          const text = $(selector).first().text().trim();
+          if (text && text.length > 2 && text.length < 100) {
+            companyName = text;
+            extractionMethod = `header_${selector}`;
+            break;
+          }
+        }
+      }
+      
+      const confidence = companyName ? (extractionMethod?.includes('meta') ? 85 : 70) : 0;
       
       return {
         domain,
         method: 'axios_cheerio',
         companyName,
         confidence,
-        processingTime,
+        processingTime: Date.now() - startTime,
         success: !!companyName,
         error: null,
         extractionMethod,
-        technicalDetails: `Found via ${extractionMethod || 'none'}`
+        technicalDetails: `HTTP ${response.status}, Content-Length: ${response.data.length}`
       };
+      
     } catch (error) {
       return {
         domain,
@@ -77,89 +127,84 @@ export class BetaExtractionService {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
         extractionMethod: null,
-        technicalDetails: 'Failed to fetch or parse HTML'
+        technicalDetails: null
       };
     }
   }
 
   async testWithPlaywright(domain: string): Promise<BetaExtractionResult> {
     const startTime = Date.now();
-    let browser = null;
+    let browser;
     
     try {
+      const url = domain.startsWith('http') ? domain : `https://${domain}`;
+      
       browser = await chromium.launch({ headless: true });
-      const context = await browser.newContext({
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      });
-      const page = await context.newPage();
+      const page = await browser.newPage();
       
-      await page.goto(`https://${domain}`, { 
-        waitUntil: 'domcontentloaded',
-        timeout: 15000 
-      });
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 8000 });
       
-      // Extract using Playwright's evaluate
-      const result = await page.evaluate(() => {
-        // Try structured data first
-        const jsonLd = document.querySelector('script[type="application/ld+json"]');
-        if (jsonLd) {
-          try {
-            const data = JSON.parse(jsonLd.textContent || '');
-            if (data.name || data.organization?.name) {
-              return {
-                name: data.name || data.organization.name,
-                method: 'structured_data'
-              };
-            }
-          } catch {}
+      // Extract company name using various methods
+      let companyName: string | null = null;
+      let extractionMethod: string | null = null;
+      
+      // Try meta tags
+      const metaSelectors = [
+        'meta[property="og:site_name"]',
+        'meta[name="application-name"]',
+        'meta[property="og:title"]'
+      ];
+      
+      for (const selector of metaSelectors) {
+        const content = await page.getAttribute(selector, 'content');
+        if (content && content.trim()) {
+          companyName = content.trim();
+          extractionMethod = `playwright_meta_${selector}`;
+          break;
         }
-        
-        // Try meta tags
-        const metaName = document.querySelector('meta[property="og:site_name"]')?.getAttribute('content') ||
-                        document.querySelector('meta[name="application-name"]')?.getAttribute('content');
-        if (metaName) {
-          return { name: metaName, method: 'meta_property' };
-        }
-        
-        // Fallback to title
-        const title = document.title;
-        if (title) {
-          return { name: title.split(/[-|]/)[0].trim(), method: 'title_tag' };
-        }
-        
-        return null;
-      });
-      
-      await browser.close();
-      const processingTime = Date.now() - startTime;
-      
-      if (result) {
-        return {
-          domain,
-          method: 'playwright',
-          companyName: result.name,
-          confidence: result.method === 'structured_data' ? 90 : 70,
-          processingTime,
-          success: true,
-          error: null,
-          extractionMethod: result.method,
-          technicalDetails: `JavaScript rendered extraction via ${result.method}`
-        };
       }
+      
+      // Try title if no meta found
+      if (!companyName) {
+        const title = await page.title();
+        if (title) {
+          companyName = title.split('|')[0].split('-')[0].trim();
+          extractionMethod = 'playwright_title';
+        }
+      }
+      
+      // Try visible text elements
+      if (!companyName) {
+        const headerSelectors = ['h1', '.logo', '#logo', '.brand', '.company-name'];
+        for (const selector of headerSelectors) {
+          try {
+            const text = await page.textContent(selector);
+            if (text && text.trim().length > 2 && text.trim().length < 100) {
+              companyName = text.trim();
+              extractionMethod = `playwright_element_${selector}`;
+              break;
+            }
+          } catch {
+            // Continue to next selector
+          }
+        }
+      }
+      
+      const confidence = companyName ? (extractionMethod?.includes('meta') ? 90 : 75) : 0;
       
       return {
         domain,
         method: 'playwright',
-        companyName: null,
-        confidence: 0,
-        processingTime,
-        success: false,
-        error: 'No company name found',
-        extractionMethod: null,
-        technicalDetails: 'Page loaded but no extraction successful'
+        companyName,
+        confidence,
+        processingTime: Date.now() - startTime,
+        success: !!companyName,
+        error: null,
+        extractionMethod,
+        technicalDetails: 'Playwright with Chromium browser'
       };
+      
     } catch (error) {
-      if (browser) await browser.close();
       return {
         domain,
         method: 'playwright',
@@ -169,8 +214,12 @@ export class BetaExtractionService {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
         extractionMethod: null,
-        technicalDetails: 'Playwright execution failed'
+        technicalDetails: null
       };
+    } finally {
+      if (browser) {
+        await browser.close();
+      }
     }
   }
 
