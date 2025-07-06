@@ -20,6 +20,7 @@ function Router() {
       <Route path="/analytics" component={Analytics} />
       <Route path="/parsing-rules" component={ParsingRules} />
       <Route path="/jurisdictional-guide" component={JurisdictionalGuide} />
+      <Route path="/beta-testing" component={BetaTestingPage} />
       <Route path="/recent-changes" component={lazy(() => import("./pages/recent-changes"))} />
       <Route component={NotFound} />
     </Switch>
