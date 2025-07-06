@@ -96,31 +96,56 @@ app.post('/api/beta/smoke-test', async (req, res) => {
   }
 });
 
-// Start server with better error handling
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🧪 Beta Testing Server running on port ${PORT}`);
-  console.log(`🌐 Health check: http://0.0.0.0:${PORT}/api/beta/health`);
-});
-
-server.on('error', (error: any) => {
-  console.error('❌ Beta server error:', error);
-  if (error.code === 'EADDRINUSE') {
-    console.error(`💥 Port ${PORT} is already in use`);
-    process.exit(1);
-  }
-});
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('🛑 Beta server shutting down gracefully...');
-  server.close(() => {
-    process.exit(0);
+// Start server with better error handling and port conflict resolution
+const startServer = () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🧪 Beta Testing Server running on port ${PORT}`);
+    console.log(`🌐 Health check: http://0.0.0.0:${PORT}/api/beta/health`);
+    console.log(`✅ Beta server ready to accept connections`);
   });
-});
 
-process.on('SIGINT', () => {
-  console.log('🛑 Beta server shutting down gracefully...');
-  server.close(() => {
-    process.exit(0);
+  server.on('error', (error: any) => {
+    console.error('❌ Beta server error:', error);
+    if (error.code === 'EADDRINUSE') {
+      console.error(`💥 Port ${PORT} is already in use - attempting to kill existing process`);
+      // Try to kill existing process and retry
+      const { exec } = require('child_process');
+      exec(`pkill -f "betaIndex.ts" && sleep 2`, (killError) => {
+        if (killError) {
+          console.error('Failed to kill existing process:', killError);
+          process.exit(1);
+        } else {
+          console.log('Killed existing process, retrying...');
+          setTimeout(() => startServer(), 3000);
+        }
+      });
+    } else {
+      process.exit(1);
+    }
   });
+
+  // Graceful shutdown
+  const gracefulShutdown = () => {
+    console.log('🛑 Beta server shutting down gracefully...');
+    server.close(() => {
+      console.log('✅ Beta server closed');
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGTERM', gracefulShutdown);
+  process.on('SIGINT', gracefulShutdown);
+  
+  return server;
+};
+
+// Add process cleanup on startup
+console.log('🧪 Starting beta server...');
+console.log('🔄 Checking for existing processes...');
+
+const { exec } = require('child_process');
+exec('pkill -f "betaIndex.ts" || true', (error) => {
+  setTimeout(() => {
+    startServer();
+  }, 1000);
 });
