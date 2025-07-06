@@ -141,9 +141,9 @@ export class BetaExtractionService {
       confidence: 0,
       processingTime: 0,
       success: false,
-      error: 'Puppeteer not implemented in beta - use playwright instead',
+      error: 'Puppeteer not implemented in beta - use axios_cheerio instead',
       extractionMethod: null,
-      technicalDetails: 'Puppeteer would work similarly to Playwright'
+      technicalDetails: 'Puppeteer implementation not available in beta environment'
     };
   }
 }
