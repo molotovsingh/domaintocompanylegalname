@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { chromium } from 'playwright';
@@ -25,7 +24,7 @@ export class BetaExtractionService {
 
   async testDomain(domain: string, method: string): Promise<BetaExtractionResult> {
     const startTime = Date.now();
-    
+
     try {
       switch (method.toLowerCase()) {
         case 'axios_cheerio':
@@ -54,16 +53,16 @@ export class BetaExtractionService {
 
   async testWithAxiosCheerio(domain: string): Promise<BetaExtractionResult> {
     const startTime = Date.now();
-    
+
     try {
       const url = domain.startsWith('http') ? domain : `https://${domain}`;
       const response = await axios.get(url, this.axiosConfig);
       const $ = cheerio.load(response.data);
-      
+
       // Extract company name using various selectors
       let companyName: string | null = null;
       let extractionMethod: string | null = null;
-      
+
       // Try meta tags first
       const metaTags = [
         'meta[property="og:site_name"]',
@@ -71,7 +70,7 @@ export class BetaExtractionService {
         'meta[name="author"]',
         'meta[property="og:title"]'
       ];
-      
+
       for (const selector of metaTags) {
         const content = $(selector).attr('content');
         if (content && content.trim()) {
@@ -80,7 +79,7 @@ export class BetaExtractionService {
           break;
         }
       }
-      
+
       // Try title tag if no meta tags found
       if (!companyName) {
         const title = $('title').text().trim();
@@ -89,7 +88,7 @@ export class BetaExtractionService {
           extractionMethod = 'title_tag';
         }
       }
-      
+
       // Try common header selectors
       if (!companyName) {
         const headerSelectors = ['h1', '.logo', '#logo', '.brand', '.company-name'];
@@ -102,9 +101,9 @@ export class BetaExtractionService {
           }
         }
       }
-      
+
       const confidence = companyName ? (extractionMethod?.includes('meta') ? 85 : 70) : 0;
-      
+
       return {
         domain,
         method: 'axios_cheerio',
@@ -116,7 +115,7 @@ export class BetaExtractionService {
         extractionMethod,
         technicalDetails: `HTTP ${response.status}, Content-Length: ${response.data.length}`
       };
-      
+
     } catch (error) {
       return {
         domain,
@@ -135,26 +134,43 @@ export class BetaExtractionService {
   async testWithPlaywright(domain: string): Promise<BetaExtractionResult> {
     const startTime = Date.now();
     let browser;
-    
+
     try {
+      // Dynamic import for Playwright
+      const { chromium } = await import('playwright');
+
       const url = domain.startsWith('http') ? domain : `https://${domain}`;
-      
-      browser = await chromium.launch({ headless: true });
+
+      browser = await chromium.launch({ 
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--disable-gpu',
+          '--disable-web-security',
+          '--disable-features=VizDisplayCompositor'
+        ]
+      });
+
       const page = await browser.newPage();
-      
+
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 8000 });
-      
+
       // Extract company name using various methods
       let companyName: string | null = null;
       let extractionMethod: string | null = null;
-      
+
       // Try meta tags
       const metaSelectors = [
         'meta[property="og:site_name"]',
         'meta[name="application-name"]',
         'meta[property="og:title"]'
       ];
-      
+
       for (const selector of metaSelectors) {
         const content = await page.getAttribute(selector, 'content');
         if (content && content.trim()) {
@@ -163,7 +179,7 @@ export class BetaExtractionService {
           break;
         }
       }
-      
+
       // Try title if no meta found
       if (!companyName) {
         const title = await page.title();
@@ -172,7 +188,7 @@ export class BetaExtractionService {
           extractionMethod = 'playwright_title';
         }
       }
-      
+
       // Try visible text elements
       if (!companyName) {
         const headerSelectors = ['h1', '.logo', '#logo', '.brand', '.company-name'];
@@ -189,9 +205,9 @@ export class BetaExtractionService {
           }
         }
       }
-      
+
       const confidence = companyName ? (extractionMethod?.includes('meta') ? 90 : 75) : 0;
-      
+
       return {
         domain,
         method: 'playwright',
@@ -203,7 +219,7 @@ export class BetaExtractionService {
         extractionMethod,
         technicalDetails: 'Playwright with Chromium browser'
       };
-      
+
     } catch (error) {
       return {
         domain,

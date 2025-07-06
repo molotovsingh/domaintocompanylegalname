@@ -1,4 +1,3 @@
-
 import express from 'express';
 import cors from 'cors';
 import { betaDb } from './betaDb';
@@ -47,30 +46,35 @@ app.get('/api/beta/smoke-test/results', async (req, res) => {
 app.post('/api/beta/smoke-test', async (req, res) => {
   try {
     const { domain, method } = req.body;
-    
+
     if (!domain || !method) {
       return res.status(400).json({ success: false, error: 'Domain and method are required' });
     }
 
     console.log(`🧪 Running beta smoke test: ${domain} with ${method}`);
-    
-    // Run the extraction test
+
+    // Run the extraction test with error handling
     const result = await extractionService.testDomain(domain, method);
-    
-    // Store result in beta database
-    await betaDb.insert(betaSmokeTests).values({
-      domain: result.domain,
-      method: result.method,
-      companyName: result.companyName,
-      confidence: result.confidence, // Fixed column name
-      processingTimeMs: result.processingTime,
-      success: result.success,
-      error: result.error,
-      companyExtractionMethod: result.extractionMethod,
-      rawExtractionData: result.technicalDetails ? JSON.parse(JSON.stringify({ details: result.technicalDetails })) : null,
-      httpStatus: 200, // Default for now
-      createdAt: new Date()
-    });
+
+    // Store result in beta database with enhanced error handling
+    try {
+      await betaDb.insert(betaSmokeTests).values({
+        domain: result.domain,
+        method: result.method,
+        companyName: result.companyName,
+        confidence: result.confidence,
+        processingTimeMs: result.processingTime,
+        success: result.success,
+        error: result.error,
+        companyExtractionMethod: result.extractionMethod,
+        rawExtractionData: result.technicalDetails ? JSON.parse(JSON.stringify({ details: result.technicalDetails })) : null,
+        httpStatus: 200,
+        createdAt: new Date()
+      });
+    } catch (dbError) {
+      console.error('Database insertion error:', dbError);
+      // Continue with response even if DB insertion fails
+    }
 
     res.json({
       success: true,
