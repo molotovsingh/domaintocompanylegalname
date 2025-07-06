@@ -1,0 +1,40 @@
+🚀 Starting beta server on demand...
+Failed to start beta server: Error: Beta server failed to start in 10 seconds
+    at ensureBetaServerRunning (/home/runner/workspace/server/routes.ts:1130:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1152:25)
+5:08:43 AM [express] GET /api/beta/experiments 503 in 10075ms :: {"success":false,"error":"Beta serv…
+🚀 Starting beta server on demand...
+5:08:45 AM [express] GET /api/beta/experiments 503 in 1001ms :: {"success":false,"error":"Beta serve…
+5:08:45 AM [express] GET /api/beta/status 200 in 1ms :: {"status":"starting"}
+5:08:46 AM [express] GET /api/beta/status 304 in 1ms :: {"status":"starting"}
+5:08:47 AM [express] GET /api/beta/status 304 in 1ms :: {"status":"starting"}
+5:08:48 AM [express] GET /api/beta/status 304 in 4ms :: {"status":"starting"}
+5:08:49 AM [express] GET /api/beta/status 304 in 1ms :: {"status":"starting"}
+5:08:50 AM [express] GET /api/beta/status 304 in 1ms :: {"status":"starting"}
+5:08:51 AM [express] GET /api/beta/status 304 in 1ms :: {"status":"starting"}
+5:08:52 AM [express] GET /api/beta/status 304 in 1ms :: {"status":"starting"}
+5:08:53 AM [express] GET /api/beta/status 304 in 1ms :: {"status":"starting"}
+5:08:54 AM [express] GET /api/beta/status 304 in 0ms :: {"status":"starting"}
+Failed to start beta server: Error: Beta server failed to start in 10 seconds
+    at ensureBetaServerRunning (/home/runner/workspace/server/routes.ts:1130:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1170:25)
+5:08:54 AM [express] GET /api/beta/smoke-test/results 503 in 10046ms :: {"success":false,"error":"Be…
+🚀 Starting beta server on demand...
+5:08:55 AM [express] GET /api/beta/status 304 in 1ms :: {"status":"starting"}
+5:08:56 AM [express] GET /api/beta/status 304 in 1ms :: {"status":"starting"}
+5:08:57 AM [express] GET /api/beta/status 304 in 1ms :: {"status":"starting"}
+5:08:58 AM [express] GET /api/beta/status 304 in 1ms :: {"status":"starting"}
+5:08:59 AM [express] GET /api/beta/status 304 in 0ms :: {"status":"starting"}
+5:09:00 AM [express] GET /api/beta/status 304 in 1ms :: {"status":"starting"}
+5:09:01 AM [express] GET /api/beta/status 304 in 0ms :: {"status":"starting"}
+5:09:02 AM [express] GET /api/beta/status 304 in 0ms :: {"status":"starting"}
+5:09:03 AM [express] GET /api/beta/status 304 in 1ms :: {"status":"starting"}
+5:09:04 AM [express] GET /api/beta/status 304 in 0ms :: {"status":"starting"}
+Failed to start beta server: Error: Beta server failed to start in 10 seconds
+    at ensureBetaServerRunning (/home/runner/workspace/server/routes.ts:1130:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1170:25)
+5:09:04 AM [express] GET /api/beta/smoke-test/results 503 in 10040ms :: {"success":false,"error":"Be…
+5:09:05 AM [express] GET /api/beta/status 200 in 1ms :: {"status":"stopped"}
