@@ -1,10 +1,160 @@
+
 import puppeteer from 'puppeteer';
+import axios from 'axios';
+import * as cheerio from 'cheerio';
 
 interface ExtractionStep {
   step: string;
   success: boolean;
   details: string;
   timestamp: number;
+}
+
+interface ExtractorResult {
+  processingTimeMs: number;
+  success: boolean;
+  error: string | null;
+  companyName: string | null;
+  companyConfidence: number;
+  companyExtractionMethod: string | null;
+  detectedCountry: string | null;
+  countryConfidence: number;
+  geoMarkers: string;
+  termsUrl: string | null;
+  privacyUrl: string | null;
+  legalUrls: string;
+  legalContentExtracted: boolean;
+  aboutUrl: string | null;
+  aboutContent: string | null;
+  aboutExtractionSuccess: boolean;
+  socialMediaLinks: string;
+  socialMediaCount: number;
+  contactEmails: string;
+  contactPhones: string;
+  contactAddresses: string;
+  hasContactPage: boolean;
+  rawHtmlSize: number;
+  rawExtractionData: string | null;
+  pageMetadata: string | null;
+  httpStatus: number;
+  renderRequired: boolean;
+  javascriptErrors: string;
+  extractionSteps: string;
+}
+
+// Shared utility functions
+class ExtractionUtils {
+  static readonly TLD_COUNTRY_MAP: Record<string, string> = {
+    'uk': 'GB', 'de': 'DE', 'fr': 'FR', 'jp': 'JP', 'cn': 'CN',
+    'ca': 'CA', 'au': 'AU', 'in': 'IN', 'br': 'BR', 'mx': 'MX',
+    'it': 'IT', 'es': 'ES', 'nl': 'NL', 'se': 'SE', 'no': 'NO',
+    'dk': 'DK', 'fi': 'FI', 'at': 'AT', 'ch': 'CH', 'be': 'BE'
+  };
+
+  static readonly PHONE_COUNTRY_CODES: Record<string, string> = {
+    '+1': 'US', '+44': 'GB', '+49': 'DE', '+33': 'FR', '+81': 'JP',
+    '+86': 'CN', '+91': 'IN', '+55': 'BR', '+52': 'MX', '+39': 'IT',
+    '+34': 'ES', '+31': 'NL', '+46': 'SE', '+47': 'NO', '+45': 'DK'
+  };
+
+  static readonly CURRENCY_COUNTRY_MAP: Record<string, string> = {
+    'USD': 'US', 'EUR': 'EU', 'GBP': 'GB', 'JPY': 'JP', 'CNY': 'CN',
+    'CAD': 'CA', 'AUD': 'AU', 'INR': 'IN', 'BRL': 'BR', 'MXN': 'MX'
+  };
+
+  static readonly CHROME_EXECUTABLE_PATH = '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium';
+
+  static readonly CHROME_ARGS = [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--disable-gpu',
+    '--disable-web-security',
+    '--disable-features=IsolateOrigins',
+    '--disable-site-isolation-trials'
+  ];
+
+  static readonly USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
+  static detectCountryFromTLD(domain: string): { country: string | null, confidence: number } {
+    const tld = domain.split('.').pop();
+    if (tld && this.TLD_COUNTRY_MAP[tld]) {
+      return { country: this.TLD_COUNTRY_MAP[tld], confidence: 85 };
+    }
+    return { country: null, confidence: 0 };
+  }
+
+  static detectCountryFromPhone(phone: string): { country: string | null, confidence: number } {
+    for (const [code, country] of Object.entries(this.PHONE_COUNTRY_CODES)) {
+      if (phone.startsWith(code)) {
+        return { country, confidence: 75 };
+      }
+    }
+    return { country: null, confidence: 0 };
+  }
+
+  static extractPhoneNumbers(text: string): string[] {
+    const phoneRegex = /(\+?\d{1,4}[\s.-]?)?\(?\d{1,4}\)?[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}/g;
+    const phones = text.match(phoneRegex) || [];
+    return Array.from(new Set(phones))
+      .filter(phone => phone.length >= 10 && phone.length <= 20)
+      .slice(0, 5);
+  }
+
+  static extractEmails(text: string): string[] {
+    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+    const emails = text.match(emailRegex) || [];
+    return Array.from(new Set(emails))
+      .filter(email => !email.includes('example.com') && !email.includes('@2x'))
+      .slice(0, 5);
+  }
+
+  static extractPostalCodes(text: string): string[] {
+    const postalRegex = /\b\d{5}(-\d{4})?\b|\b[A-Z]\d[A-Z]\s?\d[A-Z]\d\b/g;
+    const postals = text.match(postalRegex) || [];
+    return Array.from(new Set(postals)).slice(0, 5);
+  }
+
+  static extractAddresses(text: string): string[] {
+    const addressRegex = /\d+\s+[\w\s]+(?:street|st|avenue|ave|road|rd|boulevard|blvd|lane|ln|drive|dr|court|ct|plaza|place|pl)[\s,]+[\w\s]+/gi;
+    const addresses = text.match(addressRegex) || [];
+    return Array.from(new Set(addresses)).slice(0, 3);
+  }
+
+  static detectCurrencies(text: string): string[] {
+    const currencies: string[] = [];
+    if (text.includes('$')) currencies.push('USD');
+    if (text.includes('€')) currencies.push('EUR');
+    if (text.includes('£')) currencies.push('GBP');
+    if (text.includes('¥')) currencies.push('JPY/CNY');
+    if (text.includes('₹')) currencies.push('INR');
+    if (text.includes('C$')) currencies.push('CAD');
+    if (text.includes('A$')) currencies.push('AUD');
+    return currencies;
+  }
+
+  static findSocialMediaLinks(links: Element[]): Record<string, string> {
+    const socialLinks: Record<string, string> = {};
+    const patterns = [
+      ['twitter', /twitter\.com|x\.com/i],
+      ['linkedin', /linkedin\.com/i],
+      ['facebook', /facebook\.com/i],
+      ['instagram', /instagram\.com/i],
+      ['youtube', /youtube\.com/i],
+      ['github', /github\.com/i],
+      ['tiktok', /tiktok\.com/i]
+    ];
+
+    for (const link of links) {
+      const href = (link as HTMLAnchorElement).href || '';
+      for (const [platform, pattern] of patterns) {
+        if (pattern.test(href) && !socialLinks[platform]) {
+          socialLinks[platform] = href;
+        }
+      }
+    }
+    return socialLinks;
+  }
 }
 
 export class PuppeteerExtractor {
@@ -14,16 +164,8 @@ export class PuppeteerExtractor {
   async initialize() {
     this.browser = await puppeteer.launch({
       headless: true,
-      executablePath: '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--disable-web-security',
-        '--disable-features=IsolateOrigins',
-        '--disable-site-isolation-trials'
-      ]
+      executablePath: ExtractionUtils.CHROME_EXECUTABLE_PATH,
+      args: ExtractionUtils.CHROME_ARGS
     });
   }
 
@@ -42,12 +184,30 @@ export class PuppeteerExtractor {
     });
   }
 
-  async extractFromDomain(domain: string) {
+  // Main extraction method with fallback to axios/cheerio
+  async extractFromDomain(domain: string): Promise<ExtractorResult> {
     const startTime = Date.now();
     this.steps = [];
-    
+
+    try {
+      // Try Puppeteer first
+      return await this.extractWithPuppeteer(domain, startTime);
+    } catch (puppeteerError) {
+      this.logStep('puppeteer_fallback', false, `Puppeteer failed: ${puppeteerError.message}`);
+      
+      // Fallback to axios/cheerio
+      try {
+        return await this.extractWithAxiosCheerio(domain, startTime);
+      } catch (axiosError) {
+        this.logStep('axios_fallback', false, `Axios failed: ${axiosError.message}`);
+        return this.createErrorResult(domain, startTime, `Both methods failed. Puppeteer: ${puppeteerError.message}, Axios: ${axiosError.message}`);
+      }
+    }
+  }
+
+  private async extractWithPuppeteer(domain: string, startTime: number): Promise<ExtractorResult> {
     const page = await this.browser!.newPage();
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+    await page.setUserAgent(ExtractionUtils.USER_AGENT);
     
     try {
       // Navigate to domain
@@ -91,17 +251,12 @@ export class PuppeteerExtractor {
       await page.close();
       
       return {
-        // Performance
         processingTimeMs: Date.now() - startTime,
         success: !!companyResult.name,
         error: null,
-        
-        // Company data
         companyName: companyResult.name,
         companyConfidence: companyResult.confidence,
         companyExtractionMethod: companyResult.method,
-        
-        // Geographic
         detectedCountry: geoResult.country,
         countryConfidence: geoResult.countryConfidence,
         geoMarkers: JSON.stringify({
@@ -111,29 +266,19 @@ export class PuppeteerExtractor {
           languages: geoResult.markers.filter(m => m.type === 'language').map(m => m.value),
           postalCodes: geoResult.markers.filter(m => m.type === 'postal').map(m => m.value)
         }),
-        
-        // Legal
         termsUrl: legalResult.urls.find(u => u.type === 'terms')?.url || null,
         privacyUrl: legalResult.urls.find(u => u.type === 'privacy')?.url || null,
         legalUrls: JSON.stringify(legalResult.urls),
         legalContentExtracted: legalResult.urls.length > 0,
-        
-        // About
         aboutUrl: aboutResult.url,
         aboutContent: aboutResult.content,
         aboutExtractionSuccess: !!aboutResult.content,
-        
-        // Social Media
         socialMediaLinks: JSON.stringify(socialResult.links),
         socialMediaCount: socialResult.count,
-        
-        // Contact Information
         contactEmails: JSON.stringify(contactResult.emails),
         contactPhones: JSON.stringify(contactResult.phones),
         contactAddresses: JSON.stringify(contactResult.addresses),
         hasContactPage: contactResult.hasContactPage,
-        
-        // Raw data
         rawHtmlSize: htmlSize,
         rawExtractionData: JSON.stringify({
           title,
@@ -153,8 +298,6 @@ export class PuppeteerExtractor {
           charset: await page.evaluate(() => document.characterSet),
           htmlLang: await page.evaluate(() => document.documentElement.lang)
         }),
-        
-        // Technical
         httpStatus,
         renderRequired: true,
         javascriptErrors: JSON.stringify([]),
@@ -163,17 +306,117 @@ export class PuppeteerExtractor {
       
     } catch (error: any) {
       await page.close();
-      this.logStep('error', false, error.message);
+      throw error;
+    }
+  }
+
+  private async extractWithAxiosCheerio(domain: string, startTime: number): Promise<ExtractorResult> {
+    const url = domain.startsWith('http') ? domain : `https://${domain}`;
+    const axiosConfig = {
+      timeout: 10000,
+      headers: {
+        'User-Agent': ExtractionUtils.USER_AGENT
+      }
+    };
+
+    try {
+      const response = await axios.get(url, axiosConfig);
+      const $ = cheerio.load(response.data);
       
+      this.logStep('axios_navigation', true, `Loaded ${url} with status ${response.status}`);
+
+      // Extract company name using various selectors
+      let companyName: string | null = null;
+      let extractionMethod: string | null = null;
+      let confidence = 0;
+
+      // Try structured data first
+      const jsonLd = $('script[type="application/ld+json"]').first();
+      if (jsonLd.length > 0) {
+        try {
+          const data = JSON.parse(jsonLd.html() || '');
+          if (data.name || (data.organization && data.organization.name)) {
+            companyName = data.name || data.organization.name;
+            extractionMethod = 'structured_data';
+            confidence = 90;
+          }
+        } catch (e) {
+          // Ignore JSON parse errors
+        }
+      }
+
+      // Try meta tags
+      if (!companyName) {
+        const metaTags = [
+          'meta[property="og:site_name"]',
+          'meta[name="application-name"]',
+          'meta[name="author"]',
+          'meta[property="og:title"]'
+        ];
+
+        for (const selector of metaTags) {
+          const content = $(selector).attr('content');
+          if (content && content.trim()) {
+            companyName = content.trim();
+            extractionMethod = `meta_tag_${selector}`;
+            confidence = 80;
+            break;
+          }
+        }
+      }
+
+      // Try footer copyright
+      if (!companyName) {
+        const footer = $('footer');
+        if (footer.length > 0) {
+          const footerText = footer.text();
+          const copyrightMatch = footerText.match(/©\s*\d{4}\s*([^.]+?)(?:\.|All|$)/i);
+          if (copyrightMatch) {
+            companyName = copyrightMatch[1].trim();
+            extractionMethod = 'footer_copyright';
+            confidence = 75;
+          }
+        }
+      }
+
+      // Try title tag
+      if (!companyName) {
+        const title = $('title').text().trim();
+        if (title) {
+          companyName = title.split('|')[0].split('-')[0].trim();
+          extractionMethod = 'title_tag';
+          confidence = 60;
+        }
+      }
+
+      // Try common header selectors
+      if (!companyName) {
+        const headerSelectors = ['h1', '.logo', '#logo', '.brand', '.company-name'];
+        for (const selector of headerSelectors) {
+          const text = $(selector).first().text().trim();
+          if (text && text.length > 2 && text.length < 100) {
+            companyName = text;
+            extractionMethod = `header_${selector}`;
+            confidence = 65;
+            break;
+          }
+        }
+      }
+
+      // Basic geo detection
+      const tldResult = ExtractionUtils.detectCountryFromTLD(domain);
+
+      this.logStep('axios_extraction', !!companyName, `Extracted: ${companyName || 'none'}`);
+
       return {
         processingTimeMs: Date.now() - startTime,
-        success: false,
-        error: error.message,
-        companyName: null,
-        companyConfidence: 0,
-        companyExtractionMethod: null,
-        detectedCountry: null,
-        countryConfidence: 0,
+        success: !!companyName,
+        error: null,
+        companyName,
+        companyConfidence: confidence,
+        companyExtractionMethod: extractionMethod,
+        detectedCountry: tldResult.country,
+        countryConfidence: tldResult.confidence,
         geoMarkers: JSON.stringify({ addresses: [], phones: [], currencies: [], languages: [], postalCodes: [] }),
         termsUrl: null,
         privacyUrl: null,
@@ -188,20 +431,22 @@ export class PuppeteerExtractor {
         contactPhones: JSON.stringify([]),
         contactAddresses: JSON.stringify([]),
         hasContactPage: false,
-        rawHtmlSize: 0,
-        rawExtractionData: null,
-        pageMetadata: null,
-        httpStatus: 0,
-        renderRequired: true,
+        rawHtmlSize: response.data.length,
+        rawExtractionData: JSON.stringify({ title: $('title').text(), domain, httpStatus: response.status }),
+        pageMetadata: JSON.stringify({ title: $('title').text(), charset: 'utf-8', htmlLang: 'en' }),
+        httpStatus: response.status,
+        renderRequired: false,
         javascriptErrors: JSON.stringify([]),
         extractionSteps: JSON.stringify(this.steps)
       };
+
+    } catch (error) {
+      throw error;
     }
   }
   
   private async extractCompanyName(page: puppeteer.Page) {
     try {
-      // Try multiple methods with confidence scoring
       const title = await page.title();
       
       // Check for structured data
@@ -268,26 +513,22 @@ export class PuppeteerExtractor {
       const markers: any[] = [];
       
       // Phone numbers
-      const phoneRegex = /(\+\d{1,4}[\s.-]?)?\(?\d{1,4}\)?[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}/g;
-      const phones = text.match(phoneRegex) || [];
-      phones.slice(0, 3).forEach(phone => {
-        if (phone.length >= 10 && phone.length <= 20) {
-          markers.push({ type: 'phone', value: phone });
-        }
+      const phones = ExtractionUtils.extractPhoneNumbers(text);
+      phones.forEach(phone => {
+        markers.push({ type: 'phone', value: phone });
       });
       
       // Postal codes
-      const postalRegex = /\b\d{5}(-\d{4})?\b|\b[A-Z]\d[A-Z]\s?\d[A-Z]\d\b/g;
-      const postals = text.match(postalRegex) || [];
-      postals.slice(0, 3).forEach(postal => {
+      const postals = ExtractionUtils.extractPostalCodes(text);
+      postals.forEach(postal => {
         markers.push({ type: 'postal', value: postal });
       });
       
-      // Currency symbols
-      if (text.includes('$')) markers.push({ type: 'currency', value: 'USD' });
-      if (text.includes('€')) markers.push({ type: 'currency', value: 'EUR' });
-      if (text.includes('£')) markers.push({ type: 'currency', value: 'GBP' });
-      if (text.includes('¥')) markers.push({ type: 'currency', value: 'JPY/CNY' });
+      // Currencies
+      const currencies = ExtractionUtils.detectCurrencies(text);
+      currencies.forEach(currency => {
+        markers.push({ type: 'currency', value: currency });
+      });
       
       // Language detection
       const htmlLang = await page.evaluate(() => document.documentElement.lang);
@@ -296,18 +537,16 @@ export class PuppeteerExtractor {
       }
       
       // Country detection from TLD
-      const tld = domain.split('.').pop();
-      const tldCountryMap: Record<string, string> = {
-        'uk': 'GB', 'de': 'DE', 'fr': 'FR', 'jp': 'JP', 'cn': 'CN',
-        'ca': 'CA', 'au': 'AU', 'in': 'IN', 'br': 'BR', 'mx': 'MX'
-      };
+      const tldResult = ExtractionUtils.detectCountryFromTLD(domain);
       
-      let country = null;
-      let countryConfidence = 0;
+      // Try phone-based country detection if TLD didn't work
+      let country = tldResult.country;
+      let countryConfidence = tldResult.confidence;
       
-      if (tldCountryMap[tld || '']) {
-        country = tldCountryMap[tld || ''];
-        countryConfidence = 85;
+      if (!country && phones.length > 0) {
+        const phoneResult = ExtractionUtils.detectCountryFromPhone(phones[0]);
+        country = phoneResult.country;
+        countryConfidence = phoneResult.confidence;
       }
       
       return { markers, country, countryConfidence };
@@ -340,7 +579,7 @@ export class PuppeteerExtractor {
           }
         }
         
-        return legalUrls.slice(0, 10); // Limit results
+        return legalUrls.slice(0, 10);
       });
       
       return { urls };
@@ -388,23 +627,13 @@ export class PuppeteerExtractor {
       const text = await page.evaluate(() => document.body.textContent || '');
       
       // Extract emails
-      const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-      const emailMatches = text.match(emailRegex) || [];
-      const emails = Array.from(new Set(emailMatches))
-        .filter(email => !email.includes('example.com') && !email.includes('@2x'))
-        .slice(0, 5);
+      const emails = ExtractionUtils.extractEmails(text);
       
       // Extract phone numbers
-      const phoneRegex = /(\+?\d{1,4}[\s.-]?)?\(?\d{1,4}\)?[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}/g;
-      const phoneMatches = text.match(phoneRegex) || [];
-      const phones = Array.from(new Set(phoneMatches))
-        .filter(phone => phone.length >= 10 && phone.length <= 20)
-        .slice(0, 5);
+      const phones = ExtractionUtils.extractPhoneNumbers(text);
       
       // Extract addresses
-      const addressRegex = /\d+\s+[\w\s]+(?:street|st|avenue|ave|road|rd|boulevard|blvd|lane|ln|drive|dr|court|ct|plaza|place|pl)[\s,]+[\w\s]+/gi;
-      const addressMatches = text.match(addressRegex) || [];
-      const addresses = Array.from(new Set(addressMatches)).slice(0, 3);
+      const addresses = ExtractionUtils.extractAddresses(text);
       
       // Check for contact page
       const hasContactPage = await page.evaluate(() => {
@@ -448,5 +677,39 @@ export class PuppeteerExtractor {
     } catch (error) {
       return { url: null, content: null };
     }
+  }
+
+  private createErrorResult(domain: string, startTime: number, error: string): ExtractorResult {
+    return {
+      processingTimeMs: Date.now() - startTime,
+      success: false,
+      error,
+      companyName: null,
+      companyConfidence: 0,
+      companyExtractionMethod: null,
+      detectedCountry: null,
+      countryConfidence: 0,
+      geoMarkers: JSON.stringify({ addresses: [], phones: [], currencies: [], languages: [], postalCodes: [] }),
+      termsUrl: null,
+      privacyUrl: null,
+      legalUrls: JSON.stringify([]),
+      legalContentExtracted: false,
+      aboutUrl: null,
+      aboutContent: null,
+      aboutExtractionSuccess: false,
+      socialMediaLinks: JSON.stringify({}),
+      socialMediaCount: 0,
+      contactEmails: JSON.stringify([]),
+      contactPhones: JSON.stringify([]),
+      contactAddresses: JSON.stringify([]),
+      hasContactPage: false,
+      rawHtmlSize: 0,
+      rawExtractionData: null,
+      pageMetadata: null,
+      httpStatus: 0,
+      renderRequired: false,
+      javascriptErrors: JSON.stringify([]),
+      extractionSteps: JSON.stringify(this.steps)
+    };
   }
 }
