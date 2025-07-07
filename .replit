@@ -100,33 +100,3 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd server && npx tsx betaIndex.ts"
-
-[[workflows.workflow]]
-name = "Beta Server"
-author = 24794172
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd server && npx tsx betaIndex.ts"
-
-[[workflows.workflow]]
-name = "Force Beta Restart"
-author = 24794172
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "pkill -f \"betaIndex.ts\" || true"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "pkill -9 -f \"port 3001\" || true"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "sleep 3"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd server && npx tsx betaIndex.ts"

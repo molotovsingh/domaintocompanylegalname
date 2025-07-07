@@ -381,7 +381,7 @@ export class PuppeteerExtractor {
       }
       
       // Strategy 3: Footer Legal Information (medium-high priority)
-      const footerData = await page.evaluate(() => {
+      const footerExtraction = await page.evaluate(() => {
         const footers = document.querySelectorAll('footer, [class*="footer"], [id*="footer"]');
         for (const footer of footers) {
           const footerText = footer.textContent || '';
@@ -404,13 +404,13 @@ export class PuppeteerExtractor {
         return null;
       });
       
-      if (footerData) {
+      if (footerExtraction) {
         sources.push('Footer copyright/legal section');
         return { 
-          name: footerData.name, 
-          method: footerData.method, 
+          name: footerExtraction.name, 
+          method: footerExtraction.method, 
           confidence: 85,
-          legalEntityType: this.detectEntityType(footerData.name),
+          legalEntityType: this.detectEntityType(footerExtraction.name),
           sources
         };
       }
