@@ -28,6 +28,11 @@ interface BetaTestResult {
   error: string | null;
   extractionMethod: string | null;
   technicalDetails: string | null;
+  llmResponse: {
+    content?: string;
+    citations?: any[];
+    parsedJson?: any;
+  } | null;
 }
 
 export default function BetaTesting() {
@@ -58,7 +63,8 @@ export default function BetaTesting() {
         success: result.success,
         error: result.error,
         extractionMethod: result.extractionMethod,
-        technicalDetails: result.technicalDetails
+        technicalDetails: result.technicalDetails,
+        llmResponse: result.llmResponse || null,
       };
     } catch (error) {
       return {
@@ -70,7 +76,8 @@ export default function BetaTesting() {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
         extractionMethod: null,
-        technicalDetails: null
+        technicalDetails: null,
+        llmResponse: null,
       };
     }
   };
@@ -266,6 +273,30 @@ export default function BetaTesting() {
                     {result.technicalDetails && (
                       <div className="mt-3 p-2 bg-gray-50 border border-gray-200 rounded text-xs">
                         <strong>Technical:</strong> {result.technicalDetails}
+                      </div>
+                    )}
+                    {result.method === 'perplexity_llm' && result.llmResponse && (
+                      <div className="mt-2 text-xs">
+                        {result.llmResponse.parsedJson ? (
+                          <>
+                            <div className="font-medium mb-1">JSON Response:</div>
+                            <div className="bg-gray-50 p-2 rounded text-gray-700 max-h-32 overflow-y-auto">
+                              <pre className="text-xs">{JSON.stringify(result.llmResponse.parsedJson, null, 2)}</pre>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="font-medium mb-1">LLM Response:</div>
+                            <div className="bg-gray-50 p-2 rounded text-gray-700 max-h-32 overflow-y-auto">
+                              {result.llmResponse.content?.slice(0, 200)}...
+                            </div>
+                          </>
+                        )}
+                        {result.llmResponse.citations && result.llmResponse.citations.length > 0 && (
+                          <div className="mt-1">
+                            <span className="font-medium">Citations:</span> {result.llmResponse.citations.length}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

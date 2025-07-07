@@ -80,8 +80,27 @@ export class PerplexityExtractor {
       console.log('🔍 Raw Perplexity Response for', domain);
       console.log('📄 Response:', rawText.slice(0, 200) + '...');
 
-      // Extract company name using simplified approach
-      const extractedCompany = this.extractCompanyFromResponse(rawText, domain);
+      // Try to parse JSON from the response
+      let parsedJson = null;
+      let extractedCompany = null;
+      
+      try {
+        // Extract JSON from response (handle cases where JSON is wrapped in markdown or other text)
+        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          parsedJson = JSON.parse(jsonMatch[0]);
+          extractedCompany = parsedJson.legal_entity_name || null;
+          console.log('✅ Parsed JSON:', JSON.stringify(parsedJson, null, 2));
+        }
+      } catch (jsonError) {
+        console.log('⚠️ JSON parsing failed, falling back to text extraction');
+        extractedCompany = this.extractCompanyFromResponse(rawText, domain);
+      }
+
+      // If JSON parsing failed, fall back to text extraction
+      if (!extractedCompany) {
+        extractedCompany = this.extractCompanyFromResponse(rawText, domain);
+      }
 
       return {
         domain,
@@ -93,10 +112,11 @@ export class PerplexityExtractor {
         error: null,
         llmResponse: {
           content: rawText,
-          citations: citations
+          citations: citations,
+          parsedJson: parsedJson
         },
         rawAnalysis: rawText,
-        extractionMethod: 'perplexity_simplified',
+        extractionMethod: parsedJson ? 'perplexity_json' : 'perplexity_text_fallback',
         technicalDetails: `Sonar-reasoning model with ${citations.length} citations`
       };
 
@@ -119,11 +139,17 @@ export class PerplexityExtractor {
   private createSimplePrompt(domain: string): string {
     return `What is the official legal entity name (company name with legal suffix like Inc, Corp, Ltd, LLC, etc.) that operates the website ${domain}?
 
-Please search the web and provide:
-1. The exact legal company name with proper suffix
-2. Brief verification from reliable sources
+Please search the web and provide your response in JSON format:
 
-Focus on finding the registered corporate entity, not just brand names.`;
+{
+  "legal_entity_name": "exact company name with proper legal suffix",
+  "confidence": "high/medium/low",
+  "verification_sources": ["source1", "source2"],
+  "additional_info": "brief context about the company",
+  "extraction_reasoning": "explanation of how you found this information"
+}
+
+Focus on finding the registered corporate entity, not just brand names. Ensure the response is valid JSON format.`;
   }
 
   private extractCompanyFromResponse(text: string, domain: string): string | null {
