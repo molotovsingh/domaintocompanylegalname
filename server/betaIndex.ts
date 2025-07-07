@@ -126,16 +126,22 @@ async function initializeBetaExperiments() {
 }
 
 // Start the server directly
-app.listen(PORT, '0.0.0.0', async () => {
+const server = app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🧪 Beta Testing Platform running on port ${PORT}`);
   console.log(`🔬 Complete database isolation from production`);
   console.log(`🚀 Ready for experimental features`);
   console.log(`🌐 Accessible at http://0.0.0.0:${PORT}`);
   
   try {
+    // Test database connection first
+    console.log('🔍 Testing beta database connection...');
+    await betaDb.execute('SELECT 1 as test');
+    console.log('✅ Beta database connection successful');
+    
     // Initialize experiments
     await initializeBetaExperiments();
     console.log(`✅ Beta server fully initialized and ready`);
+    console.log(`🎯 Health check available at: http://0.0.0.0:${PORT}/api/beta/health`);
     
     // Send ready signal to parent process if running from main server
     if (process.send) {
@@ -143,8 +149,19 @@ app.listen(PORT, '0.0.0.0', async () => {
     }
   } catch (error) {
     console.error('❌ Failed to initialize beta experiments:', error);
+    console.error('💥 Error details:', error);
     process.exit(1);
   }
+});
+
+// Handle server startup errors
+server.on('error', (error: any) => {
+  console.error('❌ Beta server startup error:', error);
+  if (error.code === 'EADDRINUSE') {
+    console.error(`💥 Port ${PORT} is already in use`);
+    console.log('🔧 Try killing any existing beta processes first');
+  }
+  process.exit(1);
 });
 
 // Handle graceful shutdown
