@@ -1,12 +1,44 @@
 import express from 'express';
 import cors from 'cors';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import { betaDb } from './betaDb';
 import { betaExperiments, betaSmokeTests, insertBetaSmokeTestSchema } from '../shared/betaSchema';
 import { eq, desc } from 'drizzle-orm';
 import { PuppeteerExtractor } from './betaServices/puppeteerExtractor';
 
+const execAsync = promisify(exec);
+
 const app = express();
 const PORT = 3001;
+
+// Function to cleanup previous beta server instances
+async function cleanupPreviousInstances() {
+  try {
+    console.log('🧹 Cleaning up previous beta server instances...');
+    
+    // Kill any existing betaIndex.ts processes
+    await execAsync('pkill -f "betaIndex.ts" || true');
+    
+    // Wait a moment for processes to terminate
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Check if port 3001 is still occupied and kill it
+    try {
+      const { stdout } = await execAsync('lsof -ti:3001 || true');
+      if (stdout.trim()) {
+        await execAsync(`kill -9 ${stdout.trim()} || true`);
+        console.log('🔄 Freed up port 3001');
+      }
+    } catch (e) {
+      // Port was already free
+    }
+    
+    console.log('✅ Previous instances cleaned up successfully');
+  } catch (error) {
+    console.log('⚠️  Cleanup completed (some processes may not have existed)');
+  }
+}
 
 // Middleware
 app.use(cors());
@@ -116,12 +148,36 @@ async function initializeBetaExperiments() {
   }
 }
 
-app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`🧪 Beta Testing Platform running on port ${PORT}`);
-  console.log(`🔬 Complete database isolation from production`);
-  console.log(`🚀 Ready for experimental features`);
-  console.log(`🌐 Accessible at http://0.0.0.0:${PORT}`);
+// Main startup function
+async function startBetaServer() {
+  // First, cleanup any previous instances
+  await cleanupPreviousInstances();
   
-  // Initialize experiments
-  await initializeBetaExperiments();
+  // Start the server
+  app.listen(PORT, '0.0.0.0', async () => {
+    console.log(`🧪 Beta Testing Platform running on port ${PORT}`);
+    console.log(`🔬 Complete database isolation from production`);
+    console.log(`🚀 Ready for experimental features`);
+    console.log(`🌐 Accessible at http://0.0.0.0:${PORT}`);
+    
+    // Initialize experiments
+    await initializeBetaExperiments();
+  });
+}
+
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('🛑 Beta server shutting down gracefully...');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('🛑 Beta server interrupted, shutting down...');
+  process.exit(0);
+});
+
+// Start the server
+startBetaServer().catch((error) => {
+  console.error('❌ Failed to start beta server:', error);
+  process.exit(1);
 });
