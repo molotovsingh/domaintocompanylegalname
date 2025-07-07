@@ -149,11 +149,21 @@ Please search the web and provide your response in JSON format:
   "legal_entity_name": "exact company name with proper legal suffix",
   "confidence": "high/medium/low",
   "verification_sources": ["source1", "source2"],
+  "jurisdiction": "country/state where entity is registered",
+  "business_type": "public/private/government/nonprofit",
+  "industry_sector": "primary business sector",
+  "headquarters_location": "city, country of main office",
+  "company_size": "large/medium/small or employee count if available",
+  "stock_ticker": "ticker symbol if publicly traded",
+  "parent_company": "parent entity if subsidiary",
+  "registration_number": "official registration/tax ID if found",
+  "website_relationship": "owns/operates/redirects",
   "additional_info": "brief context about the company",
-  "extraction_reasoning": "explanation of how you found this information"
+  "extraction_reasoning": "explanation of how you found this information",
+  "data_quality": "complete/partial/limited based on available information"
 }
 
-Focus on finding the registered corporate entity, not just brand names. Ensure the response is valid JSON format.`;
+Focus on finding the registered corporate entity, not just brand names. Include as much business intelligence as possible. Ensure the response is valid JSON format.`;
   }
 
   private extractCompanyFromResponse(text: string, domain: string): string | null {
