@@ -1076,160 +1076,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Beta Testing API Routes with on-demand server startup
-  let betaServerProcess: any = null;
-  let betaServerStarting = false;
-  let betaServerReady = false;
-
-  async function ensureBetaServerRunning(): Promise<boolean> {
-    // If already ready, return immediately
-    if (betaServerReady) {
-      try {
-        // Quick health check to ensure it's still alive
-        await axios.get('http://0.0.0.0:3001/api/beta/health', { timeout: 2000 });
-        return true;
-      } catch {
-        // Server died, reset state
-        console.log('🔄 Beta server died, resetting state...');
-        betaServerReady = false;
-        betaServerProcess = null;
-      }
-    }
-
-    // If already starting, wait for it with timeout
-    if (betaServerStarting) {
-      console.log('⏳ Beta server already starting, waiting...');
-      // Wait up to 20 seconds for startup to complete
-      for (let i = 0; i < 40; i++) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        if (betaServerReady) return true;
-        if (!betaServerStarting) break; // Startup failed
-      }
-      return betaServerReady;
-    }
-
-    // Start the server
-    betaServerStarting = true;
-    console.log('🚀 Starting beta server on demand...');
-
+  // Simplified Beta Testing API Routes - assumes beta server runs independently
+  async function checkBetaServerStatus(): Promise<boolean> {
     try {
-      const { spawn, exec } = await import('child_process');
-
-      // More aggressive cleanup of existing processes
-      console.log('🧹 Cleaning up any existing beta server processes...');
-      await new Promise((resolve) => {
-        exec('pkill -f "betaIndex.ts" || pkill -f "tsx.*betaIndex" || true', () => {
-          setTimeout(resolve, 2000); // Wait longer for cleanup
-        });
-      });
-
-      console.log('🚀 Spawning new beta server process...');
-      betaServerProcess = spawn('npx', ['tsx', 'server/betaIndex.ts'], {
-        detached: false,
-        stdio: ['ignore', 'pipe', 'pipe'],
-        cwd: process.cwd(),
-        env: { ...process.env, NODE_ENV: 'development' }
-      });
-
-      // Enhanced logging
-      if (betaServerProcess.stdout) {
-        betaServerProcess.stdout.on('data', (data) => {
-          const output = data.toString().trim();
-          console.log(`[Beta Server] ${output}`);
-          // Check for ready signals
-          if (output.includes('Beta Testing Server running') || output.includes('ready to accept connections')) {
-            console.log('🎯 Beta server startup signal detected');
-          }
-        });
-      }
-
-      if (betaServerProcess.stderr) {
-        betaServerProcess.stderr.on('data', (data) => {
-          console.error(`[Beta Server Error] ${data.toString().trim()}`);
-        });
-      }
-
-      betaServerProcess.on('exit', (code) => {
-        console.log(`[Beta Server] Process exited with code ${code}`);
-        betaServerReady = false;
-        betaServerStarting = false;
-        betaServerProcess = null;
-      });
-
-      betaServerProcess.on('error', (error) => {
-        console.error(`[Beta Server] Process error:`, error);
-        betaServerReady = false;
-        betaServerStarting = false;
-        betaServerProcess = null;
-      });
-
-      // Wait for server to be ready with more attempts
-      console.log('⏳ Waiting for beta server to be ready...');
-      for (let i = 0; i < 40; i++) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        try {
-          const response = await axios.get('http://0.0.0.0:3001/api/beta/health', { 
-            timeout: 3000,
-            headers: { 'User-Agent': 'replit-beta-check' }
-          });
-          if (response.status === 200 && response.data?.status === 'ready') {
-            betaServerReady = true;
-            betaServerStarting = false;
-            console.log('✅ Beta server ready and responding');
-            return true;
-          }
-        } catch (error) {
-          // Not ready yet, continue waiting
-          if (i % 10 === 0 && i > 0) { // Log every 5 seconds after first attempt
-            console.log(`⏳ Still waiting for beta server (${Math.round((i * 500) / 1000)}s)... Last error: ${error.message}`);
-          }
-        }
-      }
-
-      throw new Error('Beta server failed to start in 20 seconds');
-    } catch (error) {
-      console.error('Failed to start beta server:', error);
-      betaServerStarting = false;
-      betaServerReady = false;
-
-      // Clean up process if it exists
-      if (betaServerProcess) {
-        try {
-          betaServerProcess.kill('SIGTERM');
-          setTimeout(() => {
-            if (betaServerProcess && !betaServerProcess.killed) {
-              betaServerProcess.kill('SIGKILL');
-            }
-          }, 5000);
-        } catch (killError) {
-          console.error('Error killing beta server process:', killError);
-        }
-        betaServerProcess = null;
-      }
-
+      const response = await axios.get('http://localhost:3001/api/beta/health', { timeout: 2000 });
+      return response.status === 200;
+    } catch {
       return false;
     }
   }
 
   // Beta server status endpoint
   app.get('/api/beta/status', async (req, res) => {
-    if (betaServerReady) {
-      res.json({ status: 'ready' });
-    } else if (betaServerStarting) {
-      res.json({ status: 'starting' });
-    } else {
-      res.json({ status: 'stopped' });
-    }
+    const isRunning = await checkBetaServerStatus();
+    res.json({ status: isRunning ? 'ready' : 'stopped' });
   });
 
   app.get('/api/beta/experiments', async (req, res) => {
     try {
-      const isRunning = await ensureBetaServerRunning();
+      const isRunning = await checkBetaServerStatus();
       if (!isRunning) {
         return res.status(503).json({ 
           success: false, 
-          error: 'Beta server is starting, please wait...',
-          status: 'starting'
+          error: 'Beta server is not running. Please start it manually.',
+          status: 'stopped'
         });
       }
 
@@ -1242,12 +1112,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/beta/smoke-test/results', async (req, res) => {
     try {
-      const isRunning = await ensureBetaServerRunning();
+      const isRunning = await checkBetaServerStatus();
       if (!isRunning) {
         return res.status(503).json({ 
           success: false, 
-          error: 'Beta server is starting, please wait...',
-          status: 'starting'
+          error: 'Beta server is not running. Please start it manually.',
+          status: 'stopped'
         });
       }
 
@@ -1260,12 +1130,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/beta/smoke-test', async (req, res) => {
     try {
-      const isRunning = await ensureBetaServerRunning();
+      const isRunning = await checkBetaServerStatus();
       if (!isRunning) {
         return res.status(503).json({ 
           success: false, 
-          error: 'Beta server is starting, please wait...',
-          status: 'starting'
+          error: 'Beta server is not running. Please start it manually.',
+          status: 'stopped'
         });
       }
 

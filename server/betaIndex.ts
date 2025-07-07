@@ -36,7 +36,7 @@ app.get('/api/beta/experiments', async (req, res) => {
   try {
     const experiments = await betaDb.select().from(betaExperiments);
     res.json({ success: true, experiments });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -70,7 +70,7 @@ app.post('/api/beta/smoke-test', async (req, res) => {
           ...result
         }).returning();
         
-        res.json({ success: true, ...dbResult[0] });
+        res.json({ success: true, data: dbResult[0] });
       } finally {
         await extractor.cleanup();
       }
@@ -83,7 +83,7 @@ app.post('/api/beta/smoke-test', async (req, res) => {
     } else {
       res.status(400).json({ error: 'Invalid method' });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Beta] Error in smoke test:', error);
     res.status(500).json({ success: false, error: error.message });
   }
@@ -98,7 +98,7 @@ app.get('/api/beta/smoke-test/results', async (req, res) => {
       .limit(50);
     
     res.json({ success: true, results });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
