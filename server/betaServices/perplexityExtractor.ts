@@ -43,7 +43,7 @@ export class PerplexityExtractor {
       const prompt = this.createExtractionPrompt(domain);
       
       const response = await axios.post(this.baseURL, {
-        model: 'llama-3.1-sonar-small-128k-online',
+        model: 'sonar-reasoning',
         messages: [
           {
             role: 'system',
@@ -56,7 +56,11 @@ export class PerplexityExtractor {
         ],
         max_tokens: 1000,
         temperature: 0.1,
-        stream: false
+        stream: false,
+        web_search_options: {
+          search_context_size: "medium"
+        },
+        reasoning_effort: "high"
       }, {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -67,6 +71,7 @@ export class PerplexityExtractor {
 
       const llmResponse = response.data;
       const analysisText = llmResponse.choices[0]?.message?.content || '';
+      const citations = llmResponse.citations || [];
 
       // Parse the JSON response from LLM
       let extractedData;
@@ -85,7 +90,10 @@ export class PerplexityExtractor {
         processingTime: Date.now() - startTime,
         success: !!extractedData.legal_entity || !!extractedData.company_name,
         error: null,
-        llmResponse: llmResponse,
+        llmResponse: {
+          ...llmResponse,
+          citations: citations
+        },
         rawAnalysis: analysisText
       };
 
