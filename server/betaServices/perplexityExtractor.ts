@@ -71,7 +71,7 @@ export class PerplexityExtractor {
 
     this.config = {
       apiKey,
-      model: "llama-3.1-sonar-small-128k-online",
+      model: "sonar",
       maxTokens: 500,
       temperature: 0.1,
       timeout: 30000,
