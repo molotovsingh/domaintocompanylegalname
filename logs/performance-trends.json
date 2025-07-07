@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2025-07-07T01:43:47.973Z",
-  "totalBatches": 32,
+  "lastUpdated": "2025-07-07T01:47:31.212Z",
+  "totalBatches": 34,
   "batches": [
     {
       "batchId": "mVauB1NiLnmWIt0BQqlzn",
@@ -417,6 +417,32 @@
         "successRate": 100
       },
       "dailySequence": 2
+    },
+    {
+      "batchId": "Nn7L52I9OhRwdp2AL0732",
+      "completedAt": "2025-07-07T01:44:24.183Z",
+      "metrics": {
+        "processed": 1,
+        "successful": 0,
+        "failed": 1,
+        "totalTimeMs": 5243,
+        "averageTimePerDomain": 5243,
+        "successRate": 0
+      },
+      "dailySequence": 3
+    },
+    {
+      "batchId": "JQ8zFPIWWtYxUr977xc2u",
+      "completedAt": "2025-07-07T01:47:31.212Z",
+      "metrics": {
+        "processed": 19,
+        "successful": 3,
+        "failed": 16,
+        "totalTimeMs": 138779,
+        "averageTimePerDomain": 7304.1578947368425,
+        "successRate": 15.789473684210526
+      },
+      "dailySequence": 4
     }
   ]
 }
