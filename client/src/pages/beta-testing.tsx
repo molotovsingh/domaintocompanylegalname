@@ -250,18 +250,57 @@ export default function BetaTesting() {
                     </div>
 
                     <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <span className="text-sm font-medium text-muted-foreground">Company:</span>
-                          <p className="text-base font-medium">{result.companyName || 'Not found'}</p>
-                        </div>
-                        {result.extractionMethod && (
+                      {/* For Perplexity LLM, show all JSON fields in main area */}
+                      {result.method === 'perplexity_llm' && result.llmResponse?.parsedJson ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <span className="text-sm font-medium text-muted-foreground">Extraction Method:</span>
-                            <p className="text-sm">{result.extractionMethod}</p>
+                            <span className="text-sm font-medium text-muted-foreground">Company Name:</span>
+                            <p className="text-base font-medium">{result.llmResponse.parsedJson.company_name || 'Not found'}</p>
                           </div>
-                        )}
-                      </div>
+                          <div>
+                            <span className="text-sm font-medium text-muted-foreground">Legal Entity Type:</span>
+                            <p className="text-sm">{result.llmResponse.parsedJson.legal_entity_type || 'Not specified'}</p>
+                          </div>
+                          <div>
+                            <span className="text-sm font-medium text-muted-foreground">Country:</span>
+                            <p className="text-sm">{result.llmResponse.parsedJson.country || 'Not specified'}</p>
+                          </div>
+                          <div>
+                            <span className="text-sm font-medium text-muted-foreground">LLM Confidence:</span>
+                            <p className="text-sm capitalize">{result.llmResponse.parsedJson.confidence || 'Not specified'}</p>
+                          </div>
+                          {result.llmResponse.parsedJson.sources && result.llmResponse.parsedJson.sources.length > 0 && (
+                            <div className="md:col-span-2">
+                              <span className="text-sm font-medium text-muted-foreground">Sources:</span>
+                              <div className="text-sm mt-1 space-y-1">
+                                {result.llmResponse.parsedJson.sources.slice(0, 2).map((source: string, idx: number) => (
+                                  <div key={idx} className="text-xs text-muted-foreground truncate">• {source}</div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {result.extractionMethod && (
+                            <div>
+                              <span className="text-sm font-medium text-muted-foreground">Extraction Method:</span>
+                              <p className="text-sm">{result.extractionMethod}</p>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        /* For other methods, show standard fields */
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <span className="text-sm font-medium text-muted-foreground">Company:</span>
+                            <p className="text-base font-medium">{result.companyName || 'Not found'}</p>
+                          </div>
+                          {result.extractionMethod && (
+                            <div>
+                              <span className="text-sm font-medium text-muted-foreground">Extraction Method:</span>
+                              <p className="text-sm">{result.extractionMethod}</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       {result.error && (
                         <Alert variant="destructive">
