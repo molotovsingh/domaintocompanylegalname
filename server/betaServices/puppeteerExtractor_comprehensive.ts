@@ -122,13 +122,17 @@ class ExtractionUtils {
     TWD: "TW",
   };
 
-  // Updated Chrome path - adjust based on your system
+  // Updated Chrome path for Replit environment
   static readonly CHROME_EXECUTABLE_PATH =
-    process.env.CHROME_EXECUTABLE_PATH || "/usr/bin/google-chrome-stable"; // Common Linux path
+    process.env.CHROME_EXECUTABLE_PATH || 
+    "/nix/store/*/bin/chromium" || 
+    "/usr/bin/chromium-browser" || 
+    "/usr/bin/google-chrome-stable" || 
+    "/usr/bin/chromium";
 
   static readonly CHROME_ARGS = [
     "--no-sandbox",
-    "--disable-setuid-sandbox",
+    "--disable-setuid-sandbox", 
     "--disable-dev-shm-usage",
     "--disable-gpu",
     "--disable-web-security",
@@ -136,16 +140,29 @@ class ExtractionUtils {
     "--disable-extensions",
     "--disable-plugins",
     "--disable-images",
-    "--disable-javascript",
     "--disable-default-apps",
     "--disable-background-timer-throttling",
-    "--disable-backgrounding-occluded-windows",
+    "--disable-backgrounding-occluded-windows", 
     "--disable-renderer-backgrounding",
     "--disable-field-trial-config",
     "--disable-back-forward-cache",
     "--disable-ipc-flooding-protection",
     "--memory-pressure-off",
-    "--max_old_space_size=4096",
+    "--max_old_space_size=2048",
+    "--single-process",
+    "--no-zygote",
+    "--disable-software-rasterizer",
+    "--disable-background-networking",
+    "--disable-default-apps",
+    "--disable-sync",
+    "--metrics-recording-only",
+    "--no-first-run",
+    "--mute-audio",
+    "--hide-scrollbars",
+    "--disable-prompt-on-repost",
+    "--disable-hang-monitor",
+    "--disable-client-side-phishing-detection",
+    "--disable-component-update"
   ];
 
   static readonly USER_AGENT =
@@ -277,12 +294,19 @@ export class PuppeteerExtractor {
 
   async initialize() {
     try {
-      this.browser = await puppeteer.launch({
+      // Try with auto-detection first (works better in Replit)
+      const launchOptions = {
         headless: true,
-        executablePath: ExtractionUtils.CHROME_EXECUTABLE_PATH,
         args: ExtractionUtils.CHROME_ARGS,
         timeout: 30000,
-      });
+      };
+
+      // Only set executablePath if explicitly provided
+      if (process.env.CHROME_EXECUTABLE_PATH) {
+        launchOptions.executablePath = process.env.CHROME_EXECUTABLE_PATH;
+      }
+
+      this.browser = await puppeteer.launch(launchOptions);
       console.log("✅ Puppeteer browser initialized successfully");
     } catch (error) {
       console.error("❌ Failed to initialize Puppeteer browser:", error);
