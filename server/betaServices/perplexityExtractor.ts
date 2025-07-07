@@ -1,162 +1,542 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from "axios";
 
+// Configuration interface for better type safety
+interface PerplexityConfig {
+  apiKey: string;
+  model: string;
+  maxTokens: number;
+  temperature: number;
+  timeout: number;
+  maxRetries: number;
+  baseURL: string;
+}
+
+// Enhanced result interface with more detailed information
 interface PerplexityExtractionResult {
   domain: string;
   method: string;
   companyName: string | null;
+  legalEntityType: string | null;
+  country: string | null;
   confidence: number;
   processingTime: number;
   success: boolean;
   error: string | null;
+  errorCode: string | null;
   extractionMethod: string | null;
   technicalDetails: string | null;
-  llmResponse?: any;
+  sources: string[];
+  llmResponse?: {
+    content: string;
+    citations: any[];
+    parsedJson: any;
+    rawConfidence: string | null;
+  };
+}
+
+// Custom error classes for better error handling
+class PerplexityError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public statusCode?: number,
+  ) {
+    super(message);
+    this.name = "PerplexityError";
+  }
+}
+
+class ValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ValidationError";
+  }
 }
 
 export class PerplexityExtractor {
-  private apiKey: string;
-  private baseURL: string = 'https://api.perplexity.ai/chat/completions';
+  private config: PerplexityConfig;
+  private requestCache: Map<string, PerplexityExtractionResult> = new Map();
+  private lastRequestTime: number = 0;
+  private readonly MIN_REQUEST_INTERVAL = 1000; // 1 second between requests
 
-  constructor() {
-    this.apiKey = process.env.PERPLEXITY_API_KEY || '';
-    if (!this.apiKey) {
-      console.warn('⚠️ PERPLEXITY_API_KEY not found in environment variables');
+  constructor(customConfig?: Partial<PerplexityConfig>) {
+    const apiKey = process.env.PERPLEXITY_API_KEY || "";
+
+    if (!apiKey) {
+      throw new PerplexityError(
+        "PERPLEXITY_API_KEY not found in environment variables",
+        "MISSING_API_KEY",
+      );
     }
+
+    this.config = {
+      apiKey,
+      model: "llama-3.1-sonar-small-128k-online",
+      maxTokens: 500,
+      temperature: 0.1,
+      timeout: 30000,
+      maxRetries: 3,
+      baseURL: "https://api.perplexity.ai/chat/completions",
+      ...customConfig,
+    };
   }
 
-  async extractFromDomain(domain: string): Promise<PerplexityExtractionResult> {
+  /**
+   * Extract company information from a domain
+   */
+  async extractFromDomain(
+    domain: string,
+    useCache: boolean = true,
+  ): Promise<PerplexityExtractionResult> {
     const startTime = Date.now();
-
-    if (!this.apiKey) {
-      return {
-        domain,
-        method: 'perplexity_llm',
-        companyName: null,
-        confidence: 0,
-        processingTime: Date.now() - startTime,
-        success: false,
-        error: 'Perplexity API key not configured',
-        extractionMethod: null,
-        technicalDetails: 'PERPLEXITY_API_KEY environment variable not set'
-      };
-    }
+    const normalizedDomain = this.normalizeDomain(domain);
 
     try {
-      const prompt = this.createSimplePrompt(domain);
+      // Input validation
+      this.validateDomain(normalizedDomain);
 
-      const response = await axios.post(this.baseURL, {
-        model: 'sonar',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a corporate research expert. Search the web and provide direct answers about company legal entities. Always respond with valid JSON format only.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        max_tokens: 500,
-        temperature: 0.1,
-        stream: false,
-        web_search_options: {
-          search_context_size: "medium"
-        }
-      }, {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        timeout: 30000
-      });
-
-      const llmResponse = response.data;
-      const rawText = llmResponse.choices[0]?.message?.content || '';
-      const citations = llmResponse.citations || [];
-
-      console.log('🔍 Raw Perplexity Response for', domain);
-      console.log('📄 Full Response:', rawText);
-
-      // Extract JSON from response - handle wrapped responses
-      let parsedJson = null;
-      let extractedCompany = null;
-
-      try {
-        // First try: Look for JSON between { and } (last occurrence for nested cases)
-        const jsonStart = rawText.lastIndexOf('{');
-        const jsonEnd = rawText.lastIndexOf('}');
-        
-        if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
-          const jsonString = rawText.substring(jsonStart, jsonEnd + 1);
-          parsedJson = JSON.parse(jsonString);
-          extractedCompany = parsedJson.company_name || parsedJson.legal_entity || parsedJson.name;
-          console.log('✅ Successfully parsed JSON:', parsedJson);
-        } else {
-          // Fallback: Try to parse the entire response as JSON
-          parsedJson = JSON.parse(rawText.trim());
-          extractedCompany = parsedJson.company_name || parsedJson.legal_entity || parsedJson.name;
-          console.log('✅ Successfully parsed full response as JSON:', parsedJson);
-        }
-      } catch (parseError) {
-        console.log('❌ JSON parsing failed:', parseError);
-        console.log('🔍 Raw text for debugging:', rawText.slice(0, 500));
+      // Check cache first
+      if (useCache && this.requestCache.has(normalizedDomain)) {
+        const cachedResult = this.requestCache.get(normalizedDomain)!;
+        console.log(`🎯 Cache hit for domain: ${normalizedDomain}`);
+        return {
+          ...cachedResult,
+          processingTime: Date.now() - startTime,
+        };
       }
 
-      const result = {
-        domain,
-        method: 'perplexity_llm',
-        companyName: extractedCompany,
-        confidence: extractedCompany ? 85 : 0,
-        processingTime: Date.now() - startTime,
-        success: !!extractedCompany,
-        error: null,
-        llmResponse: {
-          content: rawText,
-          citations: citations,
-          parsedJson: parsedJson
-        },
-        extractionMethod: parsedJson ? 'perplexity_json' : null,
-        technicalDetails: `Sonar model with ${citations.length} citations`
-      };
+      // Rate limiting
+      await this.enforceRateLimit();
 
-      console.log('🔄 Final result:', { 
-        domain, 
-        success: result.success, 
-        companyName: result.companyName,
-        hasJson: !!parsedJson
-      });
+      // Make API request with retry logic
+      const result = await this.makeRequestWithRetry(
+        normalizedDomain,
+        startTime,
+      );
+
+      // Cache successful results
+      if (result.success && useCache) {
+        this.requestCache.set(normalizedDomain, result);
+      }
 
       return result;
-
-    } catch (error: any) {
-      console.error('❌ Perplexity extraction error:', error.message);
-      return {
-        domain,
-        method: 'perplexity_llm',
-        companyName: null,
-        confidence: 0,
-        processingTime: Date.now() - startTime,
-        success: false,
-        error: error.message || 'Unknown error',
-        extractionMethod: null,
-        technicalDetails: `Error: ${error.code || 'UNKNOWN'}`
-      };
+    } catch (error) {
+      return this.handleError(error, normalizedDomain, startTime);
     }
   }
 
-  private createSimplePrompt(domain: string): string {
-    return `What is the official legal entity name (company name with legal suffix like Inc, Corp, Ltd, LLC, etc.) that operates the website ${domain}?
+  /**
+   * Validate domain format
+   */
+  private validateDomain(domain: string): void {
+    if (!domain || typeof domain !== "string") {
+      throw new ValidationError("Domain must be a non-empty string");
+    }
 
-Please search the web and provide your response in the following JSON format:
+    // Remove protocol if present
+    const cleanDomain = domain.replace(/^https?:\/\//, "").split("/")[0];
 
+    // Basic domain validation regex
+    const domainRegex =
+      /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/;
+
+    if (!domainRegex.test(cleanDomain)) {
+      throw new ValidationError(`Invalid domain format: ${domain}`);
+    }
+
+    if (cleanDomain.length > 253) {
+      throw new ValidationError("Domain name too long (max 253 characters)");
+    }
+  }
+
+  /**
+   * Normalize domain by removing protocol and trailing slashes
+   */
+  private normalizeDomain(domain: string): string {
+    return domain
+      .toLowerCase()
+      .replace(/^https?:\/\//, "")
+      .replace(/^www\./, "")
+      .split("/")[0]
+      .trim();
+  }
+
+  /**
+   * Enforce rate limiting between requests
+   */
+  private async enforceRateLimit(): Promise<void> {
+    const now = Date.now();
+    const timeSinceLastRequest = now - this.lastRequestTime;
+
+    if (timeSinceLastRequest < this.MIN_REQUEST_INTERVAL) {
+      const waitTime = this.MIN_REQUEST_INTERVAL - timeSinceLastRequest;
+      console.log(`⏱️ Rate limiting: waiting ${waitTime}ms`);
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
+    }
+
+    this.lastRequestTime = Date.now();
+  }
+
+  /**
+   * Make API request with retry logic
+   */
+  private async makeRequestWithRetry(
+    domain: string,
+    startTime: number,
+  ): Promise<PerplexityExtractionResult> {
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= this.config.maxRetries; attempt++) {
+      try {
+        console.log(
+          `🔄 Attempt ${attempt}/${this.config.maxRetries} for domain: ${domain}`,
+        );
+
+        const result = await this.makeApiRequest(domain, startTime);
+
+        if (result.success) {
+          console.log(`✅ Success on attempt ${attempt} for domain: ${domain}`);
+          return result;
+        }
+
+        // If not successful but no error, don't retry
+        if (!result.error) {
+          return result;
+        }
+
+        lastError = new Error(result.error);
+      } catch (error) {
+        lastError = error as Error;
+        console.log(
+          `❌ Attempt ${attempt} failed for domain: ${domain} - ${lastError.message}`,
+        );
+
+        // Don't retry on validation errors or auth errors
+        if (
+          error instanceof ValidationError ||
+          (error as any).response?.status === 401 ||
+          (error as any).response?.status === 403
+        ) {
+          throw error;
+        }
+
+        // Wait before retry (exponential backoff)
+        if (attempt < this.config.maxRetries) {
+          const waitTime = Math.pow(2, attempt - 1) * 1000;
+          console.log(`⏳ Waiting ${waitTime}ms before retry...`);
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
+        }
+      }
+    }
+
+    throw (
+      lastError ||
+      new PerplexityError("All retry attempts failed", "MAX_RETRIES_EXCEEDED")
+    );
+  }
+
+  /**
+   * Make the actual API request
+   */
+  private async makeApiRequest(
+    domain: string,
+    startTime: number,
+  ): Promise<PerplexityExtractionResult> {
+    const prompt = this.createOptimizedPrompt(domain);
+
+    const requestPayload = {
+      model: this.config.model,
+      messages: [
+        {
+          role: "system",
+          content: this.getSystemPrompt(),
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      max_tokens: this.config.maxTokens,
+      temperature: this.config.temperature,
+      stream: false,
+      return_citations: true,
+    };
+
+    console.log(`🚀 Making API request for domain: ${domain}`);
+
+    const response: AxiosResponse = await axios.post(
+      this.config.baseURL,
+      requestPayload,
+      {
+        headers: {
+          Authorization: `Bearer ${this.config.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        timeout: this.config.timeout,
+      },
+    );
+
+    return this.processApiResponse(response, domain, startTime);
+  }
+
+  /**
+   * Get optimized system prompt
+   */
+  private getSystemPrompt(): string {
+    return `You are a corporate research expert specializing in identifying legal business entities from websites. 
+
+Your task is to analyze the provided domain by examining:
+- About us pages and company information
+- Footer content and legal notices
+- Terms of service and privacy policies
+- Copyright notices and legal disclaimers
+- Contact information and business registration details
+
+Extract the official legal entity name that operates the website. Respond ONLY with a valid JSON object, no additional text.`;
+  }
+
+  /**
+   * Create optimized prompt for domain extraction
+   */
+  private createOptimizedPrompt(domain: string): string {
+    return `Analyze the website ${domain} and extract the official legal entity information.
+
+Search for the complete legal business name including any corporate suffixes (Inc., Corp., Ltd., LLC, GmbH, etc.).
+
+Respond with this exact JSON structure:
 {
   "company_name": "Full legal entity name with suffix",
-  "legal_entity_type": "Corporation/Limited Company/LLC/etc",
-  "country": "Country of incorporation",
+  "legal_entity_type": "Corporation/LLC/Limited Company/etc",
+  "country": "Country of incorporation or primary business location",
   "confidence": "high/medium/low",
-  "sources": ["List of sources used"]
+  "sources": ["List of specific pages or sections where information was found"]
 }
 
-Only return the JSON object, no other text.`;
+Return only the JSON object, no other text.`;
+  }
+
+  /**
+   * Process API response and extract company information
+   */
+  private processApiResponse(
+    response: AxiosResponse,
+    domain: string,
+    startTime: number,
+  ): PerplexityExtractionResult {
+    const llmResponse = response.data;
+    const rawContent = llmResponse.choices?.[0]?.message?.content || "";
+    const citations = llmResponse.citations || [];
+
+    console.log(
+      `📄 Raw response for ${domain}:`,
+      rawContent.slice(0, 200) + "...",
+    );
+
+    // Parse JSON response
+    const { parsedJson, extractedData } = this.parseJsonResponse(rawContent);
+
+    // Calculate confidence score
+    const confidence = this.calculateConfidence(
+      extractedData,
+      parsedJson,
+      citations.length,
+    );
+
+    const result: PerplexityExtractionResult = {
+      domain,
+      method: "perplexity_llm",
+      companyName: extractedData.companyName,
+      legalEntityType: extractedData.legalEntityType,
+      country: extractedData.country,
+      confidence,
+      processingTime: Date.now() - startTime,
+      success: !!extractedData.companyName,
+      error: null,
+      errorCode: null,
+      extractionMethod: parsedJson ? "json_extraction" : "text_extraction",
+      technicalDetails: `Model: ${this.config.model}, Citations: ${citations.length}`,
+      sources: extractedData.sources,
+      llmResponse: {
+        content: rawContent,
+        citations,
+        parsedJson,
+        rawConfidence: parsedJson?.confidence || null,
+      },
+    };
+
+    console.log(`🎯 Extraction result for ${domain}:`, {
+      success: result.success,
+      companyName: result.companyName,
+      confidence: result.confidence,
+    });
+
+    return result;
+  }
+
+  /**
+   * Parse JSON response with multiple fallback strategies
+   */
+  private parseJsonResponse(rawContent: string): {
+    parsedJson: any;
+    extractedData: {
+      companyName: string | null;
+      legalEntityType: string | null;
+      country: string | null;
+      sources: string[];
+    };
+  } {
+    let parsedJson = null;
+    let extractedData = {
+      companyName: null as string | null,
+      legalEntityType: null as string | null,
+      country: null as string | null,
+      sources: [] as string[],
+    };
+
+    // Strategy 1: Find JSON block between { and }
+    try {
+      const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsedJson = JSON.parse(jsonMatch[0]);
+      }
+    } catch (error) {
+      console.log("🔍 JSON block parsing failed, trying full content...");
+    }
+
+    // Strategy 2: Try parsing entire content as JSON
+    if (!parsedJson) {
+      try {
+        parsedJson = JSON.parse(rawContent.trim());
+      } catch (error) {
+        console.log("🔍 Full content JSON parsing failed");
+      }
+    }
+
+    // Extract data from parsed JSON
+    if (parsedJson) {
+      extractedData = {
+        companyName:
+          parsedJson.company_name ||
+          parsedJson.legal_entity ||
+          parsedJson.name ||
+          null,
+        legalEntityType:
+          parsedJson.legal_entity_type || parsedJson.entity_type || null,
+        country: parsedJson.country || parsedJson.jurisdiction || null,
+        sources: Array.isArray(parsedJson.sources) ? parsedJson.sources : [],
+      };
+    }
+
+    return { parsedJson, extractedData };
+  }
+
+  /**
+   * Calculate confidence score based on available data
+   */
+  private calculateConfidence(
+    extractedData: any,
+    parsedJson: any,
+    citationCount: number,
+  ): number {
+    if (!extractedData.companyName) return 0;
+
+    let confidence = 50; // Base confidence
+
+    // Boost confidence based on data completeness
+    if (extractedData.legalEntityType) confidence += 15;
+    if (extractedData.country) confidence += 10;
+    if (extractedData.sources.length > 0) confidence += 10;
+
+    // Boost confidence based on citation count
+    confidence += Math.min(citationCount * 5, 15);
+
+    // Use raw confidence if available and reasonable
+    if (parsedJson?.confidence) {
+      const rawConfidence = parsedJson.confidence.toLowerCase();
+      if (rawConfidence === "high") confidence = Math.max(confidence, 85);
+      else if (rawConfidence === "medium")
+        confidence = Math.max(confidence, 65);
+      else if (rawConfidence === "low") confidence = Math.min(confidence, 45);
+    }
+
+    return Math.min(confidence, 95); // Cap at 95%
+  }
+
+  /**
+   * Handle errors and return structured error response
+   */
+  private handleError(
+    error: any,
+    domain: string,
+    startTime: number,
+  ): PerplexityExtractionResult {
+    let errorMessage = "Unknown error occurred";
+    let errorCode = "UNKNOWN_ERROR";
+
+    if (error instanceof ValidationError) {
+      errorMessage = error.message;
+      errorCode = "VALIDATION_ERROR";
+    } else if (error instanceof PerplexityError) {
+      errorMessage = error.message;
+      errorCode = error.code;
+    } else if (error.response) {
+      // HTTP error
+      errorMessage = `HTTP ${error.response.status}: ${error.response.statusText}`;
+      errorCode = `HTTP_${error.response.status}`;
+    } else if (error.code === "ECONNABORTED") {
+      errorMessage = "Request timeout";
+      errorCode = "TIMEOUT";
+    } else if (error.message) {
+      errorMessage = error.message;
+      errorCode = error.code || "API_ERROR";
+    }
+
+    console.error(`❌ Error processing domain ${domain}:`, errorMessage);
+
+    return {
+      domain,
+      method: "perplexity_llm",
+      companyName: null,
+      legalEntityType: null,
+      country: null,
+      confidence: 0,
+      processingTime: Date.now() - startTime,
+      success: false,
+      error: errorMessage,
+      errorCode,
+      extractionMethod: null,
+      technicalDetails: `Error occurred during processing: ${errorCode}`,
+      sources: [],
+    };
+  }
+
+  /**
+   * Clear the request cache
+   */
+  public clearCache(): void {
+    this.requestCache.clear();
+    console.log("🗑️ Request cache cleared");
+  }
+
+  /**
+   * Get cache statistics
+   */
+  public getCacheStats(): { size: number; domains: string[] } {
+    return {
+      size: this.requestCache.size,
+      domains: Array.from(this.requestCache.keys()),
+    };
+  }
+
+  /**
+   * Update configuration
+   */
+  public updateConfig(newConfig: Partial<PerplexityConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+    console.log("⚙️ Configuration updated");
   }
 }
+
+// Export types for external use
+export type { PerplexityExtractionResult, PerplexityConfig };
+export { PerplexityError, ValidationError };
