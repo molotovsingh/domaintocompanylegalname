@@ -76,24 +76,31 @@ export class PerplexityExtractor {
       const citations = llmResponse.citations || [];
 
       console.log('🔍 Raw Perplexity Response for', domain);
-      console.log('📄 Response:', rawText.slice(0, 200) + '...');
+      console.log('📄 Full Response:', rawText);
 
-      // Try to parse JSON from the response
+      // Extract JSON from response - handle wrapped responses
       let parsedJson = null;
       let extractedCompany = null;
 
       try {
-        // Look for JSON in the response
-        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          parsedJson = JSON.parse(jsonMatch[0]);
+        // First try: Look for JSON between { and } (last occurrence for nested cases)
+        const jsonStart = rawText.lastIndexOf('{');
+        const jsonEnd = rawText.lastIndexOf('}');
+        
+        if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+          const jsonString = rawText.substring(jsonStart, jsonEnd + 1);
+          parsedJson = JSON.parse(jsonString);
           extractedCompany = parsedJson.company_name || parsedJson.legal_entity || parsedJson.name;
           console.log('✅ Successfully parsed JSON:', parsedJson);
         } else {
-          console.log('❌ No JSON found in response');
+          // Fallback: Try to parse the entire response as JSON
+          parsedJson = JSON.parse(rawText.trim());
+          extractedCompany = parsedJson.company_name || parsedJson.legal_entity || parsedJson.name;
+          console.log('✅ Successfully parsed full response as JSON:', parsedJson);
         }
       } catch (parseError) {
         console.log('❌ JSON parsing failed:', parseError);
+        console.log('🔍 Raw text for debugging:', rawText.slice(0, 500));
       }
 
       const result = {
