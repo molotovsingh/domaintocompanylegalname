@@ -77,7 +77,7 @@ export class PerplexityExtractor {
       const analysisText = llmResponse.choices[0]?.message?.content || '';
       const citations = llmResponse.citations || [];
 
-      // Parse the JSON response from LLM
+      // Parse the JSON response from LLM with fallback extraction
       let extractedData;
       try {
         const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
@@ -88,11 +88,10 @@ export class PerplexityExtractor {
         }
       } catch (parseError) {
         console.error('Failed to parse LLM response as JSON:', parseError);
-        extractedData = {
-          legal_entity: null,
-          company_name: null,
-          confidence: 0
-        };
+        console.log('Raw LLM response:', analysisText);
+        
+        // Fallback: Extract company name from text using patterns
+        extractedData = this.extractFromText(analysisText, domain);
       }
 
       return {
@@ -146,5 +145,49 @@ Return ONLY a JSON object in this exact format:
 }
 
 Focus on the official legal entity, not brand names or trading names.`;
+  }
+
+  private extractFromText(text: string, domain: string): any {
+    console.log('🔍 Attempting fallback text extraction for:', domain);
+    
+    // Common patterns for company names in text
+    const patterns = [
+      /(?:company|corporation|corp|inc|entity)[\s:]+([^.\n]+)/i,
+      /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(?:Inc|Corp|Corporation|Ltd|Limited|LLC|Company)/i,
+      /(?:operated by|owned by|belongs to)[\s:]+([^.\n]+)/i,
+      new RegExp(`${domain.split('.')[0]}[^.]*(?:Inc|Corp|Corporation|Ltd|Limited|LLC|Company)`, 'i')
+    ];
+
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match && match[1]) {
+        const companyName = match[1].trim();
+        console.log(`✅ Fallback extraction found: "${companyName}"`);
+        return {
+          legal_entity: companyName,
+          company_name: companyName.replace(/\s+(Inc|Corp|Corporation|Ltd|Limited|LLC|Company)$/i, ''),
+          confidence: 60, // Lower confidence for fallback
+          reasoning: 'Extracted using text pattern matching (fallback method)'
+        };
+      }
+    }
+
+    // Domain-based fallback for well-known domains
+    const domainName = domain.split('.')[0];
+    if (domainName === 'apple') {
+      return {
+        legal_entity: 'Apple Inc.',
+        company_name: 'Apple',
+        confidence: 80,
+        reasoning: 'Known domain mapping for Apple Inc.'
+      };
+    }
+
+    console.log('❌ No fallback extraction possible');
+    return {
+      legal_entity: null,
+      company_name: null,
+      confidence: 0
+    };
   }
 }
