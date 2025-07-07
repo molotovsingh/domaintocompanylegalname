@@ -223,84 +223,96 @@ export default function BetaTesting() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-4">
               {testResults.map((result, index) => (
-                <div key={index} className="p-4 border rounded-lg">
-                  <div className="flex items-center justify-between mb-3">
-                    <Badge variant={result.success ? "default" : "destructive"}>
-                      {result.method.replace('_', ' ').toUpperCase()}
-                    </Badge>
-                    <div className="flex items-center gap-2">
-                      {result.success ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-red-500" />
-                      )}
-                      <Badge variant={result.success ? "default" : "destructive"}>
-                        {result.success ? "Success" : "Failed"}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 text-sm">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div><strong>Company:</strong></div>
-                      <div>{result.companyName || 'Not found'}</div>
-
-                      <div><strong>Confidence:</strong></div>
-                      <div>{result.confidence}%</div>
-
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        <strong>Time:</strong>
+                <Card key={index} className="overflow-hidden">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <Badge variant="outline" className="text-sm font-medium">
+                          {result.method.replace('_', ' ').toUpperCase()}
+                        </Badge>
+                        <div className="flex items-center gap-2">
+                          {result.success ? (
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                          ) : (
+                            <XCircle className="w-4 h-4 text-red-500" />
+                          )}
+                          <span className={`text-sm font-medium ${result.success ? 'text-green-600' : 'text-red-600'}`}>
+                            {result.success ? 'Success' : 'Failed'}
+                          </span>
+                        </div>
                       </div>
-                      <div>{result.processingTime}ms</div>
-
-                      {result.extractionMethod && (
-                        <>
-                          <div><strong>Method:</strong></div>
-                          <div className="text-xs">{result.extractionMethod}</div>
-                        </>
-                      )}
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Clock className="w-4 h-4" />
+                        {result.processingTime}ms
+                      </div>
                     </div>
 
-                    {result.error && (
-                      <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded text-red-600 text-xs">
-                        <strong>Error:</strong> {result.error}
-                      </div>
-                    )}
-
-                    {result.technicalDetails && (
-                      <div className="mt-3 p-2 bg-gray-50 border border-gray-200 rounded text-xs">
-                        <strong>Technical:</strong> {result.technicalDetails}
-                      </div>
-                    )}
-                    {result.method === 'perplexity_llm' && result.llmResponse && (
-                      <div className="mt-2 text-xs">
-                        {result.llmResponse.parsedJson ? (
-                          <>
-                            <div className="font-medium mb-1">JSON Response:</div>
-                            <div className="bg-gray-50 p-2 rounded text-gray-700 max-h-32 overflow-y-auto">
-                              <pre className="text-xs">{JSON.stringify(result.llmResponse.parsedJson, null, 2)}</pre>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="font-medium mb-1">LLM Response:</div>
-                            <div className="bg-gray-50 p-2 rounded text-gray-700 max-h-32 overflow-y-auto">
-                              {result.llmResponse.content?.slice(0, 200)}...
-                            </div>
-                          </>
-                        )}
-                        {result.llmResponse.citations && result.llmResponse.citations.length > 0 && (
-                          <div className="mt-1">
-                            <span className="font-medium">Citations:</span> {result.llmResponse.citations.length}
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <span className="text-sm font-medium text-muted-foreground">Company:</span>
+                          <p className="text-base font-medium">{result.companyName || 'Not found'}</p>
+                        </div>
+                        {result.extractionMethod && (
+                          <div>
+                            <span className="text-sm font-medium text-muted-foreground">Extraction Method:</span>
+                            <p className="text-sm">{result.extractionMethod}</p>
                           </div>
                         )}
                       </div>
-                    )}
-                  </div>
-                </div>
+
+                      {result.error && (
+                        <Alert variant="destructive">
+                          <XCircle className="h-4 w-4" />
+                          <AlertDescription>
+                            <strong>Error:</strong> {result.error}
+                          </AlertDescription>
+                        </Alert>
+                      )}
+
+                      {result.technicalDetails && (
+                        <Alert>
+                          <AlertDescription>
+                            <strong>Technical Details:</strong> {result.technicalDetails}
+                          </AlertDescription>
+                        </Alert>
+                      )}
+
+                      {result.method === 'perplexity_llm' && result.llmResponse && (
+                        <div className="border-t pt-3">
+                          {result.llmResponse.parsedJson ? (
+                            <div>
+                              <h4 className="font-medium mb-2 text-sm">JSON Response:</h4>
+                              <div className="bg-gray-50 p-3 rounded-md border max-h-40 overflow-y-auto">
+                                <pre className="text-xs text-gray-700 whitespace-pre-wrap">
+                                  {JSON.stringify(result.llmResponse.parsedJson, null, 2)}
+                                </pre>
+                              </div>
+                            </div>
+                          ) : (
+                            <div>
+                              <h4 className="font-medium mb-2 text-sm">LLM Response:</h4>
+                              <div className="bg-gray-50 p-3 rounded-md border max-h-32 overflow-y-auto">
+                                <p className="text-sm text-gray-700">
+                                  {result.llmResponse.content?.slice(0, 300)}
+                                  {result.llmResponse.content && result.llmResponse.content.length > 300 ? '...' : ''}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                          {result.llmResponse.citations && result.llmResponse.citations.length > 0 && (
+                            <div className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">
+                              <span className="font-medium">Citations:</span> 
+                              <Badge variant="secondary">{result.llmResponse.citations.length}</Badge>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </CardContent>
@@ -309,40 +321,16 @@ export default function BetaTesting() {
 
       {/* Quick Stats */}
       {testResults.length > 0 && (
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {testResults.filter(r => r.success).length}
-                </div>
-                <div className="text-sm text-muted-foreground">Successful</div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600">
+                {Math.round(testResults.reduce((acc, r) => acc + r.processingTime, 0) / testResults.length)}ms
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
-                  {Math.round(testResults.reduce((acc, r) => acc + r.processingTime, 0) / testResults.length)}ms
-                </div>
-                <div className="text-sm text-muted-foreground">Avg Time</div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">
-                  {Math.round(testResults.reduce((acc, r) => acc + r.confidence, 0) / testResults.length)}%
-                </div>
-                <div className="text-sm text-muted-foreground">Avg Confidence</div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              <div className="text-sm text-muted-foreground">Average Processing Time</div>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
