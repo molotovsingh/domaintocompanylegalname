@@ -91,14 +91,15 @@ export class PerplexityExtractor {
           parsedJson = JSON.parse(jsonMatch[0]);
           extractedCompany = parsedJson.legal_entity_name || null;
           console.log('✅ Parsed JSON:', JSON.stringify(parsedJson, null, 2));
+          console.log('✅ Extracted company from JSON:', extractedCompany);
         }
       } catch (jsonError) {
         console.log('⚠️ JSON parsing failed, falling back to text extraction');
-        extractedCompany = this.extractCompanyFromResponse(rawText, domain);
       }
 
-      // If JSON parsing failed, fall back to text extraction
+      // If JSON parsing failed or didn't extract a company, fall back to text extraction
       if (!extractedCompany) {
+        console.log('🔄 Falling back to text extraction');
         extractedCompany = this.extractCompanyFromResponse(rawText, domain);
       }
 

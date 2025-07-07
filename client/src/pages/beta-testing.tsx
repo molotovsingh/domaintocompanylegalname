@@ -285,19 +285,19 @@ export default function BetaTesting() {
                           {result.llmResponse.parsedJson ? (
                             <div>
                               <h4 className="font-medium mb-2 text-sm">JSON Response:</h4>
-                              <div className="bg-gray-50 p-3 rounded-md border max-h-40 overflow-y-auto">
-                                <pre className="text-xs text-gray-700 whitespace-pre-wrap">
+                              <div className="bg-gray-50 p-3 rounded-md border max-h-48 overflow-y-auto">
+                                <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono">
                                   {JSON.stringify(result.llmResponse.parsedJson, null, 2)}
                                 </pre>
                               </div>
                             </div>
                           ) : (
                             <div>
-                              <h4 className="font-medium mb-2 text-sm">LLM Response:</h4>
+                              <h4 className="font-medium mb-2 text-sm">Raw LLM Response:</h4>
                               <div className="bg-gray-50 p-3 rounded-md border max-h-32 overflow-y-auto">
-                                <p className="text-sm text-gray-700">
-                                  {result.llmResponse.content?.slice(0, 300)}
-                                  {result.llmResponse.content && result.llmResponse.content.length > 300 ? '...' : ''}
+                                <p className="text-xs text-gray-700 font-mono whitespace-pre-wrap">
+                                  {result.llmResponse.content?.slice(0, 500)}
+                                  {result.llmResponse.content && result.llmResponse.content.length > 500 ? '...' : ''}
                                 </p>
                               </div>
                             </div>
