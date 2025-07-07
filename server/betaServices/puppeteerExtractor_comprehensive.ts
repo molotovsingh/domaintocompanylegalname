@@ -326,10 +326,9 @@ export class PuppeteerExtractor {
         for (const script of jsonLdScripts) {
           try {
             const data = JSON.parse(script.textContent || '');
-            if (data.legalName) return { name: data.legalName, type: 'LegalEntity' };
-            if (data.name && data['@type'] === 'Organization') return { name: data.name, type: 'Organization' };
-            if (data.organization?.legalName) return { name: data.organization.legalName, type: 'LegalEntity' };
+            if (data.name) return { name: data.name, type: data['@type'] };
             if (data.organization?.name) return { name: data.organization.name, type: 'Organization' };
+            if (data.legalName) return { name: data.legalName, type: 'LegalEntity' };
           } catch (e) {
             continue;
           }
@@ -348,65 +347,12 @@ export class PuppeteerExtractor {
         };
       }
       
-      // Strategy 2: Footer Legal Information (prioritized over meta tags for legal accuracy)
-      const footerData = await page.evaluate(() => {
-        const footers = document.querySelectorAll('footer, [class*="footer"], [id*="footer"]');
-        for (const footer of footers) {
-          const footerText = footer.textContent || '';
-          
-          // Enhanced patterns to catch legal entities with suffixes
-          const legalEntityPatterns = [
-            // Specific legal suffix patterns
-            /([A-Z][a-zA-Z\s&.-]+(?:Inc|Corp|Ltd|LLC|GmbH|S\.A\.|Pvt|Pty|AB|AG|LP|LLP)\.?)/gi,
-            // Copyright with entity suffix
-            /©\s*\d{4}[-\s]*\d*\s*([A-Z][a-zA-Z\s&.-]+(?:Inc|Corp|Ltd|LLC|GmbH|S\.A\.|Pvt|Pty|AB|AG|LP|LLP)\.?)/gi,
-            // "All rights reserved" patterns
-            /([A-Z][a-zA-Z\s&.-]+(?:Inc|Corp|Ltd|LLC|GmbH|S\.A\.|Pvt|Pty|AB|AG|LP|LLP)\.?)\s*[.-]*\s*All\s+rights\s+reserved/gi
-          ];
-          
-          for (const pattern of legalEntityPatterns) {
-            const matches = Array.from(footerText.matchAll(pattern));
-            for (const match of matches) {
-              const company = match[1].trim();
-              // Filter out generic terms and ensure reasonable length
-              if (company.length > 3 && company.length < 80 && 
-                  !company.toLowerCase().includes('all rights') &&
-                  !company.toLowerCase().includes('reserved') &&
-                  !company.toLowerCase().includes('privacy') &&
-                  !company.toLowerCase().includes('terms')) {
-                return { name: company, method: 'footer_legal_entity' };
-              }
-            }
-          }
-          
-          // Fallback to general copyright pattern
-          const copyrightMatch = footerText.match(/©\s*\d{4}[-\s]*\d*\s*([^.]+?)(?:\s*[.|,]|\s*All\s*rights|\s*$)/i);
-          if (copyrightMatch) {
-            const company = copyrightMatch[1].trim();
-            if (company.length > 2 && company.length < 60 && !company.toLowerCase().includes('all rights')) {
-              return { name: company, method: 'footer_copyright' };
-            }
-          }
-        }
-        return null;
-      });
-      
-      if (footerData) {
-        sources.push('Footer legal/copyright section');
-        return { 
-          name: footerData.name, 
-          method: footerData.method, 
-          confidence: 85,
-          legalEntityType: this.detectEntityType(footerData.name),
-          sources
-        };
-      }
-      
-      // Strategy 3: Meta Tags (but filter out marketing content)
+      // Strategy 2: Meta Tags (high priority)
       const metaData = await page.evaluate(() => {
         const metaTags = [
           'meta[property="og:site_name"]',
           'meta[name="application-name"]',
+          'meta[property="og:title"]',
           'meta[name="author"]',
           'meta[property="business:contact_data:company_name"]'
         ];
@@ -416,16 +362,7 @@ export class PuppeteerExtractor {
           if (meta) {
             const content = meta.getAttribute('content');
             if (content && content.trim()) {
-              const name = content.trim();
-              // Filter out marketing content - avoid titles with "shop", "buy", descriptive phrases
-              if (!name.toLowerCase().includes('shop') &&
-                  !name.toLowerCase().includes('buy') &&
-                  !name.toLowerCase().includes('games') &&
-                  !name.toLowerCase().includes('toys for') &&
-                  !name.toLowerCase().includes('collectibles') &&
-                  name.length < 50) {
-                return { name, selector };
-              }
+              return { name: content.trim(), selector };
             }
           }
         }
@@ -437,7 +374,7 @@ export class PuppeteerExtractor {
         return { 
           name: metaData.name, 
           method: 'meta_property', 
-          confidence: 80,
+          confidence: 90,
           legalEntityType: this.detectEntityType(metaData.name),
           sources
         };
@@ -547,22 +484,15 @@ export class PuppeteerExtractor {
         };
       }
       
-      // Strategy 8: Title tag fallback (with marketing content filtering)
+      // Strategy 8: Title tag fallback
       if (title && title !== 'Example Domain' && !title.includes('Error') && !title.includes('404')) {
         const cleanTitle = title.split(/[-|:]/)[0].trim();
-        // Avoid extracting marketing content from titles
-        if (cleanTitle.length > 2 && cleanTitle.length < 40 &&
-            !cleanTitle.toLowerCase().includes('shop') &&
-            !cleanTitle.toLowerCase().includes('buy') &&
-            !cleanTitle.toLowerCase().includes('games') &&
-            !cleanTitle.toLowerCase().includes('toys for') &&
-            !cleanTitle.toLowerCase().includes('collectibles') &&
-            !cleanTitle.toLowerCase().includes('dolls')) {
+        if (cleanTitle.length > 2) {
           sources.push('Page title');
           return { 
             name: cleanTitle, 
             method: 'title_tag', 
-            confidence: 50, // Lower confidence for title extraction
+            confidence: 60,
             legalEntityType: this.detectEntityType(cleanTitle),
             sources
           };
@@ -670,7 +600,7 @@ export class PuppeteerExtractor {
           }
         }
         
-        return legalLinks.slice(0, 3); // Check first 3 legal pages
+        return legalLinks.slice(0, 2); // Check first 2 legal pages
       });
       
       for (const url of legalUrls) {
@@ -681,30 +611,17 @@ export class PuppeteerExtractor {
           const companyName = await newPage.evaluate(() => {
             const text = document.body.textContent || '';
             
-            // Enhanced patterns to find legal entities in legal documents
+            // Look for legal entity mentions in terms/privacy
             const patterns = [
-              // Standard legal entity mentions
-              /(?:operated by|provided by|owned by|entity|company)\s+([A-Z][a-zA-Z\s&.-]+(?:Inc|Corp|Ltd|LLC|GmbH|S\.A\.|Pvt|Pty|AB|AG|LP|LLP)\.?)/gi,
-              /([A-Z][a-zA-Z\s&.-]+(?:Inc|Corp|Ltd|LLC|GmbH|S\.A\.|Pvt|Pty|AB|AG|LP|LLP)\.?)\s+(?:operates|provides|owns|is|has)/gi,
-              // Terms agreement patterns
-              /(?:These terms|This agreement|contract).*?(?:between you and|with)\s+([A-Z][a-zA-Z\s&.-]+(?:Inc|Corp|Ltd|LLC|GmbH|S\.A\.|Pvt|Pty|AB|AG|LP|LLP)\.?)/gi,
-              // Copyright in legal pages
-              /©\s*\d{4}[-\s]*\d*\s*([A-Z][a-zA-Z\s&.-]+(?:Inc|Corp|Ltd|LLC|GmbH|S\.A\.|Pvt|Pty|AB|AG|LP|LLP)\.?)/gi,
-              // Legal entity standalone mentions
-              /\b([A-Z][a-zA-Z\s&.-]+(?:Inc|Corp|Ltd|LLC|GmbH|S\.A\.|Pvt|Pty|AB|AG|LP|LLP)\.?)\b/gi
+              /(?:operated by|provided by|owned by)\s+([A-Z][a-zA-Z\s&]+(?:Inc|Corp|Ltd|LLC|GmbH)\.?)/,
+              /([A-Z][a-zA-Z\s&]+(?:Inc|Corp|Ltd|LLC|GmbH)\.?)\s+(?:operates|provides|owns)/,
+              /These terms.*?between you and\s+([A-Z][a-zA-Z\s&]+(?:Inc|Corp|Ltd|LLC|GmbH)\.?)/
             ];
             
             for (const pattern of patterns) {
-              const matches = Array.from(text.matchAll(pattern));
-              for (const match of matches) {
-                const company = match[1].trim();
-                // Filter for reasonable company names
-                if (company.length > 3 && company.length < 70 && 
-                    !company.toLowerCase().includes('privacy') &&
-                    !company.toLowerCase().includes('terms') &&
-                    !company.toLowerCase().includes('rights')) {
-                  return company;
-                }
+              const match = text.match(pattern);
+              if (match) {
+                return match[1].trim();
               }
             }
             return null;
