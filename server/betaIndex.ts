@@ -132,8 +132,19 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 Ready for experimental features`);
   console.log(`🌐 Accessible at http://0.0.0.0:${PORT}`);
   
-  // Initialize experiments
-  await initializeBetaExperiments();
+  try {
+    // Initialize experiments
+    await initializeBetaExperiments();
+    console.log(`✅ Beta server fully initialized and ready`);
+    
+    // Send ready signal to parent process if running from main server
+    if (process.send) {
+      process.send('ready');
+    }
+  } catch (error) {
+    console.error('❌ Failed to initialize beta experiments:', error);
+    process.exit(1);
+  }
 });
 
 // Handle graceful shutdown

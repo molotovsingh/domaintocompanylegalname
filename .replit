@@ -28,7 +28,7 @@ localPort = 8001
 externalPort = 3000
 
 [workflows]
-runButton = "Main Application"
+runButton = "Start application"
 
 [[workflows.workflow]]
 name = "Project"
@@ -102,63 +102,16 @@ task = "shell.exec"
 args = "cd server && npx tsx betaIndex.ts"
 
 [[workflows.workflow]]
-name = "Main Application"
-author = 24794172
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
-
-[[workflows.workflow]]
 name = "Beta Server"
 author = 24794172
 mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pkill -f \"betaIndex.ts\" || true"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "sleep 2"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
 args = "cd server && npx tsx betaIndex.ts"
 
 [[workflows.workflow]]
-name = "Full Stack Development"
-author = 24794172
-mode = "parallel"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python analytics_server.py"
-
-[[workflows.workflow]]
-name = "Restart Main Server"
-author = 24794172
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "pkill -f \"server/index.ts\" || true"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "sleep 2"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
-
-[[workflows.workflow]]
-name = "Clean Beta Restart"
+name = "Force Beta Restart"
 author = 24794172
 mode = "sequential"
 

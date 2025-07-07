@@ -818,7 +818,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { limit = "10" } = req.query;
       const batches = await storage.getBatches(parseInt(limit as string));
       res.json(batches);
-    } catch (error: any) {
+    } catch (error: any){
       res.status(500).json({ error: error.message });
     }
   });
@@ -1079,9 +1079,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Simplified Beta Testing API Routes - assumes beta server runs independently
   async function checkBetaServerStatus(): Promise<boolean> {
     try {
-      const response = await axios.get('http://localhost:3001/api/beta/health', { timeout: 2000 });
-      return response.status === 200;
-    } catch {
+      // Try both localhost and 0.0.0.0 to handle binding differences
+      const endpoints = ['http://localhost:3001/api/beta/health', 'http://0.0.0.0:3001/api/beta/health'];
+
+      for (const endpoint of endpoints) {
+        try {
+          const response = await axios.get(endpoint, { timeout: 3000 });
+          if (response.status === 200) {
+            console.log(`✅ Beta server healthy at ${endpoint}`);
+            return true;
+          }
+        } catch (error) {
+          // Try next endpoint
+          continue;
+        }
+      }
+      return false;
+    } catch (error) {
       return false;
     }
   }
