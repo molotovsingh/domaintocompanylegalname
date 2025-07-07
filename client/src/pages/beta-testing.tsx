@@ -127,35 +127,44 @@ export default function BetaTesting() {
     setIsRunning(false);
   };
 
-  // Loading screen when beta server is starting
-  if (serverStatus === 'starting' || serverStatus === 'stopped') {
+  // Loading screen when beta server is stopped
+  if (serverStatus === 'stopped') {
     return (
       <div className="container mx-auto p-6">
         <div className="flex items-center justify-center min-h-[60vh]">
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
               <CardTitle className="flex items-center justify-center gap-2">
-                <Beaker className="w-6 h-6 text-blue-500 animate-pulse" />
-                Starting Beta Environment
+                <Beaker className="w-6 h-6 text-orange-500" />
+                Beta Server Not Running
               </CardTitle>
               <CardDescription>
-                Initializing isolated testing environment...
+                Beta testing environment needs to be started manually
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Progress value={startupProgress} className="w-full" />
-              <div className="text-center text-sm text-muted-foreground">
-                {startupProgress < 30 && "Starting beta server..."}
-                {startupProgress >= 30 && startupProgress < 60 && "Loading extraction services..."}
-                {startupProgress >= 60 && startupProgress < 90 && "Preparing test environment..."}
-                {startupProgress >= 90 && "Almost ready..."}
-              </div>
-              <Alert className="bg-blue-50 border-blue-200">
-                <Shield className="h-4 w-4 text-blue-500" />
-                <AlertDescription className="text-blue-700">
-                  Beta environment runs isolated from production
+              <Alert className="bg-orange-50 border-orange-200">
+                <Shield className="h-4 w-4 text-orange-500" />
+                <AlertDescription className="text-orange-700">
+                  <div className="space-y-2">
+                    <p><strong>To start the beta server:</strong></p>
+                    <ol className="list-decimal list-inside space-y-1 text-sm">
+                      <li>Use the workflow dropdown menu at the top</li>
+                      <li>Select "Beta Testing Server"</li>
+                      <li>Wait for it to start (about 5-10 seconds)</li>
+                      <li>Refresh this page</li>
+                    </ol>
+                  </div>
                 </AlertDescription>
               </Alert>
+              <Button 
+                onClick={checkServerStatus} 
+                className="w-full"
+                variant="outline"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Check Server Status
+              </Button>
             </CardContent>
           </Card>
         </div>

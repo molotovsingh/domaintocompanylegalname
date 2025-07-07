@@ -1077,24 +1077,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Simplified Beta Testing API Routes - assumes beta server runs independently
+  // Simple beta server status check
   async function checkBetaServerStatus(): Promise<boolean> {
     try {
-      // Try both localhost and 0.0.0.0 to handle binding differences
-      const endpoints = ['http://localhost:3001/api/beta/health', 'http://0.0.0.0:3001/api/beta/health'];
-
-      for (const endpoint of endpoints) {
-        try {
-          const response = await axios.get(endpoint, { timeout: 3000 });
-          if (response.status === 200) {
-            console.log(`✅ Beta server healthy at ${endpoint}`);
-            return true;
-          }
-        } catch (error) {
-          // Try next endpoint
-          continue;
-        }
-      }
-      return false;
+      const response = await axios.get('http://localhost:3001/api/beta/health', { timeout: 2000 });
+      return response.status === 200;
     } catch (error) {
       return false;
     }
@@ -1106,59 +1093,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: isRunning ? 'ready' : 'stopped' });
   });
 
+  // Beta server proxy endpoints (no auto-start)
   app.get('/api/beta/experiments', async (req, res) => {
     try {
-      const isRunning = await checkBetaServerStatus();
-      if (!isRunning) {
-        return res.status(503).json({ 
-          success: false, 
-          error: 'Beta server is not running. Please start it manually.',
-          status: 'stopped'
-        });
-      }
-
       const response = await axios.get('http://localhost:3001/api/beta/experiments');
       res.json(response.data);
     } catch (error) {
-      res.status(500).json({ success: false, error: 'Beta server error' });
+      res.status(503).json({ 
+        success: false, 
+        error: 'Beta server is not running. Please start it using the workflow dropdown.',
+        status: 'stopped'
+      });
     }
   });
 
   app.get('/api/beta/smoke-test/results', async (req, res) => {
     try {
-      const isRunning = await checkBetaServerStatus();
-      if (!isRunning) {
-        return res.status(503).json({ 
-          success: false, 
-          error: 'Beta server is not running. Please start it manually.',
-          status: 'stopped'
-        });
-      }
-
       const response = await axios.get('http://localhost:3001/api/beta/smoke-test/results');
       res.json(response.data);
     } catch (error) {
-      res.status(500).json({ success: false, error: 'Beta server error' });
+      res.status(503).json({ 
+        success: false, 
+        error: 'Beta server is not running. Please start it using the workflow dropdown.',
+        status: 'stopped'
+      });
     }
   });
 
   app.post('/api/beta/smoke-test', async (req, res) => {
     try {
-      const isRunning = await checkBetaServerStatus();
-      if (!isRunning) {
-        return res.status(503).json({ 
-          success: false, 
-          error: 'Beta server is not running. Please start it manually.',
-          status: 'stopped'
-        });
-      }
-
       const response = await axios.post('http://localhost:3001/api/beta/smoke-test', req.body, {
         headers: { 'Content-Type': 'application/json' }
       });
       res.json(response.data);
     } catch (error) {
-      res.status(500).json({ success: false, error: 'Beta server error' });
+      res.status(503).json({ 
+        success: false, 
+        error: 'Beta server is not running. Please start it using the workflow dropdown.',
+        status: 'stopped'
+      });
     }
   });
 
