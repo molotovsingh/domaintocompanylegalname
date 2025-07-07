@@ -55,8 +55,7 @@ export class PerplexityExtractor {
           }
         ],
         max_tokens: 1000,
-        temperature: 0.1,
-        stream: false
+        temperature: 0.1
       }, {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -89,7 +88,19 @@ export class PerplexityExtractor {
         rawAnalysis: analysisText
       };
 
-    } catch (error) {
+    } catch (error: any) {
+      console.error('[Perplexity] API Error Details:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          headers: error.config?.headers
+        }
+      });
+      
       return {
         domain,
         method: 'perplexity_llm',
@@ -97,7 +108,7 @@ export class PerplexityExtractor {
         confidence: 0,
         processingTime: Date.now() - startTime,
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error.response?.data?.error?.message || error.message || 'Unknown error',
         llmResponse: null,
         rawAnalysis: ''
       };
