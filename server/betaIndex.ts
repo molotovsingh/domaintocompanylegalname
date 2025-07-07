@@ -88,7 +88,13 @@ app.post('/api/beta/smoke-test', async (req, res) => {
       ...result
     }).returning();
 
-    res.json({ success: true, data: dbResult[0] });
+    // Ensure confidence is included in the response
+    const responseData = {
+      ...result,
+      confidence: result.confidence || 0
+    };
+
+    res.json({ success: true, data: responseData });
 
   } catch (error: any) {
     console.error('[Beta] Error in smoke test:', error);

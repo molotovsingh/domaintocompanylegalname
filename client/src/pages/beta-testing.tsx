@@ -517,7 +517,13 @@ export default function BetaTesting() {
                               <span className="text-sm font-medium text-muted-foreground">
                                 Processing Confidence:
                               </span>
-                              <p className="text-sm">{result.confidence}%</p>
+                              <p className="text-sm">
+                                {result.confidence || 
+                                 result.llmResponse?.parsedJson?.confidence_score ||
+                                 (result.llmResponse?.parsedJson?.confidence === 'high' ? 95 : 
+                                  result.llmResponse?.parsedJson?.confidence === 'medium' ? 70 : 
+                                  result.llmResponse?.parsedJson?.confidence === 'low' ? 40 : 0)}%
+                              </p>
                             </div>
                           </div>
 
