@@ -6,6 +6,7 @@ import { betaDb } from './betaDb';
 import { betaExperiments, betaSmokeTests } from '../shared/betaSchema';
 import { eq, desc } from 'drizzle-orm';
 import { PuppeteerExtractor } from './betaServices/puppeteerExtractor';
+import { PerplexityExtractor } from './betaServices/perplexityExtractor';
 
 const execAsync = promisify(exec);
 
@@ -80,6 +81,36 @@ app.post('/api/beta/smoke-test', async (req, res) => {
     } else if (method === 'axios_cheerio') {
       // TODO: Implement axios_cheerio extractor
       res.status(400).json({ error: 'Axios/Cheerio not implemented yet' });
+    } else if (method === 'perplexity_llm') {
+      // Use Perplexity LLM extraction
+      const perplexityExtractor = new PerplexityExtractor();
+      
+      try {
+        console.log(`[Beta] Testing ${domain} with Perplexity LLM...`);
+        result = await perplexityExtractor.extractFromDomain(domain);
+        
+        // Store in beta database with experiment ID
+        const dbResult = await betaDb.insert(betaSmokeTests).values({
+          domain,
+          method,
+          experimentId: 2, // LLM extraction experiment
+          companyName: result.companyName,
+          confidence: result.confidence,
+          processingTime: result.processingTime,
+          success: result.success,
+          error: result.error,
+          extractionMethod: result.method,
+          technicalDetails: JSON.stringify({
+            llmResponse: result.llmResponse,
+            rawAnalysis: result.rawAnalysis
+          })
+        }).returning();
+        
+        res.json({ success: true, data: dbResult[0], llmData: result });
+      } catch (error: any) {
+        console.error('[Beta] Error in Perplexity LLM test:', error);
+        res.status(500).json({ success: false, error: error.message });
+      }
     } else {
       res.status(400).json({ error: 'Invalid method' });
     }
@@ -119,6 +150,21 @@ async function initializeBetaExperiments() {
         createdBy: 'system'
       });
       console.log('✅ Initialized Smoke Testing experiment');
+    }
+
+    // Check if LLM extraction experiment exists
+    const existingLLM = await betaDb.select()
+      .from(betaExperiments)
+      .where(eq(betaExperiments.name, 'LLM Extraction'));
+    
+    if (existingLLM.length === 0) {
+      await betaDb.insert(betaExperiments).values({
+        name: 'LLM Extraction',
+        description: 'Test Perplexity LLM for domain-to-legal-entity extraction',
+        status: 'experimental',
+        createdBy: 'system'
+      });
+      console.log('✅ Initialized LLM Extraction experiment');
     }
   } catch (error) {
     console.error('Failed to initialize beta experiments:', error);

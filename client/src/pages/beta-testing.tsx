@@ -111,7 +111,7 @@ export default function BetaTesting() {
     setProgress(0);
     setTestResults([]);
 
-    const methods = ['axios_cheerio', 'puppeteer'];
+    const methods = ['axios_cheerio', 'puppeteer', 'perplexity_llm'];
     const results: BetaTestResult[] = [];
 
     for (let i = 0; i < methods.length; i++) {
@@ -246,7 +246,7 @@ export default function BetaTesting() {
         <CardHeader>
           <CardTitle>Domain Extraction Test</CardTitle>
           <CardDescription>
-            Test domain extraction using experimental methods (Axios/Cheerio and Puppeteer)
+            Test domain extraction using experimental methods (Axios/Cheerio, Puppeteer, and Perplexity LLM)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -338,6 +338,17 @@ export default function BetaTesting() {
                     {result.technicalDetails && (
                       <div className="mt-3 p-2 bg-gray-50 border border-gray-200 rounded text-xs">
                         <strong>Technical:</strong> {result.technicalDetails}
+                      </div>
+                    )}
+
+                    {result.method === 'perplexity_llm' && (result as any).llmData && (
+                      <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded text-xs">
+                        <strong className="text-blue-700">🤖 LLM Analysis:</strong>
+                        <div className="mt-2 space-y-1">
+                          <div><strong>Raw Response:</strong> {(result as any).llmData.rawAnalysis?.substring(0, 200)}...</div>
+                          <div><strong>Evidence:</strong> {JSON.parse((result as any).llmData.rawAnalysis || '{}').evidence_source || 'N/A'}</div>
+                          <div><strong>Analysis:</strong> {JSON.parse((result as any).llmData.rawAnalysis || '{}').analysis || 'N/A'}</div>
+                        </div>
                       </div>
                     )}
                   </div>
