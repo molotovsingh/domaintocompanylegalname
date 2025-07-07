@@ -43,15 +43,20 @@ export class PerplexityExtractor {
       const prompt = this.createExtractionPrompt(domain);
       
       const response = await axios.post(this.baseURL, {
-        model: 'sonar',
+        model: 'llama-3.1-sonar-small-128k-online',
         messages: [
+          {
+            role: 'system',
+            content: 'You are a corporate research assistant specializing in legal entity identification. You must provide responses in valid JSON format only.'
+          },
           {
             role: 'user',
             content: prompt
           }
         ],
         max_tokens: 1000,
-        temperature: 0.1
+        temperature: 0.1,
+        stream: false
       }, {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -84,19 +89,7 @@ export class PerplexityExtractor {
         rawAnalysis: analysisText
       };
 
-    } catch (error: any) {
-      console.error('[Perplexity] API Error Details:', {
-        message: error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          headers: error.config?.headers
-        }
-      });
-      
+    } catch (error) {
       return {
         domain,
         method: 'perplexity_llm',
@@ -104,7 +97,7 @@ export class PerplexityExtractor {
         confidence: 0,
         processingTime: Date.now() - startTime,
         success: false,
-        error: error.response?.data?.error?.message || error.message || 'Unknown error',
+        error: error instanceof Error ? error.message : 'Unknown error',
         llmResponse: null,
         rawAnalysis: ''
       };
