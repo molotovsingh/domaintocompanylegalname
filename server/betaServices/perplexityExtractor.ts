@@ -45,7 +45,7 @@ export class PerplexityExtractor {
       const prompt = this.createSimplePrompt(domain);
 
       const response = await axios.post(this.baseURL, {
-        model: 'sonar-reasoning',
+        model: 'sonar',
         messages: [
           {
             role: 'system',
@@ -61,8 +61,7 @@ export class PerplexityExtractor {
         stream: false,
         web_search_options: {
           search_context_size: "medium"
-        },
-        reasoning_effort: "medium"
+        }
       }, {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -117,7 +116,7 @@ export class PerplexityExtractor {
           parsedJson: parsedJson
         },
         extractionMethod: parsedJson ? 'perplexity_json' : null,
-        technicalDetails: `Sonar-reasoning model with ${citations.length} citations`
+        technicalDetails: `Sonar model with ${citations.length} citations`
       };
 
       console.log('🔄 Final result:', { 
