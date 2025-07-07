@@ -71,7 +71,7 @@ export class PerplexityExtractor {
 
     this.config = {
       apiKey,
-      model: "sonar",
+      model: "sonar", // Updated to current model name
       maxTokens: 500,
       temperature: 0.1,
       timeout: 30000,
@@ -262,7 +262,9 @@ export class PerplexityExtractor {
       return_citations: true,
     };
 
-    console.log(`🚀 Making API request for domain: ${domain}`);
+    console.log(
+      `🚀 Making API request for domain: ${domain} with model: ${this.config.model}`,
+    );
 
     const response: AxiosResponse = await axios.post(
       this.config.baseURL,
@@ -534,6 +536,27 @@ Return only the JSON object, no other text.`;
   public updateConfig(newConfig: Partial<PerplexityConfig>): void {
     this.config = { ...this.config, ...newConfig };
     console.log("⚙️ Configuration updated");
+  }
+
+  /**
+   * Get available models for configuration
+   */
+  public static getAvailableModels(): string[] {
+    return [
+      "sonar-pro",
+      "sonar",
+      "sonar-reasoning-pro",
+      "sonar-reasoning",
+      "sonar-deep-research",
+      "r1-1776",
+    ];
+  }
+
+  /**
+   * Validate model name
+   */
+  private validateModel(model: string): boolean {
+    return PerplexityExtractor.getAvailableModels().includes(model);
   }
 }
 
