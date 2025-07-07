@@ -103,7 +103,7 @@ export class PerplexityExtractor {
         extractedCompany = this.extractCompanyFromResponse(rawText, domain);
       }
 
-      return {
+      const result = {
         domain,
         method: 'perplexity_llm',
         companyName: extractedCompany,
@@ -120,6 +120,9 @@ export class PerplexityExtractor {
         extractionMethod: parsedJson ? 'perplexity_json' : 'perplexity_text_fallback',
         technicalDetails: `Sonar-reasoning model with ${citations.length} citations`
       };
+
+      console.log('🔄 Final result being returned:', JSON.stringify(result, null, 2));
+      return result;
 
     } catch (error: any) {
       console.error('❌ Perplexity extraction error:', error.message);

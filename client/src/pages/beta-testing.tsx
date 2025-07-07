@@ -58,13 +58,13 @@ export default function BetaTesting() {
         domain,
         method,
         processingTime,
-        companyName: result.companyName,
-        confidence: result.confidence || 0,
+        companyName: result.data?.companyName || result.companyName,
+        confidence: result.data?.confidence || result.confidence || 0,
         success: result.success,
         error: result.error,
-        extractionMethod: result.extractionMethod,
-        technicalDetails: result.technicalDetails,
-        llmResponse: result.llmResponse || null,
+        extractionMethod: result.data?.extractionMethod || result.extractionMethod,
+        technicalDetails: result.data?.technicalDetails || result.technicalDetails,
+        llmResponse: result.data?.llmResponse || result.llmResponse || null,
       };
     } catch (error) {
       return {
