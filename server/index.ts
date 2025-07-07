@@ -50,7 +50,7 @@ let betaServerProcess: any = null;
 async function startBetaServer() {
   try {
     // Kill any existing beta server
-    const { exec } = require('child_process');
+    const { exec } = await import('child_process');
     await new Promise(resolve => {
       exec('pkill -f "betaIndex.ts" || true', () => resolve(null));
     });
