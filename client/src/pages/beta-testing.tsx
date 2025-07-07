@@ -280,34 +280,31 @@ export default function BetaTesting() {
                         </Alert>
                       )}
 
-                      {result.method === 'perplexity_llm' && result.llmResponse && (
-                        <div className="border-t pt-3">
-                          {result.llmResponse.parsedJson ? (
-                            <div>
-                              <h4 className="font-medium mb-2 text-sm">JSON Response:</h4>
-                              <div className="bg-gray-50 p-3 rounded-md border max-h-48 overflow-y-auto">
-                                <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono">
-                                  {JSON.stringify(result.llmResponse.parsedJson, null, 2)}
-                                </pre>
-                              </div>
-                            </div>
-                          ) : (
-                            <div>
-                              <h4 className="font-medium mb-2 text-sm">Raw LLM Response:</h4>
-                              <div className="bg-gray-50 p-3 rounded-md border max-h-32 overflow-y-auto">
-                                <p className="text-xs text-gray-700 font-mono whitespace-pre-wrap">
-                                  {result.llmResponse.content?.slice(0, 500)}
-                                  {result.llmResponse.content && result.llmResponse.content.length > 500 ? '...' : ''}
-                                </p>
-                              </div>
-                            </div>
-                          )}
+                      {result.method === 'perplexity_llm' && result.llmResponse?.parsedJson && (
+                        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                          <h4 className="font-semibold text-blue-900 mb-2">Complete LLM JSON Analysis:</h4>
+                          <pre className="text-sm text-blue-800 whitespace-pre-wrap overflow-auto max-h-96 bg-white p-3 rounded border">
+                            {JSON.stringify(result.llmResponse.parsedJson, null, 2)}
+                          </pre>
                           {result.llmResponse.citations && result.llmResponse.citations.length > 0 && (
-                            <div className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">
-                              <span className="font-medium">Citations:</span> 
-                              <Badge variant="secondary">{result.llmResponse.citations.length}</Badge>
+                            <div className="mt-3">
+                              <h5 className="font-medium text-blue-900 mb-1">Sources ({result.llmResponse.citations.length}):</h5>
+                              <div className="text-xs text-blue-700 space-y-1">
+                                {result.llmResponse.citations.slice(0, 3).map((citation: string, idx: number) => (
+                                  <div key={idx} className="truncate">• {citation}</div>
+                                ))}
+                              </div>
                             </div>
                           )}
+                        </div>
+                      )}
+
+                      {result.method === 'perplexity_llm' && !result.llmResponse?.parsedJson && result.companyName && (
+                        <div className="mt-4 p-4 bg-yellow-50 rounded-lg">
+                          <h4 className="font-semibold text-yellow-900 mb-2">Text Extraction Fallback:</h4>
+                          <p className="text-sm text-yellow-800">
+                            JSON parsing failed, extracted via text patterns: <strong>{result.companyName}</strong>
+                          </p>
                         </div>
                       )}
                     </div>
