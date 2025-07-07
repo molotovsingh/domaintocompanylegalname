@@ -14,75 +14,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Beta server management
-let betaServerProcess: any = null;
-let betaServerReady = false;
-
-async function startBetaServer() {
-  return new Promise<void>((resolve, reject) => {
-    log('🧪 Starting beta server automatically...');
-    
-    // Kill any existing beta server processes first
-    const killCommand = spawn('pkill', ['-f', 'betaIndex.ts'], { stdio: 'pipe' });
-    
-    killCommand.on('close', () => {
-      // Wait a moment for cleanup
-      setTimeout(() => {
-        betaServerProcess = spawn('npx', ['tsx', 'server/betaIndex.ts'], {
-          stdio: 'pipe',
-          cwd: process.cwd()
-        });
-
-        betaServerProcess.stdout.on('data', (data: Buffer) => {
-          const output = data.toString().trim();
-          log(`[Beta] ${output}`, 'beta');
-          
-          // Check for ready signal
-          if (output.includes('Beta server fully initialized and ready')) {
-            betaServerReady = true;
-            log('✅ Beta server startup completed');
-            resolve();
-          }
-        });
-
-        betaServerProcess.stderr.on('data', (data: Buffer) => {
-          const error = data.toString().trim();
-          log(`[Beta Error] ${error}`, 'beta');
-        });
-
-        betaServerProcess.on('error', (error: Error) => {
-          log(`❌ Beta server failed to start: ${error.message}`);
-          reject(error);
-        });
-
-        betaServerProcess.on('exit', (code: number | null) => {
-          if (code !== 0) {
-            log(`❌ Beta server exited with code ${code}`);
-            betaServerReady = false;
-          }
-        });
-
-        // Timeout fallback
-        setTimeout(() => {
-          if (!betaServerReady) {
-            log('⚠️ Beta server startup timeout, continuing anyway...');
-            resolve();
-          }
-        }, 15000);
-      }, 2000);
-    });
-  });
-}
-
-async function checkBetaServerHealth() {
-  try {
-    const response = await axios.get('http://localhost:3001/api/beta/health', { timeout: 3000 });
-    return response.status === 200;
-  } catch (error) {
-    return false;
-  }
-}
-
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -111,6 +42,84 @@ app.use((req, res, next) => {
   });
 
   next();
+});
+
+// Beta server management
+let betaServerProcess: any = null;
+
+async function startBetaServer() {
+  try {
+    // Kill any existing beta server
+    const { exec } = require('child_process');
+    await new Promise(resolve => {
+      exec('pkill -f "betaIndex.ts" || true', () => resolve(null));
+    });
+    
+    // Wait for cleanup
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    log('🧪 Starting beta server...');
+    
+    betaServerProcess = spawn('npx', ['tsx', 'server/betaIndex.ts'], {
+      stdio: 'pipe',
+      cwd: process.cwd(),
+      detached: false
+    });
+    
+    betaServerProcess.stdout.on('data', (data: Buffer) => {
+      log(`[Beta] ${data.toString().trim()}`);
+    });
+    
+    betaServerProcess.stderr.on('data', (data: Buffer) => {
+      log(`[Beta Error] ${data.toString().trim()}`);
+    });
+    
+    betaServerProcess.on('exit', (code: number) => {
+      log(`[Beta] Process exited with code ${code}`);
+      betaServerProcess = null;
+    });
+    
+    // Wait for beta server to be ready
+    let attempts = 0;
+    while (attempts < 30) {
+      try {
+        await axios.get('http://0.0.0.0:3001/api/beta/health', { timeout: 1000 });
+        log('✅ Beta server is ready');
+        break;
+      } catch {
+        attempts++;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+    
+    if (attempts >= 30) {
+      log('⚠️ Beta server startup timeout - continuing anyway');
+    }
+    
+  } catch (error) {
+    log(`❌ Failed to start beta server: ${error}`);
+  }
+}
+
+function stopBetaServer() {
+  if (betaServerProcess) {
+    log('🛑 Stopping beta server...');
+    betaServerProcess.kill('SIGTERM');
+    betaServerProcess = null;
+  }
+}
+
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  log('🛑 Main server shutting down...');
+  stopBetaServer();
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  log('🛑 Main server interrupted...');
+  stopBetaServer();
+  process.exit(0);
 });
 
 (async () => {
@@ -151,31 +160,7 @@ app.use((req, res, next) => {
   }, async () => {
     log(`serving on port ${port}`);
     
-    // Auto-start beta server after main server is ready
-    try {
-      await startBetaServer();
-      log('🎯 Complete server stack ready: Main (5000) + Beta (3001)');
-    } catch (error) {
-      log(`⚠️ Beta server failed to start, continuing with main server only: ${error}`);
-    }
+    // Start beta server automatically
+    await startBetaServer();
   });
 })();
-
-// Cleanup beta server on main server shutdown
-process.on('SIGTERM', () => {
-  log('🛑 Shutting down main server...');
-  if (betaServerProcess) {
-    log('🛑 Stopping beta server...');
-    betaServerProcess.kill('SIGTERM');
-  }
-  process.exit(0);
-});
-
-process.on('SIGINT', () => {
-  log('🛑 Main server interrupted...');
-  if (betaServerProcess) {
-    log('🛑 Stopping beta server...');
-    betaServerProcess.kill('SIGTERM');
-  }
-  process.exit(0);
-});

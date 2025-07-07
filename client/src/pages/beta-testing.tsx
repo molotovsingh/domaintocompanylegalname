@@ -5,17 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Beaker, 
   Shield, 
   Database, 
   Activity,
-  AlertTriangle,
-  RefreshCw,
   Play,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  Zap
 } from 'lucide-react';
 
 interface BetaTestResult {
@@ -31,40 +31,11 @@ interface BetaTestResult {
 }
 
 export default function BetaTesting() {
-  const [serverStatus, setServerStatus] = useState<'stopped' | 'starting' | 'ready' | 'error'>('stopped');
   const [testDomain, setTestDomain] = useState('');
+  const [testMethod, setTestMethod] = useState('perplexity_llm');
   const [testResults, setTestResults] = useState<BetaTestResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [startupProgress, setStartupProgress] = useState(0);
-
-  useEffect(() => {
-    checkServerStatus();
-  }, []);
-
-  useEffect(() => {
-    if (serverStatus === 'starting') {
-      const interval = setInterval(() => {
-        checkServerStatus();
-        setStartupProgress(prev => Math.min(prev + 10, 90));
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [serverStatus]);
-
-  const checkServerStatus = async () => {
-    try {
-      const response = await fetch('/api/beta/status');
-      const data = await response.json();
-      setServerStatus(data.status);
-      if (data.status === 'ready') {
-        setStartupProgress(100);
-      }
-    } catch (error) {
-      console.error('Failed to check server status:', error);
-      setServerStatus('error');
-    }
-  };
 
   const runBetaTest = async (domain: string, method: string): Promise<BetaTestResult> => {
     try {
@@ -104,6 +75,20 @@ export default function BetaTesting() {
     }
   };
 
+  const runSingleTest = async () => {
+    if (!testDomain.trim()) return;
+
+    setIsRunning(true);
+    setProgress(0);
+    setTestResults([]);
+
+    setProgress(50);
+    const result = await runBetaTest(testDomain.trim(), testMethod);
+    setTestResults([result]);
+    setProgress(100);
+    setIsRunning(false);
+  };
+
   const runFullTest = async () => {
     if (!testDomain.trim()) return;
 
@@ -111,7 +96,7 @@ export default function BetaTesting() {
     setProgress(0);
     setTestResults([]);
 
-    const methods = ['axios_cheerio', 'puppeteer'];
+    const methods = ['axios_cheerio', 'puppeteer', 'perplexity_llm'];
     const results: BetaTestResult[] = [];
 
     for (let i = 0; i < methods.length; i++) {
@@ -126,80 +111,6 @@ export default function BetaTesting() {
     setProgress(100);
     setIsRunning(false);
   };
-
-  // Loading screen when beta server is stopped
-  if (serverStatus === 'stopped') {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Card className="w-full max-w-md">
-            <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center gap-2">
-                <Beaker className="w-6 h-6 text-blue-500" />
-                Beta Server Starting
-              </CardTitle>
-              <CardDescription>
-                Beta testing environment is initializing automatically
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Alert className="bg-blue-50 border-blue-200">
-                <Shield className="h-4 w-4 text-blue-500" />
-                <AlertDescription className="text-blue-700">
-                  <div className="space-y-2">
-                    <p><strong>Beta server is starting automatically...</strong></p>
-                    <p className="text-sm">
-                      The beta testing environment starts automatically with the main application. 
-                      If you're seeing this message, please wait a moment for initialization to complete.
-                    </p>
-                  </div>
-                </AlertDescription>
-              </Alert>
-              <Button 
-                onClick={checkServerStatus} 
-                className="w-full"
-                variant="outline"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Check Server Status
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  // Error screen if server failed to start
-  if (serverStatus === 'error') {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Card className="w-full max-w-md border-red-200">
-            <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center gap-2 text-red-600">
-                <AlertTriangle className="w-6 h-6" />
-                Beta Server Error
-              </CardTitle>
-              <CardDescription>
-                Failed to start the beta testing environment
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button 
-                onClick={checkServerStatus} 
-                className="w-full"
-                variant="outline"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Retry
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -225,7 +136,7 @@ export default function BetaTesting() {
           </Badge>
           <Badge className="bg-green-500 text-white">
             <Activity className="w-4 h-4 mr-1" />
-            Server Ready
+            Auto-Started
           </Badge>
         </div>
       </div>
@@ -235,7 +146,7 @@ export default function BetaTesting() {
         <Shield className="h-4 w-4" />
         <AlertDescription>
           <strong>Beta Environment:</strong> All tests run in complete isolation from production data. 
-          Safe to test experimental features and methods.
+          Beta server starts automatically with the main application.
         </AlertDescription>
       </Alert>
 
@@ -244,7 +155,7 @@ export default function BetaTesting() {
         <CardHeader>
           <CardTitle>Domain Extraction Test</CardTitle>
           <CardDescription>
-            Test domain extraction using experimental methods (Axios/Cheerio and Puppeteer)
+            Test domain extraction using experimental methods including Perplexity LLM
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -253,15 +164,34 @@ export default function BetaTesting() {
               placeholder="Enter domain (e.g., example.com)"
               value={testDomain}
               onChange={(e) => setTestDomain(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && runFullTest()}
+              onKeyPress={(e) => e.key === 'Enter' && runSingleTest()}
               disabled={isRunning}
+              className="flex-1"
             />
+            <Select value={testMethod} onValueChange={setTestMethod} disabled={isRunning}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="axios_cheerio">Axios/Cheerio</SelectItem>
+                <SelectItem value="puppeteer">Puppeteer</SelectItem>
+                <SelectItem value="perplexity_llm">Perplexity LLM</SelectItem>
+              </SelectContent>
+            </Select>
             <Button 
-              onClick={runFullTest} 
+              onClick={runSingleTest} 
               disabled={isRunning || !testDomain.trim()}
             >
               <Play className="w-4 h-4 mr-2" />
-              {isRunning ? 'Testing...' : 'Run Test'}
+              {isRunning ? 'Testing...' : 'Test'}
+            </Button>
+            <Button 
+              onClick={runFullTest} 
+              disabled={isRunning || !testDomain.trim()}
+              variant="outline"
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              All Methods
             </Button>
           </div>
 
@@ -282,11 +212,11 @@ export default function BetaTesting() {
           <CardHeader>
             <CardTitle>Test Results</CardTitle>
             <CardDescription>
-              Comparison of extraction methods for {testResults[0]?.domain}
+              Extraction results for {testResults[0]?.domain}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {testResults.map((result, index) => (
                 <div key={index} className="p-4 border rounded-lg">
                   <div className="flex items-center justify-between mb-3">
