@@ -53,15 +53,17 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
   const { data: resultsData, isLoading, refetch: refetchResults } = useQuery<ResultsResponse>({
     queryKey: [`/api/results/${currentBatchId}?${params}`],
     enabled: !!currentBatchId,
+    staleTime: 0, // Always fetch fresh data
   });
 
   const domains = resultsData?.domains || [];
   const batch = resultsData?.batch;
   const pagination = resultsData?.pagination;
 
-  // Check if any domains are still processing
+  // Check if any domains are still processing (including Level 2 GLEIF)
   const hasProcessingDomains = domains.some((d: Domain) => 
-    d.status === 'processing' || d.status === 'pending'
+    d.status === 'processing' || d.status === 'pending' ||
+    (d.level2Attempted && d.level2Status === 'processing')
   );
 
   // Auto-refresh when domains are processing
@@ -73,6 +75,21 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
       return () => clearInterval(interval);
     }
   }, [hasProcessingDomains, refetchResults]);
+
+  // Additional refresh mechanism for Level 2 GLEIF processing
+  React.useEffect(() => {
+    const hasLevel2Processing = domains.some((d: Domain) => 
+      d.level2Attempted && d.level2Status === 'processing'
+    );
+    
+    if (hasLevel2Processing) {
+      // More frequent refresh for GLEIF processing
+      const interval = setInterval(() => {
+        refetchResults();
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [domains, refetchResults]);
 
   const handleRefresh = () => {
     refetchResults();
