@@ -222,7 +222,7 @@ export default function BetaTesting() {
     setProgress(0);
     setTestResults([]);
 
-    const methods = ["axios_cheerio", "puppeteer", "perplexity_llm"];
+    const methods = ["axios_cheerio", "puppeteer", "playwright", "perplexity_llm"];
     const results: BetaTestResult[] = [];
 
     setTestProgress({
