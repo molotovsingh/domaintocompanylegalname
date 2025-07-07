@@ -74,7 +74,22 @@ app.post('/api/beta/smoke-test', async (req, res) => {
 
       try {
         console.log(`[Beta] Testing ${domain} with playwright...`);
-        result = await extractor.extractFromDomain(domain);
+        const playwrightResult = await extractor.extractFromDomain(domain);
+        
+        // Map Playwright result to expected format
+        result = {
+          success: playwrightResult.success,
+          data: {
+            companyName: playwrightResult.companyName,
+            confidence: playwrightResult.companyConfidence, // Use the actual confidence from Playwright
+            extractionMethod: playwrightResult.companyExtractionMethod,
+            legalEntityType: playwrightResult.legalEntityType,
+            country: playwrightResult.detectedCountry,
+            sources: playwrightResult.sources,
+            technicalDetails: playwrightResult.technicalDetails
+          },
+          error: playwrightResult.error
+        };
       } finally {
         await extractor.cleanup();
       }
