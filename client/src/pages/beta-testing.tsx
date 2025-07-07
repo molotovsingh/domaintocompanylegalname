@@ -472,8 +472,8 @@ export default function BetaTesting() {
                                 Company Name:
                               </span>
                               <p className="text-base font-medium">
-                                {result.llmResponse.parsedJson.company_name ||
-                                  "Not found"}
+                                {result.llmResponse.parsedJson.company_name || 
+                                 result.companyName || "Not found"}
                               </p>
                             </div>
                             <div>
@@ -481,8 +481,8 @@ export default function BetaTesting() {
                                 Legal Entity Type:
                               </span>
                               <p className="text-sm">
-                                {result.llmResponse.parsedJson
-                                  .legal_entity_type || "Not specified"}
+                                {result.llmResponse.parsedJson.legal_entity_type || 
+                                 result.legalEntityType || "Not specified"}
                               </p>
                             </div>
                             <div>
@@ -490,8 +490,8 @@ export default function BetaTesting() {
                                 Country:
                               </span>
                               <p className="text-sm">
-                                {result.llmResponse.parsedJson.country ||
-                                  "Not specified"}
+                                {result.llmResponse.parsedJson.country || 
+                                 result.country || "Not specified"}
                               </p>
                             </div>
                             <div>
@@ -499,8 +499,8 @@ export default function BetaTesting() {
                                 LLM Confidence:
                               </span>
                               <p className="text-sm capitalize">
-                                {result.llmResponse.parsedJson.confidence ||
-                                  "Not specified"}
+                                {result.llmResponse.parsedJson.confidence || 
+                                 result.llmResponse.rawConfidence || "Not specified"}
                               </p>
                             </div>
                             {result.extractionMethod && (

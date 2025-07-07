@@ -427,6 +427,12 @@ Return only the JSON object, no other text.`;
         country: parsedJson.country || parsedJson.jurisdiction || null,
         sources: Array.isArray(parsedJson.sources) ? parsedJson.sources : [],
       };
+    } else {
+      // Try to extract company name from raw content as fallback
+      const companyMatch = rawContent.match(/company[_\s]*name[:\s]*["\']?([^"'\n,}]+)["\']?/i);
+      if (companyMatch) {
+        extractedData.companyName = companyMatch[1].trim();
+      }
     }
 
     return { parsedJson, extractedData };
@@ -442,7 +448,7 @@ Return only the JSON object, no other text.`;
   ): number {
     if (!extractedData.companyName) return 0;
 
-    let confidence = 50; // Base confidence
+    let confidence = 60; // Base confidence for having company name
 
     // Boost confidence based on data completeness
     if (extractedData.legalEntityType) confidence += 15;
@@ -455,10 +461,15 @@ Return only the JSON object, no other text.`;
     // Use raw confidence if available and reasonable
     if (parsedJson?.confidence) {
       const rawConfidence = parsedJson.confidence.toLowerCase();
-      if (rawConfidence === "high") confidence = Math.max(confidence, 85);
+      if (rawConfidence === "high") confidence = Math.max(confidence, 90);
       else if (rawConfidence === "medium")
-        confidence = Math.max(confidence, 65);
-      else if (rawConfidence === "low") confidence = Math.min(confidence, 45);
+        confidence = Math.max(confidence, 70);
+      else if (rawConfidence === "low") confidence = Math.max(confidence, 50);
+    }
+
+    // Additional boost for well-structured JSON response
+    if (parsedJson && Object.keys(parsedJson).length > 2) {
+      confidence += 5;
     }
 
     return Math.min(confidence, 95); // Cap at 95%
