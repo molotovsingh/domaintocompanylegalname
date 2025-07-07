@@ -44,27 +44,27 @@ export class PerplexityExtractor {
     }
 
     try {
-      const prompt = this.createExtractionPrompt(domain);
+      const prompt = this.createSimplePrompt(domain);
       
       const response = await axios.post(this.baseURL, {
         model: 'sonar-reasoning',
         messages: [
           {
             role: 'system',
-            content: 'You are a legal entity identification expert. Analyze the given domain and extract the primary legal entity information. Return only valid JSON.'
+            content: 'You are a corporate research expert. Search the web and provide direct answers about company legal entities. Be concise and factual.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        max_tokens: 1000,
+        max_tokens: 500,
         temperature: 0.1,
         stream: false,
         web_search_options: {
           search_context_size: "medium"
         },
-        reasoning_effort: "high"
+        reasoning_effort: "medium"
       }, {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -74,33 +74,34 @@ export class PerplexityExtractor {
       });
 
       const llmResponse = response.data;
-      const analysisText = llmResponse.choices[0]?.message?.content || '';
+      const rawText = llmResponse.choices[0]?.message?.content || '';
       const citations = llmResponse.citations || [];
 
-      console.log('🔍 Raw Perplexity LLM Response:', analysisText);
+      console.log('🔍 Raw Perplexity Response for', domain);
+      console.log('📄 Response:', rawText.slice(0, 200) + '...');
 
-      // Simple text extraction for company name without JSON parsing
-      const companyName = this.extractCompanyFromRawText(analysisText, domain);
+      // Extract company name using simplified approach
+      const extractedCompany = this.extractCompanyFromResponse(rawText, domain);
 
       return {
         domain,
         method: 'perplexity_llm',
-        companyName: companyName,
-        confidence: companyName ? 75 : 0,
+        companyName: extractedCompany,
+        confidence: extractedCompany ? 80 : 0,
         processingTime: Date.now() - startTime,
-        success: !!companyName,
+        success: !!extractedCompany,
         error: null,
         llmResponse: {
-          ...llmResponse,
+          content: rawText,
           citations: citations
         },
-        rawAnalysis: analysisText,
-        extractionMethod: 'perplexity_sonar_reasoning_raw',
-        technicalDetails: `Raw LLM output with ${citations.length} citations`
+        rawAnalysis: rawText,
+        extractionMethod: 'perplexity_simplified',
+        technicalDetails: `Sonar-reasoning model with ${citations.length} citations`
       };
 
     } catch (error: any) {
-      console.error('Perplexity extraction error:', error);
+      console.error('❌ Perplexity extraction error:', error.message);
       return {
         domain,
         method: 'perplexity_llm',
@@ -115,120 +116,125 @@ export class PerplexityExtractor {
     }
   }
 
-  private createExtractionPrompt(domain: string): string {
-    return `Analyze the domain "${domain}" and find the legal entity that operates this website.
+  private createSimplePrompt(domain: string): string {
+    return `What is the official legal entity name (company name with legal suffix like Inc, Corp, Ltd, LLC, etc.) that operates the website ${domain}?
 
-Search the web for information about this domain and provide the official legal entity name that operates this website.
+Please search the web and provide:
+1. The exact legal company name with proper suffix
+2. Brief verification from reliable sources
 
-Focus on finding:
-- The primary legal entity name (official company name)
-- Include legal suffixes like Inc, Corp, Ltd, LLC, etc.
-- Provide the official corporate name, not just brand names
-
-Simply state the legal entity name clearly in your response.`;
+Focus on finding the registered corporate entity, not just brand names.`;
   }
 
-  private extractCompanyFromRawText(text: string, domain: string): string | null {
-    console.log('🔍 Extracting company from raw text for:', domain);
-    console.log('📄 Raw text:', text);
+  private extractCompanyFromResponse(text: string, domain: string): string | null {
+    console.log('🔍 Processing response for:', domain);
     
-    // Enhanced patterns for company names in raw text
-    const patterns = [
-      // Direct company mentions with legal suffixes
-      /([A-Z][a-zA-Z\s&.-]+(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|AG|S\.A\.|PLC|LLP))/g,
-      // Company operated by / owned by patterns
-      /(?:operated by|owned by|belongs to|website of)\s+([A-Z][a-zA-Z\s&.-]+(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|AG|S\.A\.|PLC))/i,
-      // The domain is owned by...
-      /(?:domain.*owned by|website.*belongs to)\s+([A-Z][a-zA-Z\s&.-]+)/i,
-      // Apple Inc, Microsoft Corporation etc at start of sentences
-      /(?:^|\.\s+)([A-Z][a-zA-Z\s&.-]+(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|AG|S\.A\.|PLC))/gm
+    // Clean the text for better processing
+    const cleanText = text.replace(/[\n\r]+/g, ' ').trim();
+    
+    // Try multiple extraction strategies in order of reliability
+    const strategies = [
+      () => this.extractFromDirectMention(cleanText),
+      () => this.extractFromSentencePatterns(cleanText),
+      () => this.extractFromKnownDomains(domain),
+      () => this.extractFromBusinessContext(cleanText)
     ];
 
-    const foundCompanies = [];
-    
-    for (const pattern of patterns) {
-      const matches = text.matchAll(pattern);
-      for (const match of matches) {
-        if (match[1]) {
-          const company = match[1].trim();
-          if (company.length > 3 && company.length < 100) {
-            foundCompanies.push(company);
-          }
-        }
+    for (const strategy of strategies) {
+      const result = strategy();
+      if (result) {
+        console.log(`✅ Extracted: "${result}" using strategy`);
+        return result;
       }
     }
 
-    // Domain-specific fallbacks for well-known domains
-    if (foundCompanies.length === 0) {
-      const domainName = domain.split('.')[0].toLowerCase();
-      const knownMappings: Record<string, string> = {
-        'apple': 'Apple Inc.',
-        'microsoft': 'Microsoft Corporation',
-        'google': 'Alphabet Inc.',
-        'amazon': 'Amazon.com, Inc.',
-        'meta': 'Meta Platforms, Inc.',
-        'tesla': 'Tesla, Inc.',
-        'netflix': 'Netflix, Inc.'
-      };
-      
-      if (knownMappings[domainName]) {
-        console.log(`✅ Using known mapping: ${knownMappings[domainName]}`);
-        return knownMappings[domainName];
-      }
-    }
-
-    if (foundCompanies.length > 0) {
-      // Return the first valid company found
-      const result = foundCompanies[0];
-      console.log(`✅ Extracted from raw text: "${result}"`);
-      return result;
-    }
-
-    console.log('❌ No company name found in raw text');
+    console.log('❌ No company name extracted');
     return null;
   }
 
-  private extractFromText(text: string, domain: string): any {
-    console.log('🔍 Attempting fallback text extraction for:', domain);
+  private extractFromDirectMention(text: string): string | null {
+    // Look for direct mentions of companies with legal suffixes
+    const directPattern = /\b([A-Z][A-Za-z\s&.'-]+(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|AG|S\.A\.|PLC|LLP|GmbH))\b/g;
+    const matches = text.match(directPattern);
     
-    // Common patterns for company names in text
+    if (matches && matches.length > 0) {
+      // Return the first valid match that looks like a real company
+      for (const match of matches) {
+        const cleaned = match.trim();
+        if (cleaned.length > 4 && cleaned.length < 80) {
+          return cleaned;
+        }
+      }
+    }
+    return null;
+  }
+
+  private extractFromSentencePatterns(text: string): string | null {
+    // Look for patterns like "operated by X", "owned by X", etc.
     const patterns = [
-      /(?:company|corporation|corp|inc|entity)[\s:]+([^.\n]+)/i,
-      /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(?:Inc|Corp|Corporation|Ltd|Limited|LLC|Company)/i,
-      /(?:operated by|owned by|belongs to)[\s:]+([^.\n]+)/i,
-      new RegExp(`${domain.split('.')[0]}[^.]*(?:Inc|Corp|Corporation|Ltd|Limited|LLC|Company)`, 'i')
+      /(?:operated by|owned by|belongs to|website of|company is)\s+([A-Z][A-Za-z\s&.'-]+(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|AG|S\.A\.|PLC))/i,
+      /(?:legal entity|corporate name|company name)(?:\s+is)?\s+([A-Z][A-Za-z\s&.'-]+(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|AG|S\.A\.|PLC))/i
     ];
 
     for (const pattern of patterns) {
       const match = text.match(pattern);
       if (match && match[1]) {
-        const companyName = match[1].trim();
-        console.log(`✅ Fallback extraction found: "${companyName}"`);
-        return {
-          legal_entity: companyName,
-          company_name: companyName.replace(/\s+(Inc|Corp|Corporation|Ltd|Limited|LLC|Company)$/i, ''),
-          confidence: 60, // Lower confidence for fallback
-          reasoning: 'Extracted using text pattern matching (fallback method)'
-        };
+        const cleaned = match[1].trim();
+        if (cleaned.length > 4 && cleaned.length < 80) {
+          return cleaned;
+        }
       }
     }
+    return null;
+  }
 
-    // Domain-based fallback for well-known domains
-    const domainName = domain.split('.')[0];
-    if (domainName === 'apple') {
-      return {
-        legal_entity: 'Apple Inc.',
-        company_name: 'Apple',
-        confidence: 80,
-        reasoning: 'Known domain mapping for Apple Inc.'
-      };
-    }
-
-    console.log('❌ No fallback extraction possible');
-    return {
-      legal_entity: null,
-      company_name: null,
-      confidence: 0
+  private extractFromKnownDomains(domain: string): string | null {
+    // Fallback for well-known domains
+    const domainName = domain.split('.')[0].toLowerCase();
+    const knownMappings: Record<string, string> = {
+      'apple': 'Apple Inc.',
+      'microsoft': 'Microsoft Corporation',
+      'google': 'Alphabet Inc.',
+      'amazon': 'Amazon.com, Inc.',
+      'meta': 'Meta Platforms, Inc.',
+      'tesla': 'Tesla, Inc.',
+      'netflix': 'Netflix, Inc.',
+      'disney': 'The Walt Disney Company',
+      'walmart': 'Walmart Inc.',
+      'jpmorgan': 'JPMorgan Chase & Co.',
+      'visa': 'Visa Inc.',
+      'mastercard': 'Mastercard Incorporated'
     };
+    
+    return knownMappings[domainName] || null;
+  }
+
+  private extractFromBusinessContext(text: string): string | null {
+    // Look for business context clues in the response
+    const words = text.split(/\s+/);
+    let potentialCompany = '';
+    
+    for (let i = 0; i < words.length - 1; i++) {
+      const word = words[i];
+      const nextWord = words[i + 1];
+      
+      // Look for capitalized words followed by business suffixes
+      if (/^[A-Z][a-z]+$/.test(word) && /^(?:Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|Company|AG|S\.A\.|PLC)$/i.test(nextWord)) {
+        potentialCompany = `${word} ${nextWord}`;
+        
+        // Check if there are more capitalized words before this
+        let j = i - 1;
+        while (j >= 0 && /^[A-Z][a-z]+$/.test(words[j])) {
+          potentialCompany = `${words[j]} ${potentialCompany}`;
+          j--;
+        }
+        
+        if (potentialCompany.length > 4 && potentialCompany.length < 80) {
+          return potentialCompany.trim();
+        }
+      }
+    }
+    
+    return null;
   }
 }
