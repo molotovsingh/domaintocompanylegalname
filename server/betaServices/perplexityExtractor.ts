@@ -43,12 +43,8 @@ export class PerplexityExtractor {
       const prompt = this.createExtractionPrompt(domain);
       
       const response = await axios.post(this.baseURL, {
-        model: 'llama-3.1-sonar-small-128k-online',
+        model: 'sonar',
         messages: [
-          {
-            role: 'system',
-            content: 'You are a corporate research assistant specializing in legal entity identification. You must provide responses in valid JSON format only.'
-          },
           {
             role: 'user',
             content: prompt
