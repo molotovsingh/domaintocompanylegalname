@@ -7,6 +7,7 @@ import { betaExperiments, betaSmokeTests } from '../shared/betaSchema';
 import { eq, desc } from 'drizzle-orm';
 import { PuppeteerExtractor } from './betaServices/puppeteerExtractor_comprehensive';
 import { PerplexityExtractor } from './betaServices/perplexityExtractor';
+import { PlaywrightExtractor } from './betaServices/playwrightExtractor';
 
 const execAsync = promisify(exec);
 
@@ -67,6 +68,16 @@ app.post('/api/beta/smoke-test', async (req, res) => {
       const extractor = new PerplexityExtractor();
       console.log(`[Beta] Testing ${domain} with Perplexity LLM...`);
       result = await extractor.extractFromDomain(domain);
+    } else if (method === 'playwright') {
+      const extractor = new PlaywrightExtractor();
+      await extractor.initialize();
+
+      try {
+        console.log(`[Beta] Testing ${domain} with playwright...`);
+        result = await extractor.extractFromDomain(domain);
+      } finally {
+        await extractor.cleanup();
+      }
     } else if (method === 'axios_cheerio') {
       // Simulate axios/cheerio for now
       result = {

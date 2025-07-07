@@ -369,6 +369,7 @@ export default function BetaTesting() {
               <SelectContent>
                 <SelectItem value="axios_cheerio">Axios/Cheerio</SelectItem>
                 <SelectItem value="puppeteer">Puppeteer</SelectItem>
+                <SelectItem value="playwright">Playwright</SelectItem>
                 <SelectItem value="perplexity_llm">Perplexity LLM</SelectItem>
               </SelectContent>
             </Select>
