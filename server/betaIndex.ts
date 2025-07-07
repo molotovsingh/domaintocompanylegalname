@@ -6,6 +6,7 @@ import { betaDb } from './betaDb';
 import { betaExperiments, betaSmokeTests } from '../shared/betaSchema';
 import { eq, desc } from 'drizzle-orm';
 import { PuppeteerExtractor } from './betaServices/puppeteerExtractor';
+import { PerplexityExtractor } from './betaServices/perplexityExtractor';
 
 const execAsync = promisify(exec);
 
@@ -50,7 +51,7 @@ app.post('/api/beta/smoke-test', async (req, res) => {
   }
   
   try {
-    let extractor: PuppeteerExtractor | null = null;
+    let extractor: PuppeteerExtractor | PerplexityExtractor | null = null;
     let result: any = null;
     
     if (method === 'puppeteer') {
@@ -77,6 +78,27 @@ app.post('/api/beta/smoke-test', async (req, res) => {
     } else if (method === 'playwright') {
       // TODO: Implement playwright extractor
       res.status(400).json({ error: 'Playwright not implemented yet' });
+    } else if (method === 'perplexity_llm') {
+      // Use Perplexity LLM extraction
+      extractor = new PerplexityExtractor();
+      
+      try {
+        console.log(`[Beta] Testing ${domain} with Perplexity LLM...`);
+        result = await extractor.extractFromDomain(domain);
+        
+        // Store in beta database with experiment ID
+        const dbResult = await betaDb.insert(betaSmokeTests).values({
+          domain,
+          method,
+          experimentId: 1, // Smoke testing experiment
+          ...result
+        }).returning();
+        
+        res.json({ success: true, data: dbResult[0] });
+      } catch (error) {
+        console.error(`[Beta] Perplexity extraction error:`, error);
+        res.status(500).json({ success: false, error: error.message });
+      }
     } else if (method === 'axios_cheerio') {
       // TODO: Implement axios_cheerio extractor
       res.status(400).json({ error: 'Axios/Cheerio not implemented yet' });

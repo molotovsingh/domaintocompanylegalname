@@ -1087,10 +1087,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }
 
-  // Beta server status endpoint
+  // Beta server status endpoint (simplified since auto-started)
   app.get('/api/beta/status', async (req, res) => {
     const isRunning = await checkBetaServerStatus();
-    res.json({ status: isRunning ? 'ready' : 'stopped' });
+    res.json({ status: isRunning ? 'ready' : 'starting' });
   });
 
   // Beta server proxy endpoints (no auto-start)
@@ -1101,8 +1101,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(503).json({ 
         success: false, 
-        error: 'Beta server is not running. Please start it using the workflow dropdown.',
-        status: 'stopped'
+        error: 'Beta server is still starting up. Please wait a moment and try again.',
+        status: 'starting'
       });
     }
   });
@@ -1114,8 +1114,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(503).json({ 
         success: false, 
-        error: 'Beta server is not running. Please start it using the workflow dropdown.',
-        status: 'stopped'
+        error: 'Beta server is still starting up. Please wait a moment and try again.',
+        status: 'starting'
       });
     }
   });
@@ -1129,8 +1129,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(503).json({ 
         success: false, 
-        error: 'Beta server is not running. Please start it using the workflow dropdown.',
-        status: 'stopped'
+        error: 'Beta server is still starting up. Please wait a moment and try again.',
+        status: 'starting'
       });
     }
   });

@@ -135,25 +135,23 @@ export default function BetaTesting() {
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
               <CardTitle className="flex items-center justify-center gap-2">
-                <Beaker className="w-6 h-6 text-orange-500" />
-                Beta Server Not Running
+                <Beaker className="w-6 h-6 text-blue-500" />
+                Beta Server Starting
               </CardTitle>
               <CardDescription>
-                Beta testing environment needs to be started manually
+                Beta testing environment is initializing automatically
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Alert className="bg-orange-50 border-orange-200">
-                <Shield className="h-4 w-4 text-orange-500" />
-                <AlertDescription className="text-orange-700">
+              <Alert className="bg-blue-50 border-blue-200">
+                <Shield className="h-4 w-4 text-blue-500" />
+                <AlertDescription className="text-blue-700">
                   <div className="space-y-2">
-                    <p><strong>To start the beta server:</strong></p>
-                    <ol className="list-decimal list-inside space-y-1 text-sm">
-                      <li>Use the workflow dropdown menu at the top</li>
-                      <li>Select "Beta Testing Server"</li>
-                      <li>Wait for it to start (about 5-10 seconds)</li>
-                      <li>Refresh this page</li>
-                    </ol>
+                    <p><strong>Beta server is starting automatically...</strong></p>
+                    <p className="text-sm">
+                      The beta testing environment starts automatically with the main application. 
+                      If you're seeing this message, please wait a moment for initialization to complete.
+                    </p>
                   </div>
                 </AlertDescription>
               </Alert>

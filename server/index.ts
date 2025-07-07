@@ -7,10 +7,81 @@ import { addNormalizedExportRoute } from './routes-normalized';
 import smokeTestRoutes from './routes-smoke-test';
 import knowledgeGraphRoutes from './routes-knowledge-graph';
 import changesRoutes from './routes-changes';
+import { spawn } from 'child_process';
+import axios from 'axios';
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Beta server management
+let betaServerProcess: any = null;
+let betaServerReady = false;
+
+async function startBetaServer() {
+  return new Promise<void>((resolve, reject) => {
+    log('🧪 Starting beta server automatically...');
+    
+    // Kill any existing beta server processes first
+    const killCommand = spawn('pkill', ['-f', 'betaIndex.ts'], { stdio: 'pipe' });
+    
+    killCommand.on('close', () => {
+      // Wait a moment for cleanup
+      setTimeout(() => {
+        betaServerProcess = spawn('npx', ['tsx', 'server/betaIndex.ts'], {
+          stdio: 'pipe',
+          cwd: process.cwd()
+        });
+
+        betaServerProcess.stdout.on('data', (data: Buffer) => {
+          const output = data.toString().trim();
+          log(`[Beta] ${output}`, 'beta');
+          
+          // Check for ready signal
+          if (output.includes('Beta server fully initialized and ready')) {
+            betaServerReady = true;
+            log('✅ Beta server startup completed');
+            resolve();
+          }
+        });
+
+        betaServerProcess.stderr.on('data', (data: Buffer) => {
+          const error = data.toString().trim();
+          log(`[Beta Error] ${error}`, 'beta');
+        });
+
+        betaServerProcess.on('error', (error: Error) => {
+          log(`❌ Beta server failed to start: ${error.message}`);
+          reject(error);
+        });
+
+        betaServerProcess.on('exit', (code: number | null) => {
+          if (code !== 0) {
+            log(`❌ Beta server exited with code ${code}`);
+            betaServerReady = false;
+          }
+        });
+
+        // Timeout fallback
+        setTimeout(() => {
+          if (!betaServerReady) {
+            log('⚠️ Beta server startup timeout, continuing anyway...');
+            resolve();
+          }
+        }, 15000);
+      }, 2000);
+    });
+  });
+}
+
+async function checkBetaServerHealth() {
+  try {
+    const response = await axios.get('http://localhost:3001/api/beta/health', { timeout: 3000 });
+    return response.status === 200;
+  } catch (error) {
+    return false;
+  }
+}
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -77,7 +148,34 @@ app.use((req, res, next) => {
     port,
     host: "0.0.0.0",
     reusePort: true,
-  }, () => {
+  }, async () => {
     log(`serving on port ${port}`);
+    
+    // Auto-start beta server after main server is ready
+    try {
+      await startBetaServer();
+      log('🎯 Complete server stack ready: Main (5000) + Beta (3001)');
+    } catch (error) {
+      log(`⚠️ Beta server failed to start, continuing with main server only: ${error}`);
+    }
   });
 })();
+
+// Cleanup beta server on main server shutdown
+process.on('SIGTERM', () => {
+  log('🛑 Shutting down main server...');
+  if (betaServerProcess) {
+    log('🛑 Stopping beta server...');
+    betaServerProcess.kill('SIGTERM');
+  }
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  log('🛑 Main server interrupted...');
+  if (betaServerProcess) {
+    log('🛑 Stopping beta server...');
+    betaServerProcess.kill('SIGTERM');
+  }
+  process.exit(0);
+});
