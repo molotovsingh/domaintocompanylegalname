@@ -299,11 +299,11 @@ export default function BetaTesting() {
                         </div>
                       )}
 
-                      {result.method === 'perplexity_llm' && !result.llmResponse?.parsedJson && result.companyName && (
+                      {result.method === 'perplexity_llm' && !result.llmResponse?.parsedJson && result.success && (
                         <div className="mt-4 p-4 bg-yellow-50 rounded-lg">
-                          <h4 className="font-semibold text-yellow-900 mb-2">Text Extraction Fallback:</h4>
+                          <h4 className="font-semibold text-yellow-900 mb-2">JSON Parsing Failed:</h4>
                           <p className="text-sm text-yellow-800">
-                            JSON parsing failed, extracted via text patterns: <strong>{result.companyName}</strong>
+                            LLM did not return valid JSON format. Please check the raw response above.
                           </p>
                         </div>
                       )}
