@@ -28,7 +28,7 @@ localPort = 8001
 externalPort = 3000
 
 [workflows]
-runButton = "Start application"
+runButton = "Restart Server"
 
 [[workflows.workflow]]
 name = "Project"
@@ -59,7 +59,11 @@ args = "pkill -f \"server/index.ts\" || true"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "sleep 2"
+args = "pkill -f \"betaIndex.ts\" || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "sleep 3"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
