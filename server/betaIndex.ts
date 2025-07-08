@@ -56,17 +56,8 @@ app.post('/api/beta/smoke-test', async (req, res) => {
       const extractor = new PerplexityExtractor();
       console.log(`[Beta] Testing ${domain} with Perplexity LLM...`);
       result = await extractor.extractFromDomain(domain);
-    } else if (method === 'axios_cheerio') {
-      // Simulate axios/cheerio for now
-      result = {
-        companyName: `${domain.split('.')[0]} (Simulated)`,
-        confidence: 75,
-        success: true,
-        extractionMethod: 'axios_cheerio_simulation',
-        technicalDetails: 'Axios/Cheerio simulation - not implemented yet'
-      };
     } else {
-      return res.status(400).json({ error: 'Invalid method' });
+      return res.status(400).json({ error: 'Invalid method. Only perplexity_llm is supported.' });
     }
 
     // Store in beta database with experiment ID

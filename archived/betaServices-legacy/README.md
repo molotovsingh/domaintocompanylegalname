@@ -44,10 +44,15 @@ If needed, these files can be restored from this archive. However, they would ne
 
 ## Recent Updates
 
-### Puppeteer Method Removal (Current)
+### Puppeteer Method Removal
 - **Files moved**: `puppeteerExtractor.ts`, `standalonePuppeteer.ts`
 - **Reason**: Removed from beta testing system
-- **Impact**: Beta system now only supports Axios+Cheerio and Perplexity methods
+- **Impact**: Beta system now only supports Perplexity methods
+
+### Axios/Cheerio Method Removal (Current)
+- **Files moved**: `standaloneAxiosCheerio.ts`
+- **Reason**: Simplified beta testing to single method
+- **Impact**: Beta system now only supports Perplexity AI method
 
 **Archive Date**: Current
-**Transition Status**: Completed - simplified standalone beta architecture implemented, puppeteer method removed
+**Transition Status**: Completed - simplified to Perplexity-only beta architecture
