@@ -5,9 +5,11 @@
 
 ### 1. **API Configuration**
 - Use `https://api.perplexity.ai` as the base URL
-- Model: `sonar` (current recommended model)
+- Model: `sonar` (chosen over `sonar-reasoning` for faster, direct responses)
 - Temperature: 0.1 (for consistent, factual responses)
 - Max tokens: 300-500 (depending on complexity)
+- Timeout: 30 seconds (allows for thorough web searches)
+- Max retries: 3 (with exponential backoff)
 
 ### 2. **Prompt Engineering Best Practices**
 - **Be specific** about the domain you're analyzing
@@ -21,11 +23,15 @@
 - **Look for key phrases** like "company", "name", "corporation" in fallback mode
 - **Extract from multiple lines** if needed
 
-### 4. **Error Management**
+### 4. **Error Management & Retry Strategy**
 - **Check for API key** before making requests
-- **Handle network timeouts** gracefully
+- **Handle network timeouts** gracefully (30s timeout recommended)
+- **Implement retry logic** with exponential backoff (3 retries max)
+- **Don't retry** on validation errors (400) or auth errors (401/403)
 - **Provide meaningful error messages** in responses
 - **Log both successes and failures** for debugging
+- **Rate limiting**: Enforce 1-second minimum between requests
+- **Custom error classes**: PerplexityError, ValidationError for better handling
 
 ### 5. **Current Implementation Insights**
 The current implementation follows these best practices:
@@ -42,9 +48,13 @@ The current implementation follows these best practices:
 - **Caching results** can improve efficiency
 - **Confidence scoring** helps filter quality results
 
-### 7. **Model Evolution**
+### 7. **Model Selection & Evolution**
+- **Model Choice**: `sonar` vs `sonar-reasoning`
+  - `sonar`: Faster, direct responses with online search capabilities
+  - `sonar-reasoning`: Slower but more analytical, step-by-step reasoning
+  - **Decision**: Using `sonar` for company extraction due to speed requirements
 - The model name has evolved from `llama-3.1-sonar-small-128k-online` to simply `sonar`
-- The `sonar` model provides the same online search capabilities
+- The `sonar` model provides the same online search capabilities with better performance
 - Always check the latest Perplexity API documentation for model updates
 
 ### 8. **Example Implementation**
