@@ -6,6 +6,7 @@ import { betaDb } from './betaDb';
 import { betaExperiments, betaSmokeTests } from '../shared/betaSchema';
 import { eq, desc } from 'drizzle-orm';
 import { PerplexityExtractor } from './betaServices/perplexityExtractor';
+import { AxiosCheerioExtractor } from './betaServices/axiosCheerioExtractor';
 
 const execAsync = promisify(exec);
 
@@ -56,8 +57,12 @@ app.post('/api/beta/smoke-test', async (req, res) => {
       const extractor = new PerplexityExtractor();
       console.log(`[Beta] Testing ${domain} with Perplexity LLM...`);
       result = await extractor.extractFromDomain(domain);
+    } else if (method === 'axios_cheerio') {
+      const extractor = new AxiosCheerioExtractor();
+      console.log(`[Beta] Testing ${domain} with Axios/Cheerio...`);
+      result = await extractor.extractFromDomain(domain);
     } else {
-      return res.status(400).json({ error: 'Invalid method. Only perplexity_llm is supported.' });
+      return res.status(400).json({ error: 'Invalid method. Supported methods: perplexity_llm, axios_cheerio' });
     }
 
     // Store in beta database with experiment ID

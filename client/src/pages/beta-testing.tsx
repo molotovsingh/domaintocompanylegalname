@@ -222,7 +222,7 @@ export default function BetaTesting() {
     setProgress(0);
     setTestResults([]);
 
-    const methods = ["perplexity_llm"];
+    const methods = ["axios_cheerio", "perplexity_llm"];
     const results: BetaTestResult[] = [];
 
     setTestProgress({
@@ -367,6 +367,7 @@ export default function BetaTesting() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="axios_cheerio">Axios/Cheerio</SelectItem>
                 <SelectItem value="perplexity_llm">Perplexity LLM</SelectItem>
               </SelectContent>
             </Select>
