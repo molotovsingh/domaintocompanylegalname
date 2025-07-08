@@ -28,7 +28,7 @@ localPort = 8001
 externalPort = 3000
 
 [workflows]
-runButton = "Restart Server"
+runButton = "Force Kill and Restart"
 
 [[workflows.workflow]]
 name = "Project"
@@ -104,3 +104,36 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd server && npx tsx betaIndex.ts"
+
+[[workflows.workflow]]
+name = "Force Kill and Restart"
+author = 24794172
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pkill -9 -f \"server/index.ts\" || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pkill -9 -f \"betaIndex.ts\" || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pkill -9 -f \"tsx\" || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "fuser -k 5000/tcp || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "fuser -k 3001/tcp || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "sleep 5"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
