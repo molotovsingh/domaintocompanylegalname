@@ -125,7 +125,7 @@ class ExtractionUtils {
   // Updated Chrome path for Replit environment
   static readonly CHROME_EXECUTABLE_PATH =
     process.env.CHROME_EXECUTABLE_PATH || 
-    "/nix/store/*/bin/chromium" || 
+    "/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium" ||
     "/usr/bin/chromium-browser" || 
     "/usr/bin/google-chrome-stable" || 
     "/usr/bin/chromium";
@@ -292,18 +292,57 @@ export class PuppeteerExtractor {
   private readonly NAVIGATION_TIMEOUT = 15000;
   private extractionCache = new Map<string, ExtractorResult>();
 
+  // Find Chrome executable dynamically
+  private async findChromeExecutable(): Promise<string | undefined> {
+    const fs = await import('fs');
+    const { exec } = await import('child_process');
+    const { promisify } = await import('util');
+    const execAsync = promisify(exec);
+
+    try {
+      // Try to find chromium in nix store
+      const { stdout } = await execAsync('find /nix/store -name "chromium" -type f -executable 2>/dev/null | head -1');
+      if (stdout.trim()) {
+        return stdout.trim();
+      }
+    } catch (error) {
+      // Continue to fallback options
+    }
+
+    // Fallback paths
+    const fallbackPaths = [
+      '/usr/bin/chromium',
+      '/usr/bin/chromium-browser',
+      '/usr/bin/google-chrome-stable',
+      '/usr/bin/google-chrome'
+    ];
+
+    for (const path of fallbackPaths) {
+      if (fs.existsSync(path)) {
+        return path;
+      }
+    }
+
+    return undefined;
+  }
+
   async initialize() {
     try {
-      // Try with auto-detection first (works better in Replit)
-      const launchOptions = {
+      // Find Chrome executable dynamically
+      const chromePath = await this.findChromeExecutable();
+      
+      const launchOptions: any = {
         headless: true,
         args: ExtractionUtils.CHROME_ARGS,
         timeout: 30000,
       };
 
-      // Only set executablePath if explicitly provided
-      if (process.env.CHROME_EXECUTABLE_PATH) {
-        launchOptions.executablePath = process.env.CHROME_EXECUTABLE_PATH;
+      // Set executable path if found
+      if (chromePath) {
+        launchOptions.executablePath = chromePath;
+        console.log(`🔍 Using Chrome at: ${chromePath}`);
+      } else {
+        console.log(`⚠️ No Chrome executable found, using Puppeteer default`);
       }
 
       this.browser = await puppeteer.launch(launchOptions);
