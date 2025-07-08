@@ -182,41 +182,61 @@ process.on('unhandledRejection', (reason, promise) => {
   // It is the only port that is not firewalled.
   const port = 5000;
   
-  // Add error handling for server startup with retry limits
-  let retryCount = 0;
-  const maxRetries = 3;
-  
-  server.on('error', async (error: any) => {
-    if (error.code === 'EADDRINUSE' && retryCount < maxRetries) {
-      retryCount++;
-      log(`❌ Port ${port} is already in use. Attempt ${retryCount}/${maxRetries} to resolve...`);
-      
-      // Kill processes using the port
-      await killConflictingProcesses();
-      
-      setTimeout(() => {
-        log(`🔄 Retrying server startup on port ${port}...`);
-        server.close();
-        server.listen({ port, host: "0.0.0.0", reusePort: true });
-      }, 2000);
-    } else if (error.code === 'EADDRINUSE') {
-      log(`❌ Failed to start server after ${maxRetries} attempts. Port ${port} is permanently blocked.`);
-      process.exit(1);
-    } else {
-      log(`❌ Server error: ${error.message}`);
-    }
-  });
-  
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, async () => {
-    log(`serving on port ${port}`);
+  // Improved server startup with proper retry logic
+  async function startServerWithRetry() {
+    const maxRetries = 3;
     
-    // Start beta server in background (non-blocking)
-    startBetaServer().catch(error => {
-      log(`Beta server startup failed: ${error} - main server continues`);
-    });
-  });
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        // Clean up any existing processes first
+        await killConflictingProcesses();
+        
+        // Wait a bit for cleanup to complete
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Try to start the server
+        await new Promise<void>((resolve, reject) => {
+          const serverInstance = server.listen({
+            port,
+            host: "0.0.0.0",
+            reusePort: true,
+          }, async () => {
+            log(`serving on port ${port}`);
+            
+            // Start beta server in background (non-blocking)
+            startBetaServer().catch(error => {
+              log(`Beta server startup failed: ${error} - main server continues`);
+            });
+            
+            resolve();
+          });
+          
+          serverInstance.on('error', (error: any) => {
+            if (error.code === 'EADDRINUSE') {
+              reject(new Error(`Port ${port} is already in use`));
+            } else {
+              reject(error);
+            }
+          });
+        });
+        
+        // If we get here, server started successfully
+        return;
+        
+      } catch (error) {
+        log(`❌ Server startup attempt ${attempt}/${maxRetries} failed: ${error}`);
+        
+        if (attempt === maxRetries) {
+          log(`❌ Failed to start server after ${maxRetries} attempts. Exiting.`);
+          process.exit(1);
+        } else {
+          log(`🔄 Retrying in 2 seconds...`);
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+    }
+  }
+  
+  // Start the server
+  await startServerWithRetry();
 })();
