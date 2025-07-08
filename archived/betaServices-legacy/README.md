@@ -42,5 +42,12 @@ The transition from complex service-based architecture to simple standalone scri
 
 If needed, these files can be restored from this archive. However, they would need significant modifications to work with the current simplified architecture.
 
+## Recent Updates
+
+### Puppeteer Method Removal (Current)
+- **Files moved**: `puppeteerExtractor.ts`, `standalonePuppeteer.ts`
+- **Reason**: Removed from beta testing system
+- **Impact**: Beta system now only supports Axios+Cheerio and Perplexity methods
+
 **Archive Date**: Current
-**Transition Status**: Completed - simplified standalone beta architecture implemented
+**Transition Status**: Completed - simplified standalone beta architecture implemented, puppeteer method removed

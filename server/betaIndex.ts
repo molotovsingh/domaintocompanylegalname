@@ -5,7 +5,6 @@ import { promisify } from 'util';
 import { betaDb } from './betaDb';
 import { betaExperiments, betaSmokeTests } from '../shared/betaSchema';
 import { eq, desc } from 'drizzle-orm';
-import { PuppeteerExtractor } from './betaServices/puppeteerExtractor';
 import { PerplexityExtractor } from './betaServices/perplexityExtractor';
 
 const execAsync = promisify(exec);
@@ -53,17 +52,7 @@ app.post('/api/beta/smoke-test', async (req, res) => {
   try {
     let result: any = null;
 
-    if (method === 'puppeteer') {
-      const extractor = new PuppeteerExtractor();
-      await extractor.initialize();
-
-      try {
-        console.log(`[Beta] Testing ${domain} with puppeteer...`);
-        result = await extractor.extractFromDomain(domain);
-      } finally {
-        await extractor.cleanup();
-      }
-    } else if (method === 'perplexity_llm') {
+    if (method === 'perplexity_llm') {
       const extractor = new PerplexityExtractor();
       console.log(`[Beta] Testing ${domain} with Perplexity LLM...`);
       result = await extractor.extractFromDomain(domain);

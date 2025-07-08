@@ -1129,7 +1129,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: 'stopped'
       });
     }
-    
+
     try {
       const response = await axios.post('http://localhost:3001/api/beta/smoke-test', req.body, {
         headers: { 'Content-Type': 'application/json' }
