@@ -95,12 +95,6 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 Ready for experimental features`);
   console.log(`🌐 Accessible at http://0.0.0.0:${PORT}`);
 
-  // Initialize extractors with individual error handling
-  let puppeteerExtractor: PuppeteerExtractor | null = null;
-  let playwrightExtractor: PlaywrightExtractor | null = null;
-  let perplexityExtractor: PerplexityExtractor | null = null;
-  let axiosCheerioExtractor: AxiosCheerioExtractor | null = null;
-
   try {
     // Test database connection first
     console.log('🔍 Testing beta database connection...');
@@ -196,6 +190,8 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
         return res.status(400).json({ error: 'Domain and method are required' });
       }
 
+      console.log(`🧪 [Beta] Starting ${method} extraction for ${domain}`);
+
       try {
         let result: any = null;
 
@@ -204,20 +200,25 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
             if (!axiosCheerioExtractor) {
               throw new Error('Axios/Cheerio extractor not available');
             }
+            console.log(`🔧 [Beta] Using Axios/Cheerio extractor for ${domain}`);
             result = await axiosCheerioExtractor.extractFromDomain(domain);
             break;
 
           case 'puppeteer':
             if (!puppeteerExtractor) {
-              throw new Error('Puppeteer extractor not available');
+              console.error(`❌ [Beta] Puppeteer extractor not available for ${domain}`);
+              throw new Error('Puppeteer extractor not available - failed to initialize');
             }
+            console.log(`🔧 [Beta] Using Puppeteer extractor for ${domain}`);
             result = await puppeteerExtractor.extractFromDomain(domain);
             break;
 
           case 'playwright':
             if (!playwrightExtractor) {
-              throw new Error('Playwright extractor not available');
+              console.error(`❌ [Beta] Playwright extractor not available for ${domain}`);
+              throw new Error('Playwright extractor not available - failed to initialize');
             }
+            console.log(`🔧 [Beta] Using Playwright extractor for ${domain}`);
             const playwrightResult = await playwrightExtractor.extractFromDomain(domain);
 
             // Map Playwright result to expected format
@@ -238,14 +239,18 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
 
           case 'perplexity_llm':
             if (!perplexityExtractor) {
+              console.error(`❌ [Beta] Perplexity extractor not available for ${domain}`);
               throw new Error('Perplexity extractor not available');
             }
+            console.log(`🔧 [Beta] Using Perplexity extractor for ${domain}`);
             result = await perplexityExtractor.extractFromDomain(domain);
             break;
 
           default:
             return res.status(400).json({ error: 'Invalid method' });
         }
+
+        console.log(`✅ [Beta] ${method} extraction completed for ${domain}:`, result?.success ? 'SUCCESS' : 'FAILED');
 
         // Store in beta database with experiment ID
         const dbResult = await betaDb.insert(betaSmokeTests).values({
@@ -258,14 +263,36 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
         // Ensure confidence is included in the response
         const responseData = {
           ...result,
-          confidence: result.confidence || 0
+          confidence: result.data?.confidence || result.confidence || 0
         };
 
         res.json({ success: true, data: responseData });
 
       } catch (error: any) {
-        console.error('[Beta] Error in smoke test:', error);
-        res.status(500).json({ success: false, error: error.message });
+        console.error(`❌ [Beta] Error in ${method} smoke test for ${domain}:`, error.message);
+        
+        // Store failure in database
+        try {
+          await betaDb.insert(betaSmokeTests).values({
+            domain,
+            method,
+            experimentId: 1,
+            success: false,
+            error: error.message,
+            confidence: 0
+          });
+        } catch (dbError) {
+          console.error('❌ [Beta] Failed to store error in database:', dbError);
+        }
+
+        res.status(500).json({ 
+          success: false, 
+          error: error.message,
+          data: {
+            confidence: 0,
+            companyName: null
+          }
+        });
       }
     });
 
