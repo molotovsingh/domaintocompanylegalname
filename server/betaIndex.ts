@@ -104,56 +104,111 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
     await betaDb.execute('SELECT 1 as test');
     console.log('✅ Beta database connection successful');
 
-    console.log('🔧 Initializing extractors sequentially...');
+    console.log('🔧 Initializing extractors in strict serial order...');
 
-    // Step 1: Initialize Axios/Cheerio (always works, no browser required)
+    // SERIALIZED INITIALIZATION - One at a time with proper waits
+    
+    // Step 1: Initialize Axios/Cheerio (no browser, safe)
     try {
       console.log('🔄 [1/4] Initializing Axios/Cheerio extractor...');
       axiosCheerioExtractor = new AxiosCheerioExtractor();
       console.log('✅ [1/4] Axios/Cheerio extractor ready');
+      await new Promise(resolve => setTimeout(resolve, 500)); // Small wait
     } catch (error) {
       console.log('❌ [1/4] Axios/Cheerio extractor failed:', error.message);
+      axiosCheerioExtractor = null;
     }
 
-    // Step 2: Initialize Perplexity (no browser required)
+    // Step 2: Initialize Perplexity (no browser, safe)
     try {
       console.log('🔄 [2/4] Initializing Perplexity extractor...');
       perplexityExtractor = new PerplexityExtractor();
       console.log('✅ [2/4] Perplexity extractor ready');
+      await new Promise(resolve => setTimeout(resolve, 500)); // Small wait
     } catch (error) {
       console.log('❌ [2/4] Perplexity extractor failed:', error.message);
       perplexityExtractor = null;
     }
 
-    // Wait between browser initializations to prevent resource conflicts
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Step 3: Initialize Puppeteer (may fail, requires browser)
+    // Step 3: Initialize Puppeteer (browser required - WAIT FOR COMPLETE INITIALIZATION)
+    console.log('🔄 [3/4] Initializing Puppeteer extractor...');
     try {
-      console.log('🔄 [3/4] Initializing Puppeteer extractor...');
       puppeteerExtractor = new PuppeteerExtractor();
+      
+      // Wait for complete browser initialization
+      console.log('🔄 [3/4] Starting Puppeteer browser initialization...');
       await puppeteerExtractor.initialize();
-      console.log('✅ [3/4] Puppeteer extractor initialized');
-
-      // Wait after successful browser initialization
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('✅ [3/4] Puppeteer browser launched successfully');
+      
+      // Test the browser to ensure it's actually working
+      console.log('🔄 [3/4] Testing Puppeteer functionality...');
+      const healthCheck = await puppeteerExtractor.healthCheck();
+      if (healthCheck) {
+        console.log('✅ [3/4] Puppeteer extractor fully operational');
+      } else {
+        throw new Error('Health check failed');
+      }
+      
+      // Long wait after browser initialization to ensure stability
+      console.log('🔄 [3/4] Waiting for Puppeteer stability...');
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
     } catch (error) {
       console.log('⚠️ [3/4] Puppeteer extractor failed to initialize:', error.message);
+      console.log('🔍 Puppeteer error details:', error.stack?.split('\n').slice(0, 3).join('\n') || 'No stack trace');
+      
+      // Clean up failed Puppeteer instance
+      if (puppeteerExtractor) {
+        try {
+          await puppeteerExtractor.cleanup();
+        } catch (cleanupError) {
+          console.log('⚠️ [3/4] Puppeteer cleanup error:', cleanupError.message);
+        }
+      }
       puppeteerExtractor = null;
+      
+      // Wait before next initialization even after failure
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
 
-    // Step 4: Initialize Playwright (may fail, requires browser)
+    // Step 4: Initialize Playwright (browser required - COMPLETE SERIAL WAIT)
+    console.log('🔄 [4/4] Initializing Playwright extractor...');
     try {
-      console.log('🔄 [4/4] Initializing Playwright extractor...');
       playwrightExtractor = new PlaywrightExtractor();
+      
+      // Wait for complete browser initialization  
+      console.log('🔄 [4/4] Starting Playwright browser initialization...');
       await playwrightExtractor.initialize();
-      console.log('✅ [4/4] Playwright extractor initialized');
+      console.log('✅ [4/4] Playwright browser launched successfully');
+      
+      // Test the browser to ensure it's actually working
+      console.log('🔄 [4/4] Testing Playwright functionality...');
+      const healthCheck = await playwrightExtractor.healthCheck();
+      if (healthCheck) {
+        console.log('✅ [4/4] Playwright extractor fully operational');
+      } else {
+        throw new Error('Health check failed');
+      }
+      
+      console.log('🔄 [4/4] Waiting for Playwright stability...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
     } catch (error: any) {
       console.log('⚠️ [4/4] Playwright extractor failed to initialize:', error.message);
-      console.log('🔍 Playwright initialization error details:', error.stack?.split('\n')[0] || 'No additional details');
+      console.log('🔍 Playwright error details:', error.stack?.split('\n').slice(0, 3).join('\n') || 'No stack trace');
+      
+      // Clean up failed Playwright instance
+      if (playwrightExtractor) {
+        try {
+          await playwrightExtractor.cleanup();
+        } catch (cleanupError) {
+          console.log('⚠️ [4/4] Playwright cleanup error:', cleanupError.message);
+        }
+      }
       playwrightExtractor = null;
     }
 
+    // Final status check and validation
     const workingExtractors = [
       axiosCheerioExtractor && 'Axios/Cheerio',
       perplexityExtractor && 'Perplexity',
@@ -161,15 +216,21 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
       playwrightExtractor && 'Playwright'
     ].filter(Boolean);
 
-    console.log(`🚀 ${workingExtractors.length}/4 extractors initialized: ${workingExtractors.join(', ')}`);
-
-    // Mark extractors as initialized (even if some failed)
-    extractorsInitialized = true;
+    console.log(`\n📊 FINAL EXTRACTOR STATUS:`);
+    console.log(`  ✅ Axios/Cheerio: ${axiosCheerioExtractor ? 'READY' : 'FAILED'}`);
+    console.log(`  ✅ Perplexity: ${perplexityExtractor ? 'READY' : 'FAILED'}`);
+    console.log(`  ✅ Puppeteer: ${puppeteerExtractor ? 'READY' : 'FAILED'}`);
+    console.log(`  ✅ Playwright: ${playwrightExtractor ? 'READY' : 'FAILED'}`);
+    console.log(`\n🚀 ${workingExtractors.length}/4 extractors operational: ${workingExtractors.join(', ')}`);
 
     // Ensure we have at least one working extractor
-    if (!axiosCheerioExtractor && !perplexityExtractor && !puppeteerExtractor && !playwrightExtractor) {
-      throw new Error('No extractors could be initialized - beta server cannot function');
+    if (workingExtractors.length === 0) {
+      throw new Error('CRITICAL: No extractors could be initialized - beta server cannot function');
     }
+
+    // Only mark as initialized after all initialization attempts are complete
+    extractorsInitialized = true;
+    console.log('✅ Extractor initialization process completed');
 
     // Initialize experiments
     await initializeBetaExperiments();
@@ -224,7 +285,13 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
         return res.status(503).json({ 
           success: false, 
           error: 'Extractors are still initializing. Please wait a moment and try again.',
-          data: { confidence: 0, companyName: null }
+          data: { confidence: 0, companyName: null },
+          extractorsStatus: {
+            axios_cheerio: !!axiosCheerioExtractor,
+            perplexity: !!perplexityExtractor,
+            puppeteer: !!puppeteerExtractor,
+            playwright: !!playwrightExtractor
+          }
         });
       }
 
