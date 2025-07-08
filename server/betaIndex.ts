@@ -44,86 +44,7 @@ app.get('/api/beta/experiments', async (req, res) => {
   }
 });
 
-// Beta smoke test endpoint
-app.post('/api/beta/smoke-test', async (req, res) => {
-  const { domain, method } = req.body;
 
-  if (!domain || !method) {
-    return res.status(400).json({ error: 'Domain and method are required' });
-  }
-
-  try {
-    let result: any = null;
-
-    switch (method) {
-      case 'axios_cheerio':
-        if (!axiosCheerioExtractor) {
-          throw new Error('Axios/Cheerio extractor not initialized');
-        }
-        result = await axiosCheerioExtractor.extractFromDomain(domain);
-        break;
-
-      case 'puppeteer':
-        if (!puppeteerExtractor) {
-          throw new Error('Puppeteer extractor not initialized');
-        }
-        result = await puppeteerExtractor.extractFromDomain(domain);
-        break;
-
-      case 'playwright':
-        if (!playwrightExtractor) {
-          throw new Error('Playwright extractor not initialized');
-        }
-        const playwrightResult = await playwrightExtractor.extractFromDomain(domain);
-
-        // Map Playwright result to expected format
-        result = {
-          success: playwrightResult.success,
-          data: {
-            companyName: playwrightResult.companyName,
-            confidence: playwrightResult.companyConfidence, // Use the actual confidence from Playwright
-            extractionMethod: playwrightResult.companyExtractionMethod,
-            legalEntityType: playwrightResult.legalEntityType,
-            country: playwrightResult.detectedCountry,
-            sources: playwrightResult.sources,
-            technicalDetails: playwrightResult.technicalDetails
-          },
-          error: playwrightResult.error
-        };
-        break;
-
-      case 'perplexity_llm':
-        if (!perplexityExtractor) {
-          throw new Error('Perplexity extractor not initialized');
-        }
-        result = await perplexityExtractor.extractFromDomain(domain);
-        break;
-
-      default:
-        return res.status(400).json({ error: 'Invalid method' });
-    }
-
-    // Store in beta database with experiment ID
-    const dbResult = await betaDb.insert(betaSmokeTests).values({
-      domain,
-      method,
-      experimentId: 1, // Smoke testing experiment
-      ...result
-    }).returning();
-
-    // Ensure confidence is included in the response
-    const responseData = {
-      ...result,
-      confidence: result.confidence || 0
-    };
-
-    res.json({ success: true, data: responseData });
-
-  } catch (error: any) {
-    console.error('[Beta] Error in smoke test:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
 
 // Get beta smoke test results
 app.get('/api/beta/smoke-test/results', async (req, res) => {
@@ -161,6 +82,12 @@ async function initializeBetaExperiments() {
   }
 }
 
+// Initialize extractors at module level
+let puppeteerExtractor: PuppeteerExtractor | null = null;
+let playwrightExtractor: PlaywrightExtractor | null = null;
+let perplexityExtractor: PerplexityExtractor | null = null;
+let axiosCheerioExtractor: AxiosCheerioExtractor | null = null;
+
 // Start the server directly
 const server = app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🧪 Beta Testing Platform running on port ${PORT}`);
@@ -168,11 +95,11 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 Ready for experimental features`);
   console.log(`🌐 Accessible at http://0.0.0.0:${PORT}`);
 
-  // Initialize extractors
-  const puppeteerExtractor = new PuppeteerExtractor();
-  const playwrightExtractor = new PlaywrightExtractor();
-  const perplexityExtractor = new PerplexityExtractor();
-  const axiosCheerioExtractor = new AxiosCheerioExtractor();
+  // Initialize extractors with individual error handling
+  let puppeteerExtractor: PuppeteerExtractor | null = null;
+  let playwrightExtractor: PlaywrightExtractor | null = null;
+  let perplexityExtractor: PerplexityExtractor | null = null;
+  let axiosCheerioExtractor: AxiosCheerioExtractor | null = null;
 
   try {
     // Test database connection first
@@ -182,21 +109,51 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
 
     console.log('🔧 Initializing extractors...');
 
-    // Axios/Cheerio doesn't need initialization
-    console.log('✅ Axios/Cheerio extractor ready');
+    // Initialize Axios/Cheerio (always works)
+    try {
+      axiosCheerioExtractor = new AxiosCheerioExtractor();
+      console.log('✅ Axios/Cheerio extractor ready');
+    } catch (error) {
+      console.log('❌ Axios/Cheerio extractor failed:', error.message);
+    }
 
-    // Initialize Puppeteer
-    await puppeteerExtractor.initialize();
-    console.log('✅ Puppeteer extractor initialized');
+    // Initialize Puppeteer (may fail)
+    try {
+      puppeteerExtractor = new PuppeteerExtractor();
+      await puppeteerExtractor.initialize();
+      console.log('✅ Puppeteer extractor initialized');
+    } catch (error) {
+      console.log('⚠️ Puppeteer extractor failed to initialize:', error.message);
+      puppeteerExtractor = null;
+    }
 
-    // Initialize Playwright  
-    await playwrightExtractor.initialize();
-    console.log('✅ Playwright extractor initialized');
+    // Initialize Playwright (may fail)
+    try {
+      playwrightExtractor = new PlaywrightExtractor();
+      await playwrightExtractor.initialize();
+      console.log('✅ Playwright extractor initialized');
+    } catch (error) {
+      console.log('⚠️ Playwright extractor failed to initialize:', error.message);
+      playwrightExtractor = null;
+    }
 
-    // Perplexity doesn't need initialization
-    console.log('✅ Perplexity extractor ready');
+    // Initialize Perplexity (always works)
+    try {
+      perplexityExtractor = new PerplexityExtractor();
+      console.log('✅ Perplexity extractor ready');
+    } catch (error) {
+      console.log('❌ Perplexity extractor failed:', error.message);
+      perplexityExtractor = null;
+    }
 
-    console.log('🚀 All extractors initialized successfully!');
+    const workingExtractors = [
+      axiosCheerioExtractor && 'Axios/Cheerio',
+      puppeteerExtractor && 'Puppeteer', 
+      playwrightExtractor && 'Playwright',
+      perplexityExtractor && 'Perplexity'
+    ].filter(Boolean);
+
+    console.log(`🚀 ${workingExtractors.length} extractors initialized: ${workingExtractors.join(', ')}`);
 
     // Initialize experiments
     await initializeBetaExperiments();
@@ -207,11 +164,10 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
     app.get('/api/beta/health-check', async (req, res) => {
       try {
         const healthChecks = await Promise.allSettled([
-            axiosCheerioExtractor.healthCheck(),
-            puppeteerExtractor.healthCheck(),
-            playwrightExtractor.healthCheck(),
-            // Perplexity doesn't have a health check method
-          ]);
+          axiosCheerioExtractor?.healthCheck(),
+          puppeteerExtractor?.healthCheck(),
+          playwrightExtractor?.healthCheck(),
+        ].filter(Boolean));
         
         res.json({
           status: 'healthy',
@@ -219,10 +175,10 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
           port: PORT,
           timestamp: new Date().toISOString(),
           extractors: {
-            axios_cheerio: healthChecks[0].status === 'fulfilled' ? healthChecks[0].value : false,
-            puppeteer: healthChecks[1].status === 'fulfilled' ? healthChecks[1].value : false,
-            playwright: healthChecks[2].status === 'fulfilled' ? healthChecks[2].value : false,
-            perplexity: true, // Always available
+            axios_cheerio: axiosCheerioExtractor ? (healthChecks[0]?.status === 'fulfilled' ? healthChecks[0].value : false) : false,
+            puppeteer: puppeteerExtractor ? (healthChecks[1]?.status === 'fulfilled' ? healthChecks[1].value : false) : false,
+            playwright: playwrightExtractor ? (healthChecks[2]?.status === 'fulfilled' ? healthChecks[2].value : false) : false,
+            perplexity: !!perplexityExtractor,
           },
         });
       } catch (error) {
@@ -231,12 +187,93 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
       }
     });
 
+    // Update the smoke test endpoint to use the initialized extractors
+    app.post('/api/beta/smoke-test', async (req, res) => {
+      const { domain, method } = req.body;
+
+      if (!domain || !method) {
+        return res.status(400).json({ error: 'Domain and method are required' });
+      }
+
+      try {
+        let result: any = null;
+
+        switch (method) {
+          case 'axios_cheerio':
+            if (!axiosCheerioExtractor) {
+              throw new Error('Axios/Cheerio extractor not available');
+            }
+            result = await axiosCheerioExtractor.extractFromDomain(domain);
+            break;
+
+          case 'puppeteer':
+            if (!puppeteerExtractor) {
+              throw new Error('Puppeteer extractor not available');
+            }
+            result = await puppeteerExtractor.extractFromDomain(domain);
+            break;
+
+          case 'playwright':
+            if (!playwrightExtractor) {
+              throw new Error('Playwright extractor not available');
+            }
+            const playwrightResult = await playwrightExtractor.extractFromDomain(domain);
+
+            // Map Playwright result to expected format
+            result = {
+              success: playwrightResult.success,
+              data: {
+                companyName: playwrightResult.companyName,
+                confidence: playwrightResult.companyConfidence,
+                extractionMethod: playwrightResult.companyExtractionMethod,
+                legalEntityType: playwrightResult.legalEntityType,
+                country: playwrightResult.detectedCountry,
+                sources: playwrightResult.sources,
+                technicalDetails: playwrightResult.technicalDetails
+              },
+              error: playwrightResult.error
+            };
+            break;
+
+          case 'perplexity_llm':
+            if (!perplexityExtractor) {
+              throw new Error('Perplexity extractor not available');
+            }
+            result = await perplexityExtractor.extractFromDomain(domain);
+            break;
+
+          default:
+            return res.status(400).json({ error: 'Invalid method' });
+        }
+
+        // Store in beta database with experiment ID
+        const dbResult = await betaDb.insert(betaSmokeTests).values({
+          domain,
+          method,
+          experimentId: 1, // Smoke testing experiment
+          ...result
+        }).returning();
+
+        // Ensure confidence is included in the response
+        const responseData = {
+          ...result,
+          confidence: result.confidence || 0
+        };
+
+        res.json({ success: true, data: responseData });
+
+      } catch (error: any) {
+        console.error('[Beta] Error in smoke test:', error);
+        res.status(500).json({ success: false, error: error.message });
+      }
+    });
+
     // Send ready signal to parent process if running from main server
     if (process.send) {
       process.send('ready');
     }
   } catch (error) {
-    console.error('❌ Failed to initialize beta experiments:', error);
+    console.error('❌ Failed to initialize beta server:', error);
     console.error('💥 Error details:', error);
     process.exit(1);
   }
