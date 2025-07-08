@@ -132,11 +132,15 @@ export class BetaExtractionService {
   }
 
   async testWithPuppeteer(domain: string): Promise<BetaExtractionResult> {
-    console.log(`[Beta] [Beta] Testing ${domain} with puppeteer...`);
-
+    console.log(`[Beta] Starting Puppeteer extraction for ${domain}...`);
     try {
-      // Use the standalone Puppeteer function
       const result = await runPuppeteerExtraction(domain);
+      console.log(`[Beta] Puppeteer extraction completed for ${domain}:`, {
+        success: result.success,
+        companyName: result.companyName,
+        error: result.error,
+        processingTime: result.processingTimeMs
+      });
 
       return {
         domain,
@@ -147,10 +151,16 @@ export class BetaExtractionService {
         success: result.success,
         error: result.error,
         extractionMethod: result.companyExtractionMethod,
-        technicalDetails: null
+        technicalDetails: result.extractionSteps
       };
     } catch (error: any) {
       console.error(`[Beta] Puppeteer extraction failed for ${domain}:`, error);
+      console.error(`[Beta] Error details:`, {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+
       return {
         domain,
         method: 'puppeteer',
@@ -160,7 +170,11 @@ export class BetaExtractionService {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
         extractionMethod: null,
-        technicalDetails: null
+        technicalDetails: JSON.stringify({
+          error: error.message,
+          stack: error.stack,
+          timestamp: Date.now()
+        })
       };
     }
   }

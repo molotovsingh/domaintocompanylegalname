@@ -45,14 +45,30 @@ export class PuppeteerExtractor {
 
   async initialize(): Promise<void> {
     try {
+      console.log('[Beta] [Puppeteer] Starting browser initialization...');
       this.logStep('browser_init_start', true, 'Starting browser initialization');
 
       // Find Chrome/Chromium executable
+      console.log('[Beta] [Puppeteer] Finding Chromium executable...');
       const executablePath = await this.findChromiumPath();
+      console.log(`[Beta] [Puppeteer] Found executable: ${executablePath}`);
       this.logStep('executable_found', true, `Using executable: ${executablePath}`);
 
+      // Test if executable exists and is accessible
+      const fs = require('fs');
+      try {
+        const stats = fs.statSync(executablePath);
+        console.log(`[Beta] [Puppeteer] Executable stats: size=${stats.size}, mode=${stats.mode.toString(8)}`);
+        this.logStep('executable_validation', true, `Executable validated: ${stats.size} bytes`);
+      } catch (fsError: any) {
+        console.error(`[Beta] [Puppeteer] Executable validation failed:`, fsError);
+        this.logStep('executable_validation', false, `File access error: ${fsError.message}`);
+        throw new Error(`Chromium executable not accessible: ${fsError.message}`);
+      }
+
+      console.log('[Beta] [Puppeteer] Launching browser with extensive args...');
       this.browser = await puppeteer.launch({
-        headless: true,
+        headless: 'new',
         executablePath,
         args: [
           '--no-sandbox',
@@ -66,21 +82,38 @@ export class PuppeteerExtractor {
           '--single-process',
           '--disable-background-timer-throttling',
           '--disable-backgrounding-occluded-windows',
-          '--disable-renderer-backgrounding'
+          '--disable-renderer-backgrounding',
+          '--disable-extensions',
+          '--disable-plugins',
+          '--disable-default-apps',
+          '--disable-background-networking',
+          '--disable-sync',
+          '--metrics-recording-only',
+          '--no-pings',
+          '--mute-audio',
+          '--disable-ipc-flooding-protection'
         ],
-        timeout: 15000
+        timeout: 30000,
+        dumpio: true
       });
 
+      console.log('[Beta] [Puppeteer] Browser launched successfully!');
       this.logStep('browser_init_success', true, 'Browser launched successfully');
 
       // Test browser with simple page
+      console.log('[Beta] [Puppeteer] Testing browser with simple page...');
       const testPage = await this.browser.newPage();
-      await testPage.goto('data:text/html,<html><body>Test</body></html>');
+      await testPage.goto('data:text/html,<html><body>Test</body></html>', { timeout: 10000 });
+      const testContent = await testPage.content();
+      console.log(`[Beta] [Puppeteer] Test page content length: ${testContent.length}`);
       await testPage.close();
 
+      console.log('[Beta] [Puppeteer] Browser initialization completed successfully!');
       this.logStep('browser_test_success', true, 'Browser test page successful');
 
     } catch (error: any) {
+      console.error(`[Beta] [Puppeteer] Browser initialization failed:`, error);
+      console.error(`[Beta] [Puppeteer] Error stack:`, error.stack);
       this.logStep('browser_init_error', false, `Browser initialization failed: ${error.message}`);
       throw new Error(`Failed to initialize Puppeteer: ${error.message}`);
     }
@@ -88,42 +121,69 @@ export class PuppeteerExtractor {
 
   private async findChromiumPath(): Promise<string> {
     const { execSync } = require('child_process');
+    const fs = require('fs');
+
+    console.log('[Beta] [Puppeteer] Starting executable path search...');
 
     // Try to find Chromium in common locations
     const possiblePaths = [
       '/usr/bin/chromium',
       '/usr/bin/chromium-browser',
       '/usr/bin/google-chrome',
-      '/usr/bin/google-chrome-stable'
+      '/usr/bin/google-chrome-stable',
+      '/nix/store/*/bin/chromium',
+      '/nix/store/*/bin/chromium-browser'
     ];
 
     // Try `which` command first
     try {
-      const whichResult = execSync('which chromium || which chromium-browser || which google-chrome', { encoding: 'utf8' }).trim();
-      if (whichResult) {
+      console.log('[Beta] [Puppeteer] Trying which command...');
+      const whichResult = execSync('which chromium || which chromium-browser || which google-chrome || echo "NONE"', { encoding: 'utf8' }).trim();
+      console.log(`[Beta] [Puppeteer] Which result: "${whichResult}"`);
+      if (whichResult && whichResult !== 'NONE' && fs.existsSync(whichResult)) {
+        console.log(`[Beta] [Puppeteer] Found via which: ${whichResult}`);
         return whichResult;
       }
-    } catch (e) {
-      // Continue to other methods
+    } catch (e: any) {
+      console.log(`[Beta] [Puppeteer] Which command failed: ${e.message}`);
+    }
+
+    // Check Nix store specifically
+    try {
+      console.log('[Beta] [Puppeteer] Searching Nix store...');
+      const nixResult = execSync('find /nix/store -name "chromium" -type f -executable 2>/dev/null | head -1 || echo "NONE"', { encoding: 'utf8' }).trim();
+      console.log(`[Beta] [Puppeteer] Nix search result: "${nixResult}"`);
+      if (nixResult && nixResult !== 'NONE' && fs.existsSync(nixResult)) {
+        console.log(`[Beta] [Puppeteer] Found in Nix store: ${nixResult}`);
+        return nixResult;
+      }
+    } catch (e: any) {
+      console.log(`[Beta] [Puppeteer] Nix search failed: ${e.message}`);
     }
 
     // Check if any of the common paths exist
-    const fs = require('fs');
+    console.log('[Beta] [Puppeteer] Checking common paths...');
     for (const path of possiblePaths) {
       try {
+        console.log(`[Beta] [Puppeteer] Checking: ${path}`);
         if (fs.existsSync(path)) {
+          console.log(`[Beta] [Puppeteer] Found: ${path}`);
           return path;
         }
-      } catch (e) {
-        // Continue
+      } catch (e: any) {
+        console.log(`[Beta] [Puppeteer] Error checking ${path}: ${e.message}`);
       }
     }
 
     // Let Puppeteer find it
     try {
-      return puppeteer.executablePath();
-    } catch (e) {
-      throw new Error('No Chromium executable found. Please install chromium-browser.');
+      console.log('[Beta] [Puppeteer] Trying Puppeteer default...');
+      const defaultPath = puppeteer.executablePath();
+      console.log(`[Beta] [Puppeteer] Puppeteer default: ${defaultPath}`);
+      return defaultPath;
+    } catch (e: any) {
+      console.error(`[Beta] [Puppeteer] Puppeteer default failed: ${e.message}`);
+      throw new Error(`No Chromium executable found. Searched paths: ${possiblePaths.join(', ')}. Error: ${e.message}`);
     }
   }
 
