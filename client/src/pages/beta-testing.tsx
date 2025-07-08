@@ -84,14 +84,28 @@ export default function BetaTesting() {
     };
   }, []);
 
-  const validateDomain = (
-    domain: string,
+  const validateInput = (
+    input: string,
+    method: string,
   ): { isValid: boolean; error?: string } => {
-    if (!domain || typeof domain !== "string") {
-      return { isValid: false, error: "Domain must be a non-empty string" };
+    if (!input || typeof input !== "string") {
+      return { isValid: false, error: "Input must be a non-empty string" };
     }
 
-    const cleanDomain = domain.replace(/^https?:\/\//, "").split("/")[0];
+    // For GLEIF method, validate as company name
+    if (method === "gleif_api") {
+      const trimmedInput = input.trim();
+      if (trimmedInput.length < 2) {
+        return { isValid: false, error: "Company name must be at least 2 characters" };
+      }
+      if (trimmedInput.length > 200) {
+        return { isValid: false, error: "Company name too long (max 200 characters)" };
+      }
+      return { isValid: true };
+    }
+
+    // For other methods, validate as domain
+    const cleanDomain = input.replace(/^https?:\/\//, "").split("/")[0];
     const domainRegex =
       /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/;
 
@@ -110,16 +124,54 @@ export default function BetaTesting() {
   };
 
   const runBetaTest = async (
-    domain: string,
+    input: string,
     method: string,
     signal?: AbortSignal,
   ): Promise<BetaTestResult> => {
     try {
       const startTime = Date.now();
+      
+      // For GLEIF method, use gleif-test endpoint
+      if (method === "gleif_api") {
+        const response = await fetch("/api/beta/gleif-test", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ companyName: input }),
+          signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        const processingTime = Date.now() - startTime;
+
+        return {
+          domain: input,
+          method,
+          processingTime,
+          companyName: result.data?.companyName || result.companyName,
+          legalEntityType: result.data?.legalEntityType || result.legalEntityType,
+          country: result.data?.country || result.country,
+          confidence: result.data?.confidence === 'high' ? 95 : 
+                     result.data?.confidence === 'medium' ? 70 :
+                     result.data?.confidence === 'low' ? 40 : 0,
+          success: result.success,
+          error: result.error,
+          errorCode: result.errorCode || null,
+          extractionMethod: "GLEIF Official API",
+          technicalDetails: result.data?.leiCode ? `LEI Code: ${result.data.leiCode}` : null,
+          sources: result.data?.sources || [],
+          llmResponse: null,
+        };
+      }
+
+      // For other methods, use smoke-test endpoint
       const response = await fetch("/api/beta/smoke-test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain, method }),
+        body: JSON.stringify({ domain: input, method }),
         signal,
       });
 
@@ -154,9 +206,9 @@ export default function BetaTesting() {
       }
 
       return {
-        domain,
+        domain: input,
         method,
-        processingTime: 0, // Fixed the calculation bug
+        processingTime: 0,
         companyName: null,
         legalEntityType: null,
         country: null,
@@ -173,11 +225,11 @@ export default function BetaTesting() {
   };
 
   const runSingleTest = async () => {
-    const trimmedDomain = testDomain.trim();
-    const validation = validateDomain(trimmedDomain);
+    const trimmedInput = testDomain.trim();
+    const validation = validateInput(trimmedInput, testMethod);
 
     if (!validation.isValid) {
-      setValidationError(validation.error || "Invalid domain");
+      setValidationError(validation.error || "Invalid input");
       return;
     }
 
@@ -192,7 +244,7 @@ export default function BetaTesting() {
     try {
       setProgress(50);
       const result = await runBetaTest(
-        trimmedDomain,
+        trimmedInput,
         testMethod,
         abortControllerRef.current.signal,
       );
@@ -209,11 +261,11 @@ export default function BetaTesting() {
   };
 
   const runFullTest = async () => {
-    const trimmedDomain = testDomain.trim();
-    const validation = validateDomain(trimmedDomain);
+    const trimmedInput = testDomain.trim();
+    const validation = validateInput(trimmedInput, testMethod);
 
     if (!validation.isValid) {
-      setValidationError(validation.error || "Invalid domain");
+      setValidationError(validation.error || "Invalid input");
       return;
     }
 
@@ -246,7 +298,7 @@ export default function BetaTesting() {
         setProgress((i / methods.length) * 100);
 
         const result = await runBetaTest(
-          trimmedDomain,
+          trimmedInput,
           method,
           abortControllerRef.current.signal,
         );
@@ -346,7 +398,11 @@ export default function BetaTesting() {
         <CardContent className="space-y-4">
           <div className="flex space-x-2">
             <Input
-              placeholder="Enter domain (e.g., example.com)"
+              placeholder={
+                testMethod === "gleif_api" 
+                  ? "Enter company name (e.g., Apple Inc.)" 
+                  : "Enter domain (e.g., example.com)"
+              }
               value={testDomain}
               onChange={(e) => {
                 setTestDomain(e.target.value);
