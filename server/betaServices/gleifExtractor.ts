@@ -135,19 +135,15 @@ export class GLEIFExtractor {
    */
   private async searchGLEIF(companyName: string, fuzzy: boolean = false): Promise<GLEIFApiResponse | null> {
     try {
-      const searchTerm = fuzzy ? `*${companyName}*` : companyName;
-      const url = `${this.baseUrl}/lei-records`;
-      
-      const params = {
-        'filter[entity.legalName]': searchTerm,
-        'page[size]': '5'
-      };
+      // Use URL encoding approach like main server for better compatibility
+      const encodedTerm = encodeURIComponent(companyName);
+      const searchTerm = fuzzy ? `*${encodedTerm}*` : encodedTerm;
+      const searchUrl = `${this.baseUrl}/lei-records?filter[entity.legalName]=${searchTerm}&page[size]=5`;
 
-      console.log(`[GLEIF] API Request: ${url} with params:`, params);
+      console.log(`[GLEIF] API Request: ${searchUrl}`);
 
-      const response: AxiosResponse<GLEIFApiResponse> = await axios.get(url, {
+      const response: AxiosResponse<GLEIFApiResponse> = await axios.get(searchUrl, {
         headers: this.headers,
-        params,
         timeout: 10000
       });
 
