@@ -34,27 +34,44 @@ export class PlaywrightExtractor {
     try {
       // Try to find Chrome executable in Replit environment
       const fs = await import('fs');
-      const path = await import('path');
+      const { exec } = await import('child_process');
+      const { promisify } = await import('util');
+      const execAsync = promisify(exec);
       
-      const possibleChromePaths = [
-        process.env.CHROME_EXECUTABLE_PATH,
-        "/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium",
-        "/usr/bin/chromium-browser",
-        "/usr/bin/google-chrome-stable",
-        "/usr/bin/chromium"
-      ].filter(Boolean);
-
       let executablePath: string | undefined;
       
-      for (const chromePath of possibleChromePaths) {
-        try {
-          if (fs.existsSync(chromePath!)) {
-            executablePath = chromePath!;
-            console.log(`🎭 Found Chrome at: ${executablePath}`);
-            break;
+      // First, try to find chromium in nix store dynamically
+      try {
+        console.log('🎭 Searching for Chromium in nix store...');
+        const { stdout } = await execAsync('find /nix/store -name "chromium" -type f -executable 2>/dev/null | head -1');
+        if (stdout.trim()) {
+          executablePath = stdout.trim();
+          console.log(`🎭 Found Chromium in nix store: ${executablePath}`);
+        }
+      } catch (error) {
+        console.log('🎭 Nix store search failed, trying fallback paths...');
+      }
+      
+      // Fallback to known paths if nix search failed
+      if (!executablePath) {
+        const possibleChromePaths = [
+          process.env.CHROME_EXECUTABLE_PATH,
+          "/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium",
+          "/usr/bin/chromium-browser",
+          "/usr/bin/google-chrome-stable",
+          "/usr/bin/chromium"
+        ].filter(Boolean);
+
+        for (const chromePath of possibleChromePaths) {
+          try {
+            if (fs.existsSync(chromePath!)) {
+              executablePath = chromePath!;
+              console.log(`🎭 Found Chrome at fallback path: ${executablePath}`);
+              break;
+            }
+          } catch (e) {
+            continue;
           }
-        } catch (e) {
-          continue;
         }
       }
 

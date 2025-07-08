@@ -104,52 +104,53 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
     await betaDb.execute('SELECT 1 as test');
     console.log('✅ Beta database connection successful');
 
-    console.log('🔧 Initializing extractors...');
+    console.log('🔧 Initializing extractors sequentially...');
 
-    // Initialize Axios/Cheerio (always works, highest priority)
+    // Step 1: Initialize Axios/Cheerio (always works, no browser required)
     try {
+      console.log('🔄 [1/4] Initializing Axios/Cheerio extractor...');
       axiosCheerioExtractor = new AxiosCheerioExtractor();
-      console.log('✅ Axios/Cheerio extractor ready');
-    } catch (error: any) {
-      console.log('❌ Axios/Cheerio extractor failed:', error.message);
-      // This is critical - if Axios/Cheerio fails, we have a serious problem
+      console.log('✅ [1/4] Axios/Cheerio extractor ready');
+    } catch (error) {
+      console.log('❌ [1/4] Axios/Cheerio extractor failed:', error.message);
     }
 
-    // Initialize Perplexity (works without browser, second priority)
+    // Step 2: Initialize Perplexity (no browser required)
     try {
+      console.log('🔄 [2/4] Initializing Perplexity extractor...');
       perplexityExtractor = new PerplexityExtractor();
-      console.log('✅ Perplexity extractor ready');
-    } catch (error: any) {
-      console.log('⚠️ Perplexity extractor failed:', error.message);
+      console.log('✅ [2/4] Perplexity extractor ready');
+    } catch (error) {
+      console.log('❌ [2/4] Perplexity extractor failed:', error.message);
       perplexityExtractor = null;
     }
 
-    // Initialize Puppeteer (may fail due to Chrome issues)
+    // Wait between browser initializations to prevent resource conflicts
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Step 3: Initialize Puppeteer (may fail, requires browser)
     try {
+      console.log('🔄 [3/4] Initializing Puppeteer extractor...');
       puppeteerExtractor = new PuppeteerExtractor();
-      console.log('🔧 Initializing Puppeteer browser...');
-      await Promise.race([
-        puppeteerExtractor.initialize(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Puppeteer initialization timeout')), 10000))
-      ]);
-      console.log('✅ Puppeteer extractor initialized');
-    } catch (error: any) {
-      console.log('⚠️ Puppeteer extractor failed to initialize:', error.message);
+      await puppeteerExtractor.initialize();
+      console.log('✅ [3/4] Puppeteer extractor initialized');
+
+      // Wait after successful browser initialization
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    } catch (error) {
+      console.log('⚠️ [3/4] Puppeteer extractor failed to initialize:', error.message);
       puppeteerExtractor = null;
     }
 
-    // Initialize Playwright (may fail due to Chrome issues)
+    // Step 4: Initialize Playwright (may fail, requires browser)
     try {
+      console.log('🔄 [4/4] Initializing Playwright extractor...');
       playwrightExtractor = new PlaywrightExtractor();
-      console.log('🔧 Initializing Playwright browser...');
-      await Promise.race([
-        playwrightExtractor.initialize(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Playwright initialization timeout')), 10000))
-      ]);
-      console.log('✅ Playwright extractor initialized');
+      await playwrightExtractor.initialize();
+      console.log('✅ [4/4] Playwright extractor initialized');
     } catch (error: any) {
-      console.log('⚠️ Playwright extractor failed to initialize:', error.message);
-      console.log('🔍 Playwright error details:', error.stack?.split('\n')[0] || 'No additional details');
+      console.log('⚠️ [4/4] Playwright extractor failed to initialize:', error.message);
+      console.log('🔍 Playwright initialization error details:', error.stack?.split('\n')[0] || 'No additional details');
       playwrightExtractor = null;
     }
 
@@ -186,7 +187,7 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
         };
 
         const workingCount = Object.values(extractorStatus).filter(Boolean).length;
-        
+
         res.json({
           status: workingCount > 0 ? 'healthy' : 'degraded',
           service: 'Beta Testing Platform',
@@ -338,7 +339,7 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
 
       } catch (error: any) {
         console.error(`❌ [Beta] Error in ${method} smoke test for ${domain}:`, error.message);
-        
+
         // Store failure in database
         try {
           await betaDb.insert(betaSmokeTests).values({
