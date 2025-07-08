@@ -28,7 +28,7 @@ localPort = 8001
 externalPort = 3000
 
 [workflows]
-runButton = "Force Kill and Restart"
+runButton = "Start application"
 
 [[workflows.workflow]]
 name = "Project"
@@ -59,11 +59,7 @@ args = "pkill -f \"server/index.ts\" || true"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pkill -f \"betaIndex.ts\" || true"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "sleep 3"
+args = "sleep 2"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
@@ -106,34 +102,31 @@ task = "shell.exec"
 args = "cd server && npx tsx betaIndex.ts"
 
 [[workflows.workflow]]
-name = "Force Kill and Restart"
+name = "Beta Server"
 author = 24794172
 mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pkill -9 -f \"server/index.ts\" || true"
+args = "cd server && npx tsx betaIndex.ts"
+
+[[workflows.workflow]]
+name = "Force Beta Restart"
+author = 24794172
+mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pkill -9 -f \"betaIndex.ts\" || true"
+args = "pkill -f \"betaIndex.ts\" || true"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pkill -9 -f \"tsx\" || true"
+args = "pkill -9 -f \"port 3001\" || true"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "fuser -k 5000/tcp || true"
+args = "sleep 3"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "fuser -k 3001/tcp || true"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "sleep 5"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
+args = "cd server && npx tsx betaIndex.ts"
