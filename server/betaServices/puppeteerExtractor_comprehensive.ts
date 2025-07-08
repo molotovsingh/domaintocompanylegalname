@@ -345,8 +345,19 @@ export class PuppeteerExtractor {
         console.log(`⚠️ No Chrome executable found, using Puppeteer default`);
       }
 
-      this.browser = await puppeteer.launch(launchOptions);
-      console.log("✅ Puppeteer browser initialized successfully");
+      // Try to launch browser with error handling
+      try {
+        this.browser = await puppeteer.launch(launchOptions);
+        console.log("✅ Puppeteer browser initialized successfully");
+      } catch (launchError) {
+        console.error("❌ First launch attempt failed:", launchError.message);
+        
+        // Try fallback without executable path
+        console.log("🔄 Trying fallback launch without executable path...");
+        delete launchOptions.executablePath;
+        this.browser = await puppeteer.launch(launchOptions);
+        console.log("✅ Puppeteer browser initialized with fallback method");
+      }
     } catch (error) {
       console.error("❌ Failed to initialize Puppeteer browser:", error);
       throw new Error(`Browser initialization failed: ${error.message}`);
@@ -418,6 +429,29 @@ export class PuppeteerExtractor {
     if (useCache && this.extractionCache.has(cacheKey)) {
       this.logStep("cache_hit", true, `Retrieved from cache: ${domain}`);
       return this.extractionCache.get(cacheKey)!;
+    }
+
+    // Ensure browser is initialized
+    if (!this.browser) {
+      try {
+        await this.initialize();
+      } catch (initError) {
+        this.logStep(
+          "browser_init_error",
+          false,
+          `Browser initialization failed: ${initError.message}`,
+        );
+        // Fallback to Axios/Cheerio only
+        try {
+          return await this.extractWithAxiosCheerio(domain, startTime);
+        } catch (axiosError) {
+          return this.createErrorResult(
+            domain,
+            startTime,
+            `Browser unavailable and Axios failed: ${axiosError.message}`,
+          );
+        }
+      }
     }
 
     try {
