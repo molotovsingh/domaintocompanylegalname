@@ -32,7 +32,33 @@ export class PlaywrightExtractor {
 
   async initialize() {
     try {
-      this.browser = await chromium.launch({
+      // Try to find Chrome executable in Replit environment
+      const fs = await import('fs');
+      const path = await import('path');
+      
+      const possibleChromePaths = [
+        process.env.CHROME_EXECUTABLE_PATH,
+        "/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium",
+        "/usr/bin/chromium-browser",
+        "/usr/bin/google-chrome-stable",
+        "/usr/bin/chromium"
+      ].filter(Boolean);
+
+      let executablePath: string | undefined;
+      
+      for (const chromePath of possibleChromePaths) {
+        try {
+          if (fs.existsSync(chromePath!)) {
+            executablePath = chromePath!;
+            console.log(`🎭 Found Chrome at: ${executablePath}`);
+            break;
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+
+      const launchOptions: any = {
         headless: true,
         args: [
           '--no-sandbox',
@@ -54,10 +80,34 @@ export class PlaywrightExtractor {
           '--no-zygote',
           '--no-first-run',
           '--mute-audio',
-          '--hide-scrollbars'
+          '--hide-scrollbars',
+          '--disable-software-rasterizer',
+          '--disable-background-networking',
+          '--disable-sync',
+          '--metrics-recording-only'
         ]
-      });
-      console.log("✅ Playwright browser initialized successfully");
+      };
+
+      if (executablePath) {
+        launchOptions.executablePath = executablePath;
+        console.log(`🎭 Using Chrome executable: ${executablePath}`);
+      } else {
+        console.log(`⚠️ No Chrome executable found, using Playwright default`);
+      }
+
+      // Try to launch browser with error handling
+      try {
+        this.browser = await chromium.launch(launchOptions);
+        console.log("✅ Playwright browser initialized successfully");
+      } catch (launchError) {
+        console.error("❌ First launch attempt failed:", launchError.message);
+        
+        // Try fallback without executable path
+        console.log("🔄 Trying fallback launch without executable path...");
+        delete launchOptions.executablePath;
+        this.browser = await chromium.launch(launchOptions);
+        console.log("✅ Playwright browser initialized with fallback method");
+      }
     } catch (error) {
       console.error("❌ Failed to initialize Playwright browser:", error);
       throw new Error(`Playwright browser initialization failed: ${error.message}`);
@@ -90,8 +140,32 @@ export class PlaywrightExtractor {
     const startTime = Date.now();
     this.steps = [];
 
+    // Ensure browser is initialized
     if (!this.browser) {
-      throw new Error("Browser not initialized. Call initialize() first.");
+      try {
+        await this.initialize();
+      } catch (initError) {
+        this.logStep(
+          "browser_init_error",
+          false,
+          `Browser initialization failed: ${initError.message}`,
+        );
+        return {
+          processingTimeMs: Date.now() - startTime,
+          success: false,
+          error: `Browser initialization failed: ${initError.message}`,
+          companyName: null,
+          companyConfidence: 0,
+          companyExtractionMethod: null,
+          legalEntityType: null,
+          detectedCountry: null,
+          countryConfidence: 0,
+          httpStatus: 0,
+          extractionSteps: JSON.stringify(this.steps),
+          sources: [],
+          technicalDetails: `Playwright initialization failed: ${initError.message}`
+        };
+      }
     }
 
     let page: Page | null = null;

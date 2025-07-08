@@ -132,8 +132,9 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
       playwrightExtractor = new PlaywrightExtractor();
       await playwrightExtractor.initialize();
       console.log('✅ Playwright extractor initialized');
-    } catch (error) {
+    } catch (error: any) {
       console.log('⚠️ Playwright extractor failed to initialize:', error.message);
+      console.log('🔍 Playwright initialization error details:', error.stack?.split('\n')[0] || 'No additional details');
       playwrightExtractor = null;
     }
 
