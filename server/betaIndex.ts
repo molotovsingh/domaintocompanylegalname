@@ -7,6 +7,7 @@ import { betaExperiments, betaSmokeTests } from '../shared/betaSchema';
 import { eq, desc } from 'drizzle-orm';
 import { PerplexityExtractor } from './betaServices/perplexityExtractor';
 import { AxiosCheerioExtractor } from './betaServices/axiosCheerioExtractor';
+import { gleifExtractor } from './betaServices/gleifExtractor';
 
 const execAsync = promisify(exec);
 
@@ -42,7 +43,52 @@ app.get('/api/beta/experiments', async (req, res) => {
   }
 });
 
-// Beta smoke test endpoint
+// GLEIF smoke test endpoint
+app.post('/api/beta/gleif-test', async (req, res) => {
+  try {
+    const { domain, leiCode } = req.body;
+
+    if (!domain && !leiCode) {
+      return res.status(400).json({
+        success: false,
+        error: 'Either domain or leiCode is required'
+      });
+    }
+
+    console.log(`[Beta] [GLEIF] Testing ${domain || `LEI: ${leiCode}`}...`);
+
+    let result;
+    if (leiCode) {
+      result = await gleifExtractor.searchByLEI(leiCode);
+    } else {
+      result = await gleifExtractor.extractCompanyInfo(domain);
+    }
+
+    console.log(`[Beta] [GLEIF] Result for ${domain || leiCode}:`, {
+      companyName: result.companyName,
+      leiCode: result.leiCode,
+      confidence: result.confidence,
+      sources: result.sources.length
+    });
+
+    res.json({
+      success: true,
+      data: result,
+      method: 'gleif_api',
+      processingTime: Date.now() // Simple timestamp
+    });
+
+  } catch (error: any) {
+    console.error(`[Beta] [GLEIF] Error:`, error.message);
+    res.status(500).json({
+      success: false,
+      error: 'GLEIF extraction failed',
+      details: error.message
+    });
+  }
+});
+
+// Enhanced smoke test endpoint with comprehensive error handling
 app.post('/api/beta/smoke-test', async (req, res) => {
   const { domain, method } = req.body;
 

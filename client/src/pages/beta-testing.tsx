@@ -222,7 +222,7 @@ export default function BetaTesting() {
     setProgress(0);
     setTestResults([]);
 
-    const methods = ["axios_cheerio", "perplexity_llm"];
+    const methods = ["axios_cheerio", "perplexity_llm", "gleif_api"];
     const results: BetaTestResult[] = [];
 
     setTestProgress({
@@ -369,6 +369,7 @@ export default function BetaTesting() {
               <SelectContent>
                 <SelectItem value="axios_cheerio">Axios/Cheerio</SelectItem>
                 <SelectItem value="perplexity_llm">Perplexity LLM</SelectItem>
+                <SelectItem value="gleif_api">GLEIF Official API</SelectItem>
               </SelectContent>
             </Select>
 
