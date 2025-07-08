@@ -15,6 +15,9 @@ const execAsync = promisify(exec);
 const app = express();
 const PORT = 3001;
 
+// Configuration variable for initialization delay
+const INITIALIZATION_DELAY = 500;
+
 // Simple cleanup function
 async function quickCleanup() {
   console.log('🔄 Starting beta server...');
@@ -107,13 +110,13 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
     console.log('🔧 Initializing extractors in strict serial order...');
 
     // SERIALIZED INITIALIZATION - One at a time with proper waits
-    
+
     // Step 1: Initialize Axios/Cheerio (no browser, safe)
     try {
       console.log('🔄 [1/4] Initializing Axios/Cheerio extractor...');
       axiosCheerioExtractor = new AxiosCheerioExtractor();
       console.log('✅ [1/4] Axios/Cheerio extractor ready');
-      await new Promise(resolve => setTimeout(resolve, 500)); // Small wait
+      await new Promise(resolve => setTimeout(resolve, INITIALIZATION_DELAY)); // Small wait
     } catch (error) {
       console.log('❌ [1/4] Axios/Cheerio extractor failed:', error.message);
       axiosCheerioExtractor = null;
@@ -124,7 +127,7 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
       console.log('🔄 [2/4] Initializing Perplexity extractor...');
       perplexityExtractor = new PerplexityExtractor();
       console.log('✅ [2/4] Perplexity extractor ready');
-      await new Promise(resolve => setTimeout(resolve, 500)); // Small wait
+      await new Promise(resolve => setTimeout(resolve, INITIALIZATION_DELAY)); // Small wait
     } catch (error) {
       console.log('❌ [2/4] Perplexity extractor failed:', error.message);
       perplexityExtractor = null;
@@ -134,12 +137,12 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
     console.log('🔄 [3/4] Initializing Puppeteer extractor...');
     try {
       puppeteerExtractor = new PuppeteerExtractor();
-      
+
       // Wait for complete browser initialization
       console.log('🔄 [3/4] Starting Puppeteer browser initialization...');
       await puppeteerExtractor.initialize();
       console.log('✅ [3/4] Puppeteer browser launched successfully');
-      
+
       // Test the browser to ensure it's actually working
       console.log('🔄 [3/4] Testing Puppeteer functionality...');
       const healthCheck = await puppeteerExtractor.healthCheck();
@@ -148,15 +151,15 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
       } else {
         throw new Error('Health check failed');
       }
-      
+
       // Long wait after browser initialization to ensure stability
       console.log('🔄 [3/4] Waiting for Puppeteer stability...');
       await new Promise(resolve => setTimeout(resolve, 3000));
-      
+
     } catch (error) {
       console.log('⚠️ [3/4] Puppeteer extractor failed to initialize:', error.message);
       console.log('🔍 Puppeteer error details:', error.stack?.split('\n').slice(0, 3).join('\n') || 'No stack trace');
-      
+
       // Clean up failed Puppeteer instance
       if (puppeteerExtractor) {
         try {
@@ -166,7 +169,7 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
         }
       }
       puppeteerExtractor = null;
-      
+
       // Wait before next initialization even after failure
       await new Promise(resolve => setTimeout(resolve, 2000));
     }
@@ -175,12 +178,12 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
     console.log('🔄 [4/4] Initializing Playwright extractor...');
     try {
       playwrightExtractor = new PlaywrightExtractor();
-      
+
       // Wait for complete browser initialization  
       console.log('🔄 [4/4] Starting Playwright browser initialization...');
       await playwrightExtractor.initialize();
       console.log('✅ [4/4] Playwright browser launched successfully');
-      
+
       // Test the browser to ensure it's actually working
       console.log('🔄 [4/4] Testing Playwright functionality...');
       const healthCheck = await playwrightExtractor.healthCheck();
@@ -189,14 +192,14 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
       } else {
         throw new Error('Health check failed');
       }
-      
+
       console.log('🔄 [4/4] Waiting for Playwright stability...');
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
     } catch (error: any) {
       console.log('⚠️ [4/4] Playwright extractor failed to initialize:', error.message);
       console.log('🔍 Playwright error details:', error.stack?.split('\n').slice(0, 3).join('\n') || 'No stack trace');
-      
+
       // Clean up failed Playwright instance
       if (playwrightExtractor) {
         try {
