@@ -5,7 +5,7 @@ import { promisify } from 'util';
 import { betaDb } from './betaDb';
 import { betaExperiments, betaSmokeTests } from '../shared/betaSchema';
 import { eq, desc } from 'drizzle-orm';
-import { PuppeteerExtractor } from './betaServices/puppeteerExtractor_comprehensive';
+import { PuppeteerExtractor } from './betaServices/puppeteerExtractor';
 import { PerplexityExtractor } from './betaServices/perplexityExtractor';
 
 const execAsync = promisify(exec);
