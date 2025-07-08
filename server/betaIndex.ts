@@ -6,8 +6,9 @@ import { betaDb } from './betaDb';
 import { betaExperiments, betaSmokeTests } from '../shared/betaSchema';
 import { eq, desc } from 'drizzle-orm';
 import { PuppeteerExtractor } from './betaServices/puppeteerExtractor_comprehensive';
-import { PerplexityExtractor } from './betaServices/perplexityExtractor';
 import { PlaywrightExtractor } from './betaServices/playwrightExtractor';
+import { PerplexityExtractor } from './betaServices/perplexityExtractor';
+import { AxiosCheerioExtractor } from './betaServices/axiosCheerioExtractor';
 
 const execAsync = promisify(exec);
 
@@ -54,28 +55,27 @@ app.post('/api/beta/smoke-test', async (req, res) => {
   try {
     let result: any = null;
 
-    if (method === 'puppeteer') {
-      const extractor = new PuppeteerExtractor();
-      await extractor.initialize();
+    switch (method) {
+      case 'axios_cheerio':
+        if (!axiosCheerioExtractor) {
+          throw new Error('Axios/Cheerio extractor not initialized');
+        }
+        result = await axiosCheerioExtractor.extractFromDomain(domain);
+        break;
 
-      try {
-        console.log(`[Beta] Testing ${domain} with puppeteer...`);
-        result = await extractor.extractFromDomain(domain);
-      } finally {
-        await extractor.cleanup();
-      }
-    } else if (method === 'perplexity_llm') {
-      const extractor = new PerplexityExtractor();
-      console.log(`[Beta] Testing ${domain} with Perplexity LLM...`);
-      result = await extractor.extractFromDomain(domain);
-    } else if (method === 'playwright') {
-      const extractor = new PlaywrightExtractor();
-      await extractor.initialize();
+      case 'puppeteer':
+        if (!puppeteerExtractor) {
+          throw new Error('Puppeteer extractor not initialized');
+        }
+        result = await puppeteerExtractor.extractFromDomain(domain);
+        break;
 
-      try {
-        console.log(`[Beta] Testing ${domain} with playwright...`);
-        const playwrightResult = await extractor.extractFromDomain(domain);
-        
+      case 'playwright':
+        if (!playwrightExtractor) {
+          throw new Error('Playwright extractor not initialized');
+        }
+        const playwrightResult = await playwrightExtractor.extractFromDomain(domain);
+
         // Map Playwright result to expected format
         result = {
           success: playwrightResult.success,
@@ -90,20 +90,17 @@ app.post('/api/beta/smoke-test', async (req, res) => {
           },
           error: playwrightResult.error
         };
-      } finally {
-        await extractor.cleanup();
-      }
-    } else if (method === 'axios_cheerio') {
-      // Simulate axios/cheerio for now
-      result = {
-        companyName: `${domain.split('.')[0]} (Simulated)`,
-        confidence: 75,
-        success: true,
-        extractionMethod: 'axios_cheerio_simulation',
-        technicalDetails: 'Axios/Cheerio simulation - not implemented yet'
-      };
-    } else {
-      return res.status(400).json({ error: 'Invalid method' });
+        break;
+
+      case 'perplexity_llm':
+        if (!perplexityExtractor) {
+          throw new Error('Perplexity extractor not initialized');
+        }
+        result = await perplexityExtractor.extractFromDomain(domain);
+        break;
+
+      default:
+        return res.status(400).json({ error: 'Invalid method' });
     }
 
     // Store in beta database with experiment ID
@@ -171,16 +168,68 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 Ready for experimental features`);
   console.log(`🌐 Accessible at http://0.0.0.0:${PORT}`);
 
+  // Initialize extractors
+  const puppeteerExtractor = new PuppeteerExtractor();
+  const playwrightExtractor = new PlaywrightExtractor();
+  const perplexityExtractor = new PerplexityExtractor();
+  const axiosCheerioExtractor = new AxiosCheerioExtractor();
+
   try {
     // Test database connection first
     console.log('🔍 Testing beta database connection...');
     await betaDb.execute('SELECT 1 as test');
     console.log('✅ Beta database connection successful');
 
+    console.log('🔧 Initializing extractors...');
+
+    // Axios/Cheerio doesn't need initialization
+    console.log('✅ Axios/Cheerio extractor ready');
+
+    // Initialize Puppeteer
+    await puppeteerExtractor.initialize();
+    console.log('✅ Puppeteer extractor initialized');
+
+    // Initialize Playwright  
+    await playwrightExtractor.initialize();
+    console.log('✅ Playwright extractor initialized');
+
+    // Perplexity doesn't need initialization
+    console.log('✅ Perplexity extractor ready');
+
+    console.log('🚀 All extractors initialized successfully!');
+
     // Initialize experiments
     await initializeBetaExperiments();
     console.log(`✅ Beta server fully initialized and ready`);
     console.log(`🎯 Health check available at: http://0.0.0.0:${PORT}/api/beta/health`);
+
+    // Health check endpoint
+    app.get('/api/beta/health-check', async (req, res) => {
+      try {
+        const healthChecks = await Promise.allSettled([
+            axiosCheerioExtractor.healthCheck(),
+            puppeteerExtractor.healthCheck(),
+            playwrightExtractor.healthCheck(),
+            // Perplexity doesn't have a health check method
+          ]);
+        
+        res.json({
+          status: 'healthy',
+          service: 'Beta Testing Platform',
+          port: PORT,
+          timestamp: new Date().toISOString(),
+          extractors: {
+            axios_cheerio: healthChecks[0].status === 'fulfilled' ? healthChecks[0].value : false,
+            puppeteer: healthChecks[1].status === 'fulfilled' ? healthChecks[1].value : false,
+            playwright: healthChecks[2].status === 'fulfilled' ? healthChecks[2].value : false,
+            perplexity: true, // Always available
+          },
+        });
+      } catch (error) {
+        console.error('❌ Health check failed:', error);
+        res.status(500).json({ status: 'unhealthy', error: 'Health check failed' });
+      }
+    });
 
     // Send ready signal to parent process if running from main server
     if (process.send) {
