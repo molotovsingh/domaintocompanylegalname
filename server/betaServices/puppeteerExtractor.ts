@@ -1,4 +1,6 @@
 import puppeteer from 'puppeteer';
+import { betaDb } from '../betaDb';
+import { betaSmokeTests } from '../../shared/betaSchema';
 
 interface ExtractionStep {
   step: string;
@@ -216,6 +218,16 @@ export class PuppeteerExtractor {
       throw new Error('Browser not initialized. Call initialize() first.');
     }
 
+    // Store initial test record
+    const [testRecord] = await betaDb.insert(betaSmokeTests).values({
+      domain,
+      method: 'puppeteer',
+      status: 'processing',
+      startedAt: new Date(),
+    }).returning();
+
+    console.log(`[Beta] [Puppeteer] Created test record ${testRecord.id} for ${domain}`);
+
     let page: puppeteer.Page | null = null;
 
     try {
@@ -283,11 +295,37 @@ export class PuppeteerExtractor {
         extractionSteps: JSON.stringify(this.steps)
       };
 
+      // Update database with results
+      await betaDb.update(betaSmokeTests)
+        .set({
+          status: 'completed',
+          companyName: extraction.companyName,
+          confidence: extraction.confidence,
+          extractionMethod: extraction.method,
+          processingTimeMs: Date.now() - startTime,
+          completedAt: new Date(),
+          rawResults: JSON.stringify(result)
+        })
+        .where({ id: testRecord.id });
+
       this.logStep('extraction_complete', true, `Successfully extracted data for ${domain}`);
+      console.log(`[Beta] [Puppeteer] Updated test record ${testRecord.id} with results`);
       return result;
 
     } catch (error: any) {
       this.logStep('extraction_error', false, `Extraction failed: ${error.message}`);
+
+      // Update database with error
+      await betaDb.update(betaSmokeTests)
+        .set({
+          status: 'failed',
+          error: error.message,
+          processingTimeMs: Date.now() - startTime,
+          completedAt: new Date()
+        })
+        .where({ id: testRecord.id });
+
+      console.log(`[Beta] [Puppeteer] Updated test record ${testRecord.id} with error: ${error.message}`);
 
       return {
         processingTimeMs: Date.now() - startTime,
