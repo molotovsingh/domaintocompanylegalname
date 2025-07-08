@@ -49,14 +49,14 @@ let betaServerProcess: any = null;
 
 async function startBetaServer() {
   try {
-    // Kill any existing beta server
+    // Kill any existing beta server processes
     const { exec } = await import('child_process');
     await new Promise(resolve => {
       exec('pkill -f "betaIndex.ts" || true', () => resolve(null));
     });
     
-    // Wait for cleanup
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Shorter cleanup wait
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     log('🧪 Starting beta server...');
     
@@ -79,25 +79,25 @@ async function startBetaServer() {
       betaServerProcess = null;
     });
     
-    // Wait for beta server to be ready
+    // Reduced wait time and attempts for beta server
     let attempts = 0;
-    while (attempts < 30) {
+    while (attempts < 10) {
       try {
-        await axios.get('http://0.0.0.0:3001/api/beta/health', { timeout: 1000 });
+        await axios.get('http://0.0.0.0:3001/api/beta/health', { timeout: 500 });
         log('✅ Beta server is ready');
         break;
       } catch {
         attempts++;
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
     
-    if (attempts >= 30) {
-      log('⚠️ Beta server startup timeout - continuing anyway');
+    if (attempts >= 10) {
+      log('⚠️ Beta server startup timeout - main server will continue');
     }
     
   } catch (error) {
-    log(`❌ Failed to start beta server: ${error}`);
+    log(`❌ Failed to start beta server: ${error} - main server will continue`);
   }
 }
 
@@ -113,13 +113,26 @@ function stopBetaServer() {
 process.on('SIGTERM', () => {
   log('🛑 Main server shutting down...');
   stopBetaServer();
-  process.exit(0);
+  setTimeout(() => process.exit(0), 1000);
 });
 
 process.on('SIGINT', () => {
   log('🛑 Main server interrupted...');
   stopBetaServer();
-  process.exit(0);
+  setTimeout(() => process.exit(0), 1000);
+});
+
+// Handle uncaught exceptions to prevent crashes
+process.on('uncaughtException', (error) => {
+  log(`❌ Uncaught Exception: ${error.message}`);
+  console.error(error);
+  // Don't exit immediately, let the process continue
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  log(`❌ Unhandled Rejection at: ${promise}, reason: ${reason}`);
+  console.error(reason);
+  // Don't exit immediately, let the process continue
 });
 
 (async () => {
@@ -153,6 +166,20 @@ process.on('SIGINT', () => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = 5000;
+  
+  // Add error handling for server startup
+  server.on('error', (error: any) => {
+    if (error.code === 'EADDRINUSE') {
+      log(`❌ Port ${port} is already in use. Retrying in 3 seconds...`);
+      setTimeout(() => {
+        server.close();
+        server.listen({ port, host: "0.0.0.0", reusePort: true });
+      }, 3000);
+    } else {
+      log(`❌ Server error: ${error.message}`);
+    }
+  });
+  
   server.listen({
     port,
     host: "0.0.0.0",
@@ -160,7 +187,9 @@ process.on('SIGINT', () => {
   }, async () => {
     log(`serving on port ${port}`);
     
-    // Start beta server automatically
-    await startBetaServer();
+    // Start beta server in background (non-blocking)
+    startBetaServer().catch(error => {
+      log(`Beta server startup failed: ${error} - main server continues`);
+    });
   });
 })();
