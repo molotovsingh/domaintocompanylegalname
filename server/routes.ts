@@ -1080,8 +1080,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Simple beta server status check
   async function checkBetaServerStatus(): Promise<boolean> {
     try {
-      const response = await axios.get('http://localhost:3001/api/beta/health', { timeout: 2000 });
-      return response.status === 200;
+      const response = await axios.get('http://localhost:3001/api/beta/health', { timeout: 3000 });
+      return response.status === 200 && response.data.status === 'healthy';
     } catch (error) {
       return false;
     }
@@ -1121,6 +1121,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post('/api/beta/smoke-test', async (req, res) => {
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).json({ 
+        success: false, 
+        error: 'Beta server is not running. Please start it using the workflow dropdown.',
+        status: 'stopped'
+      });
+    }
+    
     try {
       const response = await axios.post('http://localhost:3001/api/beta/smoke-test', req.body, {
         headers: { 'Content-Type': 'application/json' }
