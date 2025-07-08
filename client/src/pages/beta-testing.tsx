@@ -608,13 +608,13 @@ export default function BetaTesting() {
                       )}
 
                       {/* Enhanced JSON display for debugging */}
-                      {result.method === "perplexity_llm" &&
-                        result.llmResponse?.parsedJson && (
-                          <details className="mt-4">
-                            <summary className="cursor-pointer text-sm font-medium text-blue-900 hover:text-blue-700">
-                              View Complete JSON Response
-                            </summary>
-                            <div className="mt-2 p-4 bg-blue-50 rounded-lg">
+                      {result.method === "perplexity_llm" && (
+                        <details className="mt-4">
+                          <summary className="cursor-pointer text-sm font-medium text-blue-900 hover:text-blue-700">
+                            View Complete JSON Response
+                          </summary>
+                          <div className="mt-2 p-4 bg-blue-50 rounded-lg">
+                            {result.llmResponse?.parsedJson ? (
                               <pre className="text-sm text-blue-800 whitespace-pre-wrap overflow-auto max-h-96 bg-white p-3 rounded border">
                                 {JSON.stringify(
                                   result.llmResponse.parsedJson,
@@ -622,27 +622,37 @@ export default function BetaTesting() {
                                   2,
                                 )}
                               </pre>
-                              {result.llmResponse.citations &&
-                                result.llmResponse.citations.length > 0 && (
-                                  <div className="mt-3">
-                                    <h5 className="font-medium text-blue-900 mb-1">
-                                      Citations (
-                                      {result.llmResponse.citations.length}):
-                                    </h5>
-                                    <div className="text-xs text-blue-700 space-y-1 max-h-32 overflow-y-auto">
-                                      {result.llmResponse.citations.map(
-                                        (citation: string, idx: number) => (
-                                          <div key={idx} className="truncate">
-                                            • {citation}
-                                          </div>
-                                        ),
-                                      )}
-                                    </div>
+                            ) : (
+                              <div>
+                                <h5 className="font-medium text-blue-900 mb-2">Raw Extraction Data:</h5>
+                                <pre className="text-sm text-blue-800 whitespace-pre-wrap overflow-auto max-h-96 bg-white p-3 rounded border">
+                                  {typeof result.technicalDetails === 'string' 
+                                    ? result.technicalDetails 
+                                    : JSON.stringify(result.technicalDetails || {}, null, 2)}
+                                </pre>
+                              </div>
+                            )}
+                            {result.llmResponse?.citations &&
+                              result.llmResponse.citations.length > 0 && (
+                                <div className="mt-3">
+                                  <h5 className="font-medium text-blue-900 mb-1">
+                                    Citations (
+                                    {result.llmResponse.citations.length}):
+                                  </h5>
+                                  <div className="text-xs text-blue-700 space-y-1 max-h-32 overflow-y-auto">
+                                    {result.llmResponse.citations.map(
+                                      (citation: string, idx: number) => (
+                                        <div key={idx} className="truncate">
+                                          • {citation}
+                                        </div>
+                                      ),
+                                    )}
                                   </div>
-                                )}
-                            </div>
-                          </details>
-                        )}
+                                </div>
+                              )}
+                          </div>
+                        </details>
+                      )}
 
                       {/* Raw response for failed JSON parsing */}
                       {result.method === "perplexity_llm" &&
@@ -663,6 +673,18 @@ export default function BetaTesting() {
                             </div>
                           </details>
                         )}
+
+                      {/* Debug: Show all available data for any method */}
+                      <details className="mt-4">
+                        <summary className="cursor-pointer text-sm font-medium text-gray-600 hover:text-gray-800">
+                          Debug: View All Result Data
+                        </summary>
+                        <div className="mt-2 p-4 bg-gray-50 rounded-lg">
+                          <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-auto max-h-64 bg-white p-3 rounded border">
+                            {JSON.stringify(result, null, 2)}
+                          </pre>
+                        </div>
+                      </details>
                     </div>
                   </CardContent>
                 </Card>
