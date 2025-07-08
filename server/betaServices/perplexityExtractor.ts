@@ -41,7 +41,7 @@ export class PerplexityExtractor {
 Respond in JSON format with keys: companyName, country, legalEntityType`;
 
       const response = await this.client.chat.completions.create({
-        model: 'llama-3.1-sonar-small-128k-online',
+        model: 'sonar',
         messages: [
           {
             role: 'user',
