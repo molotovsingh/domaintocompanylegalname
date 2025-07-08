@@ -55,9 +55,9 @@ export class PuppeteerExtractor {
       this.logStep('executable_found', true, `Using executable: ${executablePath}`);
 
       // Test if executable exists and is accessible
-      const fs = require('fs');
+      const { statSync } = await import('fs');
       try {
-        const stats = fs.statSync(executablePath);
+        const stats = statSync(executablePath);
         console.log(`[Beta] [Puppeteer] Executable stats: size=${stats.size}, mode=${stats.mode.toString(8)}`);
         this.logStep('executable_validation', true, `Executable validated: ${stats.size} bytes`);
       } catch (fsError: any) {
@@ -120,8 +120,8 @@ export class PuppeteerExtractor {
   }
 
   private async findChromiumPath(): Promise<string> {
-    const { execSync } = require('child_process');
-    const fs = require('fs');
+    const { execSync } = await import('child_process');
+    const { existsSync } = await import('fs');
 
     console.log('[Beta] [Puppeteer] Starting executable path search...');
 
@@ -140,7 +140,7 @@ export class PuppeteerExtractor {
       console.log('[Beta] [Puppeteer] Trying which command...');
       const whichResult = execSync('which chromium || which chromium-browser || which google-chrome || echo "NONE"', { encoding: 'utf8' }).trim();
       console.log(`[Beta] [Puppeteer] Which result: "${whichResult}"`);
-      if (whichResult && whichResult !== 'NONE' && fs.existsSync(whichResult)) {
+      if (whichResult && whichResult !== 'NONE' && existsSync(whichResult)) {
         console.log(`[Beta] [Puppeteer] Found via which: ${whichResult}`);
         return whichResult;
       }
@@ -153,7 +153,7 @@ export class PuppeteerExtractor {
       console.log('[Beta] [Puppeteer] Searching Nix store...');
       const nixResult = execSync('find /nix/store -name "chromium" -type f -executable 2>/dev/null | head -1 || echo "NONE"', { encoding: 'utf8' }).trim();
       console.log(`[Beta] [Puppeteer] Nix search result: "${nixResult}"`);
-      if (nixResult && nixResult !== 'NONE' && fs.existsSync(nixResult)) {
+      if (nixResult && nixResult !== 'NONE' && existsSync(nixResult)) {
         console.log(`[Beta] [Puppeteer] Found in Nix store: ${nixResult}`);
         return nixResult;
       }
@@ -166,7 +166,7 @@ export class PuppeteerExtractor {
     for (const path of possiblePaths) {
       try {
         console.log(`[Beta] [Puppeteer] Checking: ${path}`);
-        if (fs.existsSync(path)) {
+        if (existsSync(path)) {
           console.log(`[Beta] [Puppeteer] Found: ${path}`);
           return path;
         }
