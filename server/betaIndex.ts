@@ -46,25 +46,25 @@ app.get('/api/beta/experiments', async (req, res) => {
 // GLEIF smoke test endpoint
 app.post('/api/beta/gleif-test', async (req, res) => {
   try {
-    const { domain, leiCode } = req.body;
+    const { companyName, leiCode } = req.body;
 
-    if (!domain && !leiCode) {
+    if (!companyName && !leiCode) {
       return res.status(400).json({
         success: false,
-        error: 'Either domain or leiCode is required'
+        error: 'Either companyName or leiCode is required'
       });
     }
 
-    console.log(`[Beta] [GLEIF] Testing ${domain || `LEI: ${leiCode}`}...`);
+    console.log(`[Beta] [GLEIF] Testing ${companyName || `LEI: ${leiCode}`}...`);
 
     let result;
     if (leiCode) {
       result = await gleifExtractor.searchByLEI(leiCode);
     } else {
-      result = await gleifExtractor.extractCompanyInfo(domain);
+      result = await gleifExtractor.extractCompanyInfo(companyName);
     }
 
-    console.log(`[Beta] [GLEIF] Result for ${domain || leiCode}:`, {
+    console.log(`[Beta] [GLEIF] Result for ${companyName || leiCode}:`, {
       companyName: result.companyName,
       leiCode: result.leiCode,
       confidence: result.confidence,

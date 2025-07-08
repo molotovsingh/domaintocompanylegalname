@@ -88,25 +88,21 @@ export class GLEIFExtractor {
   /**
    * Extract company information using GLEIF API
    */
-  async extractCompanyInfo(domain: string): Promise<GLEIFExtractionResult> {
+  async extractCompanyInfo(companyName: string): Promise<GLEIFExtractionResult> {
     try {
-      console.log(`[GLEIF] Starting extraction for domain: ${domain}`);
-      
-      // Extract potential company name from domain
-      const potentialCompanyName = this.extractCompanyNameFromDomain(domain);
-      console.log(`[GLEIF] Extracted potential company name: ${potentialCompanyName}`);
+      console.log(`[GLEIF] Starting extraction for company: ${companyName}`);
 
       // Try exact search first
-      let result = await this.searchGLEIF(potentialCompanyName, false);
+      let result = await this.searchGLEIF(companyName, false);
       
       if (!result || result.data.length === 0) {
         console.log(`[GLEIF] No exact matches, trying fuzzy search...`);
         // Try fuzzy search if exact fails
-        result = await this.searchGLEIF(potentialCompanyName, true);
+        result = await this.searchGLEIF(companyName, true);
       }
 
       if (!result || result.data.length === 0) {
-        console.log(`[GLEIF] No GLEIF matches found for ${domain}`);
+        console.log(`[GLEIF] No GLEIF matches found for ${companyName}`);
         return {
           companyName: 'Not found in GLEIF registry',
           legalEntityType: 'Not found',
@@ -123,7 +119,7 @@ export class GLEIFExtractor {
       return this.formatGLEIFResult(bestMatch, result.data.length);
 
     } catch (error: any) {
-      console.error(`[GLEIF] Error extracting company info for ${domain}:`, error.message);
+      console.error(`[GLEIF] Error extracting company info for ${companyName}:`, error.message);
       return {
         companyName: 'GLEIF API Error',
         legalEntityType: 'Error',
@@ -173,21 +169,7 @@ export class GLEIFExtractor {
     }
   }
 
-  /**
-   * Extract potential company name from domain
-   */
-  private extractCompanyNameFromDomain(domain: string): string {
-    // Remove common TLDs and www
-    let name = domain
-      .replace(/^www\./, '')
-      .replace(/\.(com|org|net|gov|edu|co\.uk|co|ltd|inc)$/, '')
-      .split('.')[0];
-
-    // Convert to title case for better GLEIF matching
-    name = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-
-    return name;
-  }
+  
 
   /**
    * Format GLEIF API result into our standard format
