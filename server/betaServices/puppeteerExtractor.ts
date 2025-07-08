@@ -1,4 +1,3 @@
-
 import puppeteer from 'puppeteer';
 
 interface ExtractionStep {
@@ -46,75 +45,97 @@ export class PuppeteerExtractor {
 
   async initialize(): Promise<void> {
     try {
-      // Try to find Chromium executable dynamically
-      const chromiumPath = await this.findChromiumExecutable();
-      
+      this.logStep('browser_init_start', true, 'Starting browser initialization');
+
+      // Find Chrome/Chromium executable
+      const executablePath = await this.findChromiumPath();
+      this.logStep('executable_found', true, `Using executable: ${executablePath}`);
+
       this.browser = await puppeteer.launch({
         headless: true,
-        executablePath: chromiumPath,
+        executablePath,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
           '--disable-gpu',
           '--disable-web-security',
-          '--disable-features=VizDisplayCompositor,IsolateOrigins',
-          '--disable-site-isolation-trials',
-          '--disable-background-timer-throttling',
-          '--disable-backgrounding-occluded-windows',
-          '--disable-renderer-backgrounding',
+          '--disable-features=VizDisplayCompositor',
           '--no-first-run',
           '--no-default-browser-check',
-          '--single-process'
+          '--single-process',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding'
         ],
-        timeout: 30000
+        timeout: 15000
       });
-      
-      this.logStep('browser_init', true, 'Browser initialized successfully');
-      
+
+      this.logStep('browser_init_success', true, 'Browser launched successfully');
+
+      // Test browser with simple page
+      const testPage = await this.browser.newPage();
+      await testPage.goto('data:text/html,<html><body>Test</body></html>');
+      await testPage.close();
+
+      this.logStep('browser_test_success', true, 'Browser test page successful');
+
     } catch (error: any) {
-      this.logStep('browser_init', false, `Browser initialization failed: ${error.message}`);
-      throw new Error(`Failed to initialize Puppeteer browser: ${error.message}`);
+      this.logStep('browser_init_error', false, `Browser initialization failed: ${error.message}`);
+      throw new Error(`Failed to initialize Puppeteer: ${error.message}`);
     }
   }
 
-  private async findChromiumExecutable(): Promise<string> {
-    const fs = require('fs');
-    const path = require('path');
-    
-    // Common Chromium paths in Nix environments
+  private async findChromiumPath(): Promise<string> {
+    const { execSync } = require('child_process');
+
+    // Try to find Chromium in common locations
     const possiblePaths = [
-      '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium',
       '/usr/bin/chromium',
       '/usr/bin/chromium-browser',
       '/usr/bin/google-chrome',
-      '/usr/bin/google-chrome-stable',
-      process.env.PUPPETEER_EXECUTABLE_PATH
-    ].filter(Boolean);
+      '/usr/bin/google-chrome-stable'
+    ];
 
-    // Try to find a working executable
-    for (const execPath of possiblePaths) {
+    // Try `which` command first
+    try {
+      const whichResult = execSync('which chromium || which chromium-browser || which google-chrome', { encoding: 'utf8' }).trim();
+      if (whichResult) {
+        return whichResult;
+      }
+    } catch (e) {
+      // Continue to other methods
+    }
+
+    // Check if any of the common paths exist
+    const fs = require('fs');
+    for (const path of possiblePaths) {
       try {
-        if (fs.existsSync(execPath)) {
-          return execPath;
+        if (fs.existsSync(path)) {
+          return path;
         }
       } catch (e) {
-        // Continue to next path
+        // Continue
       }
     }
 
-    // If no specific path found, let Puppeteer handle it
-    return puppeteer.executablePath();
+    // Let Puppeteer find it
+    try {
+      return puppeteer.executablePath();
+    } catch (e) {
+      throw new Error('No Chromium executable found. Please install chromium-browser.');
+    }
   }
 
   async cleanup(): Promise<void> {
     if (this.browser) {
       try {
         await this.browser.close();
-        this.logStep('cleanup', true, 'Browser closed successfully');
+        this.logStep('cleanup_success', true, 'Browser closed successfully');
       } catch (error: any) {
-        this.logStep('cleanup', false, `Cleanup error: ${error.message}`);
+        this.logStep('cleanup_error', false, `Cleanup error: ${error.message}`);
       }
+      this.browser = null;
     }
   }
 
@@ -130,82 +151,84 @@ export class PuppeteerExtractor {
   async extractFromDomain(domain: string): Promise<PuppeteerExtractionResult> {
     const startTime = Date.now();
     this.steps = [];
-    
+
     if (!this.browser) {
       throw new Error('Browser not initialized. Call initialize() first.');
     }
 
     let page: puppeteer.Page | null = null;
-    
+
     try {
-      // Create new page with timeout
+      this.logStep('page_create', true, 'Creating new page');
       page = await this.browser.newPage();
-      await page.setDefaultTimeout(20000);
-      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-      
-      // Set viewport
+
+      // Set reasonable timeouts
+      await page.setDefaultTimeout(15000);
+      await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
       await page.setViewport({ width: 1920, height: 1080 });
-      
-      this.logStep('page_setup', true, 'Page created and configured');
-      
+
+      this.logStep('page_config', true, 'Page configured');
+
       // Navigate to domain
       const url = domain.startsWith('http') ? domain : `https://${domain}`;
+      this.logStep('navigation_start', true, `Navigating to ${url}`);
+
       const response = await page.goto(url, { 
-        waitUntil: 'networkidle2',
-        timeout: 20000 
+        waitUntil: 'domcontentloaded',
+        timeout: 15000 
       });
-      
+
       const httpStatus = response?.status() || 0;
-      this.logStep('navigation', httpStatus < 400, `Loaded ${url} with status ${httpStatus}`);
-      
+      this.logStep('navigation_complete', httpStatus < 400, `Navigation completed with status ${httpStatus}`);
+
       if (httpStatus >= 400) {
         throw new Error(`HTTP ${httpStatus} - Failed to load page`);
       }
-      
-      // Wait for content to load
-      await page.waitForTimeout(2000);
-      
-      // Extract comprehensive data
-      const extractionResult = await this.performExtraction(page, domain);
-      
+
+      // Wait a bit for content to stabilize
+      await page.waitForTimeout(1000);
+
+      // Extract basic information
+      const extraction = await this.performBasicExtraction(page);
+
       const result: PuppeteerExtractionResult = {
         processingTimeMs: Date.now() - startTime,
-        success: !!extractionResult.companyName,
+        success: !!extraction.companyName,
         error: null,
-        companyName: extractionResult.companyName,
-        companyConfidence: extractionResult.companyConfidence,
-        companyExtractionMethod: extractionResult.companyExtractionMethod,
-        detectedCountry: extractionResult.detectedCountry,
-        countryConfidence: extractionResult.countryConfidence,
-        geoMarkers: JSON.stringify(extractionResult.geoMarkers),
-        termsUrl: extractionResult.termsUrl,
-        privacyUrl: extractionResult.privacyUrl,
-        legalUrls: JSON.stringify(extractionResult.legalUrls),
-        legalContentExtracted: extractionResult.legalUrls.length > 0,
-        aboutUrl: extractionResult.aboutUrl,
-        aboutContent: extractionResult.aboutContent,
-        aboutExtractionSuccess: !!extractionResult.aboutContent,
-        socialMediaLinks: JSON.stringify(extractionResult.socialMediaLinks),
-        socialMediaCount: Object.keys(extractionResult.socialMediaLinks).length,
-        contactEmails: JSON.stringify(extractionResult.contactEmails),
-        contactPhones: JSON.stringify(extractionResult.contactPhones),
-        contactAddresses: JSON.stringify(extractionResult.contactAddresses),
-        hasContactPage: extractionResult.hasContactPage,
-        rawHtmlSize: extractionResult.rawHtmlSize,
-        rawExtractionData: JSON.stringify(extractionResult.rawData),
-        pageMetadata: JSON.stringify(extractionResult.pageMetadata),
+        companyName: extraction.companyName,
+        companyConfidence: extraction.confidence,
+        companyExtractionMethod: extraction.method,
+        detectedCountry: extraction.country,
+        countryConfidence: extraction.countryConfidence,
+        geoMarkers: JSON.stringify(extraction.geoMarkers),
+        termsUrl: extraction.termsUrl,
+        privacyUrl: extraction.privacyUrl,
+        legalUrls: JSON.stringify(extraction.legalUrls),
+        legalContentExtracted: extraction.legalUrls.length > 0,
+        aboutUrl: extraction.aboutUrl,
+        aboutContent: extraction.aboutContent,
+        aboutExtractionSuccess: !!extraction.aboutContent,
+        socialMediaLinks: JSON.stringify(extraction.socialLinks),
+        socialMediaCount: Object.keys(extraction.socialLinks).length,
+        contactEmails: JSON.stringify(extraction.emails),
+        contactPhones: JSON.stringify(extraction.phones),
+        contactAddresses: JSON.stringify(extraction.addresses),
+        hasContactPage: extraction.hasContactPage,
+        rawHtmlSize: extraction.htmlSize,
+        rawExtractionData: JSON.stringify(extraction),
+        pageMetadata: JSON.stringify(extraction.metadata),
         httpStatus,
         renderRequired: true,
         javascriptErrors: JSON.stringify([]),
         extractionSteps: JSON.stringify(this.steps)
       };
-      
-      this.logStep('extraction_complete', true, `Extracted data for ${domain}`);
+
+      this.logStep('extraction_complete', true, `Successfully extracted data for ${domain}`);
       return result;
-      
+
     } catch (error: any) {
-      this.logStep('extraction_error', false, error.message);
-      
+      this.logStep('extraction_error', false, `Extraction failed: ${error.message}`);
+
       return {
         processingTimeMs: Date.now() - startTime,
         success: false,
@@ -215,7 +238,7 @@ export class PuppeteerExtractor {
         companyExtractionMethod: null,
         detectedCountry: null,
         countryConfidence: 0,
-        geoMarkers: JSON.stringify({ addresses: [], phones: [], currencies: [], languages: [], postalCodes: [] }),
+        geoMarkers: JSON.stringify({}),
         termsUrl: null,
         privacyUrl: null,
         legalUrls: JSON.stringify([]),
@@ -248,322 +271,146 @@ export class PuppeteerExtractor {
     }
   }
 
-  private async performExtraction(page: puppeteer.Page, domain: string) {
-    // Extract basic page data
-    const title = await page.title();
-    const htmlSize = await page.evaluate(() => document.documentElement.outerHTML.length);
-    
-    // Company name extraction with multiple methods
-    const companyResult = await this.extractCompanyName(page);
-    this.logStep('company_extraction', !!companyResult.name, `Company: ${companyResult.name || 'none'}`);
-    
-    // Geographic markers
-    const geoResult = await this.extractGeographicMarkers(page, domain);
-    this.logStep('geo_extraction', geoResult.markers.length > 0, `Geo markers: ${geoResult.markers.length}`);
-    
-    // Legal documents
-    const legalResult = await this.extractLegalDocuments(page);
-    this.logStep('legal_extraction', legalResult.length > 0, `Legal docs: ${legalResult.length}`);
-    
-    // Social media links
-    const socialResult = await this.extractSocialMedia(page);
-    this.logStep('social_extraction', Object.keys(socialResult).length > 0, `Social links: ${Object.keys(socialResult).length}`);
-    
-    // Contact information
-    const contactResult = await this.extractContactInfo(page);
-    this.logStep('contact_extraction', contactResult.emails.length > 0, `Contacts: ${contactResult.emails.length} emails`);
-    
-    // About information
-    const aboutResult = await this.extractAboutInfo(page);
-    this.logStep('about_extraction', !!aboutResult.url, `About: ${aboutResult.url ? 'found' : 'none'}`);
-    
-    // Page metadata
-    const metadata = await page.evaluate(() => ({
-      title: document.title,
-      charset: document.characterSet,
-      lang: document.documentElement.lang,
-      viewport: document.querySelector('meta[name="viewport"]')?.getAttribute('content') || null
-    }));
-    
-    return {
-      companyName: companyResult.name,
-      companyConfidence: companyResult.confidence,
-      companyExtractionMethod: companyResult.method,
-      detectedCountry: geoResult.country,
-      countryConfidence: geoResult.countryConfidence,
-      geoMarkers: {
-        addresses: geoResult.markers.filter(m => m.type === 'address').map(m => m.value),
-        phones: geoResult.markers.filter(m => m.type === 'phone').map(m => m.value),
-        currencies: geoResult.markers.filter(m => m.type === 'currency').map(m => m.value),
-        languages: geoResult.markers.filter(m => m.type === 'language').map(m => m.value),
-        postalCodes: geoResult.markers.filter(m => m.type === 'postal').map(m => m.value)
-      },
-      termsUrl: legalResult.find(l => l.type === 'terms')?.url || null,
-      privacyUrl: legalResult.find(l => l.type === 'privacy')?.url || null,
-      legalUrls: legalResult,
-      aboutUrl: aboutResult.url,
-      aboutContent: aboutResult.content,
-      socialMediaLinks: socialResult,
-      contactEmails: contactResult.emails,
-      contactPhones: contactResult.phones,
-      contactAddresses: contactResult.addresses,
-      hasContactPage: contactResult.hasContactPage,
-      rawHtmlSize: htmlSize,
-      rawData: {
-        title,
-        domain,
-        extractionSummary: {
-          company: companyResult,
-          geo: geoResult,
-          legal: legalResult,
-          social: socialResult,
-          contact: contactResult,
-          about: aboutResult
-        }
-      },
-      pageMetadata: metadata
-    };
-  }
-
-  private async extractCompanyName(page: puppeteer.Page) {
+  private async performBasicExtraction(page: puppeteer.Page) {
     try {
-      const result = await page.evaluate(() => {
-        // Method 1: Structured data (JSON-LD)
-        const jsonLd = document.querySelector('script[type="application/ld+json"]');
-        if (jsonLd) {
-          try {
-            const data = JSON.parse(jsonLd.textContent || '');
-            const name = data.name || (data.organization && data.organization.name);
-            if (name) return { name, method: 'structured_data', confidence: 90 };
-          } catch (e) {
-            // Continue
-          }
-        }
-        
-        // Method 2: Meta tags
-        const ogSiteName = document.querySelector('meta[property="og:site_name"]');
-        const appName = document.querySelector('meta[name="application-name"]');
-        const metaName = ogSiteName?.getAttribute('content') || appName?.getAttribute('content');
-        if (metaName) {
-          return { name: metaName.trim(), method: 'meta_property', confidence: 85 };
-        }
-        
-        // Method 3: Footer copyright
-        const footer = document.querySelector('footer');
-        if (footer) {
-          const footerText = footer.textContent || '';
-          const copyrightMatch = footerText.match(/©\s*\d{4}\s*([^.]+?)(?:\.|All|$)/i);
-          if (copyrightMatch) {
-            return { name: copyrightMatch[1].trim(), method: 'footer_copyright', confidence: 75 };
-          }
-        }
-        
-        // Method 4: Page title
-        const title = document.title;
-        if (title && title !== 'Example Domain') {
-          const cleanTitle = title.split(/[-|]/)[0].trim();
-          return { name: cleanTitle, method: 'title_tag', confidence: 60 };
-        }
-        
-        return { name: null, method: null, confidence: 0 };
-      });
-      
-      return result;
-    } catch (error) {
-      return { name: null, method: null, confidence: 0 };
-    }
-  }
+      const data = await page.evaluate(() => {
+        // Company name extraction
+        let companyName = null;
+        let method = null;
+        let confidence = 0;
 
-  private async extractGeographicMarkers(page: puppeteer.Page, domain: string) {
-    try {
-      const result = await page.evaluate(() => {
-        const text = document.body.textContent || '';
-        const markers: any[] = [];
-        
-        // Phone numbers
-        const phoneRegex = /(\+\d{1,4}[\s.-]?)?\(?\d{1,4}\)?[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}/g;
-        const phones = text.match(phoneRegex) || [];
-        phones.slice(0, 3).forEach(phone => {
-          if (phone.length >= 10 && phone.length <= 20) {
-            markers.push({ type: 'phone', value: phone });
-          }
-        });
-        
-        // Postal codes
-        const postalRegex = /\b\d{5}(-\d{4})?\b|\b[A-Z]\d[A-Z]\s?\d[A-Z]\d\b/g;
-        const postals = text.match(postalRegex) || [];
-        postals.slice(0, 3).forEach(postal => {
-          markers.push({ type: 'postal', value: postal });
-        });
-        
-        // Currency symbols
-        if (text.includes('$')) markers.push({ type: 'currency', value: 'USD' });
-        if (text.includes('€')) markers.push({ type: 'currency', value: 'EUR' });
-        if (text.includes('£')) markers.push({ type: 'currency', value: 'GBP' });
-        if (text.includes('¥')) markers.push({ type: 'currency', value: 'JPY/CNY' });
-        
-        // Language detection
-        const htmlLang = document.documentElement.lang;
-        if (htmlLang) {
-          markers.push({ type: 'language', value: htmlLang });
-        }
-        
-        return { markers };
-      });
-      
-      // Country detection from TLD
-      const tld = domain.split('.').pop();
-      const tldCountryMap: Record<string, string> = {
-        'uk': 'GB', 'de': 'DE', 'fr': 'FR', 'jp': 'JP', 'cn': 'CN',
-        'ca': 'CA', 'au': 'AU', 'in': 'IN', 'br': 'BR', 'mx': 'MX'
-      };
-      
-      let country = null;
-      let countryConfidence = 0;
-      
-      if (tldCountryMap[tld || '']) {
-        country = tldCountryMap[tld || ''];
-        countryConfidence = 85;
-      }
-      
-      return { 
-        markers: result.markers, 
-        country, 
-        countryConfidence 
-      };
-    } catch (error) {
-      return { markers: [], country: null, countryConfidence: 0 };
-    }
-  }
-
-  private async extractLegalDocuments(page: puppeteer.Page) {
-    try {
-      return await page.evaluate(() => {
-        const links = Array.from(document.querySelectorAll('a'));
-        const legalUrls: any[] = [];
-        
-        for (const link of links) {
-          const href = link.href;
-          const text = (link.textContent || '').toLowerCase();
-          
-          if (text.includes('terms') || text.includes('conditions') || href.includes('terms')) {
-            legalUrls.push({ type: 'terms', url: href });
-          }
-          if (text.includes('privacy') || href.includes('privacy')) {
-            legalUrls.push({ type: 'privacy', url: href });
-          }
-          if (text.includes('cookie') || href.includes('cookie')) {
-            legalUrls.push({ type: 'cookies', url: href });
-          }
-          if (text.includes('legal') || href.includes('legal')) {
-            legalUrls.push({ type: 'legal', url: href });
-          }
-        }
-        
-        return legalUrls.slice(0, 10);
-      });
-    } catch (error) {
-      return [];
-    }
-  }
-
-  private async extractSocialMedia(page: puppeteer.Page) {
-    try {
-      return await page.evaluate(() => {
-        const allLinks = Array.from(document.querySelectorAll('a'));
-        const socialLinks: Record<string, string> = {};
-        
-        const patterns = [
-          ['twitter', /twitter\.com|x\.com/i],
-          ['linkedin', /linkedin\.com/i],
-          ['facebook', /facebook\.com/i],
-          ['instagram', /instagram\.com/i],
-          ['youtube', /youtube\.com/i],
-          ['github', /github\.com/i],
-          ['tiktok', /tiktok\.com/i]
+        // Try meta tags
+        const metaSelectors = [
+          'meta[property="og:site_name"]',
+          'meta[name="application-name"]',
+          'meta[property="og:title"]'
         ];
-        
-        for (const link of allLinks) {
-          const href = link.href || '';
-          for (const [platform, pattern] of patterns) {
-            if (pattern.test(href) && !socialLinks[platform]) {
-              socialLinks[platform] = href;
+
+        for (const selector of metaSelectors) {
+          const meta = document.querySelector(selector);
+          if (meta) {
+            const content = meta.getAttribute('content');
+            if (content && content.trim()) {
+              companyName = content.trim();
+              method = `meta_${selector.split('[')[1].split('=')[0]}`;
+              confidence = 85;
+              break;
             }
           }
         }
-        
-        return socialLinks;
-      });
-    } catch (error) {
-      return {};
-    }
-  }
 
-  private async extractContactInfo(page: puppeteer.Page) {
-    try {
-      return await page.evaluate(() => {
-        const text = document.body.textContent || '';
-        
-        // Extract emails
-        const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-        const emailMatches = text.match(emailRegex) || [];
-        const emails = Array.from(new Set(emailMatches))
-          .filter(email => !email.includes('example.com') && !email.includes('@2x'))
-          .slice(0, 5);
-        
-        // Extract phone numbers
-        const phoneRegex = /(\+?\d{1,4}[\s.-]?)?\(?\d{1,4}\)?[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}/g;
-        const phoneMatches = text.match(phoneRegex) || [];
-        const phones = Array.from(new Set(phoneMatches))
-          .filter(phone => phone.length >= 10 && phone.length <= 20)
-          .slice(0, 5);
-        
-        // Extract addresses
-        const addressRegex = /\d+\s+[\w\s]+(?:street|st|avenue|ave|road|rd|boulevard|blvd|lane|ln|drive|dr|court|ct|plaza|place|pl)[\s,]+[\w\s]+/gi;
-        const addressMatches = text.match(addressRegex) || [];
-        const addresses = Array.from(new Set(addressMatches)).slice(0, 3);
-        
-        // Check for contact page
-        const contactLinks = document.querySelectorAll('a[href*="contact"]');
-        const hasContactPage = contactLinks.length > 0 || text.toLowerCase().includes('contact us');
-        
-        return { emails, phones, addresses, hasContactPage };
-      });
-    } catch (error) {
-      return { emails: [], phones: [], addresses: [], hasContactPage: false };
-    }
-  }
-
-  private async extractAboutInfo(page: puppeteer.Page) {
-    try {
-      const aboutUrl = await page.evaluate(() => {
-        const links = Array.from(document.querySelectorAll('a'));
-        const aboutLink = links.find(a => {
-          const text = (a.textContent || '').toLowerCase();
-          const href = a.href.toLowerCase();
-          return text.includes('about') || text.includes('company') || href.includes('about') || href.includes('company');
-        });
-        return aboutLink?.href || null;
-      });
-      
-      let content = null;
-      if (aboutUrl) {
-        try {
-          const newPage = await this.browser!.newPage();
-          await newPage.goto(aboutUrl, { waitUntil: 'networkidle0', timeout: 10000 });
-          content = await newPage.evaluate(() => {
-            const main = document.querySelector('main') || document.querySelector('.content') || document.body;
-            return main?.textContent?.substring(0, 500) || null;
-          });
-          await newPage.close();
-        } catch (e) {
-          // Failed to load about page
+        // Try title if no meta found
+        if (!companyName) {
+          const title = document.title;
+          if (title && title.trim()) {
+            companyName = title.split(/[-|]/)[0].trim();
+            method = 'title_tag';
+            confidence = 60;
+          }
         }
-      }
-      
-      return { url: aboutUrl, content };
-    } catch (error) {
-      return { url: null, content: null };
+
+        // Try h1 if still no company found
+        if (!companyName) {
+          const h1 = document.querySelector('h1');
+          if (h1 && h1.textContent) {
+            const text = h1.textContent.trim();
+            if (text.length > 2 && text.length < 100) {
+              companyName = text;
+              method = 'h1_tag';
+              confidence = 50;
+            }
+          }
+        }
+
+        // Basic extraction of other data
+        const links = Array.from(document.querySelectorAll('a'));
+        const legalUrls = [];
+        const socialLinks = {};
+
+        for (const link of links.slice(0, 50)) { // Limit to first 50 links
+          const href = link.href || '';
+          const text = (link.textContent || '').toLowerCase();
+
+          // Legal documents
+          if (text.includes('privacy') || href.includes('privacy')) {
+            legalUrls.push({ type: 'privacy', url: href });
+          }
+          if (text.includes('terms') || href.includes('terms')) {
+            legalUrls.push({ type: 'terms', url: href });
+          }
+
+          // Social media
+          if (href.includes('twitter.com') || href.includes('x.com')) {
+            socialLinks['twitter'] = href;
+          }
+          if (href.includes('linkedin.com')) {
+            socialLinks['linkedin'] = href;
+          }
+          if (href.includes('facebook.com')) {
+            socialLinks['facebook'] = href;
+          }
+        }
+
+        // Extract emails and phones from text
+        const bodyText = document.body.textContent || '';
+        const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+        const phoneRegex = /(\+?\d{1,4}[\s.-]?)?\(?\d{1,4}\)?[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}/g;
+
+        const emails = Array.from(new Set((bodyText.match(emailRegex) || [])
+          .filter(email => !email.includes('example.com'))
+          .slice(0, 3)));
+
+        const phones = Array.from(new Set((bodyText.match(phoneRegex) || [])
+          .filter(phone => phone.length >= 10 && phone.length <= 20)
+          .slice(0, 3)));
+
+        return {
+          companyName,
+          method,
+          confidence,
+          legalUrls: legalUrls.slice(0, 5),
+          socialLinks,
+          emails,
+          phones,
+          addresses: [], // Skip complex address extraction for now
+          hasContactPage: links.some(l => (l.textContent || '').toLowerCase().includes('contact')),
+          aboutUrl: links.find(l => (l.textContent || '').toLowerCase().includes('about'))?.href || null,
+          htmlSize: document.documentElement.outerHTML.length,
+          metadata: {
+            title: document.title,
+            lang: document.documentElement.lang,
+            charset: document.characterSet
+          },
+          country: null,
+          countryConfidence: 0,
+          geoMarkers: {},
+          aboutContent: null
+        };
+      });
+
+      this.logStep('basic_extraction', true, `Extracted company: ${data.companyName || 'none'}`);
+      return data;
+
+    } catch (error: any) {
+      this.logStep('basic_extraction_error', false, `Extraction error: ${error.message}`);
+      return {
+        companyName: null,
+        method: null,
+        confidence: 0,
+        legalUrls: [],
+        socialLinks: {},
+        emails: [],
+        phones: [],
+        addresses: [],
+        hasContactPage: false,
+        aboutUrl: null,
+        htmlSize: 0,
+        metadata: {},
+        country: null,
+        countryConfidence: 0,
+        geoMarkers: {},
+        aboutContent: null
+      };
     }
   }
 }
