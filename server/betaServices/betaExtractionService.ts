@@ -1,5 +1,8 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import { runPerplexityExtraction } from './standalonePerplexity';
+import { runAxiosCheerioExtraction } from './standaloneAxiosCheerio';
+import { runPuppeteerExtraction } from './standalonePuppeteer';
 
 interface BetaExtractionResult {
   domain: string;
@@ -128,22 +131,37 @@ export class BetaExtractionService {
     }
   }
 
-  
-
-  // Note: We'll simulate puppeteer since it's similar to playwright
-  // In a real implementation, you'd import puppeteer and implement similarly
   async testWithPuppeteer(domain: string): Promise<BetaExtractionResult> {
-    // For now, return a message that puppeteer isn't implemented
-    return {
-      domain,
-      method: 'puppeteer',
-      companyName: null,
-      confidence: 0,
-      processingTime: 0,
-      success: false,
-      error: 'Puppeteer not implemented in beta - use axios_cheerio instead',
-      extractionMethod: null,
-      technicalDetails: 'Puppeteer implementation not available in beta environment'
-    };
+    console.log(`[Beta] [Beta] Testing ${domain} with puppeteer...`);
+
+    try {
+      // Use the standalone Puppeteer function
+      const result = await runPuppeteerExtraction(domain);
+
+      return {
+        domain,
+        method: 'puppeteer',
+        companyName: result.companyName,
+        confidence: result.companyConfidence,
+        processingTime: result.processingTimeMs,
+        success: result.success,
+        error: result.error,
+        extractionMethod: result.companyExtractionMethod,
+        technicalDetails: null
+      };
+    } catch (error: any) {
+      console.error(`[Beta] Puppeteer extraction failed for ${domain}:`, error);
+      return {
+        domain,
+        method: 'puppeteer',
+        companyName: null,
+        confidence: 0,
+        processingTime: 0,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        extractionMethod: null,
+        technicalDetails: null
+      };
+    }
   }
 }
