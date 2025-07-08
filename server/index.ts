@@ -10,6 +10,21 @@ import changesRoutes from './routes-changes';
 import { spawn } from 'child_process';
 import axios from 'axios';
 
+// Simple process cleanup function for port conflicts
+async function killConflictingProcesses() {
+  const { exec } = await import('child_process');
+  return new Promise<void>((resolve) => {
+    exec('fuser -k 5000/tcp 2>/dev/null || true', () => {
+      exec('fuser -k 3001/tcp 2>/dev/null || true', () => {
+        setTimeout(() => {
+          log('🔧 Cleared port conflicts');
+          resolve();
+        }, 1000);
+      });
+    });
+  });
+}
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -167,14 +182,26 @@ process.on('unhandledRejection', (reason, promise) => {
   // It is the only port that is not firewalled.
   const port = 5000;
   
-  // Add error handling for server startup
-  server.on('error', (error: any) => {
-    if (error.code === 'EADDRINUSE') {
-      log(`❌ Port ${port} is already in use. Retrying in 3 seconds...`);
+  // Add error handling for server startup with retry limits
+  let retryCount = 0;
+  const maxRetries = 3;
+  
+  server.on('error', async (error: any) => {
+    if (error.code === 'EADDRINUSE' && retryCount < maxRetries) {
+      retryCount++;
+      log(`❌ Port ${port} is already in use. Attempt ${retryCount}/${maxRetries} to resolve...`);
+      
+      // Kill processes using the port
+      await killConflictingProcesses();
+      
       setTimeout(() => {
+        log(`🔄 Retrying server startup on port ${port}...`);
         server.close();
         server.listen({ port, host: "0.0.0.0", reusePort: true });
-      }, 3000);
+      }, 2000);
+    } else if (error.code === 'EADDRINUSE') {
+      log(`❌ Failed to start server after ${maxRetries} attempts. Port ${port} is permanently blocked.`);
+      process.exit(1);
     } else {
       log(`❌ Server error: ${error.message}`);
     }
