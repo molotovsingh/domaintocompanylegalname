@@ -211,7 +211,7 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
       }
     });
 
-    // Update the smoke test endpoint to use the initialized extractors
+    // Update the smoke test endpoint - independent extractor evaluation (no fallbacks)
     app.post('/api/beta/smoke-test', async (req, res) => {
       const { domain, method } = req.body;
 
@@ -228,7 +228,7 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
         });
       }
 
-      console.log(`🧪 [Beta] Starting ${method} extraction for ${domain}`);
+      console.log(`🧪 [Beta] Starting independent ${method} extraction for ${domain}`);
 
       try {
         let result: any = null;
@@ -236,90 +236,56 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
         switch (method) {
           case 'axios_cheerio':
             if (!axiosCheerioExtractor) {
-              // Fallback to another extractor
-              if (perplexityExtractor) {
-                console.log(`🔄 [Beta] Falling back to Perplexity for ${domain} (Axios/Cheerio not available)`);
-                result = await perplexityExtractor.extractFromDomain(domain);
-              } else {
-                throw new Error('Axios/Cheerio extractor not available and no fallback extractor');
-              }
-            } else {
-              console.log(`🔧 [Beta] Using Axios/Cheerio extractor for ${domain}`);
-              result = await axiosCheerioExtractor.extractFromDomain(domain);
+              throw new Error('Axios/Cheerio extractor not available - independent evaluation failed');
             }
+            console.log(`🔧 [Beta] Using Axios/Cheerio extractor for ${domain}`);
+            result = await axiosCheerioExtractor.extractFromDomain(domain);
             break;
 
           case 'puppeteer':
             if (!puppeteerExtractor) {
-              // Fallback to Axios/Cheerio
-              if (axiosCheerioExtractor) {
-                console.log(`🔄 [Beta] Falling back to Axios/Cheerio for ${domain} (Puppeteer not available)`);
-                result = await axiosCheerioExtractor.extractFromDomain(domain);
-              } else if (perplexityExtractor) {
-                console.log(`🔄 [Beta] Falling back to Perplexity for ${domain} (Puppeteer not available)`);
-                result = await perplexityExtractor.extractFromDomain(domain);
-              } else {
-                throw new Error('Puppeteer extractor not available and no fallback extractor');
-              }
-            } else {
-              console.log(`🔧 [Beta] Using Puppeteer extractor for ${domain}`);
-              result = await puppeteerExtractor.extractFromDomain(domain);
+              throw new Error('Puppeteer extractor not available - independent evaluation failed');
             }
+            console.log(`🔧 [Beta] Using Puppeteer extractor for ${domain}`);
+            result = await puppeteerExtractor.extractFromDomain(domain);
             break;
 
           case 'playwright':
             if (!playwrightExtractor) {
-              // Fallback to Axios/Cheerio
-              if (axiosCheerioExtractor) {
-                console.log(`🔄 [Beta] Falling back to Axios/Cheerio for ${domain} (Playwright not available)`);
-                result = await axiosCheerioExtractor.extractFromDomain(domain);
-              } else if (perplexityExtractor) {
-                console.log(`🔄 [Beta] Falling back to Perplexity for ${domain} (Playwright not available)`);
-                result = await perplexityExtractor.extractFromDomain(domain);
-              } else {
-                throw new Error('Playwright extractor not available and no fallback extractor');
-              }
-            } else {
-              console.log(`🔧 [Beta] Using Playwright extractor for ${domain}`);
-              const playwrightResult = await playwrightExtractor.extractFromDomain(domain);
-
-              // Map Playwright result to expected format
-              result = {
-                success: playwrightResult.success,
-                data: {
-                  companyName: playwrightResult.companyName,
-                  confidence: playwrightResult.companyConfidence,
-                  extractionMethod: playwrightResult.companyExtractionMethod,
-                  legalEntityType: playwrightResult.legalEntityType,
-                  country: playwrightResult.detectedCountry,
-                  sources: playwrightResult.sources,
-                  technicalDetails: playwrightResult.technicalDetails
-                },
-                error: playwrightResult.error
-              };
+              throw new Error('Playwright extractor not available - independent evaluation failed');
             }
+            console.log(`🔧 [Beta] Using Playwright extractor for ${domain}`);
+            const playwrightResult = await playwrightExtractor.extractFromDomain(domain);
+
+            // Map Playwright result to expected format
+            result = {
+              success: playwrightResult.success,
+              data: {
+                companyName: playwrightResult.companyName,
+                confidence: playwrightResult.companyConfidence,
+                extractionMethod: playwrightResult.companyExtractionMethod,
+                legalEntityType: playwrightResult.legalEntityType,
+                country: playwrightResult.detectedCountry,
+                sources: playwrightResult.sources,
+                technicalDetails: playwrightResult.technicalDetails
+              },
+              error: playwrightResult.error
+            };
             break;
 
           case 'perplexity_llm':
             if (!perplexityExtractor) {
-              // Fallback to Axios/Cheerio
-              if (axiosCheerioExtractor) {
-                console.log(`🔄 [Beta] Falling back to Axios/Cheerio for ${domain} (Perplexity not available)`);
-                result = await axiosCheerioExtractor.extractFromDomain(domain);
-              } else {
-                throw new Error('Perplexity extractor not available and no fallback extractor');
-              }
-            } else {
-              console.log(`🔧 [Beta] Using Perplexity extractor for ${domain}`);
-              result = await perplexityExtractor.extractFromDomain(domain);
+              throw new Error('Perplexity extractor not available - independent evaluation failed');
             }
+            console.log(`🔧 [Beta] Using Perplexity extractor for ${domain}`);
+            result = await perplexityExtractor.extractFromDomain(domain);
             break;
 
           default:
             return res.status(400).json({ error: 'Invalid method' });
         }
 
-        console.log(`✅ [Beta] ${method} extraction completed for ${domain}:`, result?.success ? 'SUCCESS' : 'FAILED');
+        console.log(`✅ [Beta] Independent ${method} extraction completed for ${domain}:`, result?.success ? 'SUCCESS' : 'FAILED');
 
         // Store in beta database with experiment ID
         const dbResult = await betaDb.insert(betaSmokeTests).values({
@@ -338,7 +304,7 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
         res.json({ success: true, data: responseData });
 
       } catch (error: any) {
-        console.error(`❌ [Beta] Error in ${method} smoke test for ${domain}:`, error.message);
+        console.error(`❌ [Beta] Independent ${method} evaluation failed for ${domain}:`, error.message);
 
         // Store failure in database
         try {

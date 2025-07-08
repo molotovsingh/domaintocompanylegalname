@@ -411,7 +411,7 @@ export class PuppeteerExtractor {
     }
   }
 
-  // Main extraction method with intelligent routing
+  // Main extraction method - Puppeteer only, no fallbacks (independent evaluation)
   async extractFromDomain(
     domain: string,
     useCache: boolean = true,
@@ -441,59 +441,23 @@ export class PuppeteerExtractor {
           false,
           `Browser initialization failed: ${initError.message}`,
         );
-        // Fallback to Axios/Cheerio only
-        try {
-          return await this.extractWithAxiosCheerio(domain, startTime);
-        } catch (axiosError) {
-          return this.createErrorResult(
-            domain,
-            startTime,
-            `Browser unavailable and Axios failed: ${axiosError.message}`,
-          );
-        }
+        return this.createErrorResult(
+          domain,
+          startTime,
+          `Puppeteer browser initialization failed: ${initError.message}`,
+        );
       }
     }
 
     try {
-      // Smart routing decision
-      const usePuppeteer = await this.shouldUsePuppeteer(domain);
       this.logStep(
-        "routing_decision",
+        "extraction_start",
         true,
-        `Using ${usePuppeteer ? "Puppeteer" : "Axios/Cheerio"} for ${domain}`,
+        `Starting Puppeteer-only extraction for ${domain}`,
       );
 
-      let result: ExtractorResult;
-
-      if (usePuppeteer) {
-        // Try Puppeteer first
-        try {
-          result = await this.extractWithPuppeteer(domain, startTime);
-        } catch (puppeteerError) {
-          this.logStep(
-            "puppeteer_fallback",
-            false,
-            `Puppeteer failed: ${puppeteerError.message}`,
-          );
-
-          // Fallback to axios/cheerio
-          result = await this.extractWithAxiosCheerio(domain, startTime);
-        }
-      } else {
-        // Try Axios/Cheerio first
-        try {
-          result = await this.extractWithAxiosCheerio(domain, startTime);
-        } catch (axiosError) {
-          this.logStep(
-            "axios_fallback",
-            false,
-            `Axios failed: ${axiosError.message}`,
-          );
-
-          // Fallback to Puppeteer
-          result = await this.extractWithPuppeteer(domain, startTime);
-        }
-      }
+      // Use Puppeteer only - no fallbacks for independent evaluation
+      const result = await this.extractWithPuppeteer(domain, startTime);
 
       // Cache successful results
       if (result.success && useCache) {
@@ -505,12 +469,12 @@ export class PuppeteerExtractor {
       this.logStep(
         "extraction_error",
         false,
-        `All methods failed: ${error.message}`,
+        `Puppeteer extraction failed: ${error.message}`,
       );
       return this.createErrorResult(
         domain,
         startTime,
-        `Extraction failed: ${error.message}`,
+        `Puppeteer extraction failed: ${error.message}`,
       );
     }
   }
