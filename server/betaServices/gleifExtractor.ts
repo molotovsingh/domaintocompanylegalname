@@ -142,14 +142,33 @@ export class GLEIFExtractor {
 
       console.log(`[GLEIF] API Request: ${searchUrl}`);
 
-      const response: AxiosResponse<GLEIFApiResponse> = await axios.get(searchUrl, {
+      const response: AxiosResponse<any> = await axios.get(searchUrl, {
         headers: this.headers,
-        timeout: 10000
+        timeout: 10000,
+        validateStatus: (status) => status < 500 // Accept 4xx responses as well
       });
 
+      // Check if response is HTML (error page) instead of JSON
+      const contentType = response.headers['content-type'] || '';
+      if (contentType.includes('text/html')) {
+        console.error(`[GLEIF] API returned HTML error page instead of JSON (status: ${response.status})`);
+        throw new Error(`GLEIF API returned HTML error page (status: ${response.status})`);
+      }
+
       if (response.status === 200) {
+        // Validate response structure
+        if (!response.data || !Array.isArray(response.data.data)) {
+          console.error(`[GLEIF] Invalid response structure:`, response.data);
+          throw new Error('Invalid GLEIF API response structure');
+        }
+        
         console.log(`[GLEIF] API Success: Found ${response.data.data.length} entities`);
-        return response.data;
+        return response.data as GLEIFApiResponse;
+      }
+
+      if (response.status === 404) {
+        console.log(`[GLEIF] No entities found for search term: ${companyName}`);
+        return { data: [] };
       }
 
       console.log(`[GLEIF] API returned status ${response.status}`);
@@ -157,11 +176,20 @@ export class GLEIFExtractor {
 
     } catch (error: any) {
       if (error.response) {
+        const contentType = error.response.headers['content-type'] || '';
+        if (contentType.includes('text/html')) {
+          console.error(`[GLEIF] API Error: Received HTML error page (status: ${error.response.status})`);
+          throw new Error(`GLEIF API unavailable - received HTML error page (status: ${error.response.status})`);
+        }
         console.error(`[GLEIF] API Error: ${error.response.status} ${error.response.statusText}`);
+        throw new Error(`GLEIF API Error: ${error.response.status} ${error.response.statusText}`);
+      } else if (error.message.includes('JSON')) {
+        console.error(`[GLEIF] JSON Parse Error - API likely returned HTML:`, error.message);
+        throw new Error('GLEIF API returned invalid response format (likely HTML error page)');
       } else {
         console.error(`[GLEIF] Request Error:`, error.message);
+        throw new Error(`GLEIF API Request Failed: ${error.message}`);
       }
-      throw error;
     }
   }
 
@@ -255,17 +283,33 @@ export class GLEIFExtractor {
       
       console.log(`[GLEIF] LEI Search: ${url}`);
 
-      const response: AxiosResponse<{ data: GLEIFApiEntity }> = await axios.get(url, {
+      const response: AxiosResponse<any> = await axios.get(url, {
         headers: this.headers,
-        timeout: 10000
+        timeout: 10000,
+        validateStatus: (status) => status < 500
       });
 
+      // Check if response is HTML (error page) instead of JSON
+      const contentType = response.headers['content-type'] || '';
+      if (contentType.includes('text/html')) {
+        throw new Error(`GLEIF API returned HTML error page (status: ${response.status})`);
+      }
+
       if (response.status === 200) {
+        // Validate response structure
+        if (!response.data || !response.data.data) {
+          throw new Error('Invalid GLEIF API response structure for LEI search');
+        }
+        
         console.log(`[GLEIF] LEI Search Success for: ${leiCode}`);
         return this.formatGLEIFResult(response.data.data, 1);
       }
 
-      throw new Error(`LEI not found: ${response.status}`);
+      if (response.status === 404) {
+        throw new Error(`LEI code not found in GLEIF registry`);
+      }
+
+      throw new Error(`LEI search failed with status: ${response.status}`);
 
     } catch (error: any) {
       console.error(`[GLEIF] LEI Search Error for ${leiCode}:`, error.message);
