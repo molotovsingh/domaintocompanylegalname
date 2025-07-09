@@ -1,0 +1,245 @@
+#use this document to learn how to get data from GELIF
+
+
+import requests
+import json
+from urllib.parse import quote
+
+class GLEIFEnhancedSearch:
+    def __init__(self):
+        self.base_url = "https://api.gleif.org/api/v1"
+        self.headers = {
+            'Accept': 'application/vnd.api+json',
+            'User-Agent': 'GLEIF-Enhanced-Search/1.0'
+        }
+
+    def get_comprehensive_entity_data(self, company_name, max_results=5):
+        """
+        Get comprehensive entity data - FIXED VERSION
+        """
+        try:
+            url = f"{self.base_url}/lei-records"
+            # Remove the problematic include parameter
+            params = {
+                'filter[entity.legalName]': company_name,
+                'page[size]': max_results
+            }
+
+            response = requests.get(url, headers=self.headers, params=params, timeout=10)
+            response.raise_for_status()
+
+            data = response.json()
+
+            if not data.get('data'):
+                return self._fuzzy_search_enhanced(company_name, max_results)
+
+            return self._format_comprehensive_results(data['data'])
+
+        except Exception as e:
+            return {'error': f'API request failed: {str(e)}'}
+
+    def _fuzzy_search_enhanced(self, company_name, max_results):
+        """Enhanced fuzzy search - FIXED VERSION"""
+        try:
+            url = f"{self.base_url}/lei-records"
+            # Use wildcard search for fuzzy matching
+            params = {
+                'filter[entity.legalName]': f'*{company_name}*',
+                'page[size]': max_results
+            }
+
+            response = requests.get(url, headers=self.headers, params=params, timeout=10)
+            response.raise_for_status()
+
+            data = response.json()
+            return self._format_comprehensive_results(data.get('data', []))
+
+        except Exception:
+            return {'results': [], 'message': 'No matches found'}
+
+    def _format_comprehensive_results(self, raw_data):
+        """Format comprehensive entity data"""
+        results = []
+
+        for record in raw_data:
+            attributes = record.get('attributes', {})
+            entity = attributes.get('entity', {})
+            registration = attributes.get('registration', {})
+
+            # Extract all available fields safely
+            result = {
+                'lei': record.get('id', 'N/A'),
+                'legal_name': entity.get('legalName', {}).get('name', 'N/A'),
+                'legal_name_language': entity.get('legalName', {}).get('language', 'N/A'),
+
+                # Entity categorization
+                'entity_category': entity.get('category', 'N/A'),
+                'entity_sub_category': entity.get('subCategory', 'N/A'),
+                'entity_status': entity.get('status', 'N/A'),
+
+                # Legal form and jurisdiction
+                'legal_form': entity.get('legalForm', {}).get('id', 'N/A'),
+                'legal_form_other': entity.get('legalForm', {}).get('other', 'N/A'),
+                'jurisdiction': entity.get('jurisdiction', 'N/A'),
+
+                # Creation and successor information
+                'creation_date': entity.get('creationDate', 'N/A'),
+                'successor_entities': self._extract_successor_entities(entity.get('successorEntities', [])),
+
+                # Address information
+                'legal_address': self._format_address(entity.get('legalAddress', {})),
+                'headquarters_address': self._format_address(entity.get('headquartersAddress', {})),
+                'other_addresses': [self._format_address(addr) for addr in entity.get('otherAddresses', [])],
+
+                # Alternative names
+                'other_names': [{'name': name.get('name'), 'type': name.get('type'), 'language': name.get('language')}
+                               for name in entity.get('otherNames', [])],
+
+                # Registration details
+                'registration_status': registration.get('registrationStatus', 'N/A'),
+                'registration_date': registration.get('initialRegistrationDate', 'N/A'),
+                'last_update_date': registration.get('lastUpdateDate', 'N/A'),
+                'next_renewal_date': registration.get('nextRenewalDate', 'N/A'),
+                'managing_lou': registration.get('managingLOU', 'N/A'),
+
+                # Validation authorities
+                'validation_sources': registration.get('validationSources', 'N/A'),
+                'validation_authorities': [auth.get('validationAuthorityID') for auth in registration.get('otherValidationAuthorities', [])],
+
+                # Event information - safely extract if available
+                'entity_events': self._extract_entity_events(entity.get('eventGroups', []))
+            }
+
+            results.append(result)
+
+        return {
+            'results': results,
+            'count': len(results),
+            'message': f'Found {len(results)} comprehensive matches'
+        }
+
+    def _format_address(self, address):
+        """Format address information"""
+        if not address:
+            return {}
+
+        return {
+            'first_address_line': address.get('firstAddressLine', 'N/A'),
+            'additional_address_lines': address.get('addressLines', []),
+            'city': address.get('city', 'N/A'),
+            'region': address.get('region', 'N/A'),
+            'country': address.get('country', 'N/A'),
+            'postal_code': address.get('postalCode', 'N/A'),
+            'mail_routing': address.get('mailRouting', 'N/A'),
+            'address_number': address.get('addressNumber', 'N/A'),
+            'address_number_within_building': address.get('addressNumberWithinBuilding', 'N/A')
+        }
+
+    def _extract_successor_entities(self, successors):
+        """Extract successor entity information"""
+        return [{'lei': s.get('lei'), 'name': s.get('name'), 'language': s.get('lang')}
+                for s in successors]
+
+    def _extract_entity_events(self, event_groups):
+        """Extract entity event information"""
+        events = []
+        for group in event_groups:
+            group_type = group.get('groupType', 'N/A')
+            for event in group.get('events', []):
+                events.append({
+                    'group_type': group_type,
+                    'event_type': event.get('type', 'N/A'),
+                    'status': event.get('status', 'N/A'),
+                    'effective_date': event.get('effectiveDate', 'N/A'),
+                    'recorded_date': event.get('recordedDate', 'N/A'),
+                    'affected_fields': [field.get('xpath') for field in event.get('affectedFields', [])],
+                    'validation_documents': event.get('validationDocuments', 'N/A'),
+                    'validation_reference': event.get('validationReference', 'N/A')
+                })
+        return events
+
+def enhanced_entity_analysis(company_name):
+    """
+    FIXED: Comprehensive entity analysis function
+    """
+    print(f"\n🔍 Enhanced GLEIF Analysis for: '{company_name}'")
+    print("=" * 60)
+
+    gleif = GLEIFEnhancedSearch()
+    results = gleif.get_comprehensive_entity_data(company_name)
+
+    if 'error' in results:
+        print(f"❌ Error: {results['error']}")
+        return False
+
+    if not results['results']:
+        print("❌ No matches found")
+        return False
+
+    print(f"✅ {results['message']}")
+
+    for i, entity in enumerate(results['results'], 1):
+        print(f"\n{'='*40} ENTITY {i} {'='*40}")
+
+        # Basic Information
+        print(f"🏢 **Legal Name**: {entity['legal_name']}")
+        print(f"🆔 **LEI**: {entity['lei']}")
+        print(f"📊 **Entity Category**: {entity['entity_category']}")
+        if entity['entity_sub_category'] != 'N/A':
+            print(f"📋 **Sub-Category**: {entity['entity_sub_category']}")
+
+        # Legal Information
+        print(f"⚖️  **Legal Form**: {entity['legal_form']}")
+        print(f"🏛️  **Jurisdiction**: {entity['jurisdiction']}")
+        print(f"📅 **Creation Date**: {entity['creation_date']}")
+        print(f"🔄 **Entity Status**: {entity['entity_status']}")
+
+        # Registration Details
+        print(f"📝 **Registration Status**: {entity['registration_status']}")
+        print(f"🏦 **Managing LOU**: {entity['managing_lou']}")
+        print(f"🔄 **Last Update**: {entity['last_update_date']}")
+
+        # Address Information
+        if entity['legal_address']:
+            addr = entity['legal_address']
+            print(f"🏠 **Legal Address**: {addr['first_address_line']}, {addr['city']}, {addr['country']}")
+
+        if entity['headquarters_address']:
+            hq = entity['headquarters_address']
+            print(f"🏢 **HQ Address**: {hq['first_address_line']}, {hq['city']}, {hq['country']}")
+
+        # Alternative Names
+        if entity['other_names']:
+            print(f"🏷️  **Other Names**: {len(entity['other_names'])} alternative names found")
+            for name in entity['other_names'][:3]:  # Show first 3
+                print(f"   - {name['name']} ({name['type']})")
+
+        # Successor Entities
+        if entity['successor_entities']:
+            print(f"🔗 **Successor Entities**: {len(entity['successor_entities'])} found")
+            for successor in entity['successor_entities']:
+                print(f"   - {successor['name']} (LEI: {successor['lei']})")
+
+        # Entity Events
+        if entity['entity_events']:
+            print(f"📋 **Entity Events**: {len(entity['entity_events'])} events recorded")
+            for event in entity['entity_events'][:3]:  # Show first 3
+                print(f"   - {event['event_type']} on {event['effective_date']}")
+
+        print(f"\n{'='*90}")
+
+    return True
+
+# Test the fixed version
+if __name__ == "__main__":
+    test_companies = [
+        "Apple Inc",
+        "Deutsche Bank AG",
+        "Goldman Sachs"
+    ]
+
+    print("🚀 Starting FIXED Enhanced GLEIF Analysis")
+
+    for company in test_companies:
+        enhanced_entity_analysis(company)
+        print("\n" + "="*100 + "\n")
