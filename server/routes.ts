@@ -822,7 +822,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: error.message });
     }
   });
-  // ===== BATCH LOGGING API ENDPOINTS =====
+// ===== BATCH LOGGING API ENDPOINTS =====
 
   // Get batch log files
   app.get('/api/logs/batches', async (req, res) => {
@@ -1140,6 +1140,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false, 
         error: 'Beta server is still starting up. Please wait a moment and try again.',
         status: 'starting'
+      });
+    }
+  });
+
+  // GLEIF connection test endpoint (for debugging)
+  app.get('/api/test/gleif-connection', async (req, res) => {
+    try {
+      const { gleifExtractor } = await import('./services/gleifExtractor');
+      console.log('[Main] Testing GLEIF API connection...');
+
+      const isConnected = await gleifExtractor.testGLEIFConnection();
+
+      res.json({
+        success: isConnected,
+        message: isConnected ? 'GLEIF API connection successful' : 'GLEIF API connection failed',
+        timestamp: new Date().toISOString(),
+        server: 'main'
+      });
+    } catch (error: any) {
+      console.error('[Main] GLEIF connection test error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+        timestamp: new Date().toISOString(),
+        server: 'main'
       });
     }
   });
