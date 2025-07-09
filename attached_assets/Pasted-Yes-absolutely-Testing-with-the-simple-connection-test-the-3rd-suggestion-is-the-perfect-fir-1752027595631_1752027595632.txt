@@ -1,0 +1,88 @@
+Yes, absolutely! Testing with the **simple connection test** (the 3rd suggestion) is the perfect first step in a Replit environment. Here's why and how to do it:
+
+## Why Test the Connection First in Replit
+
+In Replit, you want to isolate the problem before diving into complex debugging. The connection test will quickly tell you if:
+
+- The GLEIF API is accessible from Replit's servers
+- Your headers and basic request format are working
+- You're hitting rate limits or authentication issues
+
+## How to Implement the Test
+
+Add this test method to your `GLEIFExtractor` class:
+
+```typescript
+// Add this method to your GLEIFExtractor class
+async testGLEIFConnection(): Promise {
+  try {
+    console.log('[GLEIF] Testing basic API connection...');
+    
+    const testUrl = `${this.baseUrl}/lei-records?page[size]=1`;
+    const response = await axios.get(testUrl, {
+      headers: this.headers,
+      timeout: 10000
+    });
+    
+    console.log(`[GLEIF] Test response status: ${response.status}`);
+    console.log(`[GLEIF] Content-Type: ${response.headers['content-type']}`);
+    
+    if (response.status === 200 && response.data) {
+      console.log('[GLEIF] ✅ API connection successful');
+      console.log(`[GLEIF] Sample response structure:`, Object.keys(response.data));
+      return true;
+    }
+    
+    return false;
+  } catch (error: any) {
+    console.error('[GLEIF] ❌ Connection test failed:', error.message);
+    if (error.response) {
+      console.error(`[GLEIF] Response status: ${error.response.status}`);
+      console.error(`[GLEIF] Response headers:`, error.response.headers);
+    }
+    return false;
+  }
+}
+```
+
+## Test It in Replit
+
+Create a simple test script in your Replit:
+
+```typescript
+// Test script - add this to test your connection
+async function testGLEIF() {
+  const extractor = new GLEIFExtractor();
+  
+  console.log('🔍 Testing GLEIF API connection...');
+  const isConnected = await extractor.testGLEIFConnection();
+  
+  if (isConnected) {
+    console.log('✅ Connection successful - you can proceed with company searches');
+  } else {
+    console.log('❌ Connection failed - check the logs above for details');
+  }
+}
+
+// Run the test
+testGLEIF();
+```
+
+## What This Will Tell You
+
+The test will reveal:
+
+1. **Network connectivity** - Can Replit reach the GLEIF API?
+2. **Response format** - Are you getting JSON or HTML error pages?
+3. **Authentication requirements** - Does the API require an API key?
+4. **Rate limiting** - Are you being blocked due to too many requests?
+
+## Next Steps Based on Results
+
+- **If test passes**: Your basic connection works, so the issue is likely in your search query format
+- **If test fails with HTML**: The API requires authentication or has endpoint changes
+- **If test fails with network error**: There might be Replit-specific networking issues
+
+Run this test first and share the console output - it will give us the exact information needed to fix your main search function!
+
+[1] https://pplx-res.cloudinary.com/image/private/user_uploads/124996/06a748c8-d692-449d-952e-c9c70144c562/Screenshot-2025-07-09-at-7.44.39-AM.jpg
