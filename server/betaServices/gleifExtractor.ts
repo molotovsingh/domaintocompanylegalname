@@ -86,48 +86,73 @@ export class GLEIFExtractor {
   };
 
   /**
-   * Extract company information using GLEIF API
+   * Extract company information using GLEIF API with retry logic
    */
   async extractCompanyInfo(companyName: string): Promise<GLEIFExtractionResult> {
-    try {
-      console.log(`[GLEIF] Starting extraction for company: ${companyName}`);
+    const maxRetries = 2;
+    let lastError: any = null;
 
-      // Try exact search first
-      let result = await this.searchGLEIF(companyName, false);
-      
-      if (!result || result.data.length === 0) {
-        console.log(`[GLEIF] No exact matches, trying fuzzy search...`);
-        // Try fuzzy search if exact fails
-        result = await this.searchGLEIF(companyName, true);
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`[GLEIF] Starting extraction for company: ${companyName} (attempt ${attempt}/${maxRetries})`);
+
+        // Add small delay between retries
+        if (attempt > 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+
+        // Try exact search first
+        let result = await this.searchGLEIF(companyName, false);
+        
+        if (!result || result.data.length === 0) {
+          console.log(`[GLEIF] No exact matches, trying fuzzy search...`);
+          // Try fuzzy search if exact fails
+          result = await this.searchGLEIF(companyName, true);
+        }
+
+        if (!result || result.data.length === 0) {
+          console.log(`[GLEIF] No GLEIF matches found for ${companyName}`);
+          return {
+            companyName: 'Not found in GLEIF registry',
+            legalEntityType: 'Not found',
+            country: 'Not found',
+            confidence: 'low',
+            sources: ['GLEIF API - No matches found']
+          };
+        }
+
+        // Process the best match
+        const bestMatch = result.data[0];
+        console.log(`[GLEIF] Found match: ${bestMatch.attributes.entity.legalName.name}`);
+
+        return this.formatGLEIFResult(bestMatch, result.data.length);
+
+      } catch (error: any) {
+        lastError = error;
+        console.error(`[GLEIF] Attempt ${attempt} failed for ${companyName}:`, error.message);
+        
+        // Don't retry for certain error types
+        if (error.message.includes('not found') || 
+            error.message.includes('Invalid LEI') ||
+            error.message.includes('404')) {
+          break;
+        }
+        
+        // Continue to next attempt for API errors
+        if (attempt < maxRetries) {
+          console.log(`[GLEIF] Retrying in ${attempt}s...`);
+        }
       }
-
-      if (!result || result.data.length === 0) {
-        console.log(`[GLEIF] No GLEIF matches found for ${companyName}`);
-        return {
-          companyName: 'Not found in GLEIF registry',
-          legalEntityType: 'Not found',
-          country: 'Not found',
-          confidence: 'low',
-          sources: ['GLEIF API - No matches found']
-        };
-      }
-
-      // Process the best match
-      const bestMatch = result.data[0];
-      console.log(`[GLEIF] Found match: ${bestMatch.attributes.entity.legalName.name}`);
-
-      return this.formatGLEIFResult(bestMatch, result.data.length);
-
-    } catch (error: any) {
-      console.error(`[GLEIF] Error extracting company info for ${companyName}:`, error.message);
-      return {
-        companyName: 'GLEIF API Error',
-        legalEntityType: 'Error',
-        country: 'Error',
-        confidence: 'low',
-        sources: [`GLEIF API Error: ${error.message}`]
-      };
     }
+
+    console.error(`[GLEIF] All attempts failed for ${companyName}:`, lastError?.message);
+    return {
+      companyName: 'GLEIF API Error',
+      legalEntityType: 'Error',
+      country: 'Error',
+      confidence: 'low',
+      sources: [`GLEIF API Error (${maxRetries} attempts): ${lastError?.message || 'Unknown error'}`]
+    };
   }
 
   /**
@@ -144,14 +169,27 @@ export class GLEIFExtractor {
 
       const response: AxiosResponse<any> = await axios.get(searchUrl, {
         headers: this.headers,
-        timeout: 10000,
-        validateStatus: (status) => status < 500 // Accept 4xx responses as well
+        timeout: 15000, // Increased timeout
+        validateStatus: (status) => status < 500, // Accept 4xx responses as well
+        transformResponse: [(data) => {
+          // Custom response transformer to handle HTML responses
+          if (typeof data === 'string' && data.trim().startsWith('<!DOCTYPE')) {
+            console.error(`[GLEIF] Received HTML response instead of JSON`);
+            throw new Error('GLEIF API returned HTML error page');
+          }
+          try {
+            return JSON.parse(data);
+          } catch (e) {
+            console.error(`[GLEIF] JSON parse failed:`, data.substring(0, 200));
+            throw new Error('Invalid JSON response from GLEIF API');
+          }
+        }]
       });
 
-      // Check if response is HTML (error page) instead of JSON
+      // Additional content type check
       const contentType = response.headers['content-type'] || '';
       if (contentType.includes('text/html')) {
-        console.error(`[GLEIF] API returned HTML error page instead of JSON (status: ${response.status})`);
+        console.error(`[GLEIF] API returned HTML content type (status: ${response.status})`);
         throw new Error(`GLEIF API returned HTML error page (status: ${response.status})`);
       }
 
@@ -175,17 +213,25 @@ export class GLEIFExtractor {
       return null;
 
     } catch (error: any) {
+      // Enhanced error handling
       if (error.response) {
         const contentType = error.response.headers['content-type'] || '';
-        if (contentType.includes('text/html')) {
+        const responseData = error.response.data;
+        
+        if (contentType.includes('text/html') || 
+            (typeof responseData === 'string' && responseData.includes('<!DOCTYPE'))) {
           console.error(`[GLEIF] API Error: Received HTML error page (status: ${error.response.status})`);
-          throw new Error(`GLEIF API unavailable - received HTML error page (status: ${error.response.status})`);
+          throw new Error(`GLEIF API temporarily unavailable (status: ${error.response.status})`);
         }
+        
         console.error(`[GLEIF] API Error: ${error.response.status} ${error.response.statusText}`);
         throw new Error(`GLEIF API Error: ${error.response.status} ${error.response.statusText}`);
-      } else if (error.message.includes('JSON')) {
-        console.error(`[GLEIF] JSON Parse Error - API likely returned HTML:`, error.message);
-        throw new Error('GLEIF API returned invalid response format (likely HTML error page)');
+      } else if (error.message.includes('JSON') || error.message.includes('HTML')) {
+        console.error(`[GLEIF] Response Format Error:`, error.message);
+        throw new Error('GLEIF API returned invalid response format');
+      } else if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+        console.error(`[GLEIF] Network Error:`, error.message);
+        throw new Error('GLEIF API is unreachable - network error');
       } else {
         console.error(`[GLEIF] Request Error:`, error.message);
         throw new Error(`GLEIF API Request Failed: ${error.message}`);
