@@ -1,5 +1,57 @@
 
 import axios, { AxiosResponse } from 'axios';
+import { z } from 'zod';
+
+// Zod schemas for runtime validation
+const GLEIFAddressSchema = z.object({
+  firstAddressLine: z.string().optional(),
+  city: z.string().optional(),
+  region: z.string().optional(),
+  country: z.string().optional(),
+  postalCode: z.string().optional(),
+  addressLines: z.array(z.string()).optional()
+});
+
+const GLEIFApiEntitySchema = z.object({
+  id: z.string(),
+  attributes: z.object({
+    lei: z.string(),
+    entity: z.object({
+      legalName: z.object({
+        name: z.string(),
+        language: z.string().optional()
+      }),
+      otherNames: z.array(z.object({
+        name: z.string(),
+        type: z.string().optional(),
+        language: z.string().optional()
+      })).optional(),
+      status: z.string(),
+      legalForm: z.object({
+        id: z.string(),
+        other: z.string().optional()
+      }).optional(),
+      jurisdiction: z.string().optional(),
+      legalAddress: GLEIFAddressSchema.optional(),
+      headquartersAddress: GLEIFAddressSchema.optional()
+    }),
+    registration: z.object({
+      registrationStatus: z.string(),
+      initialRegistrationDate: z.string().optional(),
+      lastUpdateDate: z.string().optional(),
+      managingLOU: z.string().optional()
+    })
+  })
+});
+
+const GLEIFApiResponseSchema = z.object({
+  data: z.array(GLEIFApiEntitySchema),
+  meta: z.object({
+    pagination: z.object({
+      total: z.number()
+    }).optional()
+  }).optional()
+});
 
 interface GLEIFAddress {
   firstAddressLine?: string;
@@ -316,16 +368,27 @@ export class GLEIFExtractor {
         timeout: 15000, // Increased timeout
         validateStatus: (status) => status < 500, // Accept 4xx responses as well
         transformResponse: [(data) => {
-          // Custom response transformer to handle HTML responses
+          // Enhanced response validation with Zod
           if (typeof data === 'string' && data.trim().startsWith('<!DOCTYPE')) {
             console.error(`[GLEIF] Received HTML response instead of JSON`);
             throw new Error('GLEIF API returned HTML error page');
           }
+          
+          let parsedData;
           try {
-            return JSON.parse(data);
+            parsedData = JSON.parse(data);
           } catch (e) {
             console.error(`[GLEIF] JSON parse failed:`, data.substring(0, 200));
             throw new Error('Invalid JSON response from GLEIF API');
+          }
+
+          // Validate response structure with Zod
+          try {
+            return GLEIFApiResponseSchema.parse(parsedData);
+          } catch (validationError) {
+            console.error(`[GLEIF] Response validation failed:`, validationError);
+            // Return raw data if validation fails, but log the issue
+            return parsedData;
           }
         }]
       });

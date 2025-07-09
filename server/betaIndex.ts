@@ -69,6 +69,8 @@ app.get('/api/beta/gleif-connection-test', async (req, res) => {
 app.post('/api/beta/gleif-test', async (req, res) => {
   try {
     const { companyName, leiCode, domain } = req.body;
+    
+    console.log(`[Beta] [GLEIF] Request received:`, { companyName, leiCode, domain });
 
     // Enhanced validation
     if (!companyName && !leiCode && !domain) {
@@ -108,15 +110,18 @@ app.post('/api/beta/gleif-test', async (req, res) => {
     });
 
     // Format response to match expected structure
+    const confidenceValue = result.confidence === 'high' ? 95 : 
+                           result.confidence === 'medium' ? 75 : 45;
+    
     res.json({
       success: true,
-      domain: domain || 'N/A',
+      domain: domain || searchTerm || 'N/A',
       method: 'gleif_api',
       processingTime: Date.now(),
       companyName: result.companyName,
       legalEntityType: result.legalEntityType,
       country: result.country,
-      confidence: result.confidence === 'high' ? 95 : result.confidence === 'medium' ? 75 : 45,
+      confidence: confidenceValue,
       error: null,
       errorCode: null,
       extractionMethod: 'gleif_enhanced',
@@ -126,7 +131,7 @@ app.post('/api/beta/gleif-test', async (req, res) => {
         registrationStatus: result.registrationStatus,
         jurisdiction: result.jurisdiction
       },
-      sources: result.sources,
+      sources: result.sources || [],
       llmResponse: null
     });
 
