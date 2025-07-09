@@ -317,6 +317,41 @@ export class GLEIFExtractor {
   }
 
   /**
+   * Test basic GLEIF API connection - useful for debugging
+   */
+  async testGLEIFConnection(): Promise<boolean> {
+    try {
+      console.log('[GLEIF] Testing basic API connection...');
+      
+      const testUrl = `${this.baseUrl}/lei-records?page[size]=1`;
+      const response = await axios.get(testUrl, {
+        headers: this.headers,
+        timeout: 10000
+      });
+      
+      console.log(`[GLEIF] Test response status: ${response.status}`);
+      console.log(`[GLEIF] Content-Type: ${response.headers['content-type']}`);
+      
+      if (response.status === 200 && response.data) {
+        console.log('[GLEIF] ✅ API connection successful');
+        console.log(`[GLEIF] Sample response structure:`, Object.keys(response.data));
+        return true;
+      }
+      
+      return false;
+    } catch (error: any) {
+      console.error('[GLEIF] ❌ Connection test failed:', error.message);
+      if (error.response) {
+        console.error(`[GLEIF] Response status: ${error.response.status}`);
+        console.error(`[GLEIF] Response headers:`, error.response.headers);
+        console.error(`[GLEIF] Content preview:`, typeof error.response.data === 'string' ? 
+          error.response.data.substring(0, 200) : 'Non-string response');
+      }
+      return false;
+    }
+  }
+
+  /**
    * Search by LEI code directly
    */
   async searchByLEI(leiCode: string): Promise<GLEIFExtractionResult> {

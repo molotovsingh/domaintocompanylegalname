@@ -43,7 +43,29 @@ app.get('/api/beta/experiments', async (req, res) => {
   }
 });
 
-// GLEIF smoke test endpoint
+// Test GLEIF API connection
+app.get('/api/beta/gleif-connection-test', async (req, res) => {
+  try {
+    console.log('[Beta] Testing GLEIF API connection...');
+
+    const isConnected = await gleifExtractor.testGLEIFConnection();
+
+    res.json({
+      success: isConnected,
+      message: isConnected ? 'GLEIF API connection successful' : 'GLEIF API connection failed',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error: any) {
+    console.error('[Beta] GLEIF connection test error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Test GLEIF extraction
 app.post('/api/beta/gleif-test', async (req, res) => {
   try {
     const { companyName, leiCode } = req.body;
