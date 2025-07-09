@@ -110,6 +110,45 @@ app.post('/api/beta/gleif-test', async (req, res) => {
   }
 });
 
+// Comprehensive GLEIF entity analysis endpoint (inspired by tested Python code)
+app.post('/api/beta/gleif-analysis', async (req, res) => {
+  try {
+    const { searchTerm, isLEI } = req.body;
+
+    if (!searchTerm) {
+      return res.status(400).json({
+        success: false,
+        error: 'searchTerm is required'
+      });
+    }
+
+    console.log(`[Beta] [GLEIF] Comprehensive analysis for: ${searchTerm} (isLEI: ${isLEI || false})`);
+
+    const analysis = await gleifExtractor.analyzeEntity(searchTerm, isLEI || false);
+
+    console.log(`[Beta] [GLEIF] Analysis complete:`, {
+      found: analysis.found,
+      totalEntities: analysis.totalEntities || 0,
+      searchTerm: analysis.searchTerm
+    });
+
+    res.json({
+      success: true,
+      data: analysis,
+      method: 'gleif_comprehensive_analysis',
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error: any) {
+    console.error(`[Beta] [GLEIF] Analysis error:`, error.message);
+    res.status(500).json({
+      success: false,
+      error: 'GLEIF comprehensive analysis failed',
+      details: error.message
+    });
+  }
+});
+
 // Enhanced smoke test endpoint with comprehensive error handling
 app.post('/api/beta/smoke-test', async (req, res) => {
   const { domain, method } = req.body;

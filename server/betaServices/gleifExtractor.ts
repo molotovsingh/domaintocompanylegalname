@@ -86,7 +86,7 @@ export class GLEIFExtractor {
   };
 
   /**
-   * Extract company information using GLEIF API with retry logic
+   * Extract company information using GLEIF API with retry logic and enhanced analysis
    */
   async extractCompanyInfo(companyName: string): Promise<GLEIFExtractionResult> {
     const maxRetries = 2;
@@ -121,9 +121,15 @@ export class GLEIFExtractor {
           };
         }
 
-        // Process the best match
+        // Enhanced processing: analyze all matches if multiple found
+        if (result.data.length > 1) {
+          console.log(`[GLEIF] Found ${result.data.length} matches, performing enhanced analysis...`);
+          return this.performEnhancedEntityAnalysis(result.data, companyName);
+        }
+
+        // Process the single match
         const bestMatch = result.data[0];
-        console.log(`[GLEIF] Found match: ${bestMatch.attributes.entity.legalName.name}`);
+        console.log(`[GLEIF] Found single match: ${bestMatch.attributes.entity.legalName.name}`);
 
         return this.formatGLEIFResult(bestMatch, result.data.length);
 
@@ -156,16 +162,137 @@ export class GLEIFExtractor {
   }
 
   /**
-   * Search GLEIF API with exact or fuzzy matching
+   * Enhanced entity analysis for multiple matches (inspired by tested Python code)
+   */
+  private performEnhancedEntityAnalysis(entities: GLEIFApiEntity[], searchTerm: string): GLEIFExtractionResult {
+    console.log(`[GLEIF] Enhanced Analysis: Evaluating ${entities.length} entities for: ${searchTerm}`);
+    
+    // Score each entity based on multiple criteria
+    const scoredEntities = entities.map((entity, index) => {
+      const score = this.calculateEntityScore(entity, searchTerm);
+      return { entity, score, index };
+    });
+
+    // Sort by score (highest first)
+    scoredEntities.sort((a, b) => b.score - a.score);
+
+    const bestMatch = scoredEntities[0];
+    const entityData = bestMatch.entity.attributes.entity;
+    
+    console.log(`[GLEIF] Best match selected: ${entityData.legalName.name} (Score: ${bestMatch.score})`);
+    
+    // Log analysis for debugging
+    console.log(`[GLEIF] Analysis Summary:`);
+    scoredEntities.forEach((scored, i) => {
+      const entity = scored.entity.attributes.entity;
+      console.log(`  ${i + 1}. ${entity.legalName.name} - Score: ${scored.score} - Status: ${entity.status} - Country: ${entity.jurisdiction}`);
+    });
+
+    const result = this.formatGLEIFResult(bestMatch.entity, entities.length);
+    
+    // Enhanced confidence based on score and alternatives
+    if (bestMatch.score >= 85) {
+      result.confidence = 'high';
+    } else if (bestMatch.score >= 65) {
+      result.confidence = 'medium';
+    } else {
+      result.confidence = 'low';
+    }
+
+    // Add selection rationale to sources
+    result.sources.push(`Enhanced analysis: Selected from ${entities.length} candidates (Score: ${bestMatch.score})`);
+
+    return result;
+  }
+
+  /**
+   * Calculate comprehensive entity score based on tested criteria
+   */
+  private calculateEntityScore(entity: GLEIFApiEntity, searchTerm: string): number {
+    const entityData = entity.attributes.entity;
+    const registrationData = entity.attributes.registration;
+    let score = 0;
+
+    // 1. Name similarity (40 points max)
+    const nameScore = this.calculateNameSimilarity(entityData.legalName.name, searchTerm);
+    score += nameScore * 0.4;
+
+    // 2. Entity status (25 points max)
+    if (entityData.status === 'ACTIVE') score += 25;
+    else if (entityData.status === 'INACTIVE') score += 10;
+
+    // 3. Registration status (20 points max)
+    if (registrationData.registrationStatus === 'ISSUED') score += 20;
+    else if (registrationData.registrationStatus === 'PENDING_VALIDATION') score += 15;
+    else if (registrationData.registrationStatus === 'LAPSED') score += 10;
+
+    // 4. Data completeness (10 points max)
+    let completenessScore = 0;
+    if (entityData.legalAddress?.country) completenessScore += 2;
+    if (entityData.legalAddress?.city) completenessScore += 2;
+    if (entityData.legalForm?.id) completenessScore += 2;
+    if (entityData.otherNames && entityData.otherNames.length > 0) completenessScore += 2;
+    if (registrationData.initialRegistrationDate) completenessScore += 2;
+    score += completenessScore;
+
+    // 5. Entity category preference (5 points max)
+    if (entityData.category === 'GENERAL') score += 5;
+    else if (entityData.category === 'FUND') score += 3;
+
+    return Math.round(score);
+  }
+
+  /**
+   * Calculate name similarity score (0-100)
+   */
+  private calculateNameSimilarity(entityName: string, searchTerm: string): number {
+    const entity = entityName.toLowerCase().trim();
+    const search = searchTerm.toLowerCase().trim();
+
+    // Exact match
+    if (entity === search) return 100;
+
+    // Direct containment
+    if (entity.includes(search) || search.includes(entity)) return 90;
+
+    // Word-based similarity
+    const entityWords = entity.split(/\s+/).filter(word => word.length > 2);
+    const searchWords = search.split(/\s+/).filter(word => word.length > 2);
+    
+    if (entityWords.length === 0 || searchWords.length === 0) return 20;
+
+    const commonWords = entityWords.filter(word => 
+      searchWords.some(searchWord => 
+        word.includes(searchWord) || searchWord.includes(word)
+      )
+    );
+
+    const similarity = (commonWords.length / Math.max(entityWords.length, searchWords.length)) * 80;
+    return Math.round(similarity);
+  }
+
+  /**
+   * Search GLEIF API with exact or fuzzy matching (enhanced with tested patterns)
    */
   private async searchGLEIF(companyName: string, fuzzy: boolean = false): Promise<GLEIFApiResponse | null> {
     try {
-      // Use URL encoding approach like main server for better compatibility
-      const encodedTerm = encodeURIComponent(companyName);
-      const searchTerm = fuzzy ? `*${encodedTerm}*` : encodedTerm;
-      const searchUrl = `${this.baseUrl}/lei-records?filter[entity.legalName]=${searchTerm}&page[size]=5`;
+      // Clean and prepare search term (from tested code)
+      const cleanedName = companyName.trim().replace(/['"]/g, '');
+      const encodedTerm = encodeURIComponent(cleanedName);
+      
+      // Enhanced search pattern based on tested fuzzy logic
+      let searchTerm: string;
+      if (fuzzy) {
+        // Use more comprehensive fuzzy pattern from tested code
+        searchTerm = `*${encodedTerm}*`;
+      } else {
+        searchTerm = encodedTerm;
+      }
+      
+      // Increase page size for better analysis (from tested code insights)
+      const searchUrl = `${this.baseUrl}/lei-records?filter[entity.legalName]=${searchTerm}&page[size]=10`;
 
-      console.log(`[GLEIF] API Request: ${searchUrl}`);
+      console.log(`[GLEIF] API Request (${fuzzy ? 'fuzzy' : 'exact'}): ${searchUrl}`);
 
       const response: AxiosResponse<any> = await axios.get(searchUrl, {
         headers: this.headers,
@@ -314,6 +441,103 @@ export class GLEIFExtractor {
     };
 
     return legalFormMap[legalFormId] || `Legal Form: ${legalFormId}`;
+  }
+
+  /**
+   * Comprehensive entity analysis method (inspired by tested Python implementation)
+   */
+  async analyzeEntity(leiOrName: string, isLEI: boolean = false): Promise<any> {
+    try {
+      console.log(`[GLEIF] Starting comprehensive analysis for: ${leiOrName}`);
+      
+      let entities: GLEIFApiEntity[] = [];
+      
+      if (isLEI && leiOrName.length === 20) {
+        // Direct LEI lookup
+        const result = await this.searchByLEI(leiOrName);
+        if (result.leiCode) {
+          // Convert result back to API entity format for analysis
+          const apiResponse = await this.searchGLEIF(result.companyName, false);
+          entities = apiResponse?.data || [];
+        }
+      } else {
+        // Name-based search
+        const exactResult = await this.searchGLEIF(leiOrName, false);
+        if (exactResult && exactResult.data.length > 0) {
+          entities = exactResult.data;
+        } else {
+          const fuzzyResult = await this.searchGLEIF(leiOrName, true);
+          entities = fuzzyResult?.data || [];
+        }
+      }
+
+      if (entities.length === 0) {
+        return {
+          searchTerm: leiOrName,
+          found: false,
+          message: 'No entities found in GLEIF registry'
+        };
+      }
+
+      // Comprehensive analysis of all found entities
+      const analysis = {
+        searchTerm: leiOrName,
+        found: true,
+        totalEntities: entities.length,
+        entities: entities.map((entity, index) => {
+          const entityData = entity.attributes.entity;
+          const registrationData = entity.attributes.registration;
+          
+          return {
+            rank: index + 1,
+            lei: entity.attributes.lei,
+            legalName: entityData.legalName.name,
+            entityStatus: entityData.status,
+            registrationStatus: registrationData.registrationStatus,
+            jurisdiction: entityData.jurisdiction || entityData.legalAddress?.country,
+            legalForm: entityData.legalForm?.id,
+            legalAddress: {
+              country: entityData.legalAddress?.country,
+              city: entityData.legalAddress?.city,
+              region: entityData.legalAddress?.region,
+              addressLine: entityData.legalAddress?.firstAddressLine
+            },
+            headquartersAddress: {
+              country: entityData.headquartersAddress?.country,
+              city: entityData.headquartersAddress?.city,
+              region: entityData.headquartersAddress?.region
+            },
+            otherNames: entityData.otherNames?.map(name => name.name) || [],
+            registrationDate: registrationData.initialRegistrationDate,
+            lastUpdateDate: registrationData.lastUpdateDate,
+            nextRenewalDate: registrationData.nextRenewalDate,
+            managingLOU: registrationData.managingLOU,
+            category: entityData.category,
+            score: this.calculateEntityScore(entity, leiOrName)
+          };
+        }).sort((a, b) => b.score - a.score), // Sort by score
+        
+        summary: {
+          activeEntities: entities.filter(e => e.attributes.entity.status === 'ACTIVE').length,
+          issuedRegistrations: entities.filter(e => e.attributes.registration.registrationStatus === 'ISSUED').length,
+          uniqueJurisdictions: [...new Set(entities.map(e => 
+            e.attributes.entity.jurisdiction || e.attributes.entity.legalAddress?.country
+          ).filter(Boolean))],
+          legalForms: [...new Set(entities.map(e => e.attributes.entity.legalForm?.id).filter(Boolean))]
+        }
+      };
+
+      console.log(`[GLEIF] Analysis complete: Found ${entities.length} entities, ${analysis.summary.activeEntities} active`);
+      return analysis;
+
+    } catch (error: any) {
+      console.error(`[GLEIF] Analysis failed:`, error.message);
+      return {
+        searchTerm: leiOrName,
+        found: false,
+        error: error.message
+      };
+    }
   }
 
   /**
