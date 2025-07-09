@@ -130,7 +130,7 @@ export default function BetaTesting() {
   ): Promise<BetaTestResult> => {
     try {
       const startTime = Date.now();
-
+      
       // For GLEIF method, use gleif-test endpoint
       if (method === "gleif_api") {
         const response = await fetch("/api/beta/gleif-test", {
@@ -611,8 +611,8 @@ export default function BetaTesting() {
                           )}
                         </div>
                       ) : (
-                        /* Enhanced display for GLEIF and other methods */
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        /* Standard display for other methods */
+                        <div className="grid grid-cols-2 gap-4">
                           <div>
                             <span className="text-sm font-medium text-muted-foreground">
                               Company:
@@ -621,26 +621,6 @@ export default function BetaTesting() {
                               {result.companyName || "Not found"}
                             </p>
                           </div>
-                          {result.legalEntityType && (
-                            <div>
-                              <span className="text-sm font-medium text-muted-foreground">
-                                Legal Entity Type:
-                              </span>
-                              <p className="text-sm">
-                                {result.legalEntityType}
-                              </p>
-                            </div>
-                          )}
-                          {result.country && (
-                            <div>
-                              <span className="text-sm font-medium text-muted-foreground">
-                                Country:
-                              </span>
-                              <p className="text-sm">
-                                {result.country}
-                              </p>
-                            </div>
-                          )}
                           {result.extractionMethod && (
                             <div>
                               <span className="text-sm font-medium text-muted-foreground">
@@ -657,51 +637,7 @@ export default function BetaTesting() {
                             </span>
                             <p className="text-sm">{result.confidence}%</p>
                           </div>
-                          {/* GLEIF-specific technical details */}
-                          {result.method === "gleif_api" && result.technicalDetails && (
-                            <div className="md:col-span-2">
-                              <span className="text-sm font-medium text-muted-foreground">
-                                GLEIF Technical Details:
-                              </span>
-                              {typeof result.technicalDetails === 'object' ? (
-                                <div className="text-sm mt-1 space-y-1">
-                                  {result.technicalDetails.leiCode && (
-                                    <div><strong>LEI:</strong> {result.technicalDetails.leiCode}</div>
-                                  )}
-                                  {result.technicalDetails.entityStatus && (
-                                    <div><strong>Status:</strong> {result.technicalDetails.entityStatus}</div>
-                                  )}
-                                  {result.technicalDetails.jurisdiction && (
-                                    <div><strong>Jurisdiction:</strong> {result.technicalDetails.jurisdiction}</div>
-                                  )}
-                                </div>
-                              ) : (
-                                <p className="text-sm">{result.technicalDetails}</p>
-                              )}
-                            </div>
-                          )}
                         </div>
-
-                        {/* Enhanced sources display for GLEIF */}
-                        {result.sources && result.sources.length > 0 && (
-                          <div className="mt-4">
-                            <span className="text-sm font-medium text-muted-foreground">
-                              Sources ({result.sources.length}):
-                            </span>
-                            <div className="text-sm mt-2 space-y-1 bg-gray-50 p-3 rounded">
-                              {result.sources.slice(0, 5).map((source: string, idx: number) => (
-                                <div key={idx} className="text-xs text-muted-foreground break-words">
-                                  • {source}
-                                </div>
-                              ))}
-                              {result.sources.length > 5 && (
-                                <div className="text-xs text-muted-foreground italic">
-                                  ... and {result.sources.length - 5} more sources
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
                       )}
 
                       {/* Error display with error codes */}

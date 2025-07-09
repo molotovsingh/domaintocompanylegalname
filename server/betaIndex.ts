@@ -116,16 +116,16 @@ app.post('/api/beta/gleif-test', async (req, res) => {
       companyName: result.companyName,
       legalEntityType: result.legalEntityType,
       country: result.country,
-      confidence: result.confidence,
+      confidence: result.confidence === 'high' ? 95 : result.confidence === 'medium' ? 75 : 45,
       error: null,
       errorCode: null,
-      extractionMethod: result.leiCode ? 'gleif_enhanced' : 'gleif_search',
-      technicalDetails: result.leiCode ? {
+      extractionMethod: 'gleif_enhanced',
+      technicalDetails: {
         leiCode: result.leiCode,
         entityStatus: result.entityStatus,
         registrationStatus: result.registrationStatus,
         jurisdiction: result.jurisdiction
-      } : null,
+      },
       sources: result.sources,
       llmResponse: null
     });
@@ -138,7 +138,7 @@ app.post('/api/beta/gleif-test', async (req, res) => {
       success: false,
       domain: req.body.domain || 'N/A',
       method: 'gleif_api',
-      processingTime: 0,
+      processingTime: Date.now(),
       companyName: null,
       legalEntityType: null,
       country: null,
