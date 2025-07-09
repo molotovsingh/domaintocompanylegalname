@@ -181,11 +181,27 @@ export class GLEIFExtractor {
     
     console.log(`[GLEIF] Best match selected: ${entityData.legalName.name} (Score: ${bestMatch.score})`);
     
-    // Log analysis for debugging
-    console.log(`[GLEIF] Analysis Summary:`);
-    scoredEntities.forEach((scored, i) => {
+    // Comprehensive analysis logging (from tested code patterns)
+    console.log(`[GLEIF] Comprehensive Entity Analysis Results:`);
+    console.log(`  Search Term: "${searchTerm}"`);
+    console.log(`  Total Entities Found: ${entities.length}`);
+    console.log(`  Active Entities: ${entities.filter(e => e.attributes.entity.status === 'ACTIVE').length}`);
+    console.log(`  Issued Registrations: ${entities.filter(e => e.attributes.registration.registrationStatus === 'ISSUED').length}`);
+    
+    // Detailed candidate analysis
+    scoredEntities.slice(0, 5).forEach((scored, i) => {
       const entity = scored.entity.attributes.entity;
-      console.log(`  ${i + 1}. ${entity.legalName.name} - Score: ${scored.score} - Status: ${entity.status} - Country: ${entity.jurisdiction}`);
+      const reg = scored.entity.attributes.registration;
+      console.log(`  ${i + 1}. ${entity.legalName.name}`);
+      console.log(`     LEI: ${scored.entity.attributes.lei}`);
+      console.log(`     Score: ${scored.score}`);
+      console.log(`     Status: ${entity.status} | Registration: ${reg.registrationStatus}`);
+      console.log(`     Jurisdiction: ${entity.jurisdiction || entity.legalAddress?.country || 'N/A'}`);
+      console.log(`     Legal Form: ${entity.legalForm?.id || 'N/A'}`);
+      
+      if (entity.otherNames && entity.otherNames.length > 0) {
+        console.log(`     Alternative Names: ${entity.otherNames.map(n => n.name).join(', ')}`);
+      }
     });
 
     const result = this.formatGLEIFResult(bestMatch.entity, entities.length);
@@ -199,8 +215,9 @@ export class GLEIFExtractor {
       result.confidence = 'low';
     }
 
-    // Add selection rationale to sources
+    // Add comprehensive analysis details to sources
     result.sources.push(`Enhanced analysis: Selected from ${entities.length} candidates (Score: ${bestMatch.score})`);
+    result.sources.push(`Active entities: ${entities.filter(e => e.attributes.entity.status === 'ACTIVE').length}/${entities.length}`);
 
     return result;
   }

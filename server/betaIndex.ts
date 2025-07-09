@@ -149,6 +149,63 @@ app.post('/api/beta/gleif-analysis', async (req, res) => {
   }
 });
 
+// Interactive company search endpoint (inspired by tested Python code)
+app.post('/api/beta/interactive-search', async (req, res) => {
+  try {
+    const { companyName } = req.body;
+
+    if (!companyName) {
+      return res.status(400).json({
+        success: false,
+        error: 'companyName is required'
+      });
+    }
+
+    console.log(`[Beta] [Interactive] Starting enhanced search for: ${companyName}`);
+
+    // Perform comprehensive GLEIF search with detailed logging
+    const result = await gleifExtractor.extractCompanyInfo(companyName);
+
+    // Enhanced response with detailed analysis
+    const response = {
+      success: true,
+      searchTerm: companyName,
+      result: {
+        companyName: result.companyName,
+        leiCode: result.leiCode,
+        entityStatus: result.entityStatus,
+        registrationStatus: result.registrationStatus,
+        jurisdiction: result.jurisdiction,
+        legalForm: result.legalForm,
+        confidence: result.confidence,
+        addresses: result.addresses,
+        otherNames: result.otherNames,
+        registrationDate: result.registrationDate,
+        lastUpdateDate: result.lastUpdateDate
+      },
+      sources: result.sources,
+      timestamp: new Date().toISOString(),
+      interactiveAnalysis: true
+    };
+
+    console.log(`[Beta] [Interactive] Search complete for ${companyName}:`, {
+      found: !!result.leiCode,
+      confidence: result.confidence,
+      entityStatus: result.entityStatus
+    });
+
+    res.json(response);
+
+  } catch (error: any) {
+    console.error(`[Beta] [Interactive] Search failed:`, error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Interactive search failed',
+      details: error.message
+    });
+  }
+});
+
 // Enhanced smoke test endpoint with comprehensive error handling
 app.post('/api/beta/smoke-test', async (req, res) => {
   const { domain, method } = req.body;
