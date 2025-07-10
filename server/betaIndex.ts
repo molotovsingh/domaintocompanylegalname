@@ -65,47 +65,92 @@ app.get('/api/beta/gleif-connection-test', async (req, res) => {
   }
 });
 
-// GLEIF extraction endpoint  
-app.post('/api/beta/gleif-test', async (req, res) => {
+// Raw GLEIF JSON extraction endpoint (like Perplexity approach)
+app.post('/api/beta/gleif-raw', async (req, res) => {
   try {
-    const { companyName, leiCode, domain } = req.body;
-    
-    console.log(`[Beta] [GLEIF] Request received:`, { companyName, leiCode, domain });
+    const { domain, searchTerm, leiCode } = req.body;
 
-    // Enhanced validation
-    if (!companyName && !leiCode && !domain) {
+    if (!domain && !searchTerm && !leiCode) {
       return res.status(400).json({
         success: false,
-        error: 'Either companyName, leiCode, or domain is required'
+        error: 'Either domain, searchTerm, or leiCode is required'
       });
     }
 
-    // Determine search term
-    let searchTerm = companyName;
-    if (!searchTerm && domain) {
-      // Convert domain to company name for search
-      if (domain === 'apple' || domain === 'apple.com') {
-        searchTerm = 'Apple Inc';
-      } else {
-        // Extract company name from domain
-        searchTerm = domain.replace(/\.(com|org|net|co\.uk|de|fr|jp|cn)$/i, '').replace(/[-_]/g, ' ');
-        searchTerm = searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1);
+    const queryTerm = searchTerm || domain || leiCode;
+    console.log(`[Beta] [GLEIF-RAW] Raw extraction for: ${queryTerm}`);
+
+    const rawResult = await gleifExtractor.extractRawGleifData(queryTerm);
+
+    console.log(`[Beta] [GLEIF-RAW] Raw result:`, {
+      success: rawResult.success,
+      entityCount: rawResult.unprocessedEntities?.length || 0,
+      processingTime: rawResult.processingTime
+    });
+
+    // Return completely raw data like Perplexity does
+    res.json({
+      success: rawResult.success,
+      domain: domain || queryTerm,
+      method: 'gleif_raw_api',
+      processingTime: rawResult.processingTime,
+      error: rawResult.error || null,
+      errorCode: rawResult.error ? 'API_ERROR' : null,
+      extractionMethod: 'gleif_raw_json',
+      // Raw data passthrough - no processing
+      rawApiResponse: rawResult.rawApiResponse,
+      fullGleifResponse: rawResult.fullGleifResponse,
+      unprocessedEntities: rawResult.unprocessedEntities,
+      entityCount: rawResult.unprocessedEntities?.length || 0,
+      technicalDetails: {
+        apiUrl: 'https://api.gleif.org/api/v1',
+        searchType: rawResult.unprocessedEntities?.length === 1 ? 'exact' : 'fuzzy',
+        responseSize: JSON.stringify(rawResult.rawApiResponse || {}).length
       }
+    });
+
+  } catch (error: any) {
+    console.error(`[Beta] [GLEIF-RAW] Error:`, error.message);
+
+    res.status(500).json({
+      success: false,
+      domain: req.body.domain || 'N/A',
+      method: 'gleif_raw_api',
+      processingTime: 0,
+      error: error.message,
+      errorCode: 'API_ERROR',
+      extractionMethod: null,
+      rawApiResponse: null,
+      fullGleifResponse: null,
+      unprocessedEntities: null,
+      entityCount: 0
+    });
+  }
+});
+
+// Test GLEIF API extraction endpoint
+app.post('/api/beta/gleif-test', async (req, res) => {
+  try {
+    const { domain, searchTerm, leiCode, includeRawData } = req.body;
+
+    if (!domain && !searchTerm && !leiCode) {
+      return res.status(400).json({
+        success: false,
+        error: 'Either domain, searchTerm, or leiCode is required'
+      });
     }
 
-    console.log(`[Beta] [GLEIF] Testing ${searchTerm || `LEI: ${leiCode}`} (from domain: ${domain || 'N/A'})...`);
+    const queryTerm = searchTerm || domain || leiCode;
+    console.log(`[Beta] [GLEIF] Starting extraction for: ${queryTerm} (includeRaw: ${includeRawData})`);
 
     let result;
-    try {
-      if (leiCode) {
-        result = await gleifExtractor.searchByLEI(leiCode);
-      } else {
-        result = await gleifExtractor.extractCompanyInfo(searchTerm);
-      }
-    } catch (extractionError: any) {
-      console.error(`[Beta] [GLEIF] Extraction failed:`, extractionError.message);
-      throw extractionError;
+    if (leiCode && leiCode.length === 20) {
+      result = await gleifExtractor.searchByLEI(leiCode);
+    } else {
+      result = await gleifExtractor.extractCompanyInfo(queryTerm, includeRawData);
     }
+
+    console.log(`[Beta] [GLEIF] Result for ${searchTerm || `LEI: ${leiCode}`} (from domain: ${domain || 'N/A'})...`);
 
     console.log(`[Beta] [GLEIF] Result for ${searchTerm || leiCode}:`, {
       companyName: result.companyName,
@@ -117,7 +162,7 @@ app.post('/api/beta/gleif-test', async (req, res) => {
     // Format response to match expected structure
     const confidenceValue = result.confidence === 'high' ? 95 : 
                            result.confidence === 'medium' ? 75 : 45;
-    
+
     res.json({
       success: true,
       domain: domain || searchTerm || 'N/A',

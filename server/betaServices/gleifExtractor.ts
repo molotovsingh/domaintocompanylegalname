@@ -128,6 +128,10 @@ export interface GLEIFExtractionResult {
   registrationDate?: string;
   lastUpdateDate?: string;
   rawData?: GLEIFApiEntity;
+  // Raw JSON passthrough fields like Perplexity
+  rawApiResponse?: any;
+  fullGleifResponse?: GLEIFApiResponse;
+  unprocessedEntities?: GLEIFApiEntity[];
 }
 
 export class GLEIFExtractor {
@@ -138,9 +142,63 @@ export class GLEIFExtractor {
   };
 
   /**
+   * Extract raw JSON from GLEIF API without processing (like Perplexity approach)
+   */
+  async extractRawGleifData(companyName: string): Promise<{
+    success: boolean;
+    rawApiResponse: any;
+    fullGleifResponse?: GLEIFApiResponse;
+    unprocessedEntities?: GLEIFApiEntity[];
+    error?: string;
+    processingTime: number;
+  }> {
+    const startTime = Date.now();
+    
+    try {
+      console.log(`[GLEIF-RAW] Starting raw extraction for: ${companyName}`);
+      
+      // Try exact search first
+      let result = await this.searchGLEIF(companyName, false);
+      
+      if (!result || result.data.length === 0) {
+        console.log(`[GLEIF-RAW] No exact matches, trying fuzzy search...`);
+        result = await this.searchGLEIF(companyName, true);
+      }
+
+      const processingTime = Date.now() - startTime;
+
+      if (!result || result.data.length === 0) {
+        return {
+          success: false,
+          rawApiResponse: null,
+          error: "No GLEIF matches found",
+          processingTime
+        };
+      }
+
+      // Return completely raw data - no processing
+      return {
+        success: true,
+        rawApiResponse: result, // Complete API response
+        fullGleifResponse: result,
+        unprocessedEntities: result.data,
+        processingTime
+      };
+
+    } catch (error: any) {
+      return {
+        success: false,
+        rawApiResponse: null,
+        error: error.message,
+        processingTime: Date.now() - startTime
+      };
+    }
+  }
+
+  /**
    * Extract company information using GLEIF API with retry logic and enhanced analysis
    */
-  async extractCompanyInfo(companyName: string): Promise<GLEIFExtractionResult> {
+  async extractCompanyInfo(companyName: string, includeRawData: boolean = false): Promise<GLEIFExtractionResult> {
     const maxRetries = 2;
     let lastError: any = null;
 
@@ -451,7 +509,12 @@ export class GLEIFExtractor {
   /**
    * Format GLEIF API result into our standard format
    */
-  private formatGLEIFResult(entity: GLEIFApiEntity, totalMatches: number): GLEIFExtractionResult {
+  private formatGLEIFResult(
+    entity: GLEIFApiEntity, 
+    totalMatches: number, 
+    fullApiResponse?: GLEIFApiResponse,
+    allEntities?: GLEIFApiEntity[]
+  ): GLEIFExtractionResult {
     const entityData = entity.attributes.entity;
     const registrationData = entity.attributes.registration;
 
@@ -494,7 +557,11 @@ export class GLEIFExtractor {
       otherNames: otherNames.length > 0 ? otherNames : undefined,
       registrationDate: registrationData.initialRegistrationDate,
       lastUpdateDate: registrationData.lastUpdateDate,
-      rawData: entity
+      rawData: entity,
+      // Raw JSON passthrough like Perplexity
+      rawApiResponse: fullApiResponse,
+      fullGleifResponse: fullApiResponse,
+      unprocessedEntities: allEntities
     };
   }
 

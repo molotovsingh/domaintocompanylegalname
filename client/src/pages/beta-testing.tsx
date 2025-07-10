@@ -21,6 +21,9 @@ interface TestResult {
   technicalDetails?: any;
   sources?: string[];
   llmResponse?: any;
+  rawApiResponse?: any;
+  entityCount?: number;
+  unprocessedEntities?: any[];
 }
 
 export default function BetaTestingPage() {
@@ -34,7 +37,8 @@ export default function BetaTestingPage() {
     { id: 'axios_cheerio', name: 'Axios/Cheerio', description: 'Standard HTML parsing' },
     { id: 'puppeteer', name: 'Puppeteer', description: 'Browser automation' },
     { id: 'perplexity_llm', name: 'Perplexity LLM', description: 'AI-powered extraction' },
-    { id: 'gleif_api', name: 'GLEIF API', description: 'Legal entity data' }
+    { id: 'gleif_api', name: 'GLEIF API', description: 'Legal entity data' },
+    { id: 'gleif_raw', name: 'GLEIF RAW', description: 'Unprocessed JSON' }
   ];
 
   const runTest = useCallback(async () => {
@@ -45,9 +49,10 @@ export default function BetaTestingPage() {
 
     try {
       // Use the correct endpoint for GLEIF testing
-      const endpoint = selectedMethod === 'gleif_api' ? '/api/beta/gleif-test' : '/api/beta/smoke-test';
-      
-      const requestBody = selectedMethod === 'gleif_api' 
+      const endpoint = selectedMethod === 'gleif_api' ? '/api/beta/gleif-test' :
+                   selectedMethod === 'gleif_raw' ? '/api/beta/gleif-raw' : '/api/beta/smoke-test';
+
+      const requestBody = selectedMethod === 'gleif_api' || selectedMethod === 'gleif_raw'
         ? { companyName: domain.trim(), domain: domain.trim() }
         : { domain: domain.trim(), method: selectedMethod };
 
@@ -63,14 +68,14 @@ export default function BetaTestingPage() {
       }
 
       const result = await response.json();
-      
+
       // Handle different response formats
-      if (selectedMethod === 'gleif_api') {
+      if (selectedMethod === 'gleif_api' || selectedMethod === 'gleif_raw') {
         setTestResults([result]);
       } else {
         setTestResults(Array.isArray(result.data) ? result.data : [result.data || result]);
       }
-      
+
     } catch (error) {
       console.error('Test failed:', error);
       setTestResults([{
@@ -111,7 +116,8 @@ export default function BetaTestingPage() {
       axios_cheerio: 'bg-blue-100 text-blue-800',
       puppeteer: 'bg-purple-100 text-purple-800',
       perplexity_llm: 'bg-orange-100 text-orange-800',
-      gleif_api: 'bg-green-100 text-green-800'
+      gleif_api: 'bg-green-100 text-green-800',
+      gleif_raw: 'bg-teal-100 text-teal-800'
     };
 
     return (
@@ -246,12 +252,40 @@ export default function BetaTestingPage() {
                         </Alert>
                       )}
 
-                      {result.technicalDetails && (
+                      {/* Raw JSON Data (for raw methods) */}
+                      {(selectedMethod === 'gleif_raw' && result.rawApiResponse) && (
                         <details className="mt-4">
+                          <summary className="cursor-pointer text-sm font-medium text-gray-600 hover:text-gray-800">
+                            Raw GLEIF Response ({result.entityCount || 0} entities)
+                          </summary>
+                          <div className="mt-2 p-3 bg-gray-50 rounded">
+                            <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-auto max-h-48">
+                              {JSON.stringify(result.rawApiResponse, null, 2)}
+                            </pre>
+                          </div>
+                        </details>
+                      )}
+
+                      {/* Unprocessed Entities (for raw GLEIF) */}
+                      {(selectedMethod === 'gleif_raw' && result.unprocessedEntities) && (
+                         <details className="mt-4">
+                          <summary className="cursor-pointer text-sm font-medium text-gray-600 hover:text-gray-800">
+                            Unprocessed Entities ({result.unprocessedEntities.length})
+                          </summary>
+                           <div className="mt-2 p-3 bg-gray-50 rounded">
+                            <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-auto max-h-48">
+                              {JSON.stringify(result.unprocessedEntities, null, 2)}
+                            </pre>
+                          </div>
+                        </details>
+                      )}
+
+                      {result.technicalDetails && (
+                         <details className="mt-4">
                           <summary className="cursor-pointer text-sm font-medium text-gray-600 hover:text-gray-800">
                             Technical Details
                           </summary>
-                          <div className="mt-2 p-3 bg-gray-50 rounded">
+                           <div className="mt-2 p-3 bg-gray-50 rounded">
                             <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-auto max-h-48">
                               {typeof result.technicalDetails === 'string' 
                                 ? result.technicalDetails 
