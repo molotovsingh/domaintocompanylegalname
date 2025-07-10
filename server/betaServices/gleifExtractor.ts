@@ -367,48 +367,48 @@ export class GLEIFExtractor {
         headers: this.headers,
         timeout: 15000, // Increased timeout
         validateStatus: (status) => status < 500, // Accept 4xx responses as well
-        transformResponse: [(data) => {
-          // Enhanced response validation with Zod
-          if (typeof data === 'string' && data.trim().startsWith('<!DOCTYPE')) {
-            console.error(`[GLEIF] Received HTML response instead of JSON`);
-            throw new Error('GLEIF API returned HTML error page');
-          }
-          
-          let parsedData;
-          try {
-            parsedData = JSON.parse(data);
-          } catch (e) {
-            console.error(`[GLEIF] JSON parse failed:`, data.substring(0, 200));
-            throw new Error('Invalid JSON response from GLEIF API');
-          }
-
-          // Validate response structure with Zod
-          try {
-            return GLEIFApiResponseSchema.parse(parsedData);
-          } catch (validationError) {
-            console.error(`[GLEIF] Response validation failed:`, validationError);
-            // Return raw data if validation fails, but log the issue
-            return parsedData;
-          }
-        }]
       });
 
-      // Additional content type check
+      // Enhanced response validation
       const contentType = response.headers['content-type'] || '';
-      if (contentType.includes('text/html')) {
-        console.error(`[GLEIF] API returned HTML content type (status: ${response.status})`);
+      const responseData = response.data;
+      
+      // Check for HTML error pages
+      if (contentType.includes('text/html') || 
+          (typeof responseData === 'string' && responseData.trim().startsWith('<!DOCTYPE'))) {
+        console.error(`[GLEIF] API returned HTML error page (status: ${response.status})`);
         throw new Error(`GLEIF API returned HTML error page (status: ${response.status})`);
       }
 
-      if (response.status === 200) {
-        // Validate response structure
-        if (!response.data || !Array.isArray(response.data.data)) {
-          console.error(`[GLEIF] Invalid response structure:`, response.data);
-          throw new Error('Invalid GLEIF API response structure');
+      // Validate JSON response
+      if (typeof responseData === 'string') {
+        try {
+          const parsedData = JSON.parse(responseData);
+          response.data = parsedData;
+        } catch (e) {
+          console.error(`[GLEIF] JSON parse failed:`, responseData.substring(0, 200));
+          throw new Error('Invalid JSON response from GLEIF API');
         }
-        
-        console.log(`[GLEIF] API Success: Found ${response.data.data.length} entities`);
-        return response.data as GLEIFApiResponse;
+      }
+
+      if (response.status === 200) {
+        // Validate response structure using Zod
+        try {
+          const validatedData = GLEIFApiResponseSchema.parse(response.data);
+          console.log(`[GLEIF] API Success: Found ${validatedData.data.length} entities`);
+          return validatedData;
+        } catch (validationError) {
+          console.error(`[GLEIF] Response validation failed:`, validationError);
+          
+          // Fallback: check basic structure manually
+          if (response.data && Array.isArray(response.data.data)) {
+            console.log(`[GLEIF] API Success (basic validation): Found ${response.data.data.length} entities`);
+            return response.data as GLEIFApiResponse;
+          } else {
+            console.error(`[GLEIF] Invalid response structure:`, response.data);
+            throw new Error('Invalid GLEIF API response structure');
+          }
+        }
       }
 
       if (response.status === 404) {

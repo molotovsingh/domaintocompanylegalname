@@ -96,10 +96,15 @@ app.post('/api/beta/gleif-test', async (req, res) => {
     console.log(`[Beta] [GLEIF] Testing ${searchTerm || `LEI: ${leiCode}`} (from domain: ${domain || 'N/A'})...`);
 
     let result;
-    if (leiCode) {
-      result = await gleifExtractor.searchByLEI(leiCode);
-    } else {
-      result = await gleifExtractor.extractCompanyInfo(searchTerm);
+    try {
+      if (leiCode) {
+        result = await gleifExtractor.searchByLEI(leiCode);
+      } else {
+        result = await gleifExtractor.extractCompanyInfo(searchTerm);
+      }
+    } catch (extractionError: any) {
+      console.error(`[Beta] [GLEIF] Extraction failed:`, extractionError.message);
+      throw extractionError;
     }
 
     console.log(`[Beta] [GLEIF] Result for ${searchTerm || leiCode}:`, {
