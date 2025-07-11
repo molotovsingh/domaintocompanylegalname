@@ -237,19 +237,25 @@ export class GLEIFExtractor {
       const cleanedName = companyName.trim().replace(/['"]/g, '');
       const encodedTerm = encodeURIComponent(cleanedName);
       
-      // Smart wildcard pattern to avoid HTML error responses
+      // Enhanced wildcard pattern to avoid HTML error responses
       let searchTerm: string;
       if (fuzzy) {
-        // Full wildcard for maximum coverage
-        searchTerm = `*${encodedTerm}*`;
+        // Use core company name for better wildcard matching
+        const coreCompanyName = cleanedName.split(' ')[0]; // Extract first word (e.g., "apple" from "apple inc")
+        const encodedCore = encodeURIComponent(coreCompanyName);
+        searchTerm = `*${encodedCore}*`;
       } else {
-        // Partial wildcard to prevent API returning HTML error pages
-        searchTerm = `${encodedTerm}*`;
+        // For exact search, try core name with partial wildcard for better compatibility
+        const coreCompanyName = cleanedName.split(' ')[0];
+        const encodedCore = encodeURIComponent(coreCompanyName);
+        searchTerm = `${encodedCore}*`;
       }
       
       // Increase page size to get more data - GLEIF allows up to 200
       const searchUrl = `${this.baseUrl}/lei-records?filter[entity.legalName]=${searchTerm}&page[size]=200`;
 
+      const coreCompanyUsed = fuzzy || !fuzzy ? cleanedName.split(' ')[0] : cleanedName;
+      console.log(`[GLEIF-RAW-COMPLETE] Using core company name: "${coreCompanyUsed}" from "${cleanedName}"`);
       console.log(`[GLEIF-RAW-COMPLETE] API Request (${fuzzy ? 'fuzzy' : 'exact'}): ${searchUrl}`);
 
       const requestDetails = {
@@ -540,20 +546,25 @@ export class GLEIFExtractor {
       const cleanedName = companyName.trim().replace(/['"]/g, '');
       const encodedTerm = encodeURIComponent(cleanedName);
       
-      // Enhanced search pattern with better wildcard strategy
+      // Enhanced search pattern with core company name strategy
       let searchTerm: string;
       if (fuzzy) {
-        // Use comprehensive wildcard pattern for better matches
-        searchTerm = `*${encodedTerm}*`;
+        // Use core company name for better wildcard matching (e.g., "apple" instead of "apple inc")
+        const coreCompanyName = cleanedName.split(' ')[0];
+        const encodedCore = encodeURIComponent(coreCompanyName);
+        searchTerm = `*${encodedCore}*`;
       } else {
-        // For exact search, try partial wildcard first for better compatibility
-        // This helps avoid HTML error pages from GLEIF API
-        searchTerm = `${encodedTerm}*`;
+        // For exact search, try core name with partial wildcard for better compatibility
+        const coreCompanyName = cleanedName.split(' ')[0];
+        const encodedCore = encodeURIComponent(coreCompanyName);
+        searchTerm = `${encodedCore}*`;
       }
       
       // Increase page size for better analysis (from tested code insights)
       const searchUrl = `${this.baseUrl}/lei-records?filter[entity.legalName]=${searchTerm}&page[size]=10`;
 
+      const coreCompanyUsed = fuzzy || !fuzzy ? cleanedName.split(' ')[0] : cleanedName;
+      console.log(`[GLEIF] Using core company name: "${coreCompanyUsed}" from "${cleanedName}"`);
       console.log(`[GLEIF] API Request (${fuzzy ? 'fuzzy' : 'exact'}): ${searchUrl}`);
 
       const response: AxiosResponse<any> = await axios.get(searchUrl, {
