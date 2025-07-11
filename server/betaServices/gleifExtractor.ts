@@ -166,12 +166,19 @@ export class GLEIFExtractor {
     try {
       console.log(`[GLEIF-RAW] Starting COMPLETE raw extraction for: ${companyName}`);
       
-      // Try exact search first - capture EVERYTHING
+      // Progressive wildcard strategy for better API compatibility
       let result = await this.searchGLEIFWithCompleteCapture(companyName, false);
       
       if (!result.data || result.data.data.length === 0) {
-        console.log(`[GLEIF-RAW] No exact matches, trying fuzzy search...`);
+        console.log(`[GLEIF-RAW] No exact matches, trying partial wildcard...`);
         result = await this.searchGLEIFWithCompleteCapture(companyName, true);
+      }
+      
+      // If still no results, try full wildcard pattern
+      if (!result.data || result.data.data.length === 0) {
+        console.log(`[GLEIF-RAW] No partial matches, trying full wildcard...`);
+        const wildcardTerm = `*${companyName.split(' ')[0]}*`;
+        result = await this.searchGLEIFWithCompleteCapture(wildcardTerm, true);
       }
 
       const processingTime = Date.now() - startTime;
@@ -230,12 +237,14 @@ export class GLEIFExtractor {
       const cleanedName = companyName.trim().replace(/['"]/g, '');
       const encodedTerm = encodeURIComponent(cleanedName);
       
-      // Enhanced search pattern
+      // Smart wildcard pattern to avoid HTML error responses
       let searchTerm: string;
       if (fuzzy) {
+        // Full wildcard for maximum coverage
         searchTerm = `*${encodedTerm}*`;
       } else {
-        searchTerm = encodedTerm;
+        // Partial wildcard to prevent API returning HTML error pages
+        searchTerm = `${encodedTerm}*`;
       }
       
       // Increase page size to get more data - GLEIF allows up to 200
@@ -531,13 +540,15 @@ export class GLEIFExtractor {
       const cleanedName = companyName.trim().replace(/['"]/g, '');
       const encodedTerm = encodeURIComponent(cleanedName);
       
-      // Enhanced search pattern based on tested fuzzy logic
+      // Enhanced search pattern with better wildcard strategy
       let searchTerm: string;
       if (fuzzy) {
-        // Use more comprehensive fuzzy pattern from tested code
+        // Use comprehensive wildcard pattern for better matches
         searchTerm = `*${encodedTerm}*`;
       } else {
-        searchTerm = encodedTerm;
+        // For exact search, try partial wildcard first for better compatibility
+        // This helps avoid HTML error pages from GLEIF API
+        searchTerm = `${encodedTerm}*`;
       }
       
       // Increase page size for better analysis (from tested code insights)
