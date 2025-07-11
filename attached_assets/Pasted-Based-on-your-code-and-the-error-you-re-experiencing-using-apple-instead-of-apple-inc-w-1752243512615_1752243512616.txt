@@ -1,0 +1,78 @@
+Based on your code and the error you're experiencing, using **"apple"** instead of **"apple inc"** would likely **improve your results** and reduce the HTML error you're seeing. Here's why:
+
+## Why "apple" Works Better
+
+### 1. Reduced API Complexity
+The GLEIF API handles shorter, simpler search terms more reliably[1]. When you search for "apple" instead of "apple inc", you're:
+- Avoiding potential parsing issues with corporate suffixes
+- Reducing the chance of triggering HTML error responses
+- Making the wildcard search pattern more effective
+
+### 2. Better Wildcard Matching
+Your code uses wildcard patterns like `*${encodedTerm}*`. With "apple":
+- The search becomes `*apple*` instead of `*apple%20inc*`
+- This broader pattern is more likely to match various company name formats
+- GLEIF entities might be registered as "Apple Inc.", "Apple Inc", "APPLE INC.", etc.
+
+### 3. GLEIF API Search Behavior
+The GLEIF API supports "fuzzy" matching of relevant data fields such as names and addresses[1][2]. A shorter search term like "apple" allows the API to:
+- Match multiple variations of the company name
+- Find entities with different legal suffixes
+- Avoid exact string matching issues
+
+## Expected Results with "apple"
+
+Based on the GLEIF API documentation and your code structure, searching for "apple" should:
+
+1. **Find Apple Inc.** - The main Apple entity with LEI code
+2. **Potentially find related entities** - Apple subsidiaries or international entities
+3. **Avoid HTML error responses** - Simpler terms are less likely to trigger API errors
+4. **Improve confidence scoring** - Your `calculateNameSimilarity` method will work better
+
+## Code Impact Analysis
+
+Your current code already handles this scenario well:
+
+```typescript
+// Your enhanced search pattern
+if (fuzzy) {
+  searchTerm = `*${encodedTerm}*`;  // *apple* vs *apple%20inc*
+} else {
+  searchTerm = `${encodedTerm}*`;   // apple* vs apple%20inc*
+}
+```
+
+The shorter "apple" term will:
+- Create cleaner URL encoding
+- Reduce the likelihood of the "Unexpected token '<', '<!DOCTYPE'..." error
+- Allow your progressive search strategy to work more effectively
+
+## Recommendation
+
+**Use "apple" instead of "apple inc"** for these reasons:
+
+1. **Higher success rate** - Less likely to return HTML error pages
+2. **Better fuzzy matching** - GLEIF's fuzzy search works better with core terms
+3. **More comprehensive results** - May find multiple Apple entities
+4. **Cleaner API requests** - Simpler encoding and fewer special characters
+
+Your existing error handling and validation code should catch any remaining issues, and the enhanced entity analysis will help you select the best match from multiple results.
+
+[1] https://www.gleif.org/en/lei-data/gleif-api
+[2] https://www.gleif.org/en/lei-data/access-and-use-lei-data
+[3] https://pplx-res.cloudinary.com/image/private/user_uploads/124996/c42d4596-aabb-44f8-b59d-77ce02876aca/Screenshot-2025-07-11-at-11.34.47-AM.jpg
+[4] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/124996/e78bad2c-bcaa-4a80-8ffe-142576a56cc8/paste-2.txt
+[5] https://www.gleif.org
+[6] https://www.gleif.org/en/newsroom/gleif-podcasts/gleif-explains-lei-data-in-your-applications-with-a-single-api
+[7] https://search.gleif.org
+[8] https://emredjan.xyz/blog/2018/04/13/python-gleif-api/
+[9] https://www.gleif.org/lei-data/gleif-golden-copy/download-the-golden-copy/technical-notification-golden-copy-api-file-download-endpoint-changes.pdf
+[10] https://documenter.getpostman.com/view/7679680/SVYrrxuU
+[11] https://github.com/emredjan/leipy
+[12] https://www.gleif.org/lei-data/access-and-use-lei-data/gleif-data-dictionary/2025-01-29_gleif-data-dictionary_v1.1_final.pdf
+[13] https://www.gleif.org/search/
+[14] https://www.youtube.com/watch?v=wxqCfVmQawY
+[15] https://www.gleif.org/en/newsroom/blog/lei-look-up-api-gleif-answers-financial-industry-calls-to-enable-faster-customized-and-automated-access-to-the-legal-entity-identifier-data-pool
+[16] https://www.gleif.org/content/4_lei-data/1_access-and-use-lei-data/6_supporting-documents/GLEIF-API-Changes-Documentation.html
+[17] https://www.gleif.org/en/about/gleif-services/gleif-service-catalog
+[18] https://www.gleif.org/en/about/open-source
