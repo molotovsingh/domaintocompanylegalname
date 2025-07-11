@@ -252,32 +252,110 @@ export default function BetaTestingPage() {
                         </Alert>
                       )}
 
-                      {/* Raw JSON Data (for raw methods) */}
-                      {(selectedMethod === 'gleif_raw' && result.rawApiResponse) && (
-                        <details className="mt-4">
-                          <summary className="cursor-pointer text-sm font-medium text-gray-600 hover:text-gray-800">
-                            Raw GLEIF Response ({result.entityCount || 0} entities)
-                          </summary>
-                          <div className="mt-2 p-3 bg-gray-50 rounded">
-                            <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-auto max-h-48">
-                              {JSON.stringify(result.rawApiResponse, null, 2)}
-                            </pre>
-                          </div>
-                        </details>
-                      )}
+                      {/* COMPLETE RAW JSON DATA DISPLAY (for raw methods) */}
+                      {selectedMethod === 'gleif_raw' && (
+                        <div className="mt-4 space-y-3">
+                          
+                          {/* Complete Raw API Response */}
+                          {result.rawApiResponse && (
+                            <details className="border rounded p-2">
+                              <summary className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-800">
+                                📄 Complete Raw GLEIF Response ({result.entityCount || 0} entities, {result.responseSize || 0} bytes)
+                              </summary>
+                              <div className="mt-2 p-3 bg-blue-50 rounded">
+                                <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-auto max-h-64">
+                                  {JSON.stringify(result.rawApiResponse, null, 2)}
+                                </pre>
+                              </div>
+                            </details>
+                          )}
 
-                      {/* Unprocessed Entities (for raw GLEIF) */}
-                      {(selectedMethod === 'gleif_raw' && result.unprocessedEntities) && (
-                         <details className="mt-4">
-                          <summary className="cursor-pointer text-sm font-medium text-gray-600 hover:text-gray-800">
-                            Unprocessed Entities ({result.unprocessedEntities.length})
-                          </summary>
-                           <div className="mt-2 p-3 bg-gray-50 rounded">
-                            <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-auto max-h-48">
-                              {JSON.stringify(result.unprocessedEntities, null, 2)}
-                            </pre>
+                          {/* HTTP Headers */}
+                          {result.httpHeaders && (
+                            <details className="border rounded p-2">
+                              <summary className="cursor-pointer text-sm font-medium text-green-600 hover:text-green-800">
+                                🌐 HTTP Headers from GLEIF (API Version: {result.gleifApiVersion || 'unknown'})
+                              </summary>
+                              <div className="mt-2 p-3 bg-green-50 rounded">
+                                <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-auto max-h-32">
+                                  {JSON.stringify(result.httpHeaders, null, 2)}
+                                </pre>
+                              </div>
+                            </details>
+                          )}
+
+                          {/* GLEIF Metadata */}
+                          {result.metaData && (
+                            <details className="border rounded p-2">
+                              <summary className="cursor-pointer text-sm font-medium text-purple-600 hover:text-purple-800">
+                                📊 GLEIF Metadata & Pagination
+                              </summary>
+                              <div className="mt-2 p-3 bg-purple-50 rounded">
+                                <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-auto max-h-32">
+                                  {JSON.stringify(result.metaData, null, 2)}
+                                </pre>
+                              </div>
+                            </details>
+                          )}
+
+                          {/* GLEIF Links */}
+                          {result.includesLinks && (
+                            <details className="border rounded p-2">
+                              <summary className="cursor-pointer text-sm font-medium text-orange-600 hover:text-orange-800">
+                                🔗 GLEIF API Links
+                              </summary>
+                              <div className="mt-2 p-3 bg-orange-50 rounded">
+                                <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-auto max-h-32">
+                                  {JSON.stringify(result.includesLinks, null, 2)}
+                                </pre>
+                              </div>
+                            </details>
+                          )}
+
+                          {/* Unprocessed Entities */}
+                          {result.unprocessedEntities && (
+                            <details className="border rounded p-2">
+                              <summary className="cursor-pointer text-sm font-medium text-red-600 hover:text-red-800">
+                                🏢 Raw Entity Data ({result.unprocessedEntities.length} entities)
+                              </summary>
+                              <div className="mt-2 p-3 bg-red-50 rounded">
+                                <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-auto max-h-64">
+                                  {JSON.stringify(result.unprocessedEntities, null, 2)}
+                                </pre>
+                              </div>
+                            </details>
+                          )}
+
+                          {/* Request Details */}
+                          {result.requestDetails && (
+                            <details className="border rounded p-2">
+                              <summary className="cursor-pointer text-sm font-medium text-gray-600 hover:text-gray-800">
+                                🔍 Request Details & Technical Info
+                              </summary>
+                              <div className="mt-2 p-3 bg-gray-50 rounded">
+                                <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-auto max-h-32">
+                                  {JSON.stringify(result.requestDetails, null, 2)}
+                                </pre>
+                              </div>
+                            </details>
+                          )}
+
+                          {/* Data Integrity Summary */}
+                          <div className="bg-gray-100 p-3 rounded text-xs">
+                            <strong>🔒 Data Integrity:</strong> Complete passthrough - No data processing or modification applied.
+                            <br />
+                            <strong>📈 Capture Method:</strong> {result.technicalDetails?.captureMethod || 'unknown'}
+                            <br />
+                            <strong>✅ Sections Included:</strong> {
+                              result.technicalDetails?.includedSections ? 
+                              Object.entries(result.technicalDetails.includedSections)
+                                .filter(([key, value]) => value)
+                                .map(([key]) => key)
+                                .join(', ') : 'none'
+                            }
                           </div>
-                        </details>
+
+                        </div>
                       )}
 
                       {result.technicalDetails && (

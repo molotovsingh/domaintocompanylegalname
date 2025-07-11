@@ -65,7 +65,7 @@ app.get('/api/beta/gleif-connection-test', async (req, res) => {
   }
 });
 
-// Raw GLEIF JSON extraction endpoint (like Perplexity approach)
+// Raw GLEIF JSON extraction endpoint - COMPLETE DATA PASSTHROUGH (like Perplexity approach)
 app.post('/api/beta/gleif-raw', async (req, res) => {
   try {
     const { domain, searchTerm, leiCode } = req.body;
@@ -78,51 +78,84 @@ app.post('/api/beta/gleif-raw', async (req, res) => {
     }
 
     const queryTerm = searchTerm || domain || leiCode;
-    console.log(`[Beta] [GLEIF-RAW] Raw extraction for: ${queryTerm}`);
+    console.log(`[Beta] [GLEIF-RAW-COMPLETE] Complete raw extraction for: ${queryTerm}`);
 
     const rawResult = await gleifExtractor.extractRawGleifData(queryTerm);
 
-    console.log(`[Beta] [GLEIF-RAW] Raw result:`, {
+    console.log(`[Beta] [GLEIF-RAW-COMPLETE] Raw result:`, {
       success: rawResult.success,
-      entityCount: rawResult.unprocessedEntities?.length || 0,
-      processingTime: rawResult.processingTime
+      entityCount: rawResult.totalRecords || 0,
+      processingTime: rawResult.processingTime,
+      responseSize: rawResult.responseSize,
+      hasMetaData: !!rawResult.metaData,
+      hasLinks: !!rawResult.includesLinks,
+      gleifApiVersion: rawResult.gleifApiVersion
     });
 
-    // Return completely raw data like Perplexity does
+    // Return ABSOLUTELY EVERYTHING - complete passthrough like Perplexity
     res.json({
       success: rawResult.success,
       domain: domain || queryTerm,
-      method: 'gleif_raw_api',
+      method: 'gleif_raw_complete_api',
       processingTime: rawResult.processingTime,
       error: rawResult.error || null,
       errorCode: rawResult.error ? 'API_ERROR' : null,
-      extractionMethod: 'gleif_raw_json',
-      // Raw data passthrough - no processing
-      rawApiResponse: rawResult.rawApiResponse,
-      fullGleifResponse: rawResult.fullGleifResponse,
-      unprocessedEntities: rawResult.unprocessedEntities,
-      entityCount: rawResult.unprocessedEntities?.length || 0,
+      extractionMethod: 'gleif_complete_raw_json',
+      
+      // COMPLETE RAW DATA SECTION - Everything GLEIF returns
+      rawApiResponse: rawResult.rawApiResponse, // Complete unmodified API response
+      fullGleifResponse: rawResult.fullGleifResponse, // Same data for compatibility
+      completeRawData: rawResult.completeRawData, // All raw data
+      unprocessedEntities: rawResult.unprocessedEntities, // Just the entities array
+      
+      // ADDITIONAL DATA GLEIF PROVIDES
+      httpHeaders: rawResult.httpHeaders, // All HTTP headers from GLEIF
+      metaData: rawResult.metaData, // GLEIF metadata
+      paginationInfo: rawResult.paginationInfo, // Pagination details
+      includesLinks: rawResult.includesLinks, // GLEIF API links
+      
+      // TECHNICAL DETAILS
+      requestDetails: rawResult.requestDetails, // Original request info
+      totalRecords: rawResult.totalRecords || 0,
+      entityCount: rawResult.totalRecords || 0, // For compatibility
+      gleifApiVersion: rawResult.gleifApiVersion,
+      responseSize: rawResult.responseSize,
+      
       technicalDetails: {
         apiUrl: 'https://api.gleif.org/api/v1',
-        searchType: rawResult.unprocessedEntities?.length === 1 ? 'exact' : 'fuzzy',
-        responseSize: JSON.stringify(rawResult.rawApiResponse || {}).length
+        searchType: rawResult.requestDetails?.fuzzySearch ? 'fuzzy' : 'exact',
+        responseSize: rawResult.responseSize,
+        gleifApiVersion: rawResult.gleifApiVersion,
+        captureMethod: 'complete_passthrough',
+        dataIntegrity: 'unmodified',
+        includedSections: {
+          data: !!rawResult.rawApiResponse?.data,
+          meta: !!rawResult.metaData,
+          links: !!rawResult.includesLinks,
+          included: !!rawResult.rawApiResponse?.included,
+          httpHeaders: !!rawResult.httpHeaders
+        }
       }
     });
 
   } catch (error: any) {
-    console.error(`[Beta] [GLEIF-RAW] Error:`, error.message);
+    console.error(`[Beta] [GLEIF-RAW-COMPLETE] Error:`, error.message);
 
     res.status(500).json({
       success: false,
       domain: req.body.domain || 'N/A',
-      method: 'gleif_raw_api',
+      method: 'gleif_raw_complete_api',
       processingTime: 0,
       error: error.message,
       errorCode: 'API_ERROR',
       extractionMethod: null,
       rawApiResponse: null,
       fullGleifResponse: null,
+      completeRawData: null,
       unprocessedEntities: null,
+      httpHeaders: null,
+      metaData: null,
+      totalRecords: 0,
       entityCount: 0
     });
   }

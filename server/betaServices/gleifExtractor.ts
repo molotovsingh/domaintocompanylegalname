@@ -142,47 +142,69 @@ export class GLEIFExtractor {
   };
 
   /**
-   * Extract raw JSON from GLEIF API without processing (like Perplexity approach)
+   * Extract raw JSON from GLEIF API without ANY processing (complete passthrough like Perplexity)
    */
   async extractRawGleifData(companyName: string): Promise<{
     success: boolean;
     rawApiResponse: any;
-    fullGleifResponse?: GLEIFApiResponse;
-    unprocessedEntities?: GLEIFApiEntity[];
+    fullGleifResponse?: any;
+    unprocessedEntities?: any[];
+    completeRawData?: any;
+    httpHeaders?: any;
+    requestDetails?: any;
     error?: string;
     processingTime: number;
+    totalRecords?: number;
+    paginationInfo?: any;
+    includesLinks?: any;
+    metaData?: any;
+    gleifApiVersion?: string;
+    responseSize?: number;
   }> {
     const startTime = Date.now();
     
     try {
-      console.log(`[GLEIF-RAW] Starting raw extraction for: ${companyName}`);
+      console.log(`[GLEIF-RAW] Starting COMPLETE raw extraction for: ${companyName}`);
       
-      // Try exact search first
-      let result = await this.searchGLEIF(companyName, false);
+      // Try exact search first - capture EVERYTHING
+      let result = await this.searchGLEIFWithCompleteCapture(companyName, false);
       
-      if (!result || result.data.length === 0) {
+      if (!result.data || result.data.data.length === 0) {
         console.log(`[GLEIF-RAW] No exact matches, trying fuzzy search...`);
-        result = await this.searchGLEIF(companyName, true);
+        result = await this.searchGLEIFWithCompleteCapture(companyName, true);
       }
 
       const processingTime = Date.now() - startTime;
 
-      if (!result || result.data.length === 0) {
+      if (!result.data || result.data.data.length === 0) {
         return {
           success: false,
           rawApiResponse: null,
           error: "No GLEIF matches found",
-          processingTime
+          processingTime,
+          requestDetails: result.requestDetails
         };
       }
 
-      // Return completely raw data - no processing
+      // Calculate response size
+      const responseSize = JSON.stringify(result.data).length;
+
+      // Return ABSOLUTELY EVERYTHING - zero processing
       return {
         success: true,
-        rawApiResponse: result, // Complete API response
-        fullGleifResponse: result,
-        unprocessedEntities: result.data,
-        processingTime
+        rawApiResponse: result.data, // Complete unmodified API response
+        fullGleifResponse: result.data, // Same data, different key for compatibility
+        unprocessedEntities: result.data.data, // Just the entities array
+        completeRawData: result.data, // Complete raw response
+        httpHeaders: result.headers, // All HTTP headers from GLEIF
+        requestDetails: result.requestDetails, // Request URL, method, etc.
+        processingTime,
+        totalRecords: result.data.data ? result.data.data.length : 0,
+        paginationInfo: result.data.meta || null,
+        includesLinks: result.data.links || null,
+        metaData: result.data.meta || null,
+        gleifApiVersion: result.headers?.['api-version'] || 'unknown',
+        responseSize
       };
 
     } catch (error: any) {
@@ -192,6 +214,108 @@ export class GLEIFExtractor {
         error: error.message,
         processingTime: Date.now() - startTime
       };
+    }
+  }
+
+  /**
+   * Enhanced search method that captures EVERYTHING from GLEIF API
+   */
+  private async searchGLEIFWithCompleteCapture(companyName: string, fuzzy: boolean = false): Promise<{
+    data: any;
+    headers: any;
+    requestDetails: any;
+  }> {
+    try {
+      // Clean and prepare search term
+      const cleanedName = companyName.trim().replace(/['"]/g, '');
+      const encodedTerm = encodeURIComponent(cleanedName);
+      
+      // Enhanced search pattern
+      let searchTerm: string;
+      if (fuzzy) {
+        searchTerm = `*${encodedTerm}*`;
+      } else {
+        searchTerm = encodedTerm;
+      }
+      
+      // Increase page size to get more data - GLEIF allows up to 200
+      const searchUrl = `${this.baseUrl}/lei-records?filter[entity.legalName]=${searchTerm}&page[size]=200`;
+
+      console.log(`[GLEIF-RAW-COMPLETE] API Request (${fuzzy ? 'fuzzy' : 'exact'}): ${searchUrl}`);
+
+      const requestDetails = {
+        url: searchUrl,
+        method: 'GET',
+        headers: this.headers,
+        searchTerm: companyName,
+        fuzzySearch: fuzzy,
+        timestamp: new Date().toISOString()
+      };
+
+      const response: AxiosResponse<any> = await axios.get(searchUrl, {
+        headers: this.headers,
+        timeout: 30000, // Longer timeout for more data
+        validateStatus: (status) => status < 500,
+      });
+
+      // Enhanced response validation but preserve ALL data
+      const contentType = response.headers['content-type'] || '';
+      const responseData = response.data;
+      
+      // Check for HTML error pages
+      if (contentType.includes('text/html') || 
+          (typeof responseData === 'string' && responseData.trim().startsWith('<!DOCTYPE'))) {
+        console.error(`[GLEIF-RAW-COMPLETE] API returned HTML error page (status: ${response.status})`);
+        throw new Error(`GLEIF API returned HTML error page (status: ${response.status})`);
+      }
+
+      // Handle string responses (parse but keep original)
+      let finalData = responseData;
+      if (typeof responseData === 'string') {
+        try {
+          finalData = JSON.parse(responseData);
+        } catch (e) {
+          console.error(`[GLEIF-RAW-COMPLETE] JSON parse failed:`, responseData.substring(0, 200));
+          throw new Error('Invalid JSON response from GLEIF API');
+        }
+      }
+
+      if (response.status === 200) {
+        console.log(`[GLEIF-RAW-COMPLETE] API Success: Found ${finalData.data ? finalData.data.length : 0} entities`);
+        console.log(`[GLEIF-RAW-COMPLETE] Response includes:`, Object.keys(finalData));
+        
+        // Log additional data structures found
+        if (finalData.meta) {
+          console.log(`[GLEIF-RAW-COMPLETE] Meta data available:`, Object.keys(finalData.meta));
+        }
+        if (finalData.links) {
+          console.log(`[GLEIF-RAW-COMPLETE] Links available:`, Object.keys(finalData.links));
+        }
+        if (finalData.included) {
+          console.log(`[GLEIF-RAW-COMPLETE] Included data available:`, finalData.included.length, 'items');
+        }
+        
+        return {
+          data: finalData, // Complete unmodified response
+          headers: response.headers, // All HTTP headers
+          requestDetails
+        };
+      }
+
+      if (response.status === 404) {
+        console.log(`[GLEIF-RAW-COMPLETE] No entities found for search term: ${companyName}`);
+        return { 
+          data: { data: [] }, 
+          headers: response.headers,
+          requestDetails
+        };
+      }
+
+      throw new Error(`GLEIF API returned status ${response.status}`);
+
+    } catch (error: any) {
+      console.error(`[GLEIF-RAW-COMPLETE] Error:`, error.message);
+      throw error;
     }
   }
 
