@@ -8,8 +8,12 @@ import Analytics from "@/pages/analytics";
 import ParsingRules from "@/pages/parsing-rules";
 import JurisdictionalGuide from "@/pages/jurisdictional-guide";
 import KnowledgeGraphPage from "@/pages/knowledge-graph";
-import SmokeTestingPage from "@/pages/smoke-testing";
-import BetaTestingPage from "@/pages/beta-testing";
+import SmokeTesting from "@/pages/smoke-testing";
+import GlobalExpansionStatus from './pages/global-expansion-status';
+import BetaTestingPage from './pages/beta-testing';
+import GLEIFTestingPage from './pages/gleif-testing';
+import PerplexityTestingPage from './pages/perplexity-testing';
+import ScrapingTestingPage from './pages/scraping-testing';
 import NotFound from "@/pages/not-found";
 import { lazy } from "react";
 
