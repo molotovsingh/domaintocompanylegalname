@@ -4,7 +4,7 @@
  * Tests basic connectivity and response format from GLEIF API
  */
 
-const https = require('https');
+import https from 'https';
 
 async function testGLEIFConnection() {
   console.log('🔍 GLEIF API Connection Test');
@@ -138,8 +138,6 @@ function makeGLEIFRequest(url) {
 }
 
 // Run the test
-if (require.main === module) {
-  testGLEIFConnection().catch(console.error);
-}
+testGLEIFConnection().catch(console.error);
 
-module.exports = { testGLEIFConnection };
+export { testGLEIFConnection };
