@@ -266,3 +266,95 @@ npx tsx standalonePerplexity.ts
 5. Document accuracy and limitations
 
 This beta services architecture provides a robust foundation for experimental domain extraction research while maintaining complete isolation from production systems, enabling safe innovation and method validation.
+# Beta Services
+
+*Created: July 12, 2025 at 2:52 AM UTC*
+
+This folder contains experimental extraction services for beta testing new domain intelligence methods.
+
+## Current Services
+
+### **Core Extractors**
+- **`puppeteerExtractor.ts`** - Advanced browser-based extraction
+  - Comprehensive company name detection
+  - JavaScript rendering for dynamic content
+  - Multiple extraction strategies with confidence scoring
+  - Production-ready for Fortune 500 enterprise domains
+
+- **`playwrightExtractor.ts`** - Alternative browser automation
+  - Cross-browser compatibility testing
+  - Enhanced performance for modern web applications
+  - Experimental features for complex SPAs
+
+- **`axiosCheerioExtractor.ts`** - Lightweight HTTP extraction
+  - Fast static content processing
+  - No browser overhead for simple sites
+  - Fallback option for resource-constrained scenarios
+
+### **Intelligence Enhancement**
+- **`gleifExtractor.ts`** - GLEIF API integration
+  - Legal entity validation and enhancement
+  - Corporate relationship discovery
+  - Business intelligence categorization
+
+- **`perplexityExtractor.ts`** - AI-powered extraction
+  - LLM-based company name identification
+  - Complex content analysis and understanding
+  - Experimental AI reasoning capabilities
+
+### **Standalone Tools**
+- **`standalonePerplexity.ts`** - Independent Perplexity testing
+  - Isolated testing environment for AI features
+  - Development and debugging tool
+
+## Architecture Strategy
+
+### **Isolation Principle**
+- Complete separation from production extraction pipeline
+- Independent database schema (`shared/betaSchema.ts`)
+- Risk-free testing of experimental approaches
+- Parallel processing without affecting live systems
+
+### **Performance Testing**
+- Method effectiveness comparison
+- Processing time optimization
+- Success rate analysis across different extraction strategies
+- Resource utilization monitoring
+
+## Integration Points
+
+### **Beta Server**
+- Dedicated server (`server/betaIndex.ts`) for experimental features
+- Real-time testing interface accessible at port 3001
+- Independent deployment and monitoring
+
+### **Data Flow**
+```
+Beta Upload → Beta Processing → Beta Database → Beta Analysis
+     ↓              ↓              ↓              ↓
+Experimental    New Methods    Isolated       Performance
+Input Files     Testing        Storage        Evaluation
+```
+
+## Development Guidelines
+
+### **Adding New Extractors**
+1. Create new service in this directory
+2. Implement standard extraction interface
+3. Add comprehensive error handling
+4. Include confidence scoring mechanism
+5. Document extraction methodology
+
+### **Testing Protocol**
+- Use test data from `/test-data/` directory
+- Compare against production baseline
+- Measure both accuracy and performance
+- Document lessons learned in `/archived/learnings/`
+
+## Current Status
+
+All beta services are operational and actively used for:
+- Fortune 500 domain processing validation
+- New extraction method development
+- Performance optimization research
+- AI/LLM integration experimentation
