@@ -1,7 +1,7 @@
 # Migrations - Database Schema Evolution
 
-**Created:** January 11, 2025, 2:33 AM UTC  
-**Last Updated:** January 11, 2025, 2:33 AM UTC
+**Created:** July 12, 2025 at 2:52 AM UTC  
+**Last Updated:** July 12, 2025 at 2:52 AM UTC
 
 ## Purpose
 This folder contains all database migrations that define and evolve the PostgreSQL schema for the Domain Intelligence Platform. Migrations ensure database consistency across development, testing, and production environments.
