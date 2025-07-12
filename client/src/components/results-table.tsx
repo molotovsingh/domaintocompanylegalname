@@ -81,7 +81,7 @@ export default function ResultsTable({ currentBatchId }: ResultsTableProps) {
     const hasLevel2Processing = domains.some((d: Domain) => 
       d.level2Attempted && d.level2Status === 'processing'
     );
-    
+
     if (hasLevel2Processing) {
       // More frequent refresh for GLEIF processing
       const interval = setInterval(() => {

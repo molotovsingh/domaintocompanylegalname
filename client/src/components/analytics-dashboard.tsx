@@ -55,7 +55,7 @@ export default function AnalyticsDashboard() {
   // Get latest batch data
   const latestBatch = analyticsData[0];
   const previousBatch = analyticsData[1];
-  
+
   // Calculate cumulative averages (excluding latest batch for comparison)
   const historicalData = analyticsData.slice(1); // All batches except the latest
   const historicalAvgConfidence = historicalData.length > 0 
@@ -70,13 +70,13 @@ export default function AnalyticsDashboard() {
   const historicalAvgProcessingTime = historicalData.length > 0
     ? Math.round(historicalData.reduce((sum, batch) => sum + batch.avgProcessingTimePerDomain, 0) / historicalData.length)
     : 0;
-  
+
   // Calculate performance vs historical average
   const confidencePerformance = historicalAvgConfidence > 0 ? latestBatch.medianConfidence - historicalAvgConfidence : 0;
   const successPerformance = historicalAvgSuccess > 0 ? latestBatch.successRate - historicalAvgSuccess : 0;
   const domainMappingPerformance = historicalAvgDomainMapping > 0 ? latestBatch.domainMappingPercentage - historicalAvgDomainMapping : 0;
   const processingTimePerformance = historicalAvgProcessingTime > 0 ? historicalAvgProcessingTime - latestBatch.avgProcessingTimePerDomain : 0; // Inverted: lower is better
-  
+
   // Overall averages for summary
   const avgConfidence = Math.round(analyticsData.reduce((sum, batch) => sum + batch.medianConfidence, 0) / analyticsData.length);
   const avgSuccessRate = Math.round(analyticsData.reduce((sum, batch) => sum + batch.successRate, 0) / analyticsData.length);

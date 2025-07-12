@@ -18,13 +18,13 @@ export default function Dashboard() {
 
   const { data: stats, refetch: refetchStats } = useQuery({
     queryKey: ["/api/stats"],
-    refetchInterval: 60000,
+    refetchInterval: 600000,
     staleTime: 45000,
   });
 
   const { data: batches } = useQuery({
     queryKey: ["/api/batches"],
-    refetchInterval: 120000,
+    refetchInterval: 600000,
     staleTime: 90000,
   });
 

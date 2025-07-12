@@ -38,19 +38,21 @@ export default function SessionResults({ batchId }: SessionResultsProps) {
   // Always get all session results first
   const { data: allSessionResults, isLoading: loadingAll } = useQuery<SessionResults[]>({
     queryKey: ['/api/session-results'],
+    refetchInterval: 600000
   });
 
   // If specific batchId provided, get that specific session
   const { data: specificSessionResult, isLoading: loadingSpecific } = useQuery<SessionResults>({
     queryKey: ['/api/session-results', batchId],
     enabled: !!batchId,
+    refetchInterval: 600000
   });
 
   const isLoading = batchId ? loadingSpecific : loadingAll;
-  
+
   // Determine which session results to display
   let sessionResults = null;
-  
+
   if (batchId) {
     // Show specific batch session
     sessionResults = Array.isArray(specificSessionResult) 

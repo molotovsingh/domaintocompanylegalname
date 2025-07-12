@@ -1,5 +1,5 @@
 
-import React, { Suspense } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 
@@ -43,7 +43,7 @@ const getTextColor = (type: string) => {
   }
 };
 
-function RecentChangesContent() {
+export default function RecentChanges() {
   const { data: changesData, error, isLoading } = useQuery({
     queryKey: ["changes"],
     queryFn: async () => {
@@ -57,7 +57,6 @@ function RecentChangesContent() {
     staleTime: 300000, // 5 minutes
     retry: 1,
     refetchOnWindowFocus: false,
-    suspense: false, // Disable suspense to prevent React warnings
   });
 
   const changes = changesData?.changes || [];
@@ -109,17 +108,5 @@ function RecentChangesContent() {
         </div>
       ))}
     </div>
-  );
-}
-
-export default function RecentChanges() {
-  return (
-    <Suspense fallback={
-      <div className="text-center py-6 text-muted-foreground">
-        <p>Loading recent changes...</p>
-      </div>
-    }>
-      <RecentChangesContent />
-    </Suspense>
   );
 }
