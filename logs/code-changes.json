@@ -1,6 +1,100 @@
 
 [
   {
+    "id": "chg009",
+    "timestamp": "2025-07-12T09:45:00.000Z",
+    "agent": "assistant",
+    "type": "fix",
+    "description": "Fixed React Suspense error for lazy-loaded recent-changes route",
+    "files": [
+      "client/src/App.tsx"
+    ]
+  },
+  {
+    "id": "chg008",
+    "timestamp": "2025-07-12T09:20:00.000Z",
+    "agent": "assistant",
+    "type": "system",
+    "description": "Project structure reorganization - created organized folders for documentation and archives",
+    "files": [
+      "docs/current/README.md",
+      "docs/journey/README.md",
+      "archived/design-docs/README.md",
+      "archived/learnings/README.md",
+      "decisions/README.md",
+      "PROJECT_STRUCTURE.md"
+    ]
+  },
+  {
+    "id": "chg007",
+    "timestamp": "2025-07-12T09:15:00.000Z",
+    "agent": "assistant",
+    "type": "enhancement",
+    "description": "Cleaned up project structure - moved test files, POC code, logs, and scripts to organized folders",
+    "files": [
+      "test-data/",
+      "archived/poc/",
+      "logs/",
+      "scripts/"
+    ]
+  },
+  {
+    "id": "chg006",
+    "timestamp": "2025-07-12T08:47:00.000Z",
+    "agent": "assistant",
+    "type": "feature",
+    "description": "Playwright Browser Automation Implementation - Added as 6th extraction method with full extraction hierarchy",
+    "files": [
+      "server/betaServices/playwrightExtractor.ts",
+      "client/src/pages/beta-testing.tsx",
+      "replit.md"
+    ]
+  },
+  {
+    "id": "chg005",
+    "timestamp": "2025-07-12T08:30:00.000Z",
+    "agent": "assistant",
+    "type": "fix",
+    "description": "Fixed Playwright __name is not defined error by removing Python-style code",
+    "files": [
+      "server/betaServices/playwrightExtractor.ts"
+    ]
+  },
+  {
+    "id": "chg004",
+    "timestamp": "2025-07-08T00:00:00.000Z",
+    "agent": "assistant",
+    "type": "system",
+    "description": "Comprehensive server restart protection with intelligent port conflict resolution",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "id": "chg003",
+    "timestamp": "2025-07-07T00:00:00.000Z",
+    "agent": "assistant",
+    "type": "fix",
+    "description": "Fixed GLEIF status display bug - resolved frontend caching issue",
+    "files": [
+      "client/src/components/results-table.tsx",
+      "client/src/pages/dashboard.tsx"
+    ]
+  },
+  {
+    "id": "chg002",
+    "timestamp": "2025-07-06T00:00:00.000Z",
+    "agent": "assistant",
+    "type": "feature",
+    "description": "Beta Testing Platform - Comprehensive extraction system with 5 methods",
+    "files": [
+      "server/betaIndex.ts",
+      "server/betaServices/",
+      "client/src/pages/beta-testing.tsx"
+    ]
+  },
+  {
     "id": "chg001",
     "timestamp": "2025-01-07T18:15:00.000Z",
     "agent": "assistant",
