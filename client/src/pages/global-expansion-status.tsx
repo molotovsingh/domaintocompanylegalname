@@ -3,18 +3,44 @@ import React from 'react';
 import { getGlobalExpansionStatus } from '@shared/jurisdictions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { ArrowLeft, Globe } from 'lucide-react';
+import { Link } from 'wouter';
 
 export default function GlobalExpansionStatus() {
   const status = getGlobalExpansionStatus();
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-8">
-      <header className="border-b pb-4">
-        <h1 className="text-3xl font-bold">Global Jurisdiction Expansion</h1>
-        <p className="text-gray-600 mt-2">
-          Expanding domain intelligence to all 123 jurisdictions worldwide
-        </p>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-4">
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Link>
+              <div className="flex items-center space-x-3">
+                <div className="bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg p-2">
+                  <Globe className="h-6 w-6" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-semibold text-gray-900">Global Expansion Status</h1>
+                  <p className="text-sm text-gray-600">Worldwide jurisdiction expansion progress</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </header>
+
+      <main className="max-w-6xl mx-auto p-6 space-y-8">
+        <header className="border-b pb-4">
+          <h1 className="text-3xl font-bold">Global Jurisdiction Expansion</h1>
+          <p className="text-gray-600 mt-2">
+            Expanding domain intelligence to all 123 jurisdictions worldwide
+          </p>
+        </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
@@ -119,6 +145,7 @@ export default function GlobalExpansionStatus() {
           </div>
         </CardContent>
       </Card>
+      </main>
     </div>
   );
 }

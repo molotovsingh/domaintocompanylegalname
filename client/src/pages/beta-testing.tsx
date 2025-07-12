@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle, XCircle, Clock, Loader2, AlertCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Loader2, AlertCircle, ArrowLeft, TestTube } from 'lucide-react';
+import { Link } from 'wouter';
 
 interface TestResult {
   domain: string;
@@ -130,13 +131,37 @@ export default function BetaTestingPage() {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Beta Testing Platform</h1>
-        <p className="text-muted-foreground">
-          Test domain extraction methods with enhanced debugging and analysis capabilities
-        </p>
-      </div>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-4">
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Link>
+              <div className="flex items-center space-x-3">
+                <div className="bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg p-2">
+                  <TestTube className="h-6 w-6" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-semibold text-gray-900">Beta Testing Platform</h1>
+                  <p className="text-sm text-gray-600">Test domain extraction methods with enhanced debugging</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="container mx-auto p-6 max-w-6xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Beta Testing Platform</h1>
+          <p className="text-muted-foreground">
+            Test domain extraction methods with enhanced debugging and analysis capabilities
+          </p>
+        </div>
 
       <Tabs defaultValue="single" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
@@ -450,6 +475,7 @@ export default function BetaTestingPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      </main>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -46,7 +45,7 @@ export default function PerplexityTestingPage() {
       }
 
       const result = await response.json();
-      
+
       if (result.success && result.data) {
         setTestResults(result.data);
       } else {
@@ -71,6 +70,7 @@ export default function PerplexityTestingPage() {
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
+      <main>
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2 flex items-center">
           <Brain className="w-8 h-8 mr-3 text-orange-500" />
@@ -211,6 +211,7 @@ export default function PerplexityTestingPage() {
           </CardContent>
         </Card>
       )}
+      </main>
     </div>
   );
 }

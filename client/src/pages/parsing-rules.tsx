@@ -1,4 +1,6 @@
 import { EXTRACTION_METHODS, CONFIDENCE_MODIFIERS, VALIDATION_RULES, PROCESSING_TIMEOUTS, getEnabledMethods } from "@shared/parsing-rules";
+import { ArrowLeft, Settings } from 'lucide-react';
+import { Link } from 'wouter';
 
 function MethodCard({ method }: { method: any }) {
   return (
@@ -85,27 +87,51 @@ export default function ParsingRules() {
   const enabledCount = enabledMethods.length;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-8">
-      <header className="border-b pb-4">
-        <h1 className="text-2xl font-bold">Parsing Rules Configuration</h1>
-        <p className="text-gray-600 mt-2">
-          Machine-friendly extraction methods, confidence modifiers, and validation rules for domain intelligence processing.
-        </p>
-        <div className="mt-3 flex items-center gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 bg-green-100 rounded"></span>
-            <span>Enabled ({enabledCount}/{totalMethods})</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 bg-red-100 rounded"></span>
-            <span>Disabled</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 bg-blue-100 rounded"></span>
-            <span>Priority Order</span>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-4">
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Link>
+              <div className="flex items-center space-x-3">
+                <div className="bg-gradient-to-r from-gray-500 to-slate-600 text-white rounded-lg p-2">
+                  <Settings className="h-6 w-6" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-semibold text-gray-900">Parsing Rules</h1>
+                  <p className="text-sm text-gray-600">Extraction methods and validation configuration</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </header>
+
+      <main className="max-w-6xl mx-auto p-6 space-y-8">
+        <header className="border-b pb-4">
+          <h1 className="text-2xl font-bold">Parsing Rules Configuration</h1>
+          <p className="text-gray-600 mt-2">
+            Machine-friendly extraction methods, confidence modifiers, and validation rules for domain intelligence processing.
+          </p>
+          <div className="mt-3 flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 bg-green-100 rounded"></span>
+              <span>Enabled ({enabledCount}/{totalMethods})</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 bg-red-100 rounded"></span>
+              <span>Disabled</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 bg-blue-100 rounded"></span>
+              <span>Priority Order</span>
+            </div>
+          </div>
+        </header>
 
       <section>
         <h2 className="text-xl font-semibold mb-4">Extraction Methods</h2>
@@ -198,6 +224,7 @@ export default function ParsingRules() {
           add new extraction patterns, or update validation rules without touching extraction logic.
         </div>
       </section>
+      </main>
     </div>
   );
 }

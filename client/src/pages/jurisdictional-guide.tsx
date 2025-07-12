@@ -1,4 +1,6 @@
 import { JURISDICTIONS, type JurisdictionData, type LegalEntityCategory } from "@shared/jurisdictions";
+import { ArrowLeft, BookOpen } from 'lucide-react';
+import { Link } from 'wouter';
 
 function EntityCard({ title, entity }: { title: string; entity: LegalEntityCategory }) {
   return (
@@ -74,33 +76,58 @@ export default function JurisdictionalGuide() {
     .flatMap(e => e.suffixes).length;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-8">
-      <header className="border-b pb-4">
-        <h1 className="text-2xl font-bold">Jurisdictional Knowledge Reference</h1>
-        <p className="text-gray-600 mt-2">
-          Comprehensive legal entity recognition across {jurisdictionCount} jurisdictions with {totalSuffixes}+ corporate suffixes and validation rules.
-        </p>
-        <div className="mt-3 flex items-center gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 bg-blue-100 rounded"></span>
-            <span>Mandatory Suffixes</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 bg-gray-100 rounded"></span>
-            <span>Optional Suffixes</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 bg-green-100 rounded"></span>
-            <span>Supported TLDs</span>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-4">
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Link>
+              <div className="flex items-center space-x-3">
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg p-2">
+                  <BookOpen className="h-6 w-6" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-semibold text-gray-900">Jurisdictional Guide</h1>
+                  <p className="text-sm text-gray-600">Legal entity recognition reference</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </header>
+
+      <main className="max-w-6xl mx-auto p-6 space-y-8">
+        <header className="border-b pb-4">
+          <h1 className="text-2xl font-bold">Jurisdictional Knowledge Reference</h1>
+          <p className="text-gray-600 mt-2">
+            Comprehensive legal entity recognition across {jurisdictionCount} jurisdictions with {totalSuffixes}+ corporate suffixes and validation rules.
+          </p>
+          <div className="mt-3 flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 bg-blue-100 rounded"></span>
+              <span>Mandatory Suffixes</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 bg-gray-100 rounded"></span>
+              <span>Optional Suffixes</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 bg-green-100 rounded"></span>
+              <span>Supported TLDs</span>
+            </div>
+          </div>
+        </header>
 
       <div className="space-y-6">
         {Object.entries(JURISDICTIONS).map(([key, data]) => (
           <JurisdictionSection key={key} jurisdictionKey={key} data={data} />
         ))}
       </div>
+      </main>
     </div>
   );
 }
