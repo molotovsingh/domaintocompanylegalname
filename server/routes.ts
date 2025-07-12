@@ -1144,6 +1144,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // GLEIF raw data proxy endpoint
+  app.post('/api/beta/gleif-raw', async (req, res) => {
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).json({ 
+        success: false, 
+        error: 'Beta server is not running. Please start it using the workflow dropdown.',
+        status: 'stopped'
+      });
+    }
+
+    try {
+      const response = await axios.post('http://localhost:3001/api/beta/gleif-raw', req.body, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      console.error('GLEIF raw proxy error:', error.message);
+      res.status(503).json({ 
+        success: false, 
+        error: 'Beta server is still starting up. Please wait a moment and try again.',
+        status: 'starting'
+      });
+    }
+  });
+
   // GLEIF connection test endpoint (for debugging)
   app.get('/api/test/gleif-connection', async (req, res) => {
     try {
