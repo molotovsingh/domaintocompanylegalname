@@ -1,6 +1,7 @@
-import { List, CheckCircle, Clock } from "lucide-react";
+import { List, CheckCircle, Clock, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { ProcessingStats } from "@shared/schema";
+import LiveTimestamp from "@/components/live-timestamp";
 
 interface StatsCardsProps {
   stats?: ProcessingStats;

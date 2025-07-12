@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Globe, User, BarChart3, Trash2, Settings, ChevronDown } from "lucide-react";
+import { Globe, User, BarChart3, Trash2, Settings, ChevronDown, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +9,7 @@ import StatsCards from "@/components/stats-cards";
 import FileUpload from "@/components/file-upload";
 import ProcessingStatus from "@/components/processing-status";
 import ResultsTable from "@/components/results-table";
+import LiveTimestamp from "@/components/live-timestamp";
 
 export default function Dashboard() {
   const [currentBatchId, setCurrentBatchId] = useState<string | null>(null);
@@ -80,7 +81,14 @@ export default function Dashboard() {
               </div>
               <div>
                 <h1 className="text-xl font-medium text-gray-900">Domain Extractor</h1>
-                <p className="text-sm text-gray-600">Extract company names from domains at scale</p>
+                <div className="flex items-center gap-4">
+                  <p className="text-sm text-gray-600">Extract company names from domains at scale</p>
+                  <LiveTimestamp 
+                    format="display"
+                    className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-md"
+                    showIcon={true}
+                  />
+                </div>
               </div>
             </div>
             <div className="flex items-center space-x-4">
