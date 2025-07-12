@@ -36,6 +36,7 @@ export default function BetaTestingPage() {
     { id: 'all', name: 'All Methods', description: 'Run all extraction methods' },
     { id: 'axios_cheerio', name: 'Axios/Cheerio', description: 'Standard HTML parsing' },
     { id: 'puppeteer', name: 'Puppeteer', description: 'Browser automation' },
+    { id: 'playwright', name: 'Playwright', description: 'Advanced browser automation' },
     { id: 'perplexity_llm', name: 'Perplexity LLM', description: 'AI-powered extraction' },
     { id: 'gleif_api', name: 'GLEIF API', description: 'Legal entity data' },
     { id: 'gleif_raw', name: 'GLEIF RAW', description: 'Unprocessed JSON' }
@@ -115,6 +116,7 @@ export default function BetaTestingPage() {
     const methodColors = {
       axios_cheerio: 'bg-blue-100 text-blue-800',
       puppeteer: 'bg-purple-100 text-purple-800',
+      playwright: 'bg-indigo-100 text-indigo-800',
       perplexity_llm: 'bg-orange-100 text-orange-800',
       gleif_api: 'bg-green-100 text-green-800',
       gleif_raw: 'bg-teal-100 text-teal-800'

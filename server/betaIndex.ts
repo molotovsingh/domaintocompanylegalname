@@ -9,6 +9,7 @@ import { PerplexityExtractor } from './betaServices/perplexityExtractor';
 import { AxiosCheerioExtractor } from './betaServices/axiosCheerioExtractor';
 import { gleifExtractor } from './betaServices/gleifExtractor';
 import { PuppeteerExtractor } from './betaServices/puppeteerExtractor';
+import { PlaywrightExtractor } from './betaServices/playwrightExtractor';
 
 const execAsync = promisify(exec);
 
@@ -483,8 +484,14 @@ app.post('/api/beta/smoke-test', async (req, res) => {
       const extractor = new PuppeteerExtractor();
       console.log(`[Beta] Testing ${domain} with Puppeteer...`);
       result = await extractor.extractFromDomain(domain);
+      await extractor.close();
+    } else if (method === 'playwright') {
+      const extractor = new PlaywrightExtractor();
+      console.log(`[Beta] Testing ${domain} with Playwright...`);
+      result = await extractor.extractFromDomain(domain);
+      await extractor.close();
     } else {
-      return res.status(400).json({ error: 'Invalid method. Supported methods: perplexity_llm, axios_cheerio, puppeteer' });
+      return res.status(400).json({ error: 'Invalid method. Supported methods: perplexity_llm, axios_cheerio, puppeteer, playwright' });
     }
 
     // Store in beta database with experiment ID

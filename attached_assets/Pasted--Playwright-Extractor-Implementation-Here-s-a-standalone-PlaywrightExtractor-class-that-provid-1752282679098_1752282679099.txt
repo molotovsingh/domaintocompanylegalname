@@ -1,0 +1,381 @@
+# Playwright Extractor Implementation
+
+Here's a standalone **PlaywrightExtractor** class that provides an alternative browser automation method for your beta testing platform. This implementation mirrors your existing PuppeteerExtractor structure while leveraging Playwright's enhanced capabilities.
+
+## Complete PlaywrightExtractor Class
+
+```typescript
+import { chromium, Browser, Page } from 'playwright';
+
+export class PlaywrightExtractor {
+  private browser: Browser | null = null;
+
+  async initialize(): Promise {
+    try {
+      console.log('[Beta] [Playwright] Initializing browser...');
+      
+      this.browser = await chromium.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-gpu',
+          '--disable-dev-shm-usage',
+          '--no-first-run',
+          '--no-zygote',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding'
+        ]
+      });
+      
+      console.log('[Beta] [Playwright] Browser initialized successfully');
+    } catch (error) {
+      console.error('[Beta] [Playwright] Failed to initialize browser:', error);
+      throw error;
+    }
+  }
+
+  async extractFromDomain(domain: string): Promise {
+    const startTime = Date.now();
+    let page: Page | null = null;
+
+    try {
+      if (!this.browser) {
+        await this.initialize();
+      }
+
+      console.log(`[Beta] [Playwright] Processing domain: ${domain}`);
+      
+      page = await this.browser!.newPage();
+      
+      // Configure page
+      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await page.setDefaultTimeout(15000);
+
+      // Navigate to domain
+      const url = domain.startsWith('http') ? domain : `https://${domain}`;
+      console.log(`[Beta] [Playwright] Navigating to: ${url}`);
+      
+      const response = await page.goto(url, { 
+        waitUntil: 'domcontentloaded',
+        timeout: 15000 
+      });
+
+      const httpStatus = response?.status() || 0;
+      
+      if (httpStatus >= 400) {
+        throw new Error(`HTTP ${httpStatus} - Failed to load page`);
+      }
+
+      // Wait for content to stabilize
+      await page.waitForTimeout(1000);
+
+      // Extract data using the same logic as PuppeteerExtractor
+      const extractedData = await page.evaluate(() => {
+        const extractCompanyName = () => {
+          // Try structured data first
+          const jsonLd = document.querySelector('script[type="application/ld+json"]');
+          if (jsonLd) {
+            try {
+              const data = JSON.parse(jsonLd.textContent || '');
+              if (data.name || (data['@type'] === 'Organization' && data.name)) {
+                return {
+                  name: data.name,
+                  method: 'structured_data',
+                  confidence: 95
+                };
+              }
+            } catch (e) {
+              // Ignore JSON parse errors
+            }
+          }
+          
+          // Try meta tags
+          const ogSiteName = document.querySelector('meta[property="og:site_name"]');
+          const appName = document.querySelector('meta[name="application-name"]');
+          const metaName = ogSiteName?.getAttribute('content') || appName?.getAttribute('content');
+          if (metaName && metaName.trim()) {
+            return { 
+              name: metaName.trim(), 
+              method: 'meta_property', 
+              confidence: 85 
+            };
+          }
+          
+          // Try footer copyright
+          const footer = document.querySelector('footer');
+          if (footer) {
+            const footerText = footer.textContent || '';
+            const copyrightMatch = footerText.match(/©\s*\d{4}\s*([^.,|]+?)(?:\.|,|All|$)/i);
+            if (copyrightMatch && copyrightMatch[1].trim()) {
+              return { 
+                name: copyrightMatch[1].trim(), 
+                method: 'footer_copyright', 
+                confidence: 75 
+              };
+            }
+          }
+          
+          return null;
+        };
+
+        const companyResult = extractCompanyName();
+        
+        return {
+          title: document.title,
+          companyName: companyResult?.name || null,
+          extractionMethod: companyResult?.method || null,
+          confidence: companyResult?.confidence || 0,
+          htmlSize: document.documentElement.outerHTML.length
+        };
+      });
+
+      const processingTime = Date.now() - startTime;
+      
+      console.log(`[Beta] [Playwright] Extraction complete for ${domain}:`, {
+        companyName: extractedData.companyName,
+        confidence: extractedData.confidence,
+        method: extractedData.extractionMethod,
+        processingTime: `${processingTime}ms`
+      });
+
+      return {
+        companyName: extractedData.companyName,
+        confidence: extractedData.confidence || 0,
+        extractionMethod: extractedData.extractionMethod,
+        processingTimeMs: processingTime,
+        success: !!extractedData.companyName,
+        error: null,
+        httpStatus,
+        renderRequired: true,
+        rawHtmlSize: extractedData.htmlSize
+      };
+
+    } catch (error: any) {
+      console.error(`[Beta] [Playwright] Error processing ${domain}:`, error.message);
+      
+      return {
+        companyName: null,
+        confidence: 0,
+        extractionMethod: null,
+        processingTimeMs: Date.now() - startTime,
+        success: false,
+        error: error.message,
+        httpStatus: 0,
+        renderRequired: true,
+        rawHtmlSize: 0
+      };
+    } finally {
+      if (page) {
+        try {
+          await page.close();
+        } catch (e) {
+          console.error('[Beta] [Playwright] Error closing page:', e);
+        }
+      }
+    }
+  }
+
+  async close(): Promise {
+    if (this.browser) {
+      await this.browser.close();
+      this.browser = null;
+      console.log('[Beta] [Playwright] Browser closed');
+    }
+  }
+}
+```
+
+## Integration with Your Express Server
+
+Add this endpoint to your existing Express server:
+
+```typescript
+import { PlaywrightExtractor } from './betaServices/playwrightExtractor';
+
+// Playwright testing endpoint
+app.post('/api/beta/playwright-test', async (req, res) => {
+  const { domain } = req.body;
+  
+  if (!domain) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Domain is required' 
+    });
+  }
+
+  const extractor = new PlaywrightExtractor();
+  
+  try {
+    console.log(`[Beta] Testing ${domain} with Playwright...`);
+    const result = await extractor.extractFromDomain(domain);
+    
+    res.json({
+      success: true,
+      domain,
+      method: 'playwright_browser',
+      ...result
+    });
+  } catch (error: any) {
+    console.error(`[Beta] Playwright extraction failed:`, error.message);
+    res.status(500).json({
+      success: false,
+      domain,
+      method: 'playwright_browser',
+      error: error.message
+    });
+  } finally {
+    await extractor.close();
+  }
+});
+```
+
+## Update Your Smoke Test Endpoint
+
+Modify your existing smoke test to include Playwright:
+
+```typescript
+// Enhanced smoke test endpoint with Playwright support
+app.post('/api/beta/smoke-test', async (req, res) => {
+  const { domain, method } = req.body;
+
+  if (!domain || !method) {
+    return res.status(400).json({ error: 'Domain and method are required' });
+  }
+
+  try {
+    let result: any = null;
+
+    if (method === 'perplexity_llm') {
+      const extractor = new PerplexityExtractor();
+      console.log(`[Beta] Testing ${domain} with Perplexity LLM...`);
+      result = await extractor.extractFromDomain(domain);
+    } else if (method === 'axios_cheerio') {
+      const extractor = new AxiosCheerioExtractor();
+      console.log(`[Beta] Testing ${domain} with Axios/Cheerio...`);
+      result = await extractor.extractFromDomain(domain);
+    } else if (method === 'puppeteer_browser') {
+      const extractor = new PuppeteerExtractor();
+      console.log(`[Beta] Testing ${domain} with Puppeteer...`);
+      result = await extractor.extractFromDomain(domain);
+      await extractor.close();
+    } else if (method === 'playwright_browser') {
+      const extractor = new PlaywrightExtractor();
+      console.log(`[Beta] Testing ${domain} with Playwright...`);
+      result = await extractor.extractFromDomain(domain);
+      await extractor.close();
+    } else {
+      return res.status(400).json({ 
+        error: 'Invalid method. Supported methods: perplexity_llm, axios_cheerio, puppeteer_browser, playwright_browser' 
+      });
+    }
+
+    // Store in beta database
+    const dbResult = await betaDb.insert(betaSmokeTests).values({
+      domain,
+      method,
+      experimentId: 1,
+      ...result
+    }).returning();
+
+    const responseData = {
+      ...result,
+      confidence: result.confidence || 0
+    };
+
+    res.json({ success: true, data: responseData });
+
+  } catch (error: any) {
+    console.error('[Beta] Error in smoke test:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+```
+
+## Package Installation
+
+Install Playwright in your Replit environment:
+
+```bash
+# In Replit's Shell tab
+npm install playwright
+
+# Install browser binaries
+npx playwright install chromium
+```
+
+## Key Advantages of Playwright vs Puppeteer
+
+### **1. Better Browser Support**
+- **Multiple browsers**: Chromium, Firefox, Safari (WebKit)
+- **Cross-platform consistency**: Better handling across different environments
+- **Auto-wait functionality**: Built-in smart waiting for elements
+
+### **2. Enhanced Reliability**
+- **Better error handling**: More descriptive error messages
+- **Improved stability**: Less prone to hanging or crashing
+- **Network interception**: Advanced request/response handling
+
+### **3. Replit Optimization**
+- **Faster startup**: Generally faster browser initialization
+- **Better resource management**: More efficient memory usage
+- **Improved debugging**: Better error reporting and logging
+
+## Replit-Specific Optimizations
+
+For your Replit environment, consider these optimizations:
+
+```typescript
+// Replit-optimized configuration
+this.browser = await chromium.launch({
+  headless: true,
+  args: [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-gpu',
+    '--disable-dev-shm-usage',
+    '--disable-images', // Save bandwidth in Replit
+    '--disable-extensions',
+    '--disable-plugins',
+    '--memory-pressure-off'
+  ]
+});
+```
+
+## Testing Your Implementation
+
+### **1. Test Playwright Endpoint**
+```bash
+curl -X POST https://your-repl.repl.co/api/beta/playwright-test \
+  -H "Content-Type: application/json" \
+  -d '{"domain": "apple.com"}'
+```
+
+### **2. Compare Methods**
+```bash
+# Test all methods for comparison
+curl -X POST https://your-repl.repl.co/api/beta/smoke-test \
+  -H "Content-Type: application/json" \
+  -d '{"domain": "apple.com", "method": "playwright_browser"}'
+```
+
+## Expected Benefits
+
+### **1. Alternative Testing**
+- **Method comparison**: Direct comparison with Puppeteer performance
+- **Reliability testing**: Different browser automation approach
+- **Fallback option**: Backup method if Puppeteer fails
+
+### **2. Performance Analysis**
+- **Speed comparison**: Playwright vs Puppeteer processing times
+- **Success rate**: Different extraction success rates
+- **Resource usage**: Memory and CPU consumption differences
+
+### **3. Enhanced Debugging**
+- **Better error messages**: Playwright provides more detailed error information
+- **Improved logging**: Enhanced debugging capabilities
+- **Network insights**: Better understanding of request/response cycles
+
+This PlaywrightExtractor provides a robust alternative to your existing PuppeteerExtractor, allowing you to compare browser automation approaches and choose the best method for different scenarios in your beta testing platform.
