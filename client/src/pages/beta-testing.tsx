@@ -53,7 +53,7 @@ export default function BetaTestingPage() {
   const fetchRawData = async (testId: number) => {
     setLoadingRawData(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/beta/raw-data/${testId}`);
+      const response = await fetch(`/api/beta/raw-data/${testId}`);
       if (!response.ok) throw new Error('Failed to fetch raw data');
       const result = await response.json();
       if (result.success) {
