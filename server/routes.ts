@@ -1109,13 +1109,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/beta/smoke-test/results', async (req, res) => {
     try {
-      const response = await axios.get('http://localhost:3001/api/beta/smoke-test/results');
+      const response = await axios.get('http://localhost:3001/api/beta/smoke-test/results', {
+        timeout: 10000 // 10 second timeout
+      });
       res.json(response.data);
     } catch (error) {
       res.status(503).json({ 
         success: false, 
         error: 'Beta server is still starting up. Please wait a moment and try again.',
         status: 'starting'
+      });
+    }
+  });
+
+  // Add raw data endpoint proxy
+  app.get('/api/beta/raw-data/:testId', async (req, res) => {
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).json({ 
+        success: false, 
+        error: 'Beta server is not running.',
+        status: 'stopped'
+      });
+    }
+
+    try {
+      const response = await axios.get(`http://localhost:3001/api/beta/raw-data/${req.params.testId}`, {
+        timeout: 10000 // 10 second timeout
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      console.error('Beta raw-data proxy error:', error.message);
+      res.status(503).json({ 
+        success: false, 
+        error: 'Failed to fetch raw data from beta server',
+        status: 'error'
       });
     }
   });
@@ -1132,15 +1160,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const response = await axios.post('http://localhost:3001/api/beta/smoke-test', req.body, {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 30000 // 30 second timeout for Playwright extraction
       });
       res.json(response.data);
-    } catch (error) {
-      res.status(503).json({ 
-        success: false, 
-        error: 'Beta server is still starting up. Please wait a moment and try again.',
-        status: 'starting'
-      });
+    } catch (error: any) {
+      console.error('Beta smoke-test proxy error:', error.message);
+      if (error.code === 'ECONNABORTED') {
+        res.status(504).json({ 
+          success: false, 
+          error: 'Request timeout - extraction is taking longer than expected',
+          status: 'timeout'
+        });
+      } else {
+        res.status(503).json({ 
+          success: false, 
+          error: 'Beta server error: ' + error.message,
+          status: 'error'
+        });
+      }
     }
   });
 
