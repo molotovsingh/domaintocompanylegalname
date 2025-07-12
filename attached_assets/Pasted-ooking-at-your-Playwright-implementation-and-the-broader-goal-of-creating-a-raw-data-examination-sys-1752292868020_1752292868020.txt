@@ -1,0 +1,40 @@
+ooking at your Playwright implementation and the broader goal of creating a raw data examination system for LLM assessment, I recommend focusing on both text data AND visual data for a comprehensive approach. Here's why:
+
+Why Both Text and Visual Data Matter
+Text Data (Essential Foundation):
+
+Complete HTML content for pattern analysis
+All extraction attempts and confidence scores
+Meta tags, structured data, headers
+Network requests/responses
+Processing logs and error details
+Visual Data (Critical Context):
+
+Screenshots provide layout understanding that HTML alone can't capture
+Visual positioning of company names affects extraction reliability
+Logo placement and branding context
+Mobile vs desktop rendering differences
+Dynamic content that changes after page load
+Enhanced Raw Data Structure for Both
+Here's how to modify your Playwright extractor to capture comprehensive raw data:
+
+server/betaServices/playwrightExtractor.ts
+Enhanced raw data capture with text and visual data, Track all extraction attempts and add raw content, Record structured data extraction attempt, Record meta property extraction attempt, Add comprehensive raw data to return object, Return enhanced raw data structure
+This enhanced structure gives you:
+
+Text Data Benefits:
+Complete HTML for advanced NLP analysis
+All extraction attempts for confidence pattern recognition
+Structured metadata for training data generation
+Processing context for performance optimization
+Visual Data Benefits:
+Screenshots for visual ML training
+Layout analysis for position-based extraction improvement
+Brand recognition training data
+Mobile/responsive testing validation
+Storage Recommendation
+Store this enhanced raw data in your betaSmokeTests table using JSONB:
+
+ALTER TABLE betaSmokeTests 
+ADD COLUMN IF NOT EXISTS rawExtractionData JSONB;
+This approach gives you both immediate text-based LLM assessment capabilities while building a foundation for future visual AI analysis. The combination provides the most comprehensive dataset for improving your extraction methods.
