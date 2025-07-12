@@ -33,6 +33,7 @@ export class PlaywrightExtractor {
   async extractFromDomain(domain: string): Promise<any> {
     const startTime = Date.now();
     let page: Page | null = null;
+    let context: any = null;
 
     try {
       if (!this.browser) {
@@ -41,11 +42,13 @@ export class PlaywrightExtractor {
 
       console.log(`[Beta] [Playwright] Processing domain: ${domain}`);
       
-      page = await this.browser!.newPage();
+      // Create browser context with user agent and viewport
+      context = await this.browser!.newContext({
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        viewport: { width: 1920, height: 1080 }
+      });
       
-      // Configure page
-      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-      await page.setViewportSize({ width: 1920, height: 1080 });
+      page = await context.newPage();
       await page.setDefaultTimeout(15000);
 
       // Navigate to domain
@@ -234,6 +237,13 @@ export class PlaywrightExtractor {
           await page.close();
         } catch (e) {
           console.error('[Beta] [Playwright] Error closing page:', e);
+        }
+      }
+      if (context) {
+        try {
+          await context.close();
+        } catch (e) {
+          console.error('[Beta] [Playwright] Error closing context:', e);
         }
       }
     }
