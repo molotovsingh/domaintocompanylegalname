@@ -1,0 +1,45 @@
+1:24:11 AM [express] GET /api/results/62vnXldaDZH-ujO7ysONg 304 in 78ms :: {"domains":[{"id":5425,"d…
+1:24:54 AM [express] [Beta] [Beta] Testing rediff.com with Playwright...
+1:24:54 AM [express] [Beta] [Beta] [Playwright] Initializing browser...
+1:24:54 AM [express] [Beta] [Beta] [Playwright] Browser initialized successfully
+[Beta] [Playwright] Processing domain: rediff.com
+1:24:54 AM [express] [Beta] [Beta] [Playwright] Navigating to: https://rediff.com
+1:24:56 AM [express] [Beta Error] [Beta] [Playwright] Error processing rediff.com: page.evaluate: ReferenceError: __name is not defined
+    at eval (eval at evaluate (:291:30), <anonymous>:1:31)
+    at UtilityScript.evaluate (<anonymous>:293:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+1:24:56 AM [express] [Beta] [Beta] [Playwright] Browser closed
+1:24:56 AM [express] POST /api/beta/smoke-test 200 in 2508ms :: {"success":true,"data":{"companyName…
+1:25:23 AM [express] [Beta] [Beta] Testing https://www.devmusical.com/ with Playwright...
+1:25:23 AM [express] [Beta] [Beta] [Playwright] Initializing browser...
+1:25:23 AM [express] [Beta] [Beta] [Playwright] Browser initialized successfully
+1:25:23 AM [express] [Beta] [Beta] [Playwright] Processing domain: https://www.devmusical.com/
+1:25:23 AM [express] [Beta] [Beta] [Playwright] Navigating to: https://www.devmusical.com/
+1:25:26 AM [express] [Beta Error] [Beta] [Playwright] Error processing https://www.devmusical.com/: page.evaluate: ReferenceError: __name is not defined
+    at eval (eval at evaluate (:291:30), <anonymous>:1:31)
+    at UtilityScript.evaluate (<anonymous>:293:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+1:25:26 AM [express] [Beta] [Beta] [Playwright] Browser closed
+1:25:26 AM [express] POST /api/beta/smoke-test 200 in 3430ms :: {"success":true,"data":{"companyName…
+1:25:39 AM [express] [Beta] [Beta] Testing devmusical.com/ with Playwright...
+[Beta] [Playwright] Initializing browser...
+1:25:39 AM [express] [Beta] [Beta] [Playwright] Browser initialized successfully
+[Beta] [Playwright] Processing domain: devmusical.com/
+1:25:39 AM [express] [Beta] [Beta] [Playwright] Navigating to: https://devmusical.com/
+1:25:43 AM [express] [Beta Error] [Beta] [Playwright] Error processing devmusical.com/: page.evaluate: ReferenceError: __name is not defined
+    at eval (eval at evaluate (:291:30), <anonymous>:1:31)
+    at UtilityScript.evaluate (<anonymous>:293:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+1:25:43 AM [express] [Beta] [Beta] [Playwright] Browser closed
+1:25:43 AM [express] POST /api/beta/smoke-test 503 in 4010ms :: {"success":false,"error":"Beta serve…
+1:25:44 AM [express] [Beta] [Beta] Testing devmusical.com with Playwright...
+1:25:44 AM [express] [Beta] [Beta] [Playwright] Initializing browser...
+1:25:44 AM [express] [Beta] [Beta] [Playwright] Browser initialized successfully
+[Beta] [Playwright] Processing domain: devmusical.com
+1:25:45 AM [express] [Beta] [Beta] [Playwright] Navigating to: https://devmusical.com
+1:25:48 AM [express] [Beta Error] [Beta] [Playwright] Error processing devmusical.com: page.evaluate: ReferenceError: __name is not defined
+    at eval (eval at evaluate (:291:30), <anonymous>:1:31)
+    at UtilityScript.evaluate (<anonymous>:293:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+1:25:48 AM [express] [Beta] [Beta] [Playwright] Browser closed
+1:25:48 AM [express] POST /api/beta/smoke-test 200 in 3899ms :: {"success":true,"data":{"companyName…
