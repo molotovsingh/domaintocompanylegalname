@@ -1,11 +1,11 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Badge } from '../components/ui/badge';
+import { Alert, AlertDescription } from '../components/ui/alert';
+import { Loader2, Search, Database, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { RawGLEIFDisplay } from '../components/raw-gleif-display';
 
 interface GLEIFResult {
   success: boolean;
@@ -35,7 +35,7 @@ export default function GLEIFTestingPage() {
 
     try {
       const endpoint = testType === 'raw' ? '/api/beta/gleif-raw' : '/api/beta/gleif-test';
-      
+
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -133,92 +133,11 @@ export default function GLEIFTestingPage() {
       </Card>
 
       {/* Results Display */}
-      {testResults && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>GLEIF Test Results</CardTitle>
-              <Badge variant={testResults.success ? 'default' : 'destructive'}>
-                {testResults.success ? (
-                  <><CheckCircle className="w-3 h-3 mr-1" />Success</>
-                ) : (
-                  <><XCircle className="w-3 h-3 mr-1" />Failed</>
-                )}
-              </Badge>
-            </div>
-            <CardDescription>
-              Results for "{companyName}" using GLEIF {testType} method
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {testResults.success ? (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">Company Name:</span>
-                    <p className="text-sm">{testResults.companyName || 'N/A'}</p>
-                  </div>
-                  {testResults.leiCode && (
-                    <div>
-                      <span className="text-sm font-medium text-muted-foreground">LEI Code:</span>
-                      <p className="text-sm font-mono">{testResults.leiCode}</p>
-                    </div>
-                  )}
-                  {testResults.entityStatus && (
-                    <div>
-                      <span className="text-sm font-medium text-muted-foreground">Entity Status:</span>
-                      <p className="text-sm">{testResults.entityStatus}</p>
-                    </div>
-                  )}
-                  {testResults.country && (
-                    <div>
-                      <span className="text-sm font-medium text-muted-foreground">Country:</span>
-                      <p className="text-sm">{testResults.country}</p>
-                    </div>
-                  )}
-                  {testResults.confidence && (
-                    <div>
-                      <span className="text-sm font-medium text-muted-foreground">Confidence:</span>
-                      <p className="text-sm">{testResults.confidence}</p>
-                    </div>
-                  )}
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">Processing Time:</span>
-                    <p className="text-sm">{testResults.processingTime}ms</p>
-                  </div>
-                  {testResults.totalRecords && (
-                    <div>
-                      <span className="text-sm font-medium text-muted-foreground">Total Records:</span>
-                      <p className="text-sm">{testResults.totalRecords}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Raw API Response for Raw Tests */}
-                {testType === 'raw' && testResults.rawApiResponse && (
-                  <details className="mt-4">
-                    <summary className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-800">
-                      📄 Raw GLEIF API Response ({testResults.entityCount || 0} entities)
-                    </summary>
-                    <div className="mt-2 p-3 bg-gray-50 rounded">
-                      <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-auto max-h-96">
-                        {JSON.stringify(testResults.rawApiResponse, null, 2)}
-                      </pre>
-                    </div>
-                  </details>
-                )}
-              </div>
-            ) : (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Error:</strong> {testResults.error}
-                </AlertDescription>
-              </Alert>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      <RawGLEIFDisplay 
+        result={testResults} 
+        loading={isProcessing} 
+        error={testResults?.success === false ? testResults.error : undefined}
+      />
     </div>
   );
 }
