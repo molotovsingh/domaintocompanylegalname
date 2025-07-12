@@ -269,6 +269,109 @@ export class PlaywrightExtractor {
           websiteType = 'corporate';
         }
         
+        // Extract geographic markers safely
+        const geoMarkers = {
+          addresses: [],
+          phoneNumbers: [],
+          currencies: [],
+          countries: [],
+          languages: [],
+          legalJurisdictions: []
+        };
+        
+        const contactInfo = {
+          emails: [],
+          socialLinks: [],
+          aboutUsLink: null,
+          termsLink: null,
+          privacyLink: null,
+          contactLink: null
+        };
+        
+        const businessIdentifiers = {
+          registrationNumbers: [],
+          taxIds: [],
+          licenses: []
+        };
+        
+        try {
+          const bodyText = document.body.textContent || '';
+          
+          // Extract emails
+          const emailMatches = bodyText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
+          contactInfo.emails = Array.from(new Set(emailMatches)).slice(0, 10);
+          
+          // Extract phone numbers (US format)
+          const phoneMatches = bodyText.match(/\+?1?\s*\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/g) || [];
+          geoMarkers.phoneNumbers = Array.from(new Set(phoneMatches)).slice(0, 10);
+          
+          // Extract addresses (simple pattern)
+          const addressMatches = bodyText.match(/\d+\s+\w+\s+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd)/gi) || [];
+          geoMarkers.addresses = Array.from(new Set(addressMatches)).slice(0, 5);
+          
+          // Detect currencies
+          if (bodyText.indexOf('$') !== -1) geoMarkers.currencies.push('$');
+          if (bodyText.indexOf('€') !== -1) geoMarkers.currencies.push('€');
+          if (bodyText.indexOf('£') !== -1) geoMarkers.currencies.push('£');
+          if (bodyText.indexOf('¥') !== -1) geoMarkers.currencies.push('¥');
+          
+          // Detect countries
+          const countryList = ['United States', 'USA', 'UK', 'United Kingdom', 'Canada', 'Germany', 'France', 'Japan', 'China', 'India'];
+          for (const country of countryList) {
+            if (bodyText.indexOf(country) !== -1) {
+              geoMarkers.countries.push(country);
+            }
+          }
+          
+          // Get language
+          const htmlLang = document.documentElement.lang;
+          if (htmlLang) geoMarkers.languages.push(htmlLang);
+          
+          // Extract social links
+          const links = Array.from(document.querySelectorAll('a[href]'));
+          const socialDomains = ['facebook.com', 'twitter.com', 'linkedin.com', 'instagram.com', 'youtube.com'];
+          
+          for (const link of links) {
+            const href = link.href || '';
+            for (const domain of socialDomains) {
+              if (href.indexOf(domain) !== -1) {
+                contactInfo.socialLinks.push(href);
+                break;
+              }
+            }
+          }
+          contactInfo.socialLinks = contactInfo.socialLinks.slice(0, 10);
+          
+          // Find important page links
+          for (const link of links) {
+            const href = link.getAttribute('href') || '';
+            const text = (link.textContent || '').toLowerCase();
+            
+            if (!contactInfo.aboutUsLink && (href.indexOf('about') !== -1 || text.indexOf('about') !== -1)) {
+              contactInfo.aboutUsLink = href;
+            }
+            if (!contactInfo.termsLink && (href.indexOf('terms') !== -1 || text.indexOf('terms') !== -1)) {
+              contactInfo.termsLink = href;
+            }
+            if (!contactInfo.privacyLink && (href.indexOf('privacy') !== -1 || text.indexOf('privacy') !== -1)) {
+              contactInfo.privacyLink = href;
+            }
+            if (!contactInfo.contactLink && (href.indexOf('contact') !== -1 || text.indexOf('contact') !== -1)) {
+              contactInfo.contactLink = href;
+            }
+          }
+          
+          // Extract business identifiers (simplified)
+          const companyNoMatch = bodyText.match(/Company No\.?\s*:?\s*([A-Z0-9-]+)/i);
+          if (companyNoMatch) businessIdentifiers.registrationNumbers.push(companyNoMatch[1]);
+          
+          const vatMatch = bodyText.match(/VAT\s*:?\s*([A-Z0-9-]+)/i);
+          if (vatMatch) businessIdentifiers.taxIds.push(vatMatch[1]);
+          
+        } catch (err) {
+          console.error('Error extracting additional data:', err);
+        }
+        
         // Get DOM metrics
         const domMetrics = {
           viewportHeight: window.innerHeight,
@@ -291,7 +394,10 @@ export class PlaywrightExtractor {
           metaTags,
           structuredData,
           domMetrics,
-          fullHtml: fullHtml.substring(0, 50000) // First 50k chars to avoid huge payloads
+          fullHtml: fullHtml.substring(0, 50000), // First 50k chars to avoid huge payloads
+          geoMarkers,
+          contactInfo,
+          businessIdentifiers
         };
       });
 
@@ -309,33 +415,44 @@ export class PlaywrightExtractor {
       // Prepare comprehensive raw data
       const rawExtractionData = {
         // Text Data
-        fullHtml: extractedData.fullHtml,
-        extractionAttempts: extractedData.extractionAttempts,
-        structuredData: extractedData.structuredData,
-        metaTags: extractedData.metaTags,
-        networkRequests: networkRequests.filter(req => req.status), // Only completed requests
+        textData: {
+          fullHTML: extractedData.fullHtml,
+          extractionAttempts: extractedData.extractionAttempts,
+          structuredData: extractedData.structuredData,
+          metaTags: extractedData.metaTags,
+          networkRequests: networkRequests.filter(req => req.status), // Only completed requests
+        },
         
         // Visual Data
-        screenshots: {
-          fullPage: screenshotFullPage.toString('base64'),
-          aboveFold: screenshotAboveFold.toString('base64')
+        visualData: {
+          fullPageScreenshot: screenshotFullPage.toString('base64'),
+          aboveFoldScreenshot: screenshotAboveFold.toString('base64'),
+          domMetrics: extractedData.domMetrics,
         },
-        domMetrics: extractedData.domMetrics,
+        
+        // Geographic & Contact Data
+        geoMarkers: extractedData.geoMarkers,
+        contactInfo: extractedData.contactInfo,
+        businessIdentifiers: extractedData.businessIdentifiers,
         
         // Processing Context
-        processingLogs,
-        performanceMetrics: {
-          totalTime: processingTime,
-          navigationTime: networkRequests.find(req => req.url === url)?.responseTime || 0,
-          extractionTime: processingTime - (networkRequests.find(req => req.url === url)?.responseTime || 0)
-        },
-        websiteType: extractedData.websiteType
+        processingContext: {
+          processingLogs,
+          performanceMetrics: {
+            totalTime: processingTime,
+            navigationTime: networkRequests.find(req => req.url === url)?.responseTime || 0,
+            extractionTime: processingTime - (networkRequests.find(req => req.url === url)?.responseTime || 0)
+          },
+          websiteType: extractedData.websiteType,
+          extractionMethod: extractedData.extractionMethod,
+          confidence: extractedData.confidence
+        }
       };
 
       return {
         companyName: extractedData.companyName,
-        confidence: extractedData.confidence || 0,
-        extractionMethod: extractedData.extractionMethod,
+        companyConfidence: extractedData.confidence || 0,
+        companyExtractionMethod: extractedData.extractionMethod,
         processingTimeMs: processingTime,
         success: !!extractedData.companyName,
         error: null,
@@ -343,6 +460,18 @@ export class PlaywrightExtractor {
         renderRequired: true,
         rawHtmlSize: extractedData.htmlSize,
         websiteType: extractedData.websiteType,
+        // Map extracted data to database schema fields
+        geoMarkers: extractedData.geoMarkers,
+        contactEmails: extractedData.contactInfo?.emails || [],
+        contactPhones: extractedData.contactInfo?.phoneNumbers || [],
+        contactAddresses: extractedData.geoMarkers?.addresses || [],
+        socialMediaLinks: extractedData.contactInfo?.socialLinks || [],
+        socialMediaCount: extractedData.contactInfo?.socialLinks?.length || 0,
+        aboutUrl: extractedData.contactInfo?.aboutUsLink,
+        termsUrl: extractedData.contactInfo?.termsLink,
+        privacyUrl: extractedData.contactInfo?.privacyLink,
+        hasContactPage: !!extractedData.contactInfo?.contactLink,
+        // Include all raw data in comprehensive structure
         rawExtractionData // Include comprehensive raw data
       };
 
@@ -353,41 +482,63 @@ export class PlaywrightExtractor {
       // Capture whatever raw data we have even on error
       const rawExtractionData = {
         // Text Data
-        fullHtml: null,
-        extractionAttempts: [],
-        structuredData: [],
-        metaTags: {},
-        networkRequests: networkRequests.filter(req => req.status),
+        textData: {
+          fullHTML: null,
+          extractionAttempts: [],
+          structuredData: [],
+          metaTags: {},
+          networkRequests: networkRequests.filter(req => req.status),
+        },
         
         // Visual Data  
-        screenshots: {
-          fullPage: null,
-          aboveFold: null
+        visualData: {
+          fullPageScreenshot: null,
+          aboveFoldScreenshot: null,
+          domMetrics: null,
         },
-        domMetrics: null,
+        
+        // Geographic & Contact Data
+        geoMarkers: null,
+        contactInfo: null,
+        businessIdentifiers: null,
         
         // Processing Context
-        processingLogs,
-        performanceMetrics: {
-          totalTime: Date.now() - startTime,
-          navigationTime: 0,
-          extractionTime: 0
-        },
-        websiteType: null,
-        error: error.message,
-        errorStack: error.stack
+        processingContext: {
+          processingLogs,
+          performanceMetrics: {
+            totalTime: Date.now() - startTime,
+            navigationTime: 0,
+            extractionTime: 0
+          },
+          websiteType: null,
+          extractionMethod: null,
+          confidence: 0,
+          error: error.message,
+          errorStack: error.stack
+        }
       };
       
       return {
         companyName: null,
-        confidence: 0,
-        extractionMethod: null,
+        companyConfidence: 0,
+        companyExtractionMethod: null,
         processingTimeMs: Date.now() - startTime,
         success: false,
         error: error.message,
         httpStatus: 0,
         renderRequired: true,
         rawHtmlSize: 0,
+        // Default values for database schema fields  
+        geoMarkers: null,
+        contactEmails: [],
+        contactPhones: [],
+        contactAddresses: [],
+        socialMediaLinks: [],
+        socialMediaCount: 0,
+        aboutUrl: null,
+        termsUrl: null,
+        privacyUrl: null,
+        hasContactPage: false,
         rawExtractionData // Include raw data even on error
       };
     } finally {
