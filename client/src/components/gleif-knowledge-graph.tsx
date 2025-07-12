@@ -36,7 +36,7 @@ export default function GLEIFKnowledgeGraph() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedNode, setSelectedNode] = useState<KnowledgeGraphNode | null>(null);
   const [graphData, setGraphData] = useState<{ nodes: KnowledgeGraphNode[]; edges: KnowledgeGraphEdge[] }>({ nodes: [], edges: [] });
-  const [activeDemo, setActiveDemo] = useState<'search' | 'visualization' | 'intelligence' | 'hierarchy'>('search');
+  const [activeDemo, setActiveDemo] = useState<'search' | 'visualization' | 'intelligence' | 'hierarchy' | 'ascii'>('search');
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Fetch intelligence data for search suggestions
@@ -243,7 +243,7 @@ export default function GLEIFKnowledgeGraph() {
 
       {/* Demo Mode Selector */}
       <Tabs value={activeDemo} onValueChange={(value) => setActiveDemo(value as any)}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="search" className="flex items-center gap-2">
             <Search className="h-4 w-4" />
             Smart Search
@@ -259,6 +259,10 @@ export default function GLEIFKnowledgeGraph() {
           <TabsTrigger value="hierarchy" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
             Hierarchies
+          </TabsTrigger>
+          <TabsTrigger value="ascii" className="flex items-center gap-2">
+            <Network className="h-4 w-4" />
+            ASCII View
           </TabsTrigger>
         </TabsList>
 
@@ -520,6 +524,78 @@ export default function GLEIFKnowledgeGraph() {
                     <li>• <strong>Geographic Analysis:</strong> Maps international corporate structures</li>
                     <li>• <strong>Ownership Tracking:</strong> Identifies beneficial ownership chains</li>
                     <li>• <strong>Compliance Ready:</strong> Export for regulatory reporting</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ASCII Tree Visualization Tab */}
+        <TabsContent value="ascii" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Network className="h-5 w-5" />
+                ASCII Tree Knowledge Graph
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {/* ASCII Tree Visualization */}
+                <div className="bg-gray-900 text-green-400 p-6 rounded-lg font-mono text-sm overflow-x-auto">
+                  <div className="whitespace-pre">
+{`📊 GLEIF Knowledge Graph
+├── [CORP] Apple Inc. (US) ──────────────────┐
+│   LEI: 549300QL3ULKHN32OM67                 │
+│   Status: ACTIVE • Discovered: 47x         │
+│   ├── <apple.com> 95% confidence           │
+│   ├── (US) United States jurisdiction      │
+│   ├── ~Technology~ industry sector         │
+│   └── [CORP] Apple Europe Ltd (IE) ────────┼─── Subsidiary
+│       LEI: 213800QILIUP4CSUZ214            │
+│       Status: ACTIVE • Discovered: 12x     │
+│                                            │
+├── [CORP] Microsoft Corporation (US) ───────┘
+│   LEI: 549300FX2LBRA1XYWE41
+│   Status: ACTIVE • Discovered: 32x
+│   ├── (US) United States jurisdiction
+│   └── ~Technology~ industry sector
+│
+└── Network Statistics:
+    • Total Entities: 6
+    • Total Relationships: 5
+    • Coverage: 2 jurisdictions, 1 industry`}
+                  </div>
+                </div>
+
+                {/* Legend */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-blue-600">[CORP]</span>
+                    <span>Legal Entities</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-orange-600">&lt;domain&gt;</span>
+                    <span>Domains</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-purple-600">(country)</span>
+                    <span>Jurisdictions</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-teal-600">~industry~</span>
+                    <span>Industries</span>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-green-900 mb-2">🌲 ASCII Tree Features:</h4>
+                  <ul className="text-sm text-green-800 space-y-1">
+                    <li>• <strong>Terminal Aesthetic:</strong> Clean monospace visualization</li>
+                    <li>• <strong>Hierarchical Structure:</strong> Clear parent-child relationships</li>
+                    <li>• <strong>Compact Display:</strong> More entities visible at once</li>
+                    <li>• <strong>Text-Based:</strong> Easy to copy/paste for documentation</li>
                   </ul>
                 </div>
               </div>
