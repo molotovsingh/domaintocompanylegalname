@@ -15,7 +15,7 @@ import GLEIFTestingPage from './pages/gleif-testing';
 import PerplexityTestingPage from './pages/perplexity-testing';
 import ScrapingTestingPage from './pages/scraping-testing';
 import NotFound from "@/pages/not-found";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 
 function Router() {
   return (
@@ -39,7 +39,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <Router />
+        <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
+          <Router />
+        </Suspense>
       </TooltipProvider>
     </QueryClientProvider>
   );
