@@ -65,6 +65,59 @@ app.get('/api/beta/gleif-connection-test', async (req, res) => {
   }
 });
 
+// GLEIF API status and debugging endpoint
+app.get('/api/beta/gleif-debug', async (req, res) => {
+  try {
+    console.log('[Beta] [GLEIF-DEBUG] Starting comprehensive GLEIF API debug...');
+    
+    // Test basic connection
+    const connectionTest = await gleifExtractor.testGLEIFConnection();
+    
+    // Test with a known working entity
+    let appleTest = null;
+    try {
+      appleTest = await gleifExtractor.extractRawGleifData('apple');
+    } catch (error: any) {
+      appleTest = { success: false, error: error.message };
+    }
+    
+    res.json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      tests: {
+        basicConnection: {
+          success: connectionTest,
+          description: 'Basic GLEIF API connectivity test'
+        },
+        appleSearch: {
+          success: appleTest?.success || false,
+          error: appleTest?.error || null,
+          entityCount: appleTest?.totalRecords || 0,
+          description: 'Test search for "apple" - should find Apple Inc.'
+        }
+      },
+      gleifApiInfo: {
+        baseUrl: 'https://api.gleif.org/api/v1',
+        documentation: 'https://documenter.getpostman.com/view/7679680/SVYrrxuU',
+        status: connectionTest ? 'Available' : 'Unavailable'
+      },
+      troubleshooting: {
+        htmlErrors: 'If getting HTML errors, try simpler search terms',
+        networkErrors: 'Check internet connection and firewall settings',
+        noResults: 'Try partial company names (e.g., "apple" instead of "apple inc")'
+      }
+    });
+    
+  } catch (error: any) {
+    console.error('[Beta] [GLEIF-DEBUG] Debug test failed:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Raw GLEIF JSON extraction endpoint - COMPLETE DATA PASSTHROUGH (like Perplexity approach)
 app.post('/api/beta/gleif-raw', async (req, res) => {
   try {
@@ -80,7 +133,43 @@ app.post('/api/beta/gleif-raw', async (req, res) => {
     const queryTerm = searchTerm || domain || leiCode;
     console.log(`[Beta] [GLEIF-RAW-COMPLETE] Complete raw extraction for: ${queryTerm}`);
 
+    // Enhanced error handling with specific HTML error detection
     const rawResult = await gleifExtractor.extractRawGleifData(queryTerm);
+
+    // Check if the result indicates an HTML error
+    if (!rawResult.success && rawResult.error) {
+      console.error(`[Beta] [GLEIF-RAW-COMPLETE] GLEIF API Error:`, rawResult.error);
+      
+      // Determine error type
+      const isHtmlError = rawResult.error.includes('HTML') || 
+                         rawResult.error.includes('DOCTYPE') ||
+                         rawResult.error.includes('invalid response format');
+      
+      return res.status(502).json({
+        success: false,
+        domain: domain || queryTerm,
+        method: 'gleif_raw_complete_api',
+        processingTime: rawResult.processingTime,
+        error: isHtmlError ? 'GLEIF API returned invalid HTML response instead of JSON' : rawResult.error,
+        errorCode: isHtmlError ? 'API_HTML_ERROR' : 'API_ERROR',
+        extractionMethod: 'gleif_complete_raw_json',
+        rawApiResponse: null,
+        fullGleifResponse: null,
+        completeRawData: null,
+        unprocessedEntities: null,
+        httpHeaders: null,
+        metaData: null,
+        totalRecords: 0,
+        entityCount: 0,
+        technicalDetails: {
+          apiUrl: 'https://api.gleif.org/api/v1',
+          errorType: isHtmlError ? 'HTML_RESPONSE' : 'API_ERROR',
+          troubleshooting: isHtmlError ? 
+            'GLEIF API returned HTML error page instead of JSON. Try simplifying search term.' : 
+            'General API error occurred.'
+        }
+      });
+    }
 
     console.log(`[Beta] [GLEIF-RAW-COMPLETE] Raw result:`, {
       success: rawResult.success,
@@ -92,35 +181,28 @@ app.post('/api/beta/gleif-raw', async (req, res) => {
       gleifApiVersion: rawResult.gleifApiVersion
     });
 
-    // Return ABSOLUTELY EVERYTHING - complete passthrough like Perplexity
+    // Return successful response
     res.json({
       success: rawResult.success,
       domain: domain || queryTerm,
       method: 'gleif_raw_complete_api',
       processingTime: rawResult.processingTime,
-      error: rawResult.error || null,
-      errorCode: rawResult.error ? 'API_ERROR' : null,
+      error: null,
+      errorCode: null,
       extractionMethod: 'gleif_complete_raw_json',
-      
-      // COMPLETE RAW DATA SECTION - Everything GLEIF returns
-      rawApiResponse: rawResult.rawApiResponse, // Complete unmodified API response
-      fullGleifResponse: rawResult.fullGleifResponse, // Same data for compatibility
-      completeRawData: rawResult.completeRawData, // All raw data
-      unprocessedEntities: rawResult.unprocessedEntities, // Just the entities array
-      
-      // ADDITIONAL DATA GLEIF PROVIDES
-      httpHeaders: rawResult.httpHeaders, // All HTTP headers from GLEIF
-      metaData: rawResult.metaData, // GLEIF metadata
-      paginationInfo: rawResult.paginationInfo, // Pagination details
-      includesLinks: rawResult.includesLinks, // GLEIF API links
-      
-      // TECHNICAL DETAILS
-      requestDetails: rawResult.requestDetails, // Original request info
+      rawApiResponse: rawResult.rawApiResponse,
+      fullGleifResponse: rawResult.fullGleifResponse,
+      completeRawData: rawResult.completeRawData,
+      unprocessedEntities: rawResult.unprocessedEntities,
+      httpHeaders: rawResult.httpHeaders,
+      metaData: rawResult.metaData,
+      paginationInfo: rawResult.paginationInfo,
+      includesLinks: rawResult.includesLinks,
+      requestDetails: rawResult.requestDetails,
       totalRecords: rawResult.totalRecords || 0,
-      entityCount: rawResult.totalRecords || 0, // For compatibility
+      entityCount: rawResult.totalRecords || 0,
       gleifApiVersion: rawResult.gleifApiVersion,
       responseSize: rawResult.responseSize,
-      
       technicalDetails: {
         apiUrl: 'https://api.gleif.org/api/v1',
         searchType: rawResult.requestDetails?.fuzzySearch ? 'fuzzy' : 'exact',
@@ -139,15 +221,28 @@ app.post('/api/beta/gleif-raw', async (req, res) => {
     });
 
   } catch (error: any) {
-    console.error(`[Beta] [GLEIF-RAW-COMPLETE] Error:`, error.message);
+    console.error(`[Beta] [GLEIF-RAW-COMPLETE] Unexpected Error:`, error.message);
+    console.error(`[Beta] [GLEIF-RAW-COMPLETE] Error stack:`, error.stack);
+
+    // Enhanced error categorization
+    const isHtmlError = error.message.includes('HTML') || 
+                       error.message.includes('DOCTYPE') ||
+                       error.message.includes('Unexpected token');
+    
+    const isNetworkError = error.message.includes('ENOTFOUND') ||
+                          error.message.includes('ECONNREFUSED') ||
+                          error.message.includes('timeout');
 
     res.status(500).json({
       success: false,
       domain: req.body.domain || 'N/A',
       method: 'gleif_raw_complete_api',
       processingTime: 0,
-      error: error.message,
-      errorCode: 'API_ERROR',
+      error: isHtmlError ? 'GLEIF API returned HTML instead of JSON - API may be temporarily unavailable' :
+             isNetworkError ? 'Network error connecting to GLEIF API' :
+             error.message,
+      errorCode: isHtmlError ? 'HTML_PARSE_ERROR' : 
+                isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
       extractionMethod: null,
       rawApiResponse: null,
       fullGleifResponse: null,
@@ -156,7 +251,15 @@ app.post('/api/beta/gleif-raw', async (req, res) => {
       httpHeaders: null,
       metaData: null,
       totalRecords: 0,
-      entityCount: 0
+      entityCount: 0,
+      technicalDetails: {
+        errorType: isHtmlError ? 'HTML_RESPONSE' : isNetworkError ? 'NETWORK' : 'UNKNOWN',
+        troubleshooting: isHtmlError ? 
+          'Try: 1) Use simpler search terms, 2) Check GLEIF API status, 3) Retry in a few minutes' :
+          isNetworkError ?
+          'Check internet connection and GLEIF API availability' :
+          'Unexpected error occurred'
+      }
     });
   }
 });
@@ -221,6 +324,15 @@ app.post('/api/beta/gleif-test', async (req, res) => {
   } catch (error: any) {
     console.error(`[Beta] [GLEIF] Error:`, error.message);
 
+    // Enhanced error categorization
+    const isHtmlError = error.message.includes('HTML') || 
+                       error.message.includes('DOCTYPE') ||
+                       error.message.includes('Unexpected token');
+    
+    const isNetworkError = error.message.includes('ENOTFOUND') ||
+                          error.message.includes('ECONNREFUSED') ||
+                          error.message.includes('timeout');
+
     // Enhanced error response matching expected format
     res.status(500).json({
       success: false,
@@ -231,10 +343,20 @@ app.post('/api/beta/gleif-test', async (req, res) => {
       legalEntityType: null,
       country: null,
       confidence: 0,
-      error: error.message.includes('HTML') ? 'GLEIF API returned invalid response format' : error.message,
-      errorCode: error.message.includes('HTML') ? 'API_FORMAT_ERROR' : 'API_ERROR',
+      error: isHtmlError ? 'GLEIF API returned HTML instead of JSON - API may be temporarily unavailable' :
+             isNetworkError ? 'Network error connecting to GLEIF API' :
+             error.message,
+      errorCode: isHtmlError ? 'HTML_PARSE_ERROR' : 
+                isNetworkError ? 'NETWORK_ERROR' : 'API_ERROR',
       extractionMethod: null,
-      technicalDetails: null,
+      technicalDetails: {
+        errorType: isHtmlError ? 'HTML_RESPONSE' : isNetworkError ? 'NETWORK' : 'UNKNOWN',
+        troubleshooting: isHtmlError ? 
+          'Try simpler search terms or check GLEIF API status' :
+          isNetworkError ?
+          'Check internet connection and GLEIF API availability' :
+          'General API error occurred'
+      },
       sources: [],
       llmResponse: null
     });
