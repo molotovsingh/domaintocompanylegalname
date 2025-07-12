@@ -65,7 +65,7 @@ export class PuppeteerExtractor {
       }
 
       // Wait for content to stabilize
-      await page.waitForTimeout(1000);
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Extract data
       const extractedData = await page.evaluate(() => {
