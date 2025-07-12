@@ -1,16 +1,24 @@
 # Beta Platform Federation Architecture Plan
 
 ## Executive Summary
-Transform the beta testing platform from a monolithic structure into a federated microservice-like architecture where each data collection method operates as an independent module with its own database, API routes, and storage strategy.
+Build a new Beta Testing Platform v2 with a federated microservice-like architecture where each data collection method operates as an independent module with its own database, API routes, and storage strategy. The existing Beta Platform v1 will continue running unchanged during the transition period.
 
-## Current Problems
+## Current Problems with Beta v1
 1. Single `betaIndex.ts` becoming unwieldy and hard to maintain
 2. Adding new methods requires modifying existing code
 3. Risk of breaking working methods when adding features
 4. All methods forced to share same schema/storage approach
 5. Difficult to develop and test methods in isolation
+6. Mixing data collection with extraction logic in same layer
 
-## Proposed Architecture
+## Strategy: Parallel Development
+Rather than attempting a complex migration, we will:
+1. **Keep Beta v1 running as-is** - No changes, no risk
+2. **Build Beta v2 fresh** - Clean architecture from day one
+3. **Run both in parallel** - Gradual transition
+4. **Archive v1** - Once v2 is proven and adopted
+
+## Proposed Architecture for Beta v2
 
 ### Core Principles
 - Each collection method is an independent vertical slice
@@ -101,30 +109,36 @@ CREATE TABLE scrapy_items (
 ### File Structure
 
 ```
-server/beta/
+# Beta v1 (Existing - No Changes)
+server/betaIndex.ts                    # Current beta platform
+server/betaServices/                   # Current services
+client/src/pages/beta-testing.tsx      # Current UI
+
+# Beta v2 (New Federation Architecture)
+server/beta-v2/
 ├── shared/
 │   ├── domainRegistry.ts      # Shared domain management
 │   ├── runTracker.ts          # Shared run tracking
 │   └── types.ts               # Common interfaces
-├── playwright/
-│   ├── playwrightIndex.ts     # Playwright routes
-│   ├── playwrightService.ts   # Business logic
-│   ├── playwrightStorage.ts   # Database access
-│   └── schema.sql             # Playwright tables
-├── scrapy/
-│   ├── scrapyIndex.ts
-│   ├── scrapyService.ts
-│   ├── scrapyStorage.ts
+├── playwright-dump/
+│   ├── playwrightDumpIndex.ts     # Playwright routes
+│   ├── playwrightDumpService.ts   # Pure dump logic
+│   ├── playwrightDumpStorage.ts   # Database access
+│   └── schema.sql                 # Playwright tables
+├── scrapy-dump/
+│   ├── scrapyDumpIndex.ts
+│   ├── scrapyDumpService.ts
+│   ├── scrapyDumpStorage.ts
 │   └── schema.sql
-├── crawlee/
+├── crawlee-dump/
 │   └── ... similar structure
-└── betaRouter.ts              # Main router aggregator
+└── betaV2Router.ts              # Main v2 router
 
-client/src/pages/beta-testing/
-├── index.tsx                  # Landing page with method selector
-├── playwright/
+client/src/pages/beta-testing-v2/
+├── index.tsx                      # v2 Landing with method selector
+├── playwright-dump/
 │   └── PlaywrightDumpPage.tsx
-├── scrapy/
+├── scrapy-dump/
 │   └── ScrapyDumpPage.tsx
 └── ... other methods
 ```
@@ -132,44 +146,76 @@ client/src/pages/beta-testing/
 ### API Routes Structure
 
 ```
-/api/beta/                     # Landing/health check
-/api/beta/methods              # List available methods
+# Beta v1 (Existing - Unchanged)
+/api/beta/*                    # All current beta routes remain
 
-# Playwright routes
-/api/beta/playwright/test      # Run test
-/api/beta/playwright/results   # Get results
-/api/beta/playwright/dumps     # List dumps
-/api/beta/playwright/dump/:id  # Get specific dump
+# Beta v2 (New Routes)
+/api/beta-v2/                          # v2 Landing/health check
+/api/beta-v2/methods                   # List available methods
 
-# Scrapy routes (different structure if needed)
-/api/beta/scrapy/crawl         # Start crawl
-/api/beta/scrapy/crawls        # List crawls
-/api/beta/scrapy/items/:crawl_id # Get crawled items
+# Playwright Dump routes
+/api/beta-v2/playwright-dump/test      # Run dump
+/api/beta-v2/playwright-dump/results   # Get results
+/api/beta-v2/playwright-dump/dumps     # List dumps
+/api/beta-v2/playwright-dump/dump/:id  # Get specific dump
 
-# Shared routes
-/api/beta/domains              # Domain registry
-/api/beta/runs                 # Cross-method runs
+# Scrapy Dump routes
+/api/beta-v2/scrapy-dump/crawl         # Start crawl
+/api/beta-v2/scrapy-dump/crawls        # List crawls
+/api/beta-v2/scrapy-dump/items/:id     # Get items
+
+# Shared v2 routes
+/api/beta-v2/domains                   # Domain registry
+/api/beta-v2/runs                      # Cross-method runs
 ```
 
 ## Implementation Plan
 
-### Phase 1: Foundation (Week 1)
-1. Create shared domain registry and run tracker
-2. Implement new beta landing page with method selector
-3. Set up routing structure
-4. Create base interfaces
+### Phase 1: Foundation Setup (Week 1)
+1. Create Beta v2 directory structure alongside v1
+2. Set up v2 database schemas (separate from v1)
+3. Implement shared domain registry for v2
+4. Create v2 landing page with method selector
+5. Set up v2 routing (`/beta-testing-v2`)
 
-### Phase 2: Playwright Migration (Week 2)
-1. Move existing Playwright code to new structure
-2. Create Playwright-specific tables
-3. Update UI to new routing
-4. Test in isolation
+### Phase 2: First Method - Playwright Dump (Week 2)
+1. Build fresh Playwright Dump implementation
+2. Focus on pure data collection (no extraction logic)
+3. Store all raw data: HTML, screenshots, console logs, network data
+4. Create simple UI for testing dumps
+5. No migration of v1 logic - reference only if needed
 
-### Phase 3: Add New Methods (Week 3+)
-1. Implement Scrapy integration
-2. Add Crawlee support
-3. Add Puppeteer dump
-4. Each can be developed independently
+### Phase 3: Add Additional Methods (Week 3+)
+1. Scrapy Dump - Python integration for web crawling
+2. Crawlee Dump - Advanced crawling capabilities
+3. Puppeteer Dump - Alternative browser automation
+4. Each method developed independently in isolation
+
+### Transition Strategy
+
+**During Development:**
+- Beta v1 continues running at `/beta-testing`
+- Beta v2 developed at `/beta-testing-v2`
+- No shared code or dependencies between versions
+- Developers can reference v1 code but don't modify it
+
+**User Experience:**
+1. Add link on main dashboard: "Try Beta Platform v2 (Preview)"
+2. v1 remains default, v2 is opt-in
+3. Clear labeling that v2 is experimental
+4. Users can switch between versions freely
+
+**Data Strategy:**
+- v1 and v2 use separate database schemas
+- No data migration during development
+- If needed later, can build export/import tools
+- Each version maintains its own data
+
+**Sunset Timeline:**
+1. v2 reaches feature parity (2-3 months)
+2. Promote v2 to primary, v1 becomes legacy
+3. Keep v1 running for reference (3-6 months)
+4. Archive v1 code and decommission
 
 ## Benefits
 
@@ -210,13 +256,27 @@ client/src/pages/beta-testing/
    - Integration tests for shared components
    - No cross-method test dependencies
 
-## Migration Strategy
+## Key Principles of Parallel Development
 
-1. Keep existing beta platform running
-2. Build new structure in parallel
-3. Migrate Playwright first as proof of concept
-4. Gradually move traffic to new structure
-5. Deprecate old platform once stable
+1. **Zero Risk to v1**
+   - No code changes to existing beta platform
+   - v1 continues serving current needs
+   - All experimentation happens in v2
+
+2. **Fresh Start Benefits**
+   - Clean separation of collection vs extraction
+   - Proper federation from day one
+   - No legacy constraints
+
+3. **Reference, Don't Migrate**
+   - v1 code available for algorithm reference
+   - Copy specific logic only when needed
+   - Build v2 patterns fresh
+
+4. **Gradual Transition**
+   - Users choose when to switch
+   - Run both versions as long as needed
+   - Natural migration as v2 matures
 
 ## Future Extensions
 
