@@ -69,29 +69,72 @@ export class PlaywrightExtractor {
       // Wait for content to stabilize
       await page.waitForTimeout(1000);
 
-      // Extract data using enhanced methods - testing with minimal logic first
+      // Extract data using enhanced methods
       const extractedData = await page.evaluate(() => {
-        // Test with just title extraction first
-        const title = document.title || 'No title';
-        
-        // Simple company name extraction from title
         let companyName = null;
         let method = null;
         let confidence = 0;
         
-        if (title) {
-          companyName = title.split('-')[0].trim();
-          method = 'page_title';
-          confidence = 60;
+        // Try structured data first (95% confidence)
+        const jsonLdScripts = document.querySelectorAll('script[type="application/ld+json"]');
+        for (const script of jsonLdScripts) {
+          try {
+            const data = JSON.parse(script.textContent || '');
+            if (data.name && (data['@type'] === 'Organization' || data['@type'] === 'Corporation' || data['@type'] === 'Company')) {
+              companyName = data.name;
+              method = 'structured_data';
+              confidence = 95;
+              break;
+            }
+          } catch (e) {
+            // Skip invalid JSON
+          }
+        }
+        
+        // Try meta property if no structured data (85% confidence)
+        if (!companyName) {
+          const ogSiteName = document.querySelector('meta[property="og:site_name"]');
+          const appName = document.querySelector('meta[name="application-name"]');
+          const metaContent = ogSiteName?.getAttribute('content') || appName?.getAttribute('content');
+          
+          if (metaContent && metaContent.trim()) {
+            companyName = metaContent.trim();
+            method = 'meta_property';
+            confidence = 85;
+          }
+        }
+        
+        // Try page title as fallback (60% confidence)
+        if (!companyName) {
+          const title = document.title;
+          if (title) {
+            // Extract first part before common separators
+            const cleanTitle = title.split(/[-|–]/)[0].trim();
+            if (cleanTitle && cleanTitle.length > 2) {
+              companyName = cleanTitle;
+              method = 'page_title';
+              confidence = 60;
+            }
+          }
+        }
+        
+        // Detect website type
+        let websiteType = 'general';
+        if (document.querySelector('.cart, #cart, .shopping-cart, [data-testid*="cart"]')) {
+          websiteType = 'ecommerce';
+        } else if (document.querySelector('.pricing, [href*="pricing"], .plans')) {
+          websiteType = 'saas';
+        } else if (document.querySelector('.about, [href*="about"], .company')) {
+          websiteType = 'corporate';
         }
         
         return {
-          title: title,
+          title: document.title || '',
           companyName: companyName,
           extractionMethod: method,
           confidence: confidence,
-          websiteType: 'general',
-          htmlSize: 1000
+          websiteType: websiteType,
+          htmlSize: document.documentElement ? document.documentElement.outerHTML.length : 0
         };
       });
 
