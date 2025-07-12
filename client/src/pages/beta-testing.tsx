@@ -5,8 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle, XCircle, Clock, Loader2, AlertCircle, ArrowLeft, TestTube } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { CheckCircle, XCircle, Clock, Loader2, AlertCircle, ArrowLeft, TestTube, Eye, Code, Image, Network, FileText } from 'lucide-react';
 import { Link } from 'wouter';
+import { toast } from '@/hooks/use-toast';
 
 interface TestResult {
   domain: string;
@@ -25,6 +28,7 @@ interface TestResult {
   rawApiResponse?: any;
   entityCount?: number;
   unprocessedEntities?: any[];
+  testId?: number; // Added test ID
 }
 
 export default function BetaTestingPage() {
@@ -32,6 +36,9 @@ export default function BetaTestingPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [selectedMethod, setSelectedMethod] = useState('all');
+  const [showRawDataModal, setShowRawDataModal] = useState(false);
+  const [selectedRawData, setSelectedRawData] = useState<any>(null);
+  const [loadingRawData, setLoadingRawData] = useState(false);
 
   const testMethods = [
     { id: 'all', name: 'All Methods', description: 'Run all extraction methods' },
@@ -42,6 +49,34 @@ export default function BetaTestingPage() {
     { id: 'gleif_api', name: 'GLEIF API', description: 'Legal entity data' },
     { id: 'gleif_raw', name: 'GLEIF RAW', description: 'Unprocessed JSON' }
   ];
+
+  const fetchRawData = async (testId: number) => {
+    setLoadingRawData(true);
+    try {
+      const response = await fetch(`http://localhost:3001/api/beta/raw-data/${testId}`);
+      if (!response.ok) throw new Error('Failed to fetch raw data');
+      const result = await response.json();
+      if (result.success) {
+        setSelectedRawData(result.data);
+        setShowRawDataModal(true);
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to fetch raw data",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching raw data:', error);
+      toast({
+        title: "Error", 
+        description: "Failed to fetch raw extraction data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingRawData(false);
+    }
+  };
 
   const runTest = useCallback(async () => {
     if (!domain.trim()) return;
@@ -75,7 +110,19 @@ export default function BetaTestingPage() {
       if (selectedMethod === 'gleif_api' || selectedMethod === 'gleif_raw') {
         setTestResults([result]);
       } else {
-        setTestResults(Array.isArray(result.data) ? result.data : [result.data || result]);
+        // Ensure we capture the testId from the response
+        const testData = result.data || result;
+        if (testData) {
+          if (Array.isArray(testData)) {
+            setTestResults(testData);
+          } else {
+            // Include testId in the test result
+            setTestResults([{
+              ...testData,
+              testId: testData.testId
+            }]);
+          }
+        }
       }
 
     } catch (error) {
@@ -242,8 +289,27 @@ export default function BetaTestingPage() {
                           {getMethodBadge(result.method)}
                           {getStatusBadge(result)}
                         </div>
-                        <div className="text-sm text-muted-foreground">
-                          {result.processingTime}ms
+                        <div className="flex items-center space-x-4">
+                          <span className="text-sm text-muted-foreground">
+                            {result.processingTime}ms
+                          </span>
+                          {result.testId && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => fetchRawData(result.testId!)}
+                              disabled={loadingRawData}
+                            >
+                              {loadingRawData ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <>
+                                  <Eye className="w-3 h-3 mr-1" />
+                                  View Raw Data
+                                </>
+                              )}
+                            </Button>
+                          )}
                         </div>
                       </div>
 
@@ -476,6 +542,153 @@ export default function BetaTestingPage() {
         </TabsContent>
       </Tabs>
       </main>
+
+      {/* Raw Data Modal */}
+      <Dialog open={showRawDataModal} onOpenChange={setShowRawDataModal}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle>Raw Extraction Data</DialogTitle>
+            <DialogDescription>
+              Complete raw data collected during the extraction process
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ScrollArea className="h-[60vh] w-full rounded-md border p-4">
+            {selectedRawData && (
+              <div className="space-y-6">
+                {/* Basic Info */}
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Basic Information
+                  </h3>
+                  <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                    <div><strong>Test ID:</strong> {selectedRawData.testId}</div>
+                    <div><strong>Domain:</strong> {selectedRawData.domain}</div>
+                    <div><strong>Method:</strong> {selectedRawData.method}</div>
+                    <div><strong>Success:</strong> {selectedRawData.success ? 'Yes' : 'No'}</div>
+                    <div><strong>Company Name:</strong> {selectedRawData.companyName || 'Not found'}</div>
+                    <div><strong>Confidence:</strong> {selectedRawData.confidence}%</div>
+                    <div><strong>Processing Time:</strong> {selectedRawData.processingTimeMs}ms</div>
+                    <div><strong>Created At:</strong> {new Date(selectedRawData.createdAt).toLocaleString()}</div>
+                  </div>
+                </div>
+
+                {/* Raw Extraction Data */}
+                {selectedRawData.rawExtractionData && (
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <Code className="w-5 h-5" />
+                      Raw Extraction Data
+                    </h3>
+                    
+                    {/* Text Data */}
+                    {selectedRawData.rawExtractionData.textData && (
+                      <details className="border rounded-lg p-4">
+                        <summary className="cursor-pointer font-medium">Text Data</summary>
+                        <div className="mt-4 space-y-4">
+                          {selectedRawData.rawExtractionData.textData.fullHTML && (
+                            <div>
+                              <h4 className="font-medium mb-2">Full HTML ({selectedRawData.rawExtractionData.textData.fullHTML.length} chars)</h4>
+                              <pre className="bg-gray-100 p-3 rounded overflow-auto max-h-64 text-xs">
+                                {selectedRawData.rawExtractionData.textData.fullHTML}
+                              </pre>
+                            </div>
+                          )}
+                          
+                          {selectedRawData.rawExtractionData.textData.extractionAttempts && (
+                            <div>
+                              <h4 className="font-medium mb-2">Extraction Attempts</h4>
+                              <div className="space-y-2">
+                                {selectedRawData.rawExtractionData.textData.extractionAttempts.map((attempt: any, idx: number) => (
+                                  <div key={idx} className="bg-gray-100 p-3 rounded">
+                                    <div className="flex justify-between mb-1">
+                                      <span className="font-medium">{attempt.method}</span>
+                                      <span className="text-sm text-gray-600">{attempt.confidence}% confidence</span>
+                                    </div>
+                                    <div className="text-sm">{attempt.value || 'No value found'}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </details>
+                    )}
+
+                    {/* Visual Data */}
+                    {selectedRawData.rawExtractionData.visualData && (
+                      <details className="border rounded-lg p-4">
+                        <summary className="cursor-pointer font-medium flex items-center gap-2">
+                          <Image className="w-4 h-4" />
+                          Visual Data
+                        </summary>
+                        <div className="mt-4 space-y-4">
+                          {selectedRawData.rawExtractionData.visualData.fullPageScreenshot && (
+                            <div>
+                              <h4 className="font-medium mb-2">Full Page Screenshot</h4>
+                              <img 
+                                src={selectedRawData.rawExtractionData.visualData.fullPageScreenshot} 
+                                alt="Full page screenshot"
+                                className="max-w-full rounded border"
+                              />
+                            </div>
+                          )}
+                          
+                          {selectedRawData.rawExtractionData.visualData.aboveFoldScreenshot && (
+                            <div>
+                              <h4 className="font-medium mb-2">Above Fold Screenshot</h4>
+                              <img 
+                                src={selectedRawData.rawExtractionData.visualData.aboveFoldScreenshot} 
+                                alt="Above fold screenshot"
+                                className="max-w-full rounded border"
+                              />
+                            </div>
+                          )}
+                          
+                          {selectedRawData.rawExtractionData.visualData.domMetrics && (
+                            <div>
+                              <h4 className="font-medium mb-2">DOM Metrics</h4>
+                              <pre className="bg-gray-100 p-3 rounded text-xs">
+                                {JSON.stringify(selectedRawData.rawExtractionData.visualData.domMetrics, null, 2)}
+                              </pre>
+                            </div>
+                          )}
+                        </div>
+                      </details>
+                    )}
+
+                    {/* Processing Context */}
+                    {selectedRawData.rawExtractionData.processingContext && (
+                      <details className="border rounded-lg p-4">
+                        <summary className="cursor-pointer font-medium flex items-center gap-2">
+                          <Network className="w-4 h-4" />
+                          Processing Context
+                        </summary>
+                        <div className="mt-4">
+                          <pre className="bg-gray-100 p-3 rounded overflow-auto max-h-64 text-xs">
+                            {JSON.stringify(selectedRawData.rawExtractionData.processingContext, null, 2)}
+                          </pre>
+                        </div>
+                      </details>
+                    )}
+                  </div>
+                )}
+
+                {/* Error Information */}
+                {selectedRawData.error && (
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold text-red-600">Error Information</h3>
+                    <div className="bg-red-50 p-4 rounded-lg">
+                      <pre className="text-sm text-red-800">{selectedRawData.error}</pre>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

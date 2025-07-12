@@ -502,10 +502,11 @@ app.post('/api/beta/smoke-test', async (req, res) => {
       ...result
     }).returning();
 
-    // Ensure confidence is included in the response
+    // Include test ID and confidence in the response
     const responseData = {
       ...result,
-      confidence: result.confidence || 0
+      confidence: result.confidence || 0,
+      testId: dbResult[0].id // Include the test ID
     };
 
     res.json({ success: true, data: responseData });
@@ -526,6 +527,45 @@ app.get('/api/beta/smoke-test/results', async (req, res) => {
 
     res.json({ success: true, results });
   } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get raw extraction data by test ID
+app.get('/api/beta/raw-data/:testId', async (req, res) => {
+  const { testId } = req.params;
+  
+  try {
+    const result = await betaDb.select()
+      .from(betaSmokeTests)
+      .where(eq(betaSmokeTests.id, parseInt(testId)))
+      .limit(1);
+    
+    if (result.length === 0) {
+      return res.status(404).json({ success: false, error: 'Test not found' });
+    }
+    
+    const test = result[0];
+    
+    // Return the raw extraction data
+    res.json({ 
+      success: true, 
+      data: {
+        testId: test.id,
+        domain: test.domain,
+        method: test.method,
+        createdAt: test.createdAt,
+        rawExtractionData: test.rawExtractionData || null,
+        companyName: test.companyName,
+        confidence: test.companyConfidence,
+        extractionMethod: test.companyExtractionMethod,
+        processingTimeMs: test.processingTimeMs,
+        success: test.success,
+        error: test.error
+      }
+    });
+  } catch (error: any) {
+    console.error('[Beta] Error fetching raw data:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
