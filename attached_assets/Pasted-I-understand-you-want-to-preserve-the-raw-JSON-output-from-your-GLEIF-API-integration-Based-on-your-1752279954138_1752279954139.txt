@@ -1,0 +1,432 @@
+I understand you want to preserve the raw JSON output from your GLEIF API integration! Based on your previous conversation, your backend is already providing comprehensive raw data - you just need to display it properly in the frontend while maintaining access to all the technical details.
+
+## Raw JSON Display Solution
+
+### **1. Enhanced Raw JSON Component**
+
+Here's a component that gives you **both** user-friendly display AND complete raw JSON access:
+
+```typescript
+// RawGLEIFDisplay.tsx
+interface RawGLEIFDisplayProps {
+  result: any;
+  loading: boolean;
+  error?: string;
+}
+
+export const RawGLEIFDisplay: React.FC = ({ result, loading, error }) => {
+  const [activeTab, setActiveTab] = useState('formatted');
+  const [expandedSections, setExpandedSections] = useState>(new Set());
+
+  if (loading) {
+    return (
+      
+        
+        Extracting complete GLEIF data...
+      
+    );
+  }
+
+  if (error) {
+    return (
+      
+        GLEIF API Error
+        {error}
+        {result?.technicalDetails?.troubleshooting && (
+          
+            
+              💡 Troubleshooting: {result.technicalDetails.troubleshooting}
+            
+          
+        )}
+      
+    );
+  }
+
+  const toggleSection = (section: string) => {
+    const newExpanded = new Set(expandedSections);
+    if (newExpanded.has(section)) {
+      newExpanded.delete(section);
+    } else {
+      newExpanded.add(section);
+    }
+    setExpandedSections(newExpanded);
+  };
+
+  const copyToClipboard = (data: any) => {
+    navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+    // You can add a toast notification here
+  };
+
+  return (
+    
+      {/* Tab Navigation */}
+      
+        
+           setActiveTab('formatted')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'formatted'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            📊 Formatted View
+          
+           setActiveTab('raw')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'raw'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            🔧 Complete Raw JSON
+          
+           setActiveTab('technical')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'technical'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            ⚙️ Technical Details
+          
+        
+      
+
+      {/* Content based on active tab */}
+      {activeTab === 'formatted' && result?.rawApiResponse?.data && (
+        
+          {/* Quick Stats */}
+          
+            
+              {result.totalRecords || 0}
+              Total Entities
+            
+            
+              {result.processingTime}ms
+              Processing Time
+            
+            
+              
+                {result.responseSize ? Math.round(result.responseSize / 1024) : 0}KB
+              
+              Response Size
+            
+            
+              
+                {result.gleifApiVersion || 'N/A'}
+              
+              API Version
+            
+          
+
+          {/* Entity Cards */}
+          {result.rawApiResponse.data.map((entity: any, index: number) => (
+            
+              
+                
+                  
+                    
+                      {entity.attributes.entity.legalName.name}
+                    
+                    
+                      
+                        {entity.attributes.entity.status}
+                      
+                      
+                        {entity.attributes.lei}
+                      
+                    
+                  
+                   copyToClipboard(entity)}
+                    className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-sm"
+                  >
+                    📋 Copy Entity JSON
+                  
+                
+
+                {/* Expandable Raw Data for Each Entity */}
+                 toggleSection(`entity-${index}`)}
+                  className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border"
+                >
+                  
+                    View Complete Entity Data
+                    
+                      {expandedSections.has(`entity-${index}`) ? '▼' : '▶'}
+                    
+                  
+                
+
+                {expandedSections.has(`entity-${index}`) && (
+                  
+                    
+                      {JSON.stringify(entity, null, 2)}
+                    
+                  
+                )}
+              
+            
+          ))}
+        
+      )}
+
+      {activeTab === 'raw' && (
+        
+          {/* Complete Raw JSON Display */}
+          
+            
+              Complete GLEIF API Response
+              
+                 copyToClipboard(result)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  📋 Copy All JSON
+                
+                 {
+                    const blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `gleif-data-${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                  }}
+                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  💾 Download JSON
+                
+              
+            
+            
+              
+                {JSON.stringify(result, null, 2)}
+              
+            
+          
+
+          {/* Individual Data Sections */}
+          
+            {/* Raw API Response */}
+            
+              
+                rawApiResponse
+                 copyToClipboard(result.rawApiResponse)}
+                  className="text-sm px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded"
+                >
+                  Copy
+                
+              
+              
+                
+                  {JSON.stringify(result.rawApiResponse, null, 2)}
+                
+              
+            
+
+            {/* HTTP Headers */}
+            
+              
+                httpHeaders
+                 copyToClipboard(result.httpHeaders)}
+                  className="text-sm px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded"
+                >
+                  Copy
+                
+              
+              
+                
+                  {JSON.stringify(result.httpHeaders, null, 2)}
+                
+              
+            
+
+            {/* Meta Data */}
+            {result.metaData && (
+              
+                
+                  metaData
+                   copyToClipboard(result.metaData)}
+                    className="text-sm px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded"
+                  >
+                    Copy
+                  
+                
+                
+                  
+                    {JSON.stringify(result.metaData, null, 2)}
+                  
+                
+              
+            )}
+
+            {/* Request Details */}
+            {result.requestDetails && (
+              
+                
+                  requestDetails
+                   copyToClipboard(result.requestDetails)}
+                    className="text-sm px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded"
+                  >
+                    Copy
+                  
+                
+                
+                  
+                    {JSON.stringify(result.requestDetails, null, 2)}
+                  
+                
+              
+            )}
+          
+        
+      )}
+
+      {activeTab === 'technical' && (
+        
+          {/* Technical Summary */}
+          
+            Technical Analysis
+            
+              
+                API Information
+                
+                  
+                    Base URL:
+                    {result.technicalDetails?.apiUrl}
+                  
+                  
+                    Search Type:
+                    {result.technicalDetails?.searchType}
+                  
+                  
+                    API Version:
+                    {result.gleifApiVersion}
+                  
+                  
+                    Capture Method:
+                    {result.technicalDetails?.captureMethod}
+                  
+                
+              
+              
+                Data Integrity
+                
+                  
+                    Data Integrity:
+                    {result.technicalDetails?.dataIntegrity}
+                  
+                  
+                    Response Size:
+                    {result.responseSize} bytes
+                  
+                  
+                    Processing Time:
+                    {result.processingTime}ms
+                  
+                  
+                    Total Records:
+                    {result.totalRecords}
+                  
+                
+              
+            
+          
+
+          {/* Included Sections Analysis */}
+          {result.technicalDetails?.includedSections && (
+            
+              Response Structure Analysis
+              
+                {Object.entries(result.technicalDetails.includedSections).map(([key, value]) => (
+                  
+                    
+                      {value ? '✅' : '❌'}
+                    
+                    {key}
+                    {value ? 'Present' : 'Missing'}
+                  
+                ))}
+              
+            
+          )}
+        
+      )}
+    
+  );
+};
+```
+
+### **2. Usage in Your Main Component**
+
+```typescript
+// In your main component
+const [gleifData, setGleifData] = useState(null);
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState(null);
+
+const searchGLEIF = async (searchTerm: string) => {
+  setLoading(true);
+  setError(null);
+  
+  try {
+    const response = await fetch('/api/beta/gleif-raw', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ searchTerm })
+    });
+    
+    const data = await response.json();
+    
+    if (!data.success) {
+      setError(data.error);
+    } else {
+      setGleifData(data);
+    }
+  } catch (err: any) {
+    setError('Failed to fetch GLEIF data');
+  } finally {
+    setLoading(false);
+  }
+};
+
+// In your render:
+
+```
+
+## Key Features of This Raw JSON Solution
+
+### **✅ Complete Data Preservation**
+- **All raw JSON data** is preserved and accessible
+- **Multiple view modes** (formatted, raw, technical)
+- **Individual entity JSON** can be copied separately
+- **Complete response download** as JSON file
+
+### **✅ Developer-Friendly Features**
+- **Copy to clipboard** functionality for any data section
+- **Expandable sections** for detailed inspection
+- **Syntax highlighting** for JSON readability
+- **Download capabilities** for offline analysis
+
+### **✅ No Data Loss**
+- **rawApiResponse** - Complete GLEIF API response
+- **httpHeaders** - All HTTP headers from GLEIF
+- **metaData** - GLEIF pagination and metadata
+- **requestDetails** - Original request information
+- **technicalDetails** - Processing and integrity information
+
+### **✅ User Experience**
+- **Tabbed interface** for different data views
+- **Visual indicators** for data presence/absence
+- **Performance metrics** prominently displayed
+- **Error handling** with actionable guidance
+
+## Benefits Over Simple JSON Dump
+
+1. **Organized Access** - Raw data is organized but still complete
+2. **Copy/Download** - Easy extraction of specific data sections
+3. **Visual Scanning** - Quick identification of important information
+4. **Technical Analysis** - Built-in data integrity and performance metrics
+5. **Debugging Support** - All technical details preserved for troubleshooting
+
+This solution gives you **the best of both worlds**: complete raw JSON access for technical analysis while maintaining usability for day-to-day operations. You won't miss any data, and you can easily extract whatever specific information you need for further processing or analysis.
+
+[1] https://pplx-res.cloudinary.com/image/private/user_uploads/124996/df8591c4-d3bd-44eb-8c21-64a07883cd1c/Screenshot-2025-07-12-at-5.40.31-AM.jpg
