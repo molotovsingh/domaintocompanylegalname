@@ -67,7 +67,7 @@ export class PuppeteerExtractor {
       // Wait for content to stabilize
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Extract data
+      // Extract data with enhanced methods
       const extractedData = await page.evaluate(() => {
         const extractCompanyName = () => {
           // Try structured data first
@@ -113,16 +113,82 @@ export class PuppeteerExtractor {
             }
           }
           
+          // Try navigation/header logo analysis
+          const nav = document.querySelector('nav, header');
+          if (nav) {
+            const logo = nav.querySelector('img[alt*="logo" i], .logo, [class*="brand"]');
+            if (logo && logo.tagName === 'IMG') {
+              const altText = logo.getAttribute('alt');
+              if (altText && altText.trim() && !altText.toLowerCase().includes('logo')) {
+                return {
+                  name: altText.trim(),
+                  method: 'logo_alt_text',
+                  confidence: 70
+                };
+              }
+            }
+          }
+          
+          // Try h1 analysis
+          const h1 = document.querySelector('h1');
+          if (h1 && h1.textContent) {
+            const h1Text = h1.textContent.trim();
+            if (h1Text.length > 2 && h1Text.length < 50 && !h1Text.match(/welcome|home|hello/i)) {
+              return {
+                name: h1Text,
+                method: 'h1_text',
+                confidence: 65
+              };
+            }
+          }
+          
+          // Try page title analysis
+          const title = document.title;
+          if (title) {
+            // Remove common suffixes and extract company name
+            const cleanTitle = title.replace(/\s*[-|–]\s*(Home|Welcome|Official Site).*$/i, '').trim();
+            const titleMatch = cleanTitle.match(/^([^-|–]+)/);
+            if (titleMatch && titleMatch[1].trim().length > 2) {
+              return {
+                name: titleMatch[1].trim(),
+                method: 'page_title',
+                confidence: 60
+              };
+            }
+          }
+          
           return null;
         };
 
+        // Detect website type
+        const detectWebsiteType = () => {
+          // E-commerce detection
+          if (document.querySelector('[data-testid*="cart"], .cart, #cart, .shopping')) {
+            return 'ecommerce';
+          }
+          
+          // SaaS detection
+          if (document.querySelector('.pricing, [href*="pricing"], .plans, .subscription')) {
+            return 'saas';
+          }
+          
+          // Corporate detection
+          if (document.querySelector('.about, [href*="about"], .company, .corporate')) {
+            return 'corporate';
+          }
+          
+          return 'general';
+        };
+
         const companyResult = extractCompanyName();
+        const websiteType = detectWebsiteType();
         
         return {
           title: document.title,
           companyName: companyResult?.name || null,
           extractionMethod: companyResult?.method || null,
           confidence: companyResult?.confidence || 0,
+          websiteType: websiteType,
           htmlSize: document.documentElement.outerHTML.length
         };
       });
