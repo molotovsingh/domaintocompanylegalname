@@ -104,6 +104,49 @@ export class PlaywrightExtractor {
           }
         }
         
+        // Try footer copyright (75% confidence)
+        if (!companyName) {
+          const footer = document.querySelector('footer');
+          if (footer) {
+            const footerText = footer.textContent || '';
+            const copyrightMatch = footerText.match(/©\s*\d{4}\s*([^.,|]+?)(?:\.|,|All|$)/i);
+            if (copyrightMatch && copyrightMatch[1].trim()) {
+              companyName = copyrightMatch[1].trim();
+              method = 'footer_copyright';
+              confidence = 75;
+            }
+          }
+        }
+        
+        // Try logo alt text (70% confidence)
+        if (!companyName) {
+          const nav = document.querySelector('nav, header');
+          if (nav) {
+            const logo = nav.querySelector('img[alt*="logo" i], .logo img, [class*="brand"] img');
+            if (logo && logo.tagName === 'IMG') {
+              const altText = logo.getAttribute('alt');
+              if (altText && altText.trim() && !altText.toLowerCase().includes('logo')) {
+                companyName = altText.trim();
+                method = 'logo_alt_text';
+                confidence = 70;
+              }
+            }
+          }
+        }
+        
+        // Try h1 analysis (65% confidence)
+        if (!companyName) {
+          const h1 = document.querySelector('h1');
+          if (h1 && h1.textContent) {
+            const h1Text = h1.textContent.trim();
+            if (h1Text.length > 2 && h1Text.length < 50 && !h1Text.match(/welcome|home|hello/i)) {
+              companyName = h1Text;
+              method = 'h1_text';
+              confidence = 65;
+            }
+          }
+        }
+        
         // Try page title as fallback (60% confidence)
         if (!companyName) {
           const title = document.title;
