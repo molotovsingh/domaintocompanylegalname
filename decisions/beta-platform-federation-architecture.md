@@ -285,10 +285,40 @@ client/src/pages/beta-testing-v2/
 - Pluggable storage backends
 - Method marketplace for community contributions
 
-## Decision Required
+## Decisions Made
 
-Before proceeding, need approval on:
-1. Federation approach vs monolithic
-2. Separate databases vs shared with namespacing
-3. Development timeline and priorities
-4. Which methods to implement first
+1. **Architecture**: Federation approach with parallel development (v1 unchanged, v2 fresh)
+2. **Database Strategy**: Completely separate databases for each method
+   - `beta_v2_shared` - Shared domain registry only
+   - `beta_v2_playwright` - Playwright dumps
+   - `beta_v2_scrapy` - Scrapy data
+   - `beta_v2_crawlee` - Crawlee data
+3. **Method Naming**: Action-based naming convention
+   - `playwright-dump` - Browser automation dumps
+   - `scrapy-crawl` - Web crawling data
+   - `crawlee-extract` - Advanced extraction
+   - `puppeteer-dump` - Alternative browser dumps
+4. **UI Approach**: Minimalist developer UI
+   - Single purpose interface
+   - Minimal visual elements
+   - Focus on core functionality
+   - Quick status indicators
+
+## Database Isolation Details
+
+Each method gets its own PostgreSQL database:
+```
+postgresql://localhost/domain_extractor     # Main production (unchanged)
+postgresql://localhost/beta_v1              # Current beta (unchanged)
+postgresql://localhost/beta_v2_shared       # v2 shared tables only
+postgresql://localhost/beta_v2_playwright   # Playwright dump data
+postgresql://localhost/beta_v2_scrapy       # Scrapy crawl data
+postgresql://localhost/beta_v2_crawlee      # Crawlee extract data
+```
+
+Benefits of complete separation:
+- Zero risk of schema conflicts
+- Each method can optimize independently
+- Easy to drop/recreate during development
+- Could even use different database types per method
+- Complete development isolation
