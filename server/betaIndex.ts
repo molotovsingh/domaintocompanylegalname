@@ -10,6 +10,7 @@ import { AxiosCheerioExtractor } from './betaServices/axiosCheerioExtractor';
 import { gleifExtractor } from './betaServices/gleifExtractor';
 import { PuppeteerExtractor } from './betaServices/puppeteerExtractor';
 import { PlaywrightExtractor } from './betaServices/playwrightExtractor';
+import betaV2Routes from './beta-v2/routes';
 
 const execAsync = promisify(exec);
 
@@ -24,6 +25,9 @@ async function quickCleanup() {
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Mount Beta v2 routes
+app.use('/api/beta-v2', betaV2Routes);
 
 // Health check
 app.get('/api/beta/health', (req, res) => {

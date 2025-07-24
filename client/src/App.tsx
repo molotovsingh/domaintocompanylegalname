@@ -11,6 +11,7 @@ import KnowledgeGraphPage from "@/pages/knowledge-graph";
 import SmokeTesting from "@/pages/smoke-testing";
 import GlobalExpansionStatus from './pages/global-expansion-status';
 import BetaTestingPage from './pages/beta-testing';
+import BetaTestingV2 from './pages/beta-testing-v2';
 import GLEIFTestingPage from './pages/gleif-testing';
 import PerplexityTestingPage from './pages/perplexity-testing';
 import ScrapingTestingPage from './pages/scraping-testing';
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/parsing-rules" component={ParsingRules} />
       <Route path="/jurisdictional-guide" component={JurisdictionalGuide} />
       <Route path="/beta-testing" component={BetaTestingPage} />
+      <Route path="/beta-testing-v2" component={BetaTestingV2} />
       <Route path="/recent-changes" component={lazy(() => import("./pages/recent-changes"))} />
       <Route component={NotFound} />
     </Switch>
