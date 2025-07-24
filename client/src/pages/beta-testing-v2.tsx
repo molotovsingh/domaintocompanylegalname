@@ -7,21 +7,21 @@ export default function BetaTestingV2() {
       id: 'playwright-dump',
       name: 'Playwright Dump',
       description: 'Browser automation for comprehensive data collection',
-      port: 3002,
+      path: '/api/beta/playwright-dump',
       status: 'available'
     },
     {
       id: 'scrapy-crawl',
       name: 'Scrapy Crawl',
       description: 'Python-based web crawling and scraping',
-      port: 3003,
+      path: '/api/beta/scrapy-crawl',
       status: 'coming-soon'
     },
     {
       id: 'crawlee-extract',
       name: 'Crawlee Extract',
       description: 'Node.js crawling with Puppeteer/Playwright',
-      port: 3004,
+      path: '/api/beta/crawlee-extract',
       status: 'coming-soon'
     }
   ];
@@ -29,8 +29,8 @@ export default function BetaTestingV2() {
   const handleMethodSelect = (methodId: string) => {
     const method = methods.find(m => m.id === methodId);
     if (method && method.status === 'available') {
-      // Redirect to the method's standalone service
-      window.location.href = `http://localhost:${method.port}`;
+      // Navigate to the integrated service path
+      window.location.href = method.path;
     }
   };
 
@@ -70,9 +70,7 @@ export default function BetaTestingV2() {
                       <p className="text-sm text-muted-foreground mt-1">
                         {method.description}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Port: {method.port}
-                      </p>
+
                     </div>
                     <div>
                       {method.status === 'available' ? (

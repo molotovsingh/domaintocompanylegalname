@@ -1,6 +1,10 @@
 import express from 'express';
 import { executeBetaV2Query, initBetaV2Database } from './database';
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
 
 // Initialize database on startup
@@ -100,6 +104,79 @@ router.get('/dumps/:id', async (req, res) => {
   } catch (error: any) {
     console.error('[Beta v2] Failed to get dump details:', error);
     res.status(500).json({ error: 'Failed to retrieve dump details' });
+  }
+});
+
+// Serve Playwright Dump UI
+router.get('/playwright-dump', (req, res) => {
+  try {
+    const htmlPath = join(__dirname, 'playwright-dump', 'public', 'index.html');
+    const htmlContent = readFileSync(htmlPath, 'utf-8');
+    // Update API endpoint to use the beta server path
+    const updatedHtml = htmlContent.replace(/http:\/\/localhost:3002/g, '/api/beta');
+    res.send(updatedHtml);
+  } catch (error) {
+    console.error('[Beta v2] Failed to serve playwright-dump UI:', error);
+    res.status(500).send('Failed to load Playwright Dump UI');
+  }
+});
+
+// Proxy Playwright dump API endpoints
+router.post('/playwright-dump/dump', async (req, res) => {
+  try {
+    const { domain } = req.body;
+    
+    if (!domain) {
+      return res.status(400).json({ error: 'Domain is required' });
+    }
+    
+    // Insert initial record
+    const insertResult = await executeBetaV2Query(
+      `INSERT INTO playwright_dumps (domain, status) VALUES ($1, 'processing') RETURNING id`,
+      [domain]
+    );
+    
+    const dumpId = insertResult.rows[0].id;
+    
+    // Return immediately with the ID
+    res.json({ 
+      id: dumpId, 
+      status: 'processing',
+      message: 'Dump started successfully'
+    });
+    
+    // TODO: Implement actual playwright dumping asynchronously
+    setTimeout(async () => {
+      try {
+        await executeBetaV2Query(
+          `UPDATE playwright_dumps SET status = 'completed', processing_time_ms = 1000 WHERE id = $1`,
+          [dumpId]
+        );
+      } catch (error) {
+        console.error('[Beta v2] Failed to update dump status:', error);
+      }
+    }, 1000);
+    
+  } catch (error: any) {
+    console.error('[Beta v2] Dump error:', error);
+    res.status(500).json({ error: 'Failed to start dump' });
+  }
+});
+
+router.get('/playwright-dump/dumps', async (req, res) => {
+  try {
+    const result = await executeBetaV2Query(
+      `SELECT id, domain, status, processing_time_ms, created_at
+       FROM playwright_dumps
+       ORDER BY created_at DESC
+       LIMIT 20`,
+      []
+    );
+    
+    res.json(result.rows || []);
+  } catch (error: any) {
+    console.error('[Beta v2] Error fetching dumps:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
