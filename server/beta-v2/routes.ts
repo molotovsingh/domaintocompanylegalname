@@ -1,5 +1,4 @@
 import express from 'express';
-import { playwrightDumper } from './playwrightDump';
 import { executeBetaV2Query, initBetaV2Database } from './database';
 
 const router = express.Router();
@@ -31,14 +30,10 @@ router.post('/dump', async (req, res) => {
 
     console.log(`[Beta v2] Starting dump for ${domain} using ${method}`);
     
-    const result = await playwrightDumper.dumpDomain(domain);
-    
+    // Temporarily return a stub response while refactoring to federated architecture
     res.json({
-      success: result.status === 'success',
-      id: result.id,
-      domain: result.domain,
-      processingTime: result.processingTime,
-      error: result.error
+      success: false,
+      error: 'Refactoring to federated architecture - please use the standalone playwright-dump service on port 3002'
     });
   } catch (error: any) {
     console.error('[Beta v2] Dump error:', error);

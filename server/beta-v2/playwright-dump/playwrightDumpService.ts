@@ -1,10 +1,8 @@
 import { chromium, Browser, Page, BrowserContext } from 'playwright';
-import { executeBetaV2Query } from './database';
 
 interface DumpResult {
-  id?: number;
+  success: boolean;
   domain: string;
-  status: 'success' | 'failed';
   data?: any;
   error?: string;
   processingTime: number;
@@ -130,36 +128,20 @@ export class PlaywrightDumper {
 
       const processingTime = Date.now() - startTime;
 
-      // Save to database
-      const result = await executeBetaV2Query(
-        `INSERT INTO playwright_dumps (domain, raw_data, status, processing_time_ms)
-         VALUES ($1, $2, $3, $4)
-         RETURNING id`,
-        [domain, JSON.stringify(rawData), 'completed', processingTime]
-      );
-
       return {
-        id: result.rows[0].id,
+        success: true,
         domain,
-        status: 'success',
         data: rawData,
         processingTime
       };
 
     } catch (error: any) {
       const processingTime = Date.now() - startTime;
-      console.error(`[Beta v2] Error dumping ${domain}:`, error);
-
-      // Save error to database
-      await executeBetaV2Query(
-        `INSERT INTO playwright_dumps (domain, raw_data, status, error_message, processing_time_ms)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [domain, JSON.stringify({ error: error.message }), 'failed', error.message, processingTime]
-      );
+      console.error(`[Playwright Dump] Error dumping ${domain}:`, error);
 
       return {
+        success: false,
         domain,
-        status: 'failed',
         error: error.message,
         processingTime
       };
@@ -171,4 +153,14 @@ export class PlaywrightDumper {
 }
 
 // Singleton instance
-export const playwrightDumper = new PlaywrightDumper();
+const dumper = new PlaywrightDumper();
+
+// Simple export function for federated architecture
+export async function playwrightDump(domain: string): Promise<DumpResult> {
+  return dumper.dumpDomain(domain);
+}
+
+// Export for cleanup on shutdown
+export async function cleanupPlaywright() {
+  return dumper.cleanup();
+}

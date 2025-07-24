@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playwright Dump Service</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f3f4f6;
+      color: #1f2937;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 2rem;
+    }
+    .form {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    .dumps {
+      display: grid;
+      gap: 1rem;
+    }
+    .dump {
+      background: #f9fafb;
+      padding: 1rem;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .dump-info {
+      flex: 1;
+    }
+    .dump-domain {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .dump-meta {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+    .status {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .status-success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .status-processing {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .status-failed {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .architecture-note {
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      padding: 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+    .loading {
+      text-align: center;
+      color: #6b7280;
+      padding: 2rem;
+    }
+    .view-raw-btn {
+      background: #f3f4f6;
+      color: #374151;
+      padding: 0.5rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .view-raw-btn:hover {
+      background: #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Playwright Dump Service</h1>
+      <p class="subtitle">Standalone service running on port 3002</p>
+      
+      <form class="form" id="dumpForm">
+        <input 
+          type="text" 
+          id="domainInput" 
+          placeholder="Enter domain (e.g., example.com)" 
+          required
+        />
+        <button type="submit" id="submitBtn">Start Dump</button>
+      </form>
+
+      <div class="architecture-note">
+        <strong>Federated Architecture:</strong> This service runs completely independently from the main application. 
+        Direct access at <code>http://localhost:3002</code>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Recent Dumps</h2>
+      <div id="dumpsContainer" class="dumps">
+        <div class="loading">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '';
+    
+    async function fetchDumps() {
+      try {
+        const response = await fetch(`${API_BASE}/dumps`);
+        const dumps = await response.json();
+        
+        const container = document.getElementById('dumpsContainer');
+        
+        if (dumps.length === 0) {
+          container.innerHTML = '<div class="loading">No dumps yet</div>';
+          return;
+        }
+        
+        container.innerHTML = dumps.map(dump => `
+          <div class="dump">
+            <div class="dump-info">
+              <div class="dump-domain">${dump.domain}</div>
+              <div class="dump-meta">
+                <span class="status status-${dump.status}">${dump.status}</span>
+                • ${dump.processing_time_ms}ms
+                • ${new Date(dump.created_at).toLocaleString()}
+              </div>
+            </div>
+            <button class="view-raw-btn" onclick="viewRaw(${dump.id})">
+              View Raw
+            </button>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Failed to fetch dumps:', error);
+      }
+    }
+    
+    async function startDump(domain) {
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing...';
+      
+      try {
+        const response = await fetch(`${API_BASE}/dump`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          document.getElementById('domainInput').value = '';
+          fetchDumps();
+        } else {
+          alert('Error: ' + (result.error || 'Unknown error'));
+        }
+      } catch (error) {
+        alert('Failed to start dump: ' + error.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Start Dump';
+      }
+    }
+    
+    async function viewRaw(id) {
+      try {
+        const response = await fetch(`${API_BASE}/dump/${id}/raw`);
+        const data = await response.json();
+        
+        // Open in new window for better viewing
+        const win = window.open('', '_blank');
+        win.document.write(`
+          <html>
+            <head>
+              <title>Raw Data - Dump ${id}</title>
+              <style>
+                body { font-family: monospace; padding: 20px; }
+                pre { background: #f3f4f6; padding: 20px; overflow: auto; }
+              </style>
+            </head>
+            <body>
+              <h1>Raw Data - Dump ${id}</h1>
+              <pre>${JSON.stringify(data, null, 2)}</pre>
+            </body>
+          </html>
+        `);
+      } catch (error) {
+        alert('Failed to fetch raw data: ' + error.message);
+      }
+    }
+    
+    // Form submission
+    document.getElementById('dumpForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const domain = document.getElementById('domainInput').value.trim();
+      if (domain) {
+        await startDump(domain);
+      }
+    });
+    
+    // Initial load and refresh every 5 seconds
+    fetchDumps();
+    setInterval(fetchDumps, 5000);
+  </script>
+</body>
+</html>
