@@ -170,9 +170,12 @@
     async function fetchDumps() {
       try {
         const response = await fetch(`${API_BASE}/dumps`);
-        const dumps = await response.json();
+        const data = await response.json();
         
         const container = document.getElementById('dumpsContainer');
+        
+        // Extract the dumps array from the response
+        const dumps = data.dumps || [];
         
         if (dumps.length === 0) {
           container.innerHTML = '<div class="loading">No dumps yet</div>';
@@ -185,8 +188,8 @@
               <div class="dump-domain">${dump.domain}</div>
               <div class="dump-meta">
                 <span class="status status-${dump.status}">${dump.status}</span>
-                • ${dump.processing_time_ms}ms
-                • ${new Date(dump.created_at).toLocaleString()}
+                • ${dump.processingTime || 'N/A'}ms
+                • ${new Date(dump.createdAt).toLocaleString()}
               </div>
             </div>
             <button class="view-raw-btn" onclick="viewRaw(${dump.id})">
