@@ -113,6 +113,11 @@ export default function Dashboard() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
+                    <Link href="/beta-testing-v2" className="w-full">
+                      Beta Testing v2
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link href="/knowledge-graph" className="w-full">
                       Knowledge Graph
                     </Link>
