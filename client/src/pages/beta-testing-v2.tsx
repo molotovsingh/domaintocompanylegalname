@@ -29,8 +29,9 @@ export default function BetaTestingV2() {
   const handleMethodSelect = (methodId: string) => {
     const method = methods.find(m => m.id === methodId);
     if (method && method.status === 'available') {
-      // Navigate to the integrated service path
-      window.location.href = method.path;
+      // Navigate to the integrated service path with full URL to bypass React router
+      const origin = window.location.origin;
+      window.location.href = `${origin}${method.path}`;
     }
   };
 
