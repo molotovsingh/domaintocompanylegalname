@@ -456,9 +456,9 @@
             document.getElementById('status').className = 'status processing';
             
             try {
-                // Use direct beta server URL to avoid Vite proxy issues
-                const baseUrl = window.location.hostname === 'localhost' ? 
-                    'http://localhost:3001' : '';
+                // Detect if we're being served through the main app proxy
+                const isProxied = window.location.port === '5000' || window.location.pathname === '/scrapy-crawl-ui';
+                const baseUrl = isProxied ? '' : 'http://localhost:3001';
                 
                 const response = await fetch(`${baseUrl}/api/beta/scrapy-crawl/api/crawl`, {
                     method: 'POST',

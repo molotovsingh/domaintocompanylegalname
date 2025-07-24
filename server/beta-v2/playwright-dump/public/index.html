@@ -165,8 +165,9 @@
   </div>
 
   <script>
-    // Use absolute URL to bypass Vite interception
-    const API_BASE = window.location.protocol + '//' + window.location.hostname + ':3001/api/beta';
+    // Detect if we're being served through the main app proxy
+    const isProxied = window.location.port === '5000' || window.location.pathname === '/playwright-dump-ui';
+    const API_BASE = isProxied ? '/api/beta' : window.location.protocol + '//' + window.location.hostname + ':3001/api/beta';
     
     async function fetchDumps() {
       try {

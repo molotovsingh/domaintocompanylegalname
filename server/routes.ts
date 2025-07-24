@@ -1140,6 +1140,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Beta v2 API proxy routes for federated services
+  app.all('/api/beta/scrapy-crawl/api/*', async (req, res) => {
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).json({ error: 'Beta server is not running' });
+    }
+
+    try {
+      const path = req.params[0]; // Get the path after /api/
+      const response = await axios({
+        method: req.method,
+        url: `http://localhost:3001/api/beta/scrapy-crawl/api/${path}`,
+        data: req.body,
+        headers: {
+          'Content-Type': 'application/json',
+          ...req.headers
+        },
+        timeout: 30000
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      console.error('Scrapy API proxy error:', error.message);
+      res.status(error.response?.status || 500).json({ 
+        error: error.message || 'Proxy error' 
+      });
+    }
+  });
+
+  app.all('/api/beta/playwright-dump/api/*', async (req, res) => {
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).json({ error: 'Beta server is not running' });
+    }
+
+    try {
+      const path = req.params[0]; // Get the path after /api/
+      const response = await axios({
+        method: req.method,
+        url: `http://localhost:3001/api/beta/playwright-dump/api/${path}`,
+        data: req.body,
+        headers: {
+          'Content-Type': 'application/json',
+          ...req.headers
+        },
+        timeout: 30000
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      console.error('Playwright API proxy error:', error.message);
+      res.status(error.response?.status || 500).json({ 
+        error: error.message || 'Proxy error' 
+      });
+    }
+  });
+
+  // Generic beta API proxy for other endpoints
+  app.all('/api/beta/*', async (req, res, next) => {
+    // Skip if already handled by specific routes above
+    if (req.path.includes('/scrapy-crawl/api/') || req.path.includes('/playwright-dump/api/')) {
+      return next();
+    }
+
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).json({ error: 'Beta server is not running' });
+    }
+
+    try {
+      const path = req.params[0]; // Get the path after /api/beta/
+      const response = await axios({
+        method: req.method,
+        url: `http://localhost:3001/api/beta/${path}`,
+        data: req.body,
+        headers: {
+          'Content-Type': 'application/json',
+          ...req.headers
+        },
+        timeout: 30000
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      console.error('Beta API proxy error:', error.message);
+      res.status(error.response?.status || 500).json({ 
+        error: error.message || 'Proxy error' 
+      });
+    }
+  });
+
   // Beta server proxy endpoints (no auto-start)
   app.get('/api/beta/experiments', async (req, res) => {
     try {
