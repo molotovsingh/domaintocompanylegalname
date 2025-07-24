@@ -165,7 +165,8 @@
   </div>
 
   <script>
-    const API_BASE = '/api/beta';
+    // Use absolute URL to bypass Vite interception
+    const API_BASE = window.location.protocol + '//' + window.location.hostname + ':3001/api/beta';
     
     async function fetchDumps() {
       try {
