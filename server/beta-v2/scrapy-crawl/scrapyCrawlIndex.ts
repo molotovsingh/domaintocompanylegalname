@@ -246,29 +246,20 @@ print(json.dumps(result))
   await fs.writeFile(tempFile, pythonScript);
   
   try {
-    // Execute Python script with better error handling
-    const { stdout, stderr } = await execAsync(`python3 ${tempFile} 2>&1`);
+    // Execute Python script with UV environment
+    const { stdout, stderr } = await execAsync(`cd ${process.cwd()} && uv run python ${tempFile}`, {
+      env: { ...process.env }
+    });
     
-    console.log('[Beta v2] Python output:', stdout.substring(0, 500));
+    console.log('[Beta v2] Python stdout length:', stdout.length);
+    console.log('[Beta v2] Python stdout preview:', stdout.substring(0, 200));
     
     if (stderr) {
       console.error('[Beta v2] Python stderr:', stderr);
     }
     
-    // Try to find JSON in the output
-    let result;
-    try {
-      // Sometimes Python output includes warnings before JSON
-      const jsonMatch = stdout.match(/\{[\s\S]*\}$/);
-      if (jsonMatch) {
-        result = JSON.parse(jsonMatch[0]);
-      } else {
-        result = JSON.parse(stdout);
-      }
-    } catch (parseError) {
-      console.error('[Beta v2] Failed to parse Python output:', stdout);
-      throw new Error('Python script did not return valid JSON');
-    }
+    // Parse the result
+    const result = JSON.parse(stdout.trim());
     
     // Clean up
     await fs.unlink(tempFile).catch(() => {});
@@ -278,7 +269,16 @@ print(json.dumps(result))
     // Clean up
     await fs.unlink(tempFile).catch(() => {});
     console.error('[Beta v2] Python execution error:', error);
-    throw error;
+    
+    // If UV fails, try direct python3
+    try {
+      console.log('[Beta v2] Retrying with direct python3...');
+      const { stdout } = await execAsync(`python3 ${tempFile}`);
+      return JSON.parse(stdout.trim());
+    } catch (fallbackError) {
+      console.error('[Beta v2] Fallback also failed:', fallbackError);
+      throw error;
+    }
   }
 }
 
