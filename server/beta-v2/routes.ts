@@ -110,14 +110,35 @@ router.get('/dumps/:id', async (req, res) => {
 // Serve Playwright Dump UI
 router.get('/playwright-dump', (req, res) => {
   try {
-    const htmlPath = join(__dirname, 'playwright-dump', 'public', 'index.html');
-    const htmlContent = readFileSync(htmlPath, 'utf-8');
+    console.log('[Beta v2] __dirname:', __dirname);
+    
+    // Try different path approaches
+    const htmlPath1 = join(__dirname, 'playwright-dump', 'public', 'index.html');
+    const htmlPath2 = join(process.cwd(), 'server', 'beta-v2', 'playwright-dump', 'public', 'index.html');
+    
+    console.log('[Beta v2] Trying path 1:', htmlPath1);
+    console.log('[Beta v2] Trying path 2:', htmlPath2);
+    
+    let htmlContent;
+    let usedPath;
+    
+    try {
+      htmlContent = readFileSync(htmlPath1, 'utf-8');
+      usedPath = htmlPath1;
+    } catch (e1) {
+      console.log('[Beta v2] Path 1 failed, trying path 2');
+      htmlContent = readFileSync(htmlPath2, 'utf-8');
+      usedPath = htmlPath2;
+    }
+    
+    console.log('[Beta v2] Successfully loaded HTML from:', usedPath);
+    
     // Update API endpoint to use the beta server path
-    const updatedHtml = htmlContent.replace(/http:\/\/localhost:3002/g, '/api/beta');
+    const updatedHtml = htmlContent.replace(/http:\/\/localhost:3002/g, '/api/beta/playwright-dump');
     res.send(updatedHtml);
   } catch (error) {
     console.error('[Beta v2] Failed to serve playwright-dump UI:', error);
-    res.status(500).send('Failed to load Playwright Dump UI');
+    res.status(500).send(`Failed to load Playwright Dump UI: ${error}`);
   }
 });
 

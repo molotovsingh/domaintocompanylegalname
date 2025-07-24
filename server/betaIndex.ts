@@ -26,10 +26,7 @@ async function quickCleanup() {
 app.use(cors());
 app.use(express.json());
 
-// Mount Beta v2 routes
-app.use('/api/beta-v2', betaV2Routes);
-
-// Health check
+// Health check (before mounting beta v2 routes)
 app.get('/api/beta/health', (req, res) => {
   res.json({ 
     status: 'healthy', 
@@ -38,6 +35,9 @@ app.get('/api/beta/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Mount Beta v2 routes after health check
+app.use('/api/beta', betaV2Routes);
 
 // Get beta experiments
 app.get('/api/beta/experiments', async (req, res) => {
