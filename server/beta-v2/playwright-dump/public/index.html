@@ -233,7 +233,7 @@
     
     async function viewRaw(id) {
       try {
-        const response = await fetch(`${API_BASE}/dump/${id}/raw`);
+        const response = await fetch(`${API_BASE}/dumps/${id}`);
         const data = await response.json();
         
         // Open in new window for better viewing
