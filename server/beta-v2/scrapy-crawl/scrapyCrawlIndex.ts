@@ -246,15 +246,29 @@ print(json.dumps(result))
   await fs.writeFile(tempFile, pythonScript);
   
   try {
-    // Execute Python script
-    const { stdout, stderr } = await execAsync(`python3 ${tempFile}`);
+    // Execute Python script with better error handling
+    const { stdout, stderr } = await execAsync(`python3 ${tempFile} 2>&1`);
     
-    if (stderr && !stderr.includes('Error crawling')) {
+    console.log('[Beta v2] Python output:', stdout.substring(0, 500));
+    
+    if (stderr) {
       console.error('[Beta v2] Python stderr:', stderr);
     }
     
-    // Parse the result
-    const result = JSON.parse(stdout);
+    // Try to find JSON in the output
+    let result;
+    try {
+      // Sometimes Python output includes warnings before JSON
+      const jsonMatch = stdout.match(/\{[\s\S]*\}$/);
+      if (jsonMatch) {
+        result = JSON.parse(jsonMatch[0]);
+      } else {
+        result = JSON.parse(stdout);
+      }
+    } catch (parseError) {
+      console.error('[Beta v2] Failed to parse Python output:', stdout);
+      throw new Error('Python script did not return valid JSON');
+    }
     
     // Clean up
     await fs.unlink(tempFile).catch(() => {});
@@ -263,6 +277,7 @@ print(json.dumps(result))
   } catch (error) {
     // Clean up
     await fs.unlink(tempFile).catch(() => {});
+    console.error('[Beta v2] Python execution error:', error);
     throw error;
   }
 }
