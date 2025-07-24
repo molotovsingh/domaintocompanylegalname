@@ -456,7 +456,11 @@
             document.getElementById('status').className = 'status processing';
             
             try {
-                const response = await fetch('/api/beta/scrapy-crawl/api/crawl', {
+                // Use direct beta server URL to avoid Vite proxy issues
+                const baseUrl = window.location.hostname === 'localhost' ? 
+                    'http://localhost:3001' : '';
+                
+                const response = await fetch(`${baseUrl}/api/beta/scrapy-crawl/api/crawl`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -509,7 +513,10 @@
         
         async function fetchRawData(crawlId) {
             try {
-                const response = await fetch(`/api/beta/scrapy-crawl/api/raw-data/${crawlId}`, {
+                const baseUrl = window.location.hostname === 'localhost' ? 
+                    'http://localhost:3001' : '';
+                
+                const response = await fetch(`${baseUrl}/api/beta/scrapy-crawl/api/raw-data/${crawlId}`, {
                     headers: {
                         'Cache-Control': 'no-cache'
                     }
