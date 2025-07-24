@@ -214,7 +214,7 @@ router.get('/scrapy-crawl', (req, res) => {
     console.log('[Beta v2] Successfully loaded Scrapy HTML from:', usedPath);
     
     // Update API endpoint to use the beta server path
-    const updatedHtml = htmlContent.replace(/http:\/\/localhost:3003/g, '/api/beta/scrapy-crawl');
+    const updatedHtml = htmlContent.replace(/http:\/\/localhost:3001\/api\/beta\/scrapy-crawl/g, '/api/beta/scrapy-crawl');
     res.send(updatedHtml);
   } catch (error) {
     console.error('[Beta v2] Failed to serve scrapy-crawl UI:', error);
