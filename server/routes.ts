@@ -412,6 +412,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 });
 
+  // Proxy route for Playwright Dump UI
+  app.get("/playwright-dump-ui", async (req, res) => {
+    try {
+      const axios = (await import('axios')).default;
+      const response = await axios.get('http://localhost:3001/api/beta/playwright-dump');
+      res.send(response.data);
+    } catch (error: any) {
+      console.error('Error proxying to playwright dump:', error);
+      res.status(500).send('Failed to load Playwright Dump UI');
+    }
+  });
+
   // Standard export - original implementation for UI compatibility
   app.get("/api/export/:batchId", async (req, res) => {
     try {

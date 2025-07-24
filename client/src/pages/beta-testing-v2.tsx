@@ -7,7 +7,7 @@ export default function BetaTestingV2() {
       id: 'playwright-dump',
       name: 'Playwright Dump',
       description: 'Browser automation for comprehensive data collection',
-      path: '/api/beta/playwright-dump',
+      path: '/playwright-dump-ui',
       status: 'available'
     },
     {
@@ -29,9 +29,8 @@ export default function BetaTestingV2() {
   const handleMethodSelect = (methodId: string) => {
     const method = methods.find(m => m.id === methodId);
     if (method && method.status === 'available') {
-      // Navigate to the integrated service path with full URL to bypass React router
-      const origin = window.location.origin;
-      window.location.href = `${origin}${method.path}`;
+      // Use the full URL to bypass React router
+      window.location.href = `${window.location.origin}${method.path}`;
     }
   };
 
