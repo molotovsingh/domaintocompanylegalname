@@ -104,8 +104,8 @@ export async function updateScrapyCrawlStatus(
 ): Promise<void> {
   await executeBetaV2Query(
     `UPDATE scrapy_crawls 
-     SET status = $1, raw_data = $2, processing_time_ms = $3, error_message = $4
+     SET status = $1, raw_data = $2::jsonb, processing_time_ms = $3, error_message = $4
      WHERE id = $5`,
-    [status, data, processingTime, errorMessage || null, id]
+    [status, data ? JSON.stringify(data) : null, processingTime, errorMessage || null, id]
   );
 }

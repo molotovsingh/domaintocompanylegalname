@@ -1156,7 +1156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         headers: {
           'Content-Type': 'application/json'
         },
-        timeout: 30000
+        timeout: 120000 // Increased to 2 minutes for crawling multiple pages
       });
       res.json(response.data);
     } catch (error: any) {
