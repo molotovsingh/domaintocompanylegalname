@@ -456,7 +456,7 @@
             document.getElementById('status').className = 'status processing';
             
             try {
-                const response = await fetch('http://localhost:3001/api/beta/scrapy-crawl/api/crawl', {
+                const response = await fetch('/api/beta/scrapy-crawl/api/crawl', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -501,7 +501,7 @@
         
         async function fetchRawData(crawlId) {
             try {
-                const response = await fetch(`http://localhost:3001/api/beta/scrapy-crawl/api/raw-data/${crawlId}`);
+                const response = await fetch(`/api/beta/scrapy-crawl/api/raw-data/${crawlId}`);
                 const result = await response.json();
                 
                 if (result.data) {
