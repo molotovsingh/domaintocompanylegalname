@@ -459,7 +459,8 @@
                 const response = await fetch('/api/beta/scrapy-crawl/api/crawl', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache'
                     },
                     body: JSON.stringify({
                         domain,
@@ -468,6 +469,13 @@
                         focusAreas
                     })
                 });
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('Non-JSON response:', text.substring(0, 200));
+                    throw new Error('Server returned non-JSON response');
+                }
                 
                 const data = await response.json();
                 
@@ -501,7 +509,19 @@
         
         async function fetchRawData(crawlId) {
             try {
-                const response = await fetch(`/api/beta/scrapy-crawl/api/raw-data/${crawlId}`);
+                const response = await fetch(`/api/beta/scrapy-crawl/api/raw-data/${crawlId}`, {
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('Raw data endpoint returned non-JSON:', text.substring(0, 200));
+                    return;
+                }
+                
                 const result = await response.json();
                 
                 if (result.data) {
