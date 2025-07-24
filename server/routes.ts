@@ -1105,6 +1105,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: isRunning ? 'ready' : 'starting' });
   });
 
+  // UI routes for Beta v2 services
+  app.get('/playwright-dump-ui', async (req, res) => {
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).send('Beta server is not running. Please wait a moment and refresh.');
+    }
+
+    try {
+      const response = await axios.get('http://localhost:3001/api/beta/playwright-dump', {
+        headers: { 'Accept': 'text/html' }
+      });
+      res.send(response.data);
+    } catch (error: any) {
+      console.error('Playwright UI proxy error:', error.message);
+      res.status(503).send('Failed to load Playwright Dump UI. Please try again.');
+    }
+  });
+
+  app.get('/scrapy-crawl-ui', async (req, res) => {
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).send('Beta server is not running. Please wait a moment and refresh.');
+    }
+
+    try {
+      const response = await axios.get('http://localhost:3001/api/beta/scrapy-crawl', {
+        headers: { 'Accept': 'text/html' }
+      });
+      res.send(response.data);
+    } catch (error: any) {
+      console.error('Scrapy UI proxy error:', error.message);
+      res.status(503).send('Failed to load Scrapy Crawl UI. Please try again.');
+    }
+  });
+
   // Beta server proxy endpoints (no auto-start)
   app.get('/api/beta/experiments', async (req, res) => {
     try {

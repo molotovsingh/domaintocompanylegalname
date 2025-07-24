@@ -64,3 +64,48 @@ export async function executeBetaV2Query(query: string, params?: any[]): Promise
     throw error;
   }
 }
+
+// Create scrapy_crawls table
+export async function initScrapyCrawlTable() {
+  try {
+    await betaV2Db.execute(sql`
+      CREATE TABLE IF NOT EXISTS scrapy_crawls (
+        id SERIAL PRIMARY KEY,
+        domain VARCHAR(255) NOT NULL,
+        raw_data JSONB,
+        status VARCHAR(50) DEFAULT 'pending',
+        error_message TEXT,
+        processing_time_ms INTEGER,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    console.log('[Beta v2] Scrapy crawls table initialized');
+  } catch (error) {
+    console.error('[Beta v2] Scrapy table initialization error:', error);
+  }
+}
+
+// Insert a new scrapy crawl record
+export async function insertScrapyCrawl(domain: string): Promise<number> {
+  const result = await executeBetaV2Query(
+    `INSERT INTO scrapy_crawls (domain, status) VALUES ($1, 'pending') RETURNING id`,
+    [domain]
+  );
+  return result.rows[0].id;
+}
+
+// Update scrapy crawl status
+export async function updateScrapyCrawlStatus(
+  id: number, 
+  status: string, 
+  data: any | null,
+  processingTime: number,
+  errorMessage?: string
+): Promise<void> {
+  await executeBetaV2Query(
+    `UPDATE scrapy_crawls 
+     SET status = $1, raw_data = $2, processing_time_ms = $3, error_message = $4
+     WHERE id = $5`,
+    [status, data, processingTime, errorMessage || null, id]
+  );
+}

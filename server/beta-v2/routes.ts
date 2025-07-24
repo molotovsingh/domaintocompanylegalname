@@ -1,24 +1,29 @@
 import express from 'express';
-import { executeBetaV2Query, initBetaV2Database } from './database';
+import { executeBetaV2Query, initBetaV2Database, initScrapyCrawlTable } from './database';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { playwrightDump } from './playwright-dump/playwrightDumpService';
+import scrapyCrawlRouter from './scrapy-crawl/scrapyCrawlIndex';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
 
 // Initialize database on startup
 initBetaV2Database().catch(console.error);
+initScrapyCrawlTable().catch(console.error);
 
 // Health check
 router.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     platform: 'beta-v2',
-    methods: ['playwright-dump']
+    methods: ['playwright-dump', 'scrapy-crawl']
   });
 });
+
+// Mount scrapy crawl router
+router.use('/scrapy-crawl', scrapyCrawlRouter);
 
 // Dump a domain
 router.post('/dump', async (req, res) => {
@@ -179,6 +184,41 @@ router.get('/playwright-dump', (req, res) => {
   } catch (error) {
     console.error('[Beta v2] Failed to serve playwright-dump UI:', error);
     res.status(500).send(`Failed to load Playwright Dump UI: ${error}`);
+  }
+});
+
+// Serve Scrapy Crawl UI
+router.get('/scrapy-crawl', (req, res) => {
+  try {
+    console.log('[Beta v2] Serving Scrapy Crawl UI');
+    
+    // Try different path approaches
+    const htmlPath1 = join(__dirname, 'scrapy-crawl', 'public', 'index.html');
+    const htmlPath2 = join(process.cwd(), 'server', 'beta-v2', 'scrapy-crawl', 'public', 'index.html');
+    
+    console.log('[Beta v2] Trying scrapy path 1:', htmlPath1);
+    console.log('[Beta v2] Trying scrapy path 2:', htmlPath2);
+    
+    let htmlContent;
+    let usedPath;
+    
+    try {
+      htmlContent = readFileSync(htmlPath1, 'utf-8');
+      usedPath = htmlPath1;
+    } catch (e1) {
+      console.log('[Beta v2] Path 1 failed, trying path 2');
+      htmlContent = readFileSync(htmlPath2, 'utf-8');
+      usedPath = htmlPath2;
+    }
+    
+    console.log('[Beta v2] Successfully loaded Scrapy HTML from:', usedPath);
+    
+    // Update API endpoint to use the beta server path
+    const updatedHtml = htmlContent.replace(/http:\/\/localhost:3003/g, '/api/beta/scrapy-crawl');
+    res.send(updatedHtml);
+  } catch (error) {
+    console.error('[Beta v2] Failed to serve scrapy-crawl UI:', error);
+    res.status(500).send(`Failed to load Scrapy Crawl UI: ${error}`);
   }
 });
 

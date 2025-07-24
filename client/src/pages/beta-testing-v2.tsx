@@ -13,9 +13,9 @@ export default function BetaTestingV2() {
     {
       id: 'scrapy-crawl',
       name: 'Scrapy Crawl',
-      description: 'Python-based web crawling and scraping',
-      path: '/api/beta/scrapy-crawl',
-      status: 'coming-soon'
+      description: 'Multi-page discovery and legal entity extraction',
+      path: '/scrapy-crawl-ui',
+      status: 'available'
     },
     {
       id: 'crawlee-extract',
