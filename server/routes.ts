@@ -1234,6 +1234,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Beta v2 proxy endpoints
+  app.get('/api/beta-v2/dumps', async (req, res) => {
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).json({ 
+        success: false, 
+        error: 'Beta server is not running.',
+        status: 'stopped'
+      });
+    }
+
+    try {
+      const response = await axios.get('http://localhost:3001/api/beta-v2/dumps');
+      res.json(response.data);
+    } catch (error: any) {
+      console.error('Beta v2 dumps proxy error:', error.message);
+      res.status(503).json({ 
+        success: false, 
+        error: 'Failed to fetch dumps from beta server',
+        status: 'error'
+      });
+    }
+  });
+
+  app.post('/api/beta-v2/dump', async (req, res) => {
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).json({ 
+        success: false, 
+        error: 'Beta server is not running.',
+        status: 'stopped'
+      });
+    }
+
+    try {
+      const response = await axios.post('http://localhost:3001/api/beta-v2/dump', req.body, {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 30000 // 30 second timeout for extraction
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      console.error('Beta v2 dump proxy error:', error.message);
+      if (error.code === 'ECONNABORTED') {
+        res.status(504).json({ 
+          success: false, 
+          error: 'Request timeout - extraction is taking longer than expected',
+          status: 'timeout'
+        });
+      } else {
+        res.status(503).json({ 
+          success: false, 
+          error: 'Beta server error: ' + error.message,
+          status: 'error'
+        });
+      }
+    }
+  });
+
+  app.get('/api/beta-v2/dump/:id/raw', async (req, res) => {
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).json({ 
+        success: false, 
+        error: 'Beta server is not running.',
+        status: 'stopped'
+      });
+    }
+
+    try {
+      const response = await axios.get(`http://localhost:3001/api/beta-v2/dump/${req.params.id}/raw`);
+      res.json(response.data);
+    } catch (error: any) {
+      console.error('Beta v2 raw data proxy error:', error.message);
+      res.status(503).json({ 
+        success: false, 
+        error: 'Failed to fetch raw data from beta server',
+        status: 'error'
+      });
+    }
+  });
+
   // GLEIF connection test endpoint (for debugging)
   app.get('/api/test/gleif-connection', async (req, res) => {
     try {
