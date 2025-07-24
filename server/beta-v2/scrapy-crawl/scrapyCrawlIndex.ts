@@ -129,9 +129,9 @@ def crawl_site(domain, max_depth=2, max_pages=100, focus_areas=None):
     
     # Common legal entity patterns
     entity_patterns = [
-        r'\\b(?:Inc|LLC|Ltd|Corporation|Corp|Company|Co|GmbH|SA|SAS|SpA|Pty|PLC|LP|LLP)\\b\\.?',
-        r'©\\s*\\d{4}\\s*([^\\n\\r.]+)',
-        r'(?:Copyright|©).*?\\b(\\w+(?:\\s+\\w+)*(?:\\s+(?:Inc|LLC|Ltd|Corp|Company|Co))\\.?)\\b'
+        r'\\b[A-Z][A-Za-z0-9&\\s]+(?:Inc|LLC|Ltd|Corporation|Corp|Company|Co|GmbH|SA|SAS|SpA|Pty|PLC|LP|LLP)\\.?\\b',
+        r'©\\s*\\d{4}\\s*([^\\n\\r.]+?)(?=\\s*[|\\n\\r]|$)',
+        r'Copyright\\s*©?\\s*\\d{4}\\s*([^\\n\\r.]+?)(?=\\s*[|\\n\\r]|$)'
     ]
     
     # Geographic patterns
@@ -169,33 +169,32 @@ def crawl_site(domain, max_depth=2, max_pages=100, focus_areas=None):
                 'is_focus_page': any(focus in current_url.lower() for focus in focus_areas)
             }
             
-            # Extract text content for focus pages
-            if page_info['is_focus_page']:
-                text_content = soup.get_text(separator=' ', strip=True)
-                page_info['content_preview'] = text_content[:1000]
-                
-                # Look for entities
-                for pattern in entity_patterns:
-                    matches = re.findall(pattern, text_content, re.IGNORECASE)
-                    entities.extend([{'entity': m, 'source': current_url, 'pattern': pattern} for m in matches if isinstance(m, str)])
-                
-                # Look for geographic markers
-                for marker_type, pattern in geo_patterns.items():
-                    matches = re.findall(pattern, text_content)
-                    if matches:
-                        geographic_presence.append({
-                            'type': marker_type,
-                            'values': list(set(matches[:5])),  # Limit to 5 unique
-                            'source': current_url
-                        })
-                
-                # Check if it's a legal document
-                if any(term in current_url.lower() for term in ['terms', 'privacy', 'legal', 'policy']):
-                    legal_documents.append({
-                        'url': current_url,
-                        'type': 'legal',
-                        'title': page_info['title']
+            # Extract text content from all pages
+            text_content = soup.get_text(separator=' ', strip=True)
+            page_info['content_preview'] = text_content[:1000]
+            
+            # Look for entities
+            for i, pattern in enumerate(entity_patterns):
+                matches = re.findall(pattern, text_content, re.IGNORECASE)
+                entities.extend([{'entity': m, 'source': current_url, 'pattern': f'pattern_{i}'} for m in matches if isinstance(m, str)])
+            
+            # Look for geographic markers
+            for marker_type, pattern in geo_patterns.items():
+                matches = re.findall(pattern, text_content)
+                if matches:
+                    geographic_presence.append({
+                        'type': marker_type,
+                        'values': list(set(matches[:5])),  # Limit to 5 unique
+                        'source': current_url
                     })
+            
+            # Check if it's a legal document
+            if any(term in current_url.lower() for term in ['terms', 'privacy', 'legal', 'policy']):
+                legal_documents.append({
+                    'url': current_url,
+                    'type': 'legal',
+                    'title': page_info['title']
+                })
             
             site_map.append(page_info)
             
