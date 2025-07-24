@@ -212,7 +212,7 @@ def crawl_site(domain, max_depth=2, max_pages=100, focus_areas=None):
             time.sleep(0.5)  # Be polite
             
         except Exception as e:
-            print(f"Error crawling {current_url}: {e}")
+            # Silently skip errors to avoid breaking JSON output
             continue
     
     # Deduplicate entities
@@ -236,9 +236,24 @@ def crawl_site(domain, max_depth=2, max_pages=100, focus_areas=None):
         }
     }
 
-# Run the crawl
-result = crawl_site("${domain}", ${options.crawlDepth}, ${options.maxPages}, ${JSON.stringify(options.focusAreas)})
-print(json.dumps(result))
+# Run the crawl and always return JSON
+try:
+    result = crawl_site("${domain}", ${options.crawlDepth}, ${options.maxPages}, ${JSON.stringify(options.focusAreas)})
+    print(json.dumps(result))
+except Exception as e:
+    error_result = {
+        'error': str(e),
+        'siteMap': [],
+        'entities': [],
+        'legalDocuments': [],
+        'geographicPresence': {},
+        'crawlStats': {
+            'pagesVisited': 0,
+            'maxDepthReached': 0,
+            'focusPagesFound': 0
+        }
+    }
+    print(json.dumps(error_result))
 `;
 
   // Write Python script to temp file

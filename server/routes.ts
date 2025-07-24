@@ -1148,14 +1148,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const path = req.params[0]; // Get the path after /api/
+      const fullPath = req.path.replace('/api/beta/scrapy-crawl/api/', '');
       const response = await axios({
         method: req.method,
-        url: `http://localhost:3001/api/beta/scrapy-crawl/api/${path}`,
+        url: `http://localhost:3001/api/beta/scrapy-crawl/api/${fullPath}`,
         data: req.body,
         headers: {
-          'Content-Type': 'application/json',
-          ...req.headers
+          'Content-Type': 'application/json'
         },
         timeout: 30000
       });
@@ -1175,14 +1174,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const path = req.params[0]; // Get the path after /api/
+      const fullPath = req.path.replace('/api/beta/playwright-dump/api/', '');
       const response = await axios({
         method: req.method,
-        url: `http://localhost:3001/api/beta/playwright-dump/api/${path}`,
+        url: `http://localhost:3001/api/beta/playwright-dump/api/${fullPath}`,
         data: req.body,
         headers: {
-          'Content-Type': 'application/json',
-          ...req.headers
+          'Content-Type': 'application/json'
         },
         timeout: 30000
       });
@@ -1208,14 +1206,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const path = req.params[0]; // Get the path after /api/beta/
+      const fullPath = req.path.replace('/api/beta/', '');
       const response = await axios({
         method: req.method,
-        url: `http://localhost:3001/api/beta/${path}`,
+        url: `http://localhost:3001/api/beta/${fullPath}`,
         data: req.body,
         headers: {
-          'Content-Type': 'application/json',
-          ...req.headers
+          'Content-Type': 'application/json'
         },
         timeout: 30000
       });

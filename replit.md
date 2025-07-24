@@ -294,6 +294,7 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Use UV, not pip**: Project uses UV for Python dependency management - add dependencies to `pyproject.toml` and run `uv sync`
 - **Python Script Execution**: When executing Python scripts from Node.js, use `uv run python` for proper dependency resolution
 - **Error Handling**: Python script output may include warnings before JSON - parse carefully and handle edge cases
+- **JSON Response Consistency**: Always wrap Python script execution in try-except blocks that return proper JSON even on errors
 
 ## Technical Stack
 - React 18 with TypeScript
