@@ -276,6 +276,25 @@ A production-scale domain intelligence platform that transforms web domains into
 - Independent validation approach: Perform comprehensive analysis to identify and fix parsing quality issues
 - Performance optimization priority: Early triage to save processing time on problematic domains
 
+## Development Learnings
+### Federated Service Architecture Patterns (July 24, 2025)
+- **Vite Proxy Limitations**: When building federated services on different ports (e.g., beta server on 3001), Vite doesn't automatically proxy these routes
+- **Solution Pattern**: Use absolute URLs in frontend code to bypass Vite's proxy and connect directly to the service port
+  ```javascript
+  // Pattern 1: Protocol-aware absolute URL
+  const API_BASE = window.location.protocol + '//' + window.location.hostname + ':3001/api/beta';
+  
+  // Pattern 2: Conditional URL based on environment
+  const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3001' : '';
+  ```
+- **CORS Requirement**: Ensure federated services have CORS enabled (`app.use(cors())`) to allow cross-origin requests
+- **Recurring Issues**: Both Playwright Dump and Scrapy Crawl services encountered the same Vite proxy issue - fixed with absolute URLs
+
+### Python Dependency Management (July 24, 2025)
+- **Use UV, not pip**: Project uses UV for Python dependency management - add dependencies to `pyproject.toml` and run `uv sync`
+- **Python Script Execution**: When executing Python scripts from Node.js, use `uv run python` for proper dependency resolution
+- **Error Handling**: Python script output may include warnings before JSON - parse carefully and handle edge cases
+
 ## Technical Stack
 - React 18 with TypeScript
 - Express.js with Multer for file uploads
