@@ -63,13 +63,14 @@ router.post('/dump', async (req, res) => {
       );
     }).catch(async (error) => {
       // Update with error
-      await executeBetaV2Query(
-        `UPDATE playwright_dumps
-         SET status = 'failed',
-             error_message = $1
-         WHERE id = $2`,
-        [error.message, dumpId]
-      );
+      try {
+        await executeBetaV2Query(
+          `UPDATE playwright_dumps SET status = 'failed', error_message = $1 WHERE id = $2`,
+          [error.message, dumpId]
+        );
+      } catch (dbError) {
+        console.error('[Beta v2] Failed to update error status:', dbError);
+      }
     });
     
     // Return immediately with the dump ID
