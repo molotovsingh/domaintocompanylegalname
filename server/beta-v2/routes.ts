@@ -3,6 +3,7 @@ import { executeBetaV2Query, initBetaV2Database } from './database';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { playwrightDump } from './playwright-dump/playwrightDumpService';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
@@ -34,10 +35,48 @@ router.post('/dump', async (req, res) => {
 
     console.log(`[Beta v2] Starting dump for ${domain} using ${method}`);
     
-    // Temporarily return a stub response while refactoring to federated architecture
+    // Insert initial record
+    const insertResult = await executeBetaV2Query(
+      `INSERT INTO playwright_dumps (domain, status) VALUES ($1, 'processing') RETURNING id`,
+      [domain]
+    );
+    
+    const dumpId = insertResult.rows[0].id;
+    
+    // Start the dump process asynchronously
+    playwrightDump(domain).then(async (result) => {
+      // Update with results
+      await executeBetaV2Query(
+        `UPDATE playwright_dumps
+         SET status = $1,
+             raw_data = $2,
+             processing_time_ms = $3,
+             error_message = $4
+         WHERE id = $5`,
+        [
+          result.success ? 'completed' : 'failed',
+          JSON.stringify(result.data),
+          result.processingTime,
+          result.error || null,
+          dumpId
+        ]
+      );
+    }).catch(async (error) => {
+      // Update with error
+      await executeBetaV2Query(
+        `UPDATE playwright_dumps
+         SET status = 'failed',
+             error_message = $1
+         WHERE id = $2`,
+        [error.message, dumpId]
+      );
+    });
+    
+    // Return immediately with the dump ID
     res.json({
-      success: false,
-      error: 'Refactoring to federated architecture - please use the standalone playwright-dump service on port 3002'
+      success: true,
+      dumpId,
+      message: 'Dump started successfully'
     });
   } catch (error: any) {
     console.error('[Beta v2] Dump error:', error);

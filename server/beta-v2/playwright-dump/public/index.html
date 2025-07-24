@@ -165,7 +165,7 @@
   </div>
 
   <script>
-    const API_BASE = '';
+    const API_BASE = '/api/beta';
     
     async function fetchDumps() {
       try {
@@ -208,7 +208,7 @@
         const response = await fetch(`${API_BASE}/dump`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ domain })
+          body: JSON.stringify({ domain, method: 'playwright-dump' })
         });
         
         const result = await response.json();

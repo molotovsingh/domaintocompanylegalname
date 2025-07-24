@@ -12,18 +12,15 @@ if (!databaseUrl) {
 const neonSql = neon(databaseUrl);
 export const betaV2Db = drizzle(neonSql);
 
-// Create beta_v2 schema if it doesn't exist
+// Create tables without schema
 export async function initBetaV2Database() {
   try {
-    // Create schema
-    await betaV2Db.execute(sql`CREATE SCHEMA IF NOT EXISTS beta_v2`);
-    
-    // Create tables
+    // Create table directly without schema
     await betaV2Db.execute(sql`
-      CREATE TABLE IF NOT EXISTS beta_v2.playwright_dumps (
+      CREATE TABLE IF NOT EXISTS playwright_dumps (
         id SERIAL PRIMARY KEY,
         domain VARCHAR(255) NOT NULL,
-        raw_data JSONB NOT NULL,
+        raw_data JSONB,
         status VARCHAR(50) DEFAULT 'completed',
         error_message TEXT,
         processing_time_ms INTEGER,
@@ -34,11 +31,11 @@ export async function initBetaV2Database() {
     console.log('[Beta v2] Database schema initialized');
   } catch (error) {
     console.error('[Beta v2] Database initialization error:', error);
-    throw error;
+    // Continue anyway - table might already exist
   }
 }
 
-// Helper to execute raw SQL with beta_v2 schema
+// Helper to execute raw SQL
 export async function executeBetaV2Query(query: string, params?: any[]): Promise<any> {
   try {
     // Replace $1, $2, etc. with actual values for Neon compatibility
@@ -54,11 +51,8 @@ export async function executeBetaV2Query(query: string, params?: any[]): Promise
       });
     }
     
-    // Add schema prefix to the query
-    const fullQuery = `SET search_path TO beta_v2; ${processedQuery}`;
-    
-    // Execute the query
-    const result = await betaV2Db.execute(sql.raw(fullQuery));
+    // Execute the query directly without schema prefix
+    const result = await betaV2Db.execute(sql.raw(processedQuery));
     
     // Return normalized result
     return { 
