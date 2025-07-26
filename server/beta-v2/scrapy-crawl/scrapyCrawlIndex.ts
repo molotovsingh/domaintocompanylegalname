@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
 
 // API endpoint to crawl a domain
 router.post('/api/crawl', async (req, res) => {
-  const { domain, crawlDepth = 2, maxPages = 100, focusAreas = ['about', 'legal', 'terms', 'privacy', 'contact', 'investor'] } = req.body;
+  const { domain, crawlDepth = 2, maxPages = 100 } = req.body;
   
   if (!domain) {
     return res.status(400).json({ error: 'Domain is required' });
@@ -41,7 +41,7 @@ router.post('/api/crawl', async (req, res) => {
     
     // For now, we'll simulate Scrapy crawl with a Python script
     // In production, this would run actual Scrapy spider
-    const crawlData = await performScrapyCrawl(domain, { crawlDepth, maxPages, focusAreas });
+    const crawlData = await performScrapyCrawl(domain, { crawlDepth, maxPages });
     
     const processingTime = Date.now() - startTime;
     
@@ -54,10 +54,8 @@ router.post('/api/crawl', async (req, res) => {
       domain,
       processingTime,
       summary: {
-        pagesDiscovered: crawlData.siteMap?.length || 0,
-        entitiesFound: crawlData.entities?.length || 0,
-        legalDocsFound: crawlData.legalDocuments?.length || 0,
-        geographicMarkers: crawlData.geographicPresence?.length || 0
+        pagesDiscovered: crawlData.pages?.length || 0,
+        totalSize: crawlData.pages?.reduce((sum: number, p: any) => sum + (p.htmlSize || 0), 0) || 0
       }
     });
     
@@ -106,45 +104,24 @@ router.get('/api/raw-data/:crawlId', async (req, res) => {
 async function performScrapyCrawl(domain: string, options: any) {
   console.log(`[Beta v2] Performing Scrapy crawl for ${domain}`);
   
-  // Create a Python script to do basic crawling
+  // Create a Python script for raw data dumping
   const pythonScript = `
 import requests
 from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 import json
-import re
 import time
+import base64
 
-def crawl_site(domain, max_depth=2, max_pages=100, focus_areas=None):
-    if focus_areas is None:
-        focus_areas = ['about', 'legal', 'terms', 'privacy', 'contact', 'investor']
-    
+def crawl_site_raw(domain, max_depth=2, max_pages=100):
     base_url = f"https://{domain}"
     visited = set()
     to_visit = [(base_url, 0)]
-    site_map = []
-    entities = []
-    legal_documents = []
-    geographic_presence = []
-    
-    # Common legal entity patterns
-    entity_patterns = [
-        r'\\b[A-Z][A-Za-z0-9&\\s]+(?:Inc|LLC|Ltd|Corporation|Corp|Company|Co|GmbH|SA|SAS|SpA|Pty|PLC|LP|LLP)\\.?\\b',
-        r'©\\s*\\d{4}\\s*([^\\n\\r.]+?)(?=\\s*[|\\n\\r]|$)',
-        r'Copyright\\s*©?\\s*\\d{4}\\s*([^\\n\\r.]+?)(?=\\s*[|\\n\\r]|$)'
-    ]
-    
-    # Geographic patterns
-    geo_patterns = {
-        'addresses': r'\\d+\\s+[A-Za-z\\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Court|Ct)\\b',
-        'phone': r'\\+?\\d{1,3}[-\\s.]?\\(?\\d{1,4}\\)?[-\\s.]?\\d{1,4}[-\\s.]?\\d{1,4}',
-        'postal_codes': r'\\b\\d{5}(?:-\\d{4})?\\b|\\b[A-Z]\\d[A-Z]\\s?\\d[A-Z]\\d\\b',
-        'countries': r'\\b(?:United States|USA|UK|United Kingdom|Canada|Germany|France|Japan|China|India|Brazil|Australia)\\b'
-    }
+    pages = []
     
     session = requests.Session()
     session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (compatible; ScrapyCrawl/1.0; +http://example.com/bot)'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     })
     
     while to_visit and len(visited) < max_pages:
@@ -159,46 +136,28 @@ def crawl_site(domain, max_depth=2, max_pages=100, focus_areas=None):
                 continue
                 
             visited.add(current_url)
-            soup = BeautifulSoup(response.text, 'html.parser')
             
-            # Extract page info
-            page_info = {
+            # Store raw HTML and metadata
+            page_data = {
                 'url': current_url,
-                'title': soup.title.string if soup.title else '',
                 'depth': depth,
-                'is_focus_page': any(focus in current_url.lower() for focus in focus_areas)
+                'status_code': response.status_code,
+                'content_type': response.headers.get('Content-Type', ''),
+                'html': response.text,
+                'htmlSize': len(response.text),
+                'headers': dict(response.headers),
+                'crawled_at': time.strftime('%Y-%m-%d %H:%M:%S')
             }
             
-            # Extract text content from all pages
-            text_content = soup.get_text(separator=' ', strip=True)
-            page_info['content_preview'] = text_content[:1000]
+            # Extract basic metadata without cleaning
+            soup = BeautifulSoup(response.text, 'html.parser')
+            page_data['title'] = soup.title.string if soup.title else ''
             
-            # Look for entities
-            for i, pattern in enumerate(entity_patterns):
-                matches = re.findall(pattern, text_content, re.IGNORECASE)
-                entities.extend([{'entity': m, 'source': current_url, 'pattern': f'pattern_{i}'} for m in matches if isinstance(m, str)])
+            # Extract all text content (raw, no cleaning)
+            page_data['text_content'] = soup.get_text()
             
-            # Look for geographic markers
-            for marker_type, pattern in geo_patterns.items():
-                matches = re.findall(pattern, text_content)
-                if matches:
-                    geographic_presence.append({
-                        'type': marker_type,
-                        'values': list(set(matches[:5])),  # Limit to 5 unique
-                        'source': current_url
-                    })
-            
-            # Check if it's a legal document
-            if any(term in current_url.lower() for term in ['terms', 'privacy', 'legal', 'policy']):
-                legal_documents.append({
-                    'url': current_url,
-                    'type': 'legal',
-                    'title': page_info['title']
-                })
-            
-            site_map.append(page_info)
-            
-            # Find links
+            # Extract all links for crawling
+            links = []
             if depth < max_depth:
                 for link in soup.find_all('a', href=True):
                     href = link['href']
@@ -207,49 +166,52 @@ def crawl_site(domain, max_depth=2, max_pages=100, focus_areas=None):
                     # Only follow internal links
                     if urlparse(full_url).netloc == urlparse(base_url).netloc:
                         to_visit.append((full_url, depth + 1))
+                        links.append({
+                            'href': href,
+                            'full_url': full_url,
+                            'text': link.get_text(strip=True)
+                        })
+            
+            page_data['links'] = links
+            pages.append(page_data)
             
             time.sleep(0.5)  # Be polite
             
         except Exception as e:
-            # Silently skip errors to avoid breaking JSON output
+            # Include error pages in the dump
+            pages.append({
+                'url': current_url,
+                'depth': depth,
+                'error': str(e),
+                'crawled_at': time.strftime('%Y-%m-%d %H:%M:%S')
+            })
             continue
     
-    # Deduplicate entities
-    unique_entities = []
-    seen = set()
-    for entity in entities:
-        entity_text = entity['entity'].strip()
-        if entity_text and entity_text not in seen:
-            seen.add(entity_text)
-            unique_entities.append(entity)
-    
     return {
-        'siteMap': site_map,
-        'entities': unique_entities[:20],  # Top 20 entities
-        'legalDocuments': legal_documents,
-        'geographicPresence': geographic_presence,
-        'crawlStats': {
-            'pagesVisited': len(visited),
-            'maxDepthReached': max(p['depth'] for p in site_map) if site_map else 0,
-            'focusPagesFound': len([p for p in site_map if p.get('is_focus_page', False)])
+        'domain': domain,
+        'pages': pages,
+        'crawl_stats': {
+            'total_pages': len(pages),
+            'successful_pages': len([p for p in pages if 'html' in p]),
+            'failed_pages': len([p for p in pages if 'error' in p]),
+            'total_size': sum(p.get('htmlSize', 0) for p in pages)
         }
     }
 
 # Run the crawl and always return JSON
 try:
-    result = crawl_site("${domain}", ${options.crawlDepth}, ${options.maxPages}, ${JSON.stringify(options.focusAreas)})
+    result = crawl_site_raw("${domain}", ${options.crawlDepth}, ${options.maxPages})
     print(json.dumps(result))
 except Exception as e:
     error_result = {
+        'domain': "${domain}",
         'error': str(e),
-        'siteMap': [],
-        'entities': [],
-        'legalDocuments': [],
-        'geographicPresence': {},
-        'crawlStats': {
-            'pagesVisited': 0,
-            'maxDepthReached': 0,
-            'focusPagesFound': 0
+        'pages': [],
+        'crawl_stats': {
+            'total_pages': 0,
+            'successful_pages': 0,
+            'failed_pages': 0,
+            'total_size': 0
         }
     }
     print(json.dumps(error_result))
