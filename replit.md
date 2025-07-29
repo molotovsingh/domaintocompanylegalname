@@ -52,10 +52,16 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **OPENROUTER REASONING MODELS INTEGRATION COMPLETED**: Expanded model catalog with actual OpenRouter reasoning models and special reasoning token support (July 29, 2025)
+  - **Reasoning Models Added**: DeepSeek R1 family (8 variants including free options), Microsoft Phi-4 Reasoning Plus, Qwen QWQ models (3 variants), Mistral Magistral Thinking, Perplexity Sonar Reasoning
+  - **Reasoning Token Support**: Service now automatically adds `include_reasoning: true` for reasoning models to get transparent thinking process
+  - **Model Catalog Expansion**: 23 total models (up from 6) with focus on open-source and reasoning capabilities
+  - **UI Enhancement**: Simple model configuration interface at Settings → OpenRouter Settings → Configure Models
+  - **Current Configuration**: Only open-source models enabled (Llama 3 70B priority 1, Mixtral 8x7B priority 2), all proprietary models disabled per user preference
 - **OPENROUTER MODEL CONTROL SYSTEM IMPLEMENTED**: Created comprehensive model configuration and control system allowing flexible model selection strategies (July 29, 2025)
-  - **Model Configuration**: Created `server/config/openrouter-models.ts` with 6 pre-configured models (GPT-3.5, GPT-4, Claude Haiku/Opus, Llama 3, Mixtral)
+  - **Model Configuration**: Created `server/config/openrouter-models.ts` with configurable models including reasoning and standard models
   - **Selection Strategies**: Implemented 4 strategies: costOptimized (cheapest first), priorityBased (by priority order), consensus (multiple models vote), providerSpecific (single provider)
-  - **Use Case Mapping**: Models tagged for specific use cases: entity-extraction, complex-extraction, arbitration, verification, fallback
+  - **Use Case Mapping**: Models tagged for specific use cases: entity-extraction, complex-extraction, arbitration, verification, fallback, reasoning, online-search
   - **Cost Controls**: Per-model cost limits, automatic cost calculation, configurable max tokens
   - **Service Implementation**: `OpenRouterService` class with automatic fallback, consensus extraction, and confidence scoring
 - **ARCHITECTURAL DECISION: SEPARATION OF DUMPS FROM EXTRACTION**: Identified critical performance bottleneck where combining web crawling with entity extraction causes timeouts. Documented why separation makes sense: current all-in-one approach is inherently slow (entity extraction with regex on large HTML is CPU intensive, geographic marker extraction adds processing, sleep(0.5) politeness delays, synchronous processing). Benefits of dump-only approach: Speed (just save raw HTML/text), Reliability (less timeouts), Flexibility (apply different extractors to same data), Debugging (inspect raw dumps), LLM Ready (raw dumps perfect for LLM analysis). Architecture options identified: Quick Fix (remove extraction from crawl), Better (separate extraction service), Best (pipeline architecture: dumps → extraction → LLM analysis) (January 26, 2025)

@@ -1,0 +1,67 @@
+# OpenRouter Reasoning Models List
+
+Here are the reasoning models currently supported on OpenRouter:
+
+## **DeepSeek R1 Family**
+- `deepseek/deepseek-r1`[1][2]
+- `deepseek/deepseek-r1:free`[2][3]
+- `deepseek/deepseek-r1-distill-llama-70b`[3][4]
+- `deepseek/deepseek-r1-distill-llama-8b`[3]
+- `deepseek/deepseek-r1-distill-qwen-1.5b`[3]
+- `deepseek/deepseek-r1-distill-qwen-14b`[3]
+- `deepseek/deepseek-r1-distill-qwen-14b:free`[3]
+- `deepseek/deepseek-r1-distill-qwen-32b`[3]
+- `deepseek/deepseek-r1-distill-qwen-7b`[3]
+
+## **Microsoft Phi Reasoning Models**
+- `microsoft/phi-4-reasoning-plus`[3][5]
+
+## **Qwen Reasoning Models**
+- `qwen/qwq-32b`[3]
+- `qwen/qwq-32b-preview`[3]
+- `qwen/qwq-32b:free`[3]
+
+## **Mistral Reasoning Models**
+- `mistralai/magistral-medium-2506:thinking`[3]
+
+## **Perplexity Reasoning Models**
+- `perplexity/sonar-reasoning`[6]
+
+## **Gemini Thinking Models**
+OpenRouter also mentions upcoming support for **Gemini Thinking models**[2], though specific model names weren't detailed in the search results.
+
+## **Key Features for Reasoning Models**
+
+To access reasoning tokens from these models, you need to add `include_reasoning: true` to your API request[2][7]. The reasoning output will appear in the `reasoning` field of each message[2][4].
+
+Example API usage:
+```python
+payload = {
+    "model": "deepseek/deepseek-r1",
+    "messages": messages,
+    "include_reasoning": true
+}
+```
+
+These reasoning models provide transparent insight into their thinking process, showing step-by-step reasoning chains that can be useful for complex problem-solving, debugging model logic, and educational purposes[1][2].
+
+[1] https://openrouter.ai/docs/use-cases/reasoning-tokens
+[2] https://openrouter.ai/announcements/reasoning-tokens-for-thinking-models
+[3] https://developer.puter.com/tutorials/free-unlimited-openrouter-api/
+[4] https://github.com/rmarfil3/openwebui-openrouter-reasoning-tokens
+[5] https://openrouter.ai/microsoft/phi-4-reasoning-plus
+[6] https://openrouter.ai/perplexity/sonar-reasoning
+[7] https://docs.typingmind.com/manage-and-connect-ai-models/openrouter-models
+[8] https://openrouter.ai/models
+[9] https://openrouter.ai/)
+[10] https://apidog.com/blog/free-ai-models/
+[11] https://www.pulsemcp.com/servers/lakphy-deep-reasoning
+[12] https://openrouter.ai
+[13] https://docs.typingmind.com/changelog/typingmind/add-thinking-message-for-reasoning-models-using-via-openrouter-or-azure-ai-foundry
+[14] https://github.com/open-webui/open-webui/discussions/8959
+[15] https://openrouter.ai/rankings
+[16] https://github.com/continuedev/continue/issues/3946
+[17] https://openrouter.ai/docs/api-reference/list-available-models
+[18] https://www.librechat.ai/docs/configuration/librechat_yaml/ai_endpoints/openrouter
+[19] https://openrouter.ai/models/?q=free
+[20] https://openrouter.ai/compare/openai/o3-mini

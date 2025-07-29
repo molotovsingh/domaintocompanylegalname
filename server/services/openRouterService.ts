@@ -105,14 +105,28 @@ export class OpenRouterService {
       }
     ];
 
+    // Check if this is a reasoning model that supports include_reasoning
+    const isReasoningModel = model.id.includes('reasoning') || 
+                            model.id.includes(':thinking') || 
+                            model.id.includes('r1') ||
+                            model.id.includes('qwq') ||
+                            model.id.includes('phi-4-reasoning');
+
+    const requestBody: any = {
+      model: model.id,
+      messages,
+      max_tokens: model.maxTokens,
+      temperature: model.temperature
+    };
+
+    // Add include_reasoning for models that support it
+    if (isReasoningModel) {
+      requestBody.include_reasoning = true;
+    }
+
     const response = await axios.post(
       `${this.baseUrl}/chat/completions`,
-      {
-        model: model.id,
-        messages,
-        max_tokens: model.maxTokens,
-        temperature: model.temperature
-      },
+      requestBody,
       {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,

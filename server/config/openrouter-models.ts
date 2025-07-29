@@ -87,39 +87,126 @@ export const openRouterModels: ModelConfig[] = [
     enabled: true
   },
   
-  // Reasoning Models (Excellent for complex extraction)
+  // DeepSeek R1 Reasoning Models
   {
-    id: 'deepseek/deepseek-chat',
-    name: 'DeepSeek Chat',
+    id: 'deepseek/deepseek-r1',
+    name: 'DeepSeek R1',
     provider: 'DeepSeek',
     useCase: ['complex-extraction', 'reasoning', 'verification'],
     priority: 3,
-    maxTokens: 150,
+    maxTokens: 200,
     temperature: 0,
-    costLimit: 0.003,
-    enabled: false  // Enable for reasoning tasks
+    costLimit: 0.01,
+    enabled: false  // Premium reasoning model with transparent thinking
   },
   {
-    id: 'qwen/qwen-2.5-72b-instruct',
-    name: 'Qwen 2.5 72B',
-    provider: 'Alibaba',
-    useCase: ['complex-extraction', 'reasoning', 'arbitration'],
-    priority: 4,
-    maxTokens: 150,
-    temperature: 0,
-    costLimit: 0.004,
-    enabled: false  // Strong reasoning capabilities
-  },
-  {
-    id: 'nousresearch/hermes-3-llama-3.1-70b',
-    name: 'Hermes 3 Llama 70B',
-    provider: 'NousResearch',
+    id: 'deepseek/deepseek-r1:free',
+    name: 'DeepSeek R1 Free',
+    provider: 'DeepSeek',
     useCase: ['complex-extraction', 'reasoning', 'verification'],
+    priority: 4,
+    maxTokens: 200,
+    temperature: 0,
+    costLimit: 0,
+    enabled: false  // Free reasoning model
+  },
+  {
+    id: 'deepseek/deepseek-r1-distill-llama-70b',
+    name: 'DeepSeek R1 Distill Llama 70B',
+    provider: 'DeepSeek',
+    useCase: ['complex-extraction', 'reasoning'],
     priority: 5,
     maxTokens: 150,
     temperature: 0,
     costLimit: 0.005,
-    enabled: false  // Excellent reasoning model
+    enabled: false  // Distilled reasoning model
+  },
+  
+  // Microsoft Phi Reasoning
+  {
+    id: 'microsoft/phi-4-reasoning-plus',
+    name: 'Phi-4 Reasoning Plus',
+    provider: 'Microsoft',
+    useCase: ['complex-extraction', 'reasoning', 'verification'],
+    priority: 6,
+    maxTokens: 200,
+    temperature: 0,
+    costLimit: 0.008,
+    enabled: false  // Microsoft's reasoning model
+  },
+  
+  // Qwen Reasoning Models
+  {
+    id: 'qwen/qwq-32b-preview',
+    name: 'Qwen QWQ 32B Preview',
+    provider: 'Alibaba',
+    useCase: ['complex-extraction', 'reasoning', 'arbitration'],
+    priority: 7,
+    maxTokens: 200,
+    temperature: 0,
+    costLimit: 0.004,
+    enabled: false  // Qwen reasoning model
+  },
+  {
+    id: 'qwen/qwq-32b:free',
+    name: 'Qwen QWQ 32B Free',
+    provider: 'Alibaba',
+    useCase: ['complex-extraction', 'reasoning'],
+    priority: 8,
+    maxTokens: 200,
+    temperature: 0,
+    costLimit: 0,
+    enabled: false  // Free Qwen reasoning
+  },
+  
+  // Mistral Reasoning
+  {
+    id: 'mistralai/magistral-medium-2506:thinking',
+    name: 'Mistral Magistral Thinking',
+    provider: 'Mistral',
+    useCase: ['complex-extraction', 'reasoning', 'verification'],
+    priority: 9,
+    maxTokens: 200,
+    temperature: 0,
+    costLimit: 0.007,
+    enabled: false  // Mistral's thinking model
+  },
+  
+  // Perplexity Reasoning
+  {
+    id: 'perplexity/sonar-reasoning',
+    name: 'Perplexity Sonar Reasoning',
+    provider: 'Perplexity',
+    useCase: ['complex-extraction', 'reasoning', 'online-search'],
+    priority: 10,
+    maxTokens: 200,
+    temperature: 0,
+    costLimit: 0.01,
+    enabled: false  // Perplexity reasoning with search
+  },
+  
+  // Additional DeepSeek R1 Distill Variants
+  {
+    id: 'deepseek/deepseek-r1-distill-qwen-14b:free',
+    name: 'DeepSeek R1 Distill Qwen 14B Free',
+    provider: 'DeepSeek',
+    useCase: ['reasoning', 'entity-extraction'],
+    priority: 11,
+    maxTokens: 150,
+    temperature: 0,
+    costLimit: 0,
+    enabled: false  // Free distilled reasoning
+  },
+  {
+    id: 'deepseek/deepseek-r1-distill-qwen-7b',
+    name: 'DeepSeek R1 Distill Qwen 7B',
+    provider: 'DeepSeek',
+    useCase: ['reasoning', 'quick-analysis'],
+    priority: 12,
+    maxTokens: 120,
+    temperature: 0,
+    costLimit: 0.002,
+    enabled: false  // Smaller reasoning model
   },
   
   // Additional Open Source Models
@@ -128,7 +215,7 @@ export const openRouterModels: ModelConfig[] = [
     name: 'Gemma 7B',
     provider: 'Google',
     useCase: ['entity-extraction', 'quick-analysis'],
-    priority: 6,
+    priority: 13,
     maxTokens: 100,
     temperature: 0,
     costLimit: 0.002,
@@ -139,7 +226,7 @@ export const openRouterModels: ModelConfig[] = [
     name: 'Llama 3.1 8B',
     provider: 'Meta',
     useCase: ['entity-extraction', 'quick-analysis'],
-    priority: 7,
+    priority: 14,
     maxTokens: 100,
     temperature: 0,
     costLimit: 0.002,
@@ -150,7 +237,7 @@ export const openRouterModels: ModelConfig[] = [
     name: 'Mistral 7B',
     provider: 'Mistral',
     useCase: ['entity-extraction', 'quick-analysis', 'fallback'],
-    priority: 8,
+    priority: 15,
     maxTokens: 100,
     temperature: 0,
     costLimit: 0.002,
@@ -161,7 +248,7 @@ export const openRouterModels: ModelConfig[] = [
     name: 'Gemma 2 9B',
     provider: 'Google',
     useCase: ['entity-extraction', 'reasoning'],
-    priority: 9,
+    priority: 16,
     maxTokens: 120,
     temperature: 0,
     costLimit: 0.003,
@@ -172,7 +259,7 @@ export const openRouterModels: ModelConfig[] = [
     name: 'DBRX Instruct',
     provider: 'Databricks',
     useCase: ['complex-extraction', 'reasoning'],
-    priority: 10,
+    priority: 17,
     maxTokens: 150,
     temperature: 0,
     costLimit: 0.006,
@@ -183,7 +270,7 @@ export const openRouterModels: ModelConfig[] = [
     name: 'Command R',
     provider: 'Cohere',
     useCase: ['entity-extraction', 'reasoning'],
-    priority: 11,
+    priority: 18,
     maxTokens: 120,
     temperature: 0,
     costLimit: 0.003,
@@ -194,7 +281,7 @@ export const openRouterModels: ModelConfig[] = [
     name: 'Perplexity Sonar Large',
     provider: 'Perplexity',
     useCase: ['complex-extraction', 'verification', 'online-search'],
-    priority: 12,
+    priority: 19,
     maxTokens: 150,
     temperature: 0,
     costLimit: 0.008,
