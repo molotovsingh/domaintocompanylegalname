@@ -25,7 +25,7 @@ export const openRouterModels: ModelConfig[] = [
     maxTokens: 100,
     temperature: 0,
     costLimit: 0.01,
-    enabled: true
+    enabled: false  // DISABLED - Using only open models
   },
   {
     id: 'anthropic/claude-3-haiku',
@@ -36,7 +36,7 @@ export const openRouterModels: ModelConfig[] = [
     maxTokens: 100,
     temperature: 0,
     costLimit: 0.01,
-    enabled: true
+    enabled: false  // DISABLED - Using only open models
   },
   
   // Powerful Models (for complex cases)
@@ -49,7 +49,7 @@ export const openRouterModels: ModelConfig[] = [
     maxTokens: 200,
     temperature: 0,
     costLimit: 0.05,
-    enabled: true
+    enabled: false  // DISABLED - Using only open models
   },
   {
     id: 'anthropic/claude-3-opus',
@@ -63,13 +63,13 @@ export const openRouterModels: ModelConfig[] = [
     enabled: false // Expensive - disabled by default
   },
   
-  // Open Source Models (for testing/cost saving)
+  // Open Source Models (PRIMARY - Now with higher priority)
   {
     id: 'meta-llama/llama-3-70b-instruct',
     name: 'Llama 3 70B',
     provider: 'Meta',
-    useCase: ['entity-extraction', 'fallback'],
-    priority: 5,
+    useCase: ['entity-extraction', 'quick-analysis', 'complex-extraction', 'verification'],
+    priority: 1,  // CHANGED from 5 to 1 - Now primary model
     maxTokens: 100,
     temperature: 0,
     costLimit: 0.005,
@@ -79,12 +79,47 @@ export const openRouterModels: ModelConfig[] = [
     id: 'mistralai/mixtral-8x7b-instruct',
     name: 'Mixtral 8x7B',
     provider: 'Mistral',
-    useCase: ['entity-extraction', 'fallback'],
-    priority: 6,
+    useCase: ['entity-extraction', 'quick-analysis', 'fallback'],
+    priority: 2,  // CHANGED from 6 to 2 - Now secondary model
     maxTokens: 100,
     temperature: 0,
     costLimit: 0.005,
     enabled: true
+  },
+  
+  // Additional Open Source Models (Optional - Enable as needed)
+  {
+    id: 'google/gemma-7b-it',
+    name: 'Gemma 7B',
+    provider: 'Google',
+    useCase: ['entity-extraction', 'quick-analysis'],
+    priority: 3,
+    maxTokens: 100,
+    temperature: 0,
+    costLimit: 0.002,
+    enabled: false  // Enable if you want more variety
+  },
+  {
+    id: 'nousresearch/nous-capybara-7b',
+    name: 'Nous Capybara 7B',
+    provider: 'NousResearch',
+    useCase: ['entity-extraction', 'fallback'],
+    priority: 4,
+    maxTokens: 100,
+    temperature: 0,
+    costLimit: 0.002,
+    enabled: false  // Enable for additional fallback
+  },
+  {
+    id: 'teknium/openhermes-2.5-mistral-7b',
+    name: 'OpenHermes 2.5',
+    provider: 'Teknium',
+    useCase: ['entity-extraction', 'quick-analysis'],
+    priority: 5,
+    maxTokens: 100,
+    temperature: 0,
+    costLimit: 0.002,
+    enabled: false  // Enable for fast, cheap extraction
   }
 ];
 
