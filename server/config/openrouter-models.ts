@@ -87,39 +87,118 @@ export const openRouterModels: ModelConfig[] = [
     enabled: true
   },
   
-  // Additional Open Source Models (Optional - Enable as needed)
+  // Reasoning Models (Excellent for complex extraction)
+  {
+    id: 'deepseek/deepseek-chat',
+    name: 'DeepSeek Chat',
+    provider: 'DeepSeek',
+    useCase: ['complex-extraction', 'reasoning', 'verification'],
+    priority: 3,
+    maxTokens: 150,
+    temperature: 0,
+    costLimit: 0.003,
+    enabled: false  // Enable for reasoning tasks
+  },
+  {
+    id: 'qwen/qwen-2.5-72b-instruct',
+    name: 'Qwen 2.5 72B',
+    provider: 'Alibaba',
+    useCase: ['complex-extraction', 'reasoning', 'arbitration'],
+    priority: 4,
+    maxTokens: 150,
+    temperature: 0,
+    costLimit: 0.004,
+    enabled: false  // Strong reasoning capabilities
+  },
+  {
+    id: 'nousresearch/hermes-3-llama-3.1-70b',
+    name: 'Hermes 3 Llama 70B',
+    provider: 'NousResearch',
+    useCase: ['complex-extraction', 'reasoning', 'verification'],
+    priority: 5,
+    maxTokens: 150,
+    temperature: 0,
+    costLimit: 0.005,
+    enabled: false  // Excellent reasoning model
+  },
+  
+  // Additional Open Source Models
   {
     id: 'google/gemma-7b-it',
     name: 'Gemma 7B',
     provider: 'Google',
     useCase: ['entity-extraction', 'quick-analysis'],
-    priority: 3,
+    priority: 6,
     maxTokens: 100,
     temperature: 0,
     costLimit: 0.002,
     enabled: false  // Enable if you want more variety
   },
   {
-    id: 'nousresearch/nous-capybara-7b',
-    name: 'Nous Capybara 7B',
-    provider: 'NousResearch',
-    useCase: ['entity-extraction', 'fallback'],
-    priority: 4,
+    id: 'meta-llama/llama-3.1-8b-instruct',
+    name: 'Llama 3.1 8B',
+    provider: 'Meta',
+    useCase: ['entity-extraction', 'quick-analysis'],
+    priority: 7,
     maxTokens: 100,
     temperature: 0,
     costLimit: 0.002,
-    enabled: false  // Enable for additional fallback
+    enabled: false  // Smaller, faster Llama variant
   },
   {
-    id: 'teknium/openhermes-2.5-mistral-7b',
-    name: 'OpenHermes 2.5',
-    provider: 'Teknium',
-    useCase: ['entity-extraction', 'quick-analysis'],
-    priority: 5,
+    id: 'mistralai/mistral-7b-instruct',
+    name: 'Mistral 7B',
+    provider: 'Mistral',
+    useCase: ['entity-extraction', 'quick-analysis', 'fallback'],
+    priority: 8,
     maxTokens: 100,
     temperature: 0,
     costLimit: 0.002,
-    enabled: false  // Enable for fast, cheap extraction
+    enabled: false  // Smaller Mistral model
+  },
+  {
+    id: 'google/gemma-2-9b-it',
+    name: 'Gemma 2 9B',
+    provider: 'Google',
+    useCase: ['entity-extraction', 'reasoning'],
+    priority: 9,
+    maxTokens: 120,
+    temperature: 0,
+    costLimit: 0.003,
+    enabled: false  // Newer Gemma with better performance
+  },
+  {
+    id: 'databricks/dbrx-instruct',
+    name: 'DBRX Instruct',
+    provider: 'Databricks',
+    useCase: ['complex-extraction', 'reasoning'],
+    priority: 10,
+    maxTokens: 150,
+    temperature: 0,
+    costLimit: 0.006,
+    enabled: false  // Strong enterprise model
+  },
+  {
+    id: 'cohere/command-r',
+    name: 'Command R',
+    provider: 'Cohere',
+    useCase: ['entity-extraction', 'reasoning'],
+    priority: 11,
+    maxTokens: 120,
+    temperature: 0,
+    costLimit: 0.003,
+    enabled: false  // Good for extraction tasks
+  },
+  {
+    id: 'perplexity/llama-3.1-sonar-large-128k-online',
+    name: 'Perplexity Sonar Large',
+    provider: 'Perplexity',
+    useCase: ['complex-extraction', 'verification', 'online-search'],
+    priority: 12,
+    maxTokens: 150,
+    temperature: 0,
+    costLimit: 0.008,
+    enabled: false  // Can search online for verification
   }
 ];
 

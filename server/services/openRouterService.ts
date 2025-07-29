@@ -6,7 +6,7 @@ interface OpenRouterRequest {
   htmlContent?: string;
   footerText?: string;
   aboutPageText?: string;
-  useCase?: 'entity-extraction' | 'complex-extraction' | 'arbitration' | 'verification';
+  useCase?: 'entity-extraction' | 'complex-extraction' | 'arbitration' | 'verification' | 'reasoning' | 'online-search';
   strategy?: 'costOptimized' | 'priorityBased' | 'consensus' | 'providerSpecific';
   preferredProvider?: string;
 }
