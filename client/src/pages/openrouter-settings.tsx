@@ -34,8 +34,12 @@ export default function OpenRouterSettings() {
   const checkStoredKey = async () => {
     try {
       const response = await fetch('/api/openrouter/check-key');
+      if (!response.ok) {
+        throw new Error('Failed to check key');
+      }
       const data = await response.json();
-      setHasStoredKey(data.hasKey);
+      console.log('Check key response:', data); // Debug log
+      setHasStoredKey(data.hasKey === true);
       if (data.hasKey) {
         setApiKey('sk-or-***'); // Show masked key
       }

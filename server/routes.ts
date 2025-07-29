@@ -16,6 +16,7 @@ import { defaultExportFields, comprehensiveExportFields } from "../shared/enhanc
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { Request, Response } from 'express';
+import openRouterRouter from './routes/openrouter';
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -27,6 +28,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register both database architecture approaches for comparison
   addNormalizedExportRoute(app);
   addWideExportRoute(app);
+
+  // Register OpenRouter routes
+  app.use('/api/openrouter', openRouterRouter);
 
   // Basic processing statistics
   app.get('/api/stats', async (req, res) => {
