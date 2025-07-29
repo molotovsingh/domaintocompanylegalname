@@ -220,34 +220,43 @@ export default function OpenRouterSettings() {
                 </div>
               )}
               
-              <div className="flex gap-2">
-                {!hasStoredKey && (
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  {!hasStoredKey && (
+                    <Button 
+                      onClick={saveApiKey}
+                      variant="outline"
+                      disabled={!apiKey}
+                    >
+                      Save API Key
+                    </Button>
+                  )}
                   <Button 
-                    onClick={saveApiKey}
-                    variant="outline"
-                    disabled={!apiKey}
+                    onClick={runSmokeTest}
+                    disabled={(!hasStoredKey && !apiKey) || isRunningTest}
+                    className={hasStoredKey ? 'flex-1' : ''}
                   >
-                    Save API Key
-                  </Button>
-                )}
-                <Button 
-                  onClick={runSmokeTest}
-                  disabled={(!hasStoredKey && !apiKey) || isRunningTest}
-                  className={hasStoredKey ? 'w-full' : ''}
-                >
-                  {isRunningTest ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Running Test...
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="mr-2 h-4 w-4" />
+                    {isRunningTest ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Running Test...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="mr-2 h-4 w-4" />
                       Run Smoke Test
                     </>
                   )}
                 </Button>
               </div>
+              
+              <Link href="/openrouter-models" className="block">
+                <Button variant="outline" className="w-full">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Configure Models
+                </Button>
+              </Link>
+            </div>
 
               {currentTest && (
                 <Alert>

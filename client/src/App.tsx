@@ -30,6 +30,7 @@ function Router() {
       <Route path="/beta-testing-v2" component={BetaTestingV2} />
       <Route path="/recent-changes" component={lazy(() => import("./pages/recent-changes"))} />
       <Route path="/openrouter-settings" component={lazy(() => import("./pages/openrouter-settings"))} />
+      <Route path="/openrouter-models" component={lazy(() => import("./pages/openrouter-models"))} />
       <Route component={NotFound} />
     </Switch>
   );
