@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Configuration
-const API_KEY = process.env.OPENROUTER_API_KEY;
+const API_KEY = process.env.openrouter; // Using Replit Secret name
 const BASE_URL = 'https://openrouter.ai/api/v1';
 
 // Color codes for console output

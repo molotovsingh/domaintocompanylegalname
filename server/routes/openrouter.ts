@@ -25,7 +25,7 @@ router.post('/smoke-test', async (req, res) => {
     // Set the API key as an environment variable for the smoke test
     const env = {
       ...process.env,
-      OPENROUTER_API_KEY: apiKey
+      openrouter: apiKey // Using Replit Secret name
     };
 
     // Run the smoke test script
