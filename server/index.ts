@@ -7,6 +7,7 @@ import { addNormalizedExportRoute } from './routes-normalized';
 import smokeTestRoutes from './routes-smoke-test';
 import knowledgeGraphRoutes from './routes-knowledge-graph';
 import changesRoutes from './routes-changes';
+import openRouterRoutes from './routes/openrouter';
 import { spawn } from 'child_process';
 import axios from 'axios';
 
@@ -159,6 +160,7 @@ process.on('unhandledRejection', (reason, promise) => {
   app.use(knowledgeGraphRoutes);
   app.use('/api/smoke-test', smokeTestRoutes);
   app.use(changesRoutes);
+  app.use('/api/openrouter', openRouterRoutes);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

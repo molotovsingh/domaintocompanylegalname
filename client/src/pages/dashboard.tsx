@@ -133,6 +133,11 @@ export default function Dashboard() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
+                    <Link href="/openrouter-settings" className="w-full">
+                      OpenRouter Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link href="/recent-changes" className="w-full">
                       Recent Changes
                     </Link>
