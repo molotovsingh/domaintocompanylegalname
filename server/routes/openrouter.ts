@@ -116,4 +116,86 @@ router.post('/save-key', async (req, res) => {
   }
 });
 
+// Get current model configuration
+router.get('/models/config', async (req, res) => {
+  try {
+    const { openRouterModels } = await import('../config/openrouter-models');
+    res.json({
+      success: true,
+      models: openRouterModels,
+      strategies: ['costOptimized', 'priorityBased', 'consensus', 'providerSpecific']
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Update model configuration
+router.post('/models/update', async (req, res) => {
+  const { modelId, updates } = req.body;
+  
+  if (!modelId) {
+    return res.status(400).json({
+      success: false,
+      error: 'Model ID is required'
+    });
+  }
+  
+  try {
+    const { updateModelConfig, getModelById } = await import('../config/openrouter-models');
+    
+    updateModelConfig(modelId, updates);
+    const updatedModel = getModelById(modelId);
+    
+    res.json({
+      success: true,
+      model: updatedModel
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Test entity extraction with specific settings
+router.post('/test-extraction', async (req, res) => {
+  const { 
+    domain, 
+    strategy = 'priorityBased',
+    useCase = 'entity-extraction',
+    preferredProvider
+  } = req.body;
+  
+  if (!domain) {
+    return res.status(400).json({
+      success: false,
+      error: 'Domain is required'
+    });
+  }
+  
+  try {
+    const { OpenRouterService } = await import('../services/openRouterService');
+    const service = new OpenRouterService();
+    
+    const result = await service.extractEntity({
+      domain,
+      useCase: useCase as any,
+      strategy: strategy as any,
+      preferredProvider
+    });
+    
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 export default router;
