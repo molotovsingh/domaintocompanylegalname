@@ -110,7 +110,8 @@ export class OpenRouterService {
                             model.id.includes(':thinking') || 
                             model.id.includes('r1') ||
                             model.id.includes('qwq') ||
-                            model.id.includes('phi-4-reasoning');
+                            model.id.includes('phi-4-reasoning') ||
+                            model.id.includes('kimi-k2');
 
     const requestBody: any = {
       model: model.id,

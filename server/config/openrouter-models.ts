@@ -185,13 +185,37 @@ export const openRouterModels: ModelConfig[] = [
     enabled: false  // Perplexity reasoning with search
   },
   
+  // Moonshot AI Kimi Models
+  {
+    id: 'moonshotai/kimi-k2',
+    name: 'Kimi K2',
+    provider: 'Moonshot AI',
+    useCase: ['complex-extraction', 'reasoning', 'verification'],
+    priority: 11,
+    maxTokens: 200,
+    temperature: 0,
+    costLimit: 0.008,
+    enabled: false  // Premium Kimi reasoning model
+  },
+  {
+    id: 'moonshotai/kimi-k2:free',
+    name: 'Kimi K2 Free',
+    provider: 'Moonshot AI',
+    useCase: ['complex-extraction', 'reasoning', 'verification'],
+    priority: 12,
+    maxTokens: 200,
+    temperature: 0,
+    costLimit: 0,
+    enabled: false  // Free Kimi reasoning model
+  },
+  
   // Additional DeepSeek R1 Distill Variants
   {
     id: 'deepseek/deepseek-r1-distill-qwen-14b:free',
     name: 'DeepSeek R1 Distill Qwen 14B Free',
     provider: 'DeepSeek',
     useCase: ['reasoning', 'entity-extraction'],
-    priority: 11,
+    priority: 13,
     maxTokens: 150,
     temperature: 0,
     costLimit: 0,
@@ -202,7 +226,7 @@ export const openRouterModels: ModelConfig[] = [
     name: 'DeepSeek R1 Distill Qwen 7B',
     provider: 'DeepSeek',
     useCase: ['reasoning', 'quick-analysis'],
-    priority: 12,
+    priority: 14,
     maxTokens: 120,
     temperature: 0,
     costLimit: 0.002,
