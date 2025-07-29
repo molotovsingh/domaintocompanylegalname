@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Settings, Zap, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
@@ -23,13 +23,36 @@ export default function OpenRouterSettings() {
   const [isRunningTest, setIsRunningTest] = useState(false);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [currentTest, setCurrentTest] = useState('');
+  const [hasStoredKey, setHasStoredKey] = useState<boolean | null>(null);
   const { toast } = useToast();
 
+  // Check if API key exists on mount
+  useEffect(() => {
+    checkStoredKey();
+  }, []);
+
+  const checkStoredKey = async () => {
+    try {
+      const response = await fetch('/api/openrouter/check-key');
+      const data = await response.json();
+      setHasStoredKey(data.hasKey);
+      if (data.hasKey) {
+        setApiKey('sk-or-***'); // Show masked key
+      }
+    } catch (error) {
+      console.error('Failed to check stored key:', error);
+      setHasStoredKey(false);
+    }
+  };
+
   const runSmokeTest = async () => {
-    if (!apiKey) {
+    // Check if we have a key available (either stored or entered)
+    const keyToUse = hasStoredKey ? 'USE_STORED_KEY' : apiKey;
+    
+    if (!hasStoredKey && !apiKey) {
       toast({
         title: "API Key Required",
-        description: "Please enter your OpenRouter API key to run the smoke test.",
+        description: "Please enter your OpenRouter API key or add it to Replit Secrets.",
         variant: "destructive"
       });
       return;
@@ -45,7 +68,7 @@ export default function OpenRouterSettings() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ apiKey })
+        body: JSON.stringify({ apiKey: keyToUse })
       });
       
       const data = await response.json();
@@ -161,39 +184,52 @@ export default function OpenRouterSettings() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="apiKey">OpenRouter API Key</Label>
-                <Input
-                  id="apiKey"
-                  type="password"
-                  placeholder="sk-or-v1-..."
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                />
-                <p className="text-sm text-muted-foreground">
-                  Get your API key from{' '}
-                  <a 
-                    href="https://openrouter.ai/keys" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    openrouter.ai/keys
-                  </a>
-                </p>
-              </div>
+              {hasStoredKey ? (
+                <Alert className="border-green-200 bg-green-50">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-800">
+                    OpenRouter API key detected in Replit Secrets. You're ready to run tests!
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="apiKey">OpenRouter API Key</Label>
+                  <Input
+                    id="apiKey"
+                    type="password"
+                    placeholder="sk-or-v1-..."
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Get your API key from{' '}
+                    <a 
+                      href="https://openrouter.ai/keys" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      openrouter.ai/keys
+                    </a>
+                    {' '}or add it to Replit Secrets as "openrouter"
+                  </p>
+                </div>
+              )}
               
               <div className="flex gap-2">
-                <Button 
-                  onClick={saveApiKey}
-                  variant="outline"
-                  disabled={!apiKey}
-                >
-                  Save API Key
-                </Button>
+                {!hasStoredKey && (
+                  <Button 
+                    onClick={saveApiKey}
+                    variant="outline"
+                    disabled={!apiKey}
+                  >
+                    Save API Key
+                  </Button>
+                )}
                 <Button 
                   onClick={runSmokeTest}
-                  disabled={!apiKey || isRunningTest}
+                  disabled={(!hasStoredKey && !apiKey) || isRunningTest}
+                  className={hasStoredKey ? 'w-full' : ''}
                 >
                   {isRunningTest ? (
                     <>

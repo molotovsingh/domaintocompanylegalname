@@ -10,14 +10,23 @@ const __dirname = path.dirname(__filename);
 const execAsync = promisify(exec);
 const router = Router();
 
+// Check if API key exists in environment
+router.get('/check-key', async (req, res) => {
+  const hasKey = !!process.env.openrouter;
+  res.json({ hasKey });
+});
+
 // Run the smoke test
 router.post('/smoke-test', async (req, res) => {
   const { apiKey } = req.body;
   
-  if (!apiKey) {
+  // Use stored key if special flag is passed
+  const keyToUse = apiKey === 'USE_STORED_KEY' ? process.env.openrouter : apiKey;
+  
+  if (!keyToUse) {
     return res.status(400).json({ 
       success: false, 
-      error: 'API key is required' 
+      error: 'API key is required. Please add it to Replit Secrets or provide it manually.' 
     });
   }
 
@@ -25,7 +34,7 @@ router.post('/smoke-test', async (req, res) => {
     // Set the API key as an environment variable for the smoke test
     const env = {
       ...process.env,
-      openrouter: apiKey // Using Replit Secret name
+      openrouter: keyToUse // Using Replit Secret name
     };
 
     // Run the smoke test script
