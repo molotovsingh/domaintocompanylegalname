@@ -137,10 +137,19 @@ router.get('/models/config', async (req, res) => {
 router.post('/models/update', async (req, res) => {
   const { modelId, updates } = req.body;
   
+  console.log('Updating model config:', { modelId, updates });
+  
   if (!modelId) {
     return res.status(400).json({
       success: false,
       error: 'Model ID is required'
+    });
+  }
+  
+  if (!updates) {
+    return res.status(400).json({
+      success: false,
+      error: 'Updates object is required'
     });
   }
   
@@ -150,14 +159,22 @@ router.post('/models/update', async (req, res) => {
     updateModelConfig(modelId, updates);
     const updatedModel = getModelById(modelId);
     
+    if (!updatedModel) {
+      return res.status(404).json({
+        success: false,
+        error: `Model ${modelId} not found`
+      });
+    }
+    
     res.json({
       success: true,
       model: updatedModel
     });
   } catch (error: any) {
+    console.error('Model update error:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message || 'Failed to update model configuration'
     });
   }
 });

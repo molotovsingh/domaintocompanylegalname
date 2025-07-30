@@ -46,21 +46,36 @@ export default function OpenRouterModelsPage() {
   // Update configuration mutation
   const updateConfig = useMutation({
     mutationFn: async (updates: { models: ModelConfig[], strategy: string }) => {
-      const responses = await Promise.all(
-        updates.models.map(model =>
-          apiRequest('/api/openrouter/models/update', {
-            method: 'POST',
-            body: JSON.stringify({
-              modelId: model.id,
-              updates: {
-                enabled: model.enabled,
-                priority: model.priority
-              }
-            })
+      try {
+        const responses = await Promise.all(
+          updates.models.map(async (model) => {
+            const response = await fetch('/api/openrouter/models/update', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                modelId: model.id,
+                updates: {
+                  enabled: model.enabled,
+                  priority: model.priority
+                }
+              })
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || `Failed to update model ${model.id}`);
+            }
+
+            return response.json();
           })
-        )
-      );
-      return responses;
+        );
+        return responses;
+      } catch (error) {
+        console.error('Update config error:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast({
@@ -71,6 +86,7 @@ export default function OpenRouterModelsPage() {
       queryClient.invalidateQueries({ queryKey: ['/api/openrouter/models/config'] });
     },
     onError: (error: any) => {
+      console.error('Mutation error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to save configuration",
@@ -104,7 +120,16 @@ export default function OpenRouterModelsPage() {
   };
 
   const handleSave = () => {
-    updateConfig.mutate({ models, strategy });
+    try {
+      updateConfig.mutate({ models, strategy });
+    } catch (error) {
+      console.error('Save handler error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to initiate save operation",
+        variant: "destructive",
+      });
+    }
   };
 
   // Sort models by priority for display
