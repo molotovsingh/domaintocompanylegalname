@@ -65,6 +65,47 @@ export async function executeBetaV2Query(query: string, params?: any[]): Promise
   }
 }
 
+// Create crawlee_dumps table
+export async function initCrawleeDumpTable() {
+  try {
+    await betaV2Db.execute(sql`
+      CREATE TABLE IF NOT EXISTS crawlee_dumps (
+        id SERIAL PRIMARY KEY,
+        domain TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'pending',
+        max_pages INTEGER DEFAULT 10,
+        max_depth INTEGER DEFAULT 2,
+        wait_time INTEGER DEFAULT 1000,
+        include_paths JSONB,
+        exclude_paths JSONB,
+        dump_data JSONB,
+        pages_crawled INTEGER DEFAULT 0,
+        total_size_bytes INTEGER DEFAULT 0,
+        processing_time_ms INTEGER,
+        error_message TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
+    // Create indexes
+    await betaV2Db.execute(sql`
+      CREATE INDEX IF NOT EXISTS idx_crawlee_dumps_domain ON crawlee_dumps(domain)
+    `);
+    await betaV2Db.execute(sql`
+      CREATE INDEX IF NOT EXISTS idx_crawlee_dumps_status ON crawlee_dumps(status)
+    `);
+    await betaV2Db.execute(sql`
+      CREATE INDEX IF NOT EXISTS idx_crawlee_dumps_created_at ON crawlee_dumps(created_at DESC)
+    `);
+    
+    console.log('[Beta v2] Crawlee dumps table initialized');
+  } catch (error) {
+    console.error('[Beta v2] Crawlee table initialization error:', error);
+    // Continue anyway - table might already exist
+  }
+}
+
 // Create scrapy_crawls table
 export async function initScrapyCrawlTable() {
   try {

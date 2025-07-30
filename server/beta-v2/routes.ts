@@ -1,10 +1,11 @@
 import express from 'express';
-import { executeBetaV2Query, initBetaV2Database, initScrapyCrawlTable } from './database';
+import { executeBetaV2Query, initBetaV2Database, initScrapyCrawlTable, initCrawleeDumpTable } from './database';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { playwrightDump } from './playwright-dump/playwrightDumpService';
 import scrapyCrawlRouter from './scrapy-crawl/scrapyCrawlIndex';
+import crawleeDumpRouter from './crawlee-dump/crawleeDumpIndex';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
@@ -12,18 +13,22 @@ const router = express.Router();
 // Initialize database on startup
 initBetaV2Database().catch(console.error);
 initScrapyCrawlTable().catch(console.error);
+initCrawleeDumpTable().catch(console.error);
 
 // Health check
 router.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     platform: 'beta-v2',
-    methods: ['playwright-dump', 'scrapy-crawl']
+    methods: ['playwright-dump', 'scrapy-crawl', 'crawlee-dump']
   });
 });
 
 // Mount scrapy crawl router
 router.use('/scrapy-crawl', scrapyCrawlRouter);
+
+// Mount crawlee dump router
+router.use('/crawlee-dump', crawleeDumpRouter);
 
 // Dump a domain
 router.post('/dump', async (req, res) => {

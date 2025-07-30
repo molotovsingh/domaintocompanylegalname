@@ -52,6 +52,12 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **CRAWLEE DUMP SERVICE PHASE 1 COMPLETED**: Successfully implemented third independent dump service for Beta Testing Platform V2 with comprehensive web crawling capabilities (July 30, 2025)
+  - **Foundation Complete**: Installed Crawlee, created database schema with JSONB for flexible data storage, built complete directory structure
+  - **Core Service Working**: Single-page crawling functional with configurable max pages, depth, wait time, and path filters
+  - **API Integration**: All endpoints operational (POST /dump, GET /dumps, GET /dump/:id/data, DELETE /dump/:id)
+  - **Data Collection**: Capturing complete page data including HTML, text, headers, cookies, timestamps, internal/external links
+  - **Next Steps**: Multi-page crawling, network request capture, session management, and UI development per 20-step implementation plan
 - **OPENROUTER REASONING MODELS INTEGRATION COMPLETED**: Expanded model catalog with actual OpenRouter reasoning models and special reasoning token support (July 29, 2025)
   - **Reasoning Models Added**: DeepSeek R1 family (8 variants including free options), Microsoft Phi-4 Reasoning Plus, Qwen QWQ models (3 variants), Mistral Magistral Thinking, Perplexity Sonar Reasoning
   - **Reasoning Token Support**: Service now automatically adds `include_reasoning: true` for reasoning models to get transparent thinking process

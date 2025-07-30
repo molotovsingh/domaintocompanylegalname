@@ -1197,6 +1197,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Crawlee dump API proxy routes
+  app.all('/api/beta/crawlee-dump/*', async (req, res) => {
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).json({ error: 'Beta server is not running' });
+    }
+
+    try {
+      const fullPath = req.path.replace('/api/beta/', '');
+      const response = await axios({
+        method: req.method,
+        url: `http://localhost:3001/api/beta/${fullPath}`,
+        data: req.body,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 120000 // 2 minutes for crawling
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      console.error('Crawlee API proxy error:', error.message);
+      res.status(error.response?.status || 500).json({ 
+        error: error.message || 'Proxy error' 
+      });
+    }
+  });
+
   // Generic beta API proxy for other endpoints
   app.all('/api/beta/*', async (req, res, next) => {
     // Skip if already handled by specific routes above
