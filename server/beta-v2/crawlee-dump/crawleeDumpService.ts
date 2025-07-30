@@ -77,11 +77,41 @@ export class CrawleeDumpService {
           // Get current URL depth
           const currentDepth = urlDepths.get(request.url) || 0;
           
+          // Extract metadata (lightweight, using already-parsed DOM)
+          const title = $('title').text().trim() || undefined;
+          
+          // Extract meta tags
+          const metaTags: Record<string, string> = {};
+          $('meta[name], meta[property]').each((_, el) => {
+            const name = $(el).attr('name') || $(el).attr('property');
+            const content = $(el).attr('content');
+            if (name && content) {
+              metaTags[name] = content;
+            }
+          });
+          
+          // Extract structured data (JSON-LD)
+          const structuredData: any[] = [];
+          $('script[type="application/ld+json"]').each((_, el) => {
+            try {
+              const jsonText = $(el).html();
+              if (jsonText) {
+                structuredData.push(JSON.parse(jsonText));
+              }
+            } catch (e) {
+              // Ignore invalid JSON
+            }
+          });
+          
           // Collect page data
           const pageData: PageData = {
             url: request.url,
             html: html,
             text: text.substring(0, 50000), // Limit text size
+            title,
+            metaTags: Object.keys(metaTags).length > 0 ? metaTags : undefined,
+            links: [], // Will be filled below
+            structuredData: structuredData.length > 0 ? structuredData : undefined,
             statusCode: response.statusCode || 200,
             headers: response.headers as Record<string, string>,
             cookies: [], // Crawlee doesn't expose cookies easily
@@ -89,11 +119,10 @@ export class CrawleeDumpService {
             depth: currentDepth // Add depth to page data
           };
           
-          pages.push(pageData);
-          totalSizeBytes += Buffer.byteLength(html, 'utf8');
-          
           // Collect all links
           const foundLinks: { url: string; text: string }[] = [];
+          const pageLinks: Array<{ url: string; text: string; type: 'internal' | 'external' }> = [];
+          
           $('a[href]').each((_, el) => {
             const href = $(el).attr('href');
             const linkText = $(el).text().trim();
@@ -107,13 +136,21 @@ export class CrawleeDumpService {
               if (linkDomain === currentDomain) {
                 internalLinks.add(absoluteUrl);
                 foundLinks.push({ url: absoluteUrl, text: linkText });
+                pageLinks.push({ url: absoluteUrl, text: linkText, type: 'internal' });
               } else {
                 externalLinks.add(absoluteUrl);
+                pageLinks.push({ url: absoluteUrl, text: linkText, type: 'external' });
               }
             } catch (e) {
               // Invalid URL
             }
           });
+          
+          // Update pageData with links
+          pageData.links = pageLinks;
+          
+          pages.push(pageData);
+          totalSizeBytes += Buffer.byteLength(html, 'utf8');
           
           // Enqueue more links if within depth limit
           const maxDepth = config.maxDepth || 2;
@@ -296,6 +333,41 @@ export class CrawleeDumpService {
           const text = await page.evaluate(() => document.body?.innerText || '');
           const currentDepth = urlDepths.get(request.url) || 0;
           
+          // Extract metadata using Playwright
+          const metadata = await page.evaluate(() => {
+            // Extract title
+            const title = document.title?.trim() || undefined;
+            
+            // Extract meta tags
+            const metaTags: Record<string, string> = {};
+            document.querySelectorAll('meta[name], meta[property]').forEach(meta => {
+              const name = meta.getAttribute('name') || meta.getAttribute('property');
+              const content = meta.getAttribute('content');
+              if (name && content) {
+                metaTags[name] = content;
+              }
+            });
+            
+            // Extract structured data
+            const structuredData: any[] = [];
+            document.querySelectorAll('script[type="application/ld+json"]').forEach(script => {
+              try {
+                const jsonText = script.textContent;
+                if (jsonText) {
+                  structuredData.push(JSON.parse(jsonText));
+                }
+              } catch (e) {
+                // Ignore invalid JSON
+              }
+            });
+            
+            return {
+              title,
+              metaTags: Object.keys(metaTags).length > 0 ? metaTags : undefined,
+              structuredData: structuredData.length > 0 ? structuredData : undefined
+            };
+          });
+          
           // Collect cookies
           const cookies = await page.context().cookies();
           
@@ -303,6 +375,10 @@ export class CrawleeDumpService {
             url: request.url,
             html: html,
             text: text.substring(0, 50000),
+            title: metadata.title,
+            metaTags: metadata.metaTags,
+            links: [], // Will be filled below
+            structuredData: metadata.structuredData,
             statusCode: response?.status() || 200,
             headers: response?.headers() || {},
             cookies: cookies.map(c => ({
@@ -315,9 +391,6 @@ export class CrawleeDumpService {
             depth: currentDepth
           };
           
-          pages.push(pageData);
-          totalSizeBytes += Buffer.byteLength(html, 'utf8');
-          
           // Collect links
           const links = await page.evaluate(() => {
             const anchors = Array.from(document.querySelectorAll('a[href]'));
@@ -328,6 +401,8 @@ export class CrawleeDumpService {
           });
           
           const foundLinks: { url: string; text: string }[] = [];
+          const pageLinks: Array<{ url: string; text: string; type: 'internal' | 'external' }> = [];
+          
           links.forEach(link => {
             try {
               const linkUrl = new URL(link.url);
@@ -336,13 +411,21 @@ export class CrawleeDumpService {
               if (linkUrl.hostname === currentDomain) {
                 internalLinks.add(link.url);
                 foundLinks.push(link);
+                pageLinks.push({ url: link.url, text: link.text, type: 'internal' });
               } else {
                 externalLinks.add(link.url);
+                pageLinks.push({ url: link.url, text: link.text, type: 'external' });
               }
             } catch (e) {
               // Invalid URL
             }
           });
+          
+          // Update pageData with links
+          pageData.links = pageLinks;
+          
+          pages.push(pageData);
+          totalSizeBytes += Buffer.byteLength(html, 'utf8');
           
           // Enqueue more links if within depth limit
           const maxDepth = config.maxDepth || 2;

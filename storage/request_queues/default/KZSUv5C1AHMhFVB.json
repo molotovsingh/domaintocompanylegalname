@@ -1,0 +1,9 @@
+{
+	"id": "KZSUv5C1AHMhFVB",
+	"json": "{\"id\":\"KZSUv5C1AHMhFVB\",\"url\":\"https://apple.com/us-edu/shop/back-to-school/terms-conditions\",\"loadedUrl\":\"https://www.apple.com/us-edu/shop/back-to-school/terms-conditions\",\"uniqueKey\":\"https://apple.com/us-edu/shop/back-to-school/terms-conditions\",\"method\":\"GET\",\"noRetry\":true,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"enqueueStrategy\":\"same-hostname\",\"state\":7}},\"handledAt\":\"2025-07-30T11:31:21.638Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://apple.com/us-edu/shop/back-to-school/terms-conditions",
+	"url": "https://apple.com/us-edu/shop/back-to-school/terms-conditions"
+}

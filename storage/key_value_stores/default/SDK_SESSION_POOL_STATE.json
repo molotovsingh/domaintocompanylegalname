@@ -1,89 +1,9 @@
 {
-  "usableSessionsCount": 5,
+  "usableSessionsCount": 2,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_vofX4n2z5a",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-07-30T11:39:43.050Z",
-      "createdAt": "2025-07-30T10:49:43.050Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_ZsYlEGKvCq",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-07-30T11:39:44.675Z",
-      "createdAt": "2025-07-30T10:49:44.675Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_6QtNBhxqXG",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-07-30T11:39:44.677Z",
-      "createdAt": "2025-07-30T10:49:44.677Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_mVpI648oXm",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-07-30T11:39:45.874Z",
-      "createdAt": "2025-07-30T10:49:45.874Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_pzzSNVjcVT",
+      "id": "session_bI0TetnVs7",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -93,57 +13,128 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "nid",
-            "value": "2BEB68C58F1D8FEA578FE03EC64C0F618D8FD033",
-            "maxAge": 31536000,
-            "domain": "www.cic.fr",
+            "key": "geo",
+            "value": "US",
+            "domain": "apple.com",
             "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": true,
-            "creation": "2025-07-30T10:50:19.304Z",
-            "lastAccessed": "2025-07-30T10:50:19.464Z"
-          },
-          {
-            "key": "I14wirt",
-            "value": "EIESPEQUParticulierSEPEICREQUSEPMARCHEEQUSEPFEDEEQUSEPOLDFEDEEQUSEPSSMARCHEEQUSEPCAISSEEQUSEPDIRREGEQU",
-            "expires": "2026-07-29T22:00:00.000Z",
-            "domain": "www.cic.fr",
-            "path": "/",
-            "secure": true,
-            "hostOnly": true,
-            "creation": "2025-07-30T10:50:20.091Z",
-            "lastAccessed": "2025-07-30T10:50:20.091Z"
-          },
-          {
-            "key": "SessionStart",
-            "expires": "1971-01-01T01:00:00.000Z",
-            "maxAge": 0,
-            "domain": "www.cic.fr",
-            "path": "/",
-            "secure": true,
-            "hostOnly": true,
-            "creation": "2025-07-30T10:50:20.091Z",
-            "lastAccessed": "2025-07-30T10:50:20.091Z"
-          },
-          {
-            "key": "SessionTimeout",
-            "expires": "1971-01-01T01:00:00.000Z",
-            "maxAge": 0,
-            "domain": "www.cic.fr",
-            "path": "/",
-            "secure": true,
-            "hostOnly": true,
-            "creation": "2025-07-30T10:50:20.091Z",
-            "lastAccessed": "2025-07-30T10:50:20.091Z"
+            "hostOnly": false,
+            "creation": "2025-07-30T11:31:20.394Z",
+            "lastAccessed": "2025-07-30T11:31:20.394Z"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-07-30T11:40:16.292Z",
-      "createdAt": "2025-07-30T10:50:16.292Z",
+      "expiresAt": "2025-07-30T12:21:18.749Z",
+      "createdAt": "2025-07-30T11:31:18.749Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_ngW6iVmg5H",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "shld_bt_m",
+            "value": "dCnPb4WuyHQ9XY84Eeuliw|1753882281|qwkRRqmLNKzcXzLyvH3v-A|DIH13LPivL810i4oMS3niCkvkK4",
+            "expires": "2025-07-30T13:31:21.000Z",
+            "maxAge": 7200,
+            "domain": "apple.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2025-07-30T11:31:21.634Z",
+            "lastAccessed": "2025-07-30T11:31:21.634Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "shld_bt_ck",
+            "expires": "1970-01-01T00:00:01.000Z",
+            "maxAge": 0,
+            "domain": "apple.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2025-07-30T11:31:21.636Z",
+            "lastAccessed": "2025-07-30T11:31:21.636Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "dssid2",
+            "value": "fb86eb83-75d0-497b-b831-ce468c1222b0",
+            "expires": "2026-07-30T11:31:21.000Z",
+            "maxAge": 31536000,
+            "domain": "apple.com",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-07-30T11:31:21.637Z",
+            "lastAccessed": "2025-07-30T11:31:21.637Z"
+          },
+          {
+            "key": "dssf",
+            "value": "1",
+            "expires": "2026-07-30T11:31:21.000Z",
+            "maxAge": 31536000,
+            "domain": "apple.com",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-07-30T11:31:21.637Z",
+            "lastAccessed": "2025-07-30T11:31:21.637Z"
+          },
+          {
+            "key": "as_xs",
+            "expires": "1970-01-01T00:00:00.000Z",
+            "maxAge": 0,
+            "domain": "apple.com",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-07-30T11:31:21.637Z",
+            "lastAccessed": "2025-07-30T11:31:21.637Z"
+          },
+          {
+            "key": "as_pcts",
+            "value": "cawVI-XPimVwuWmruWA2IuRVPJbdb6MxNl7jE6jMhjAOl4uQny-Zv+YN+b7UT7-iksyzlb5zguuGjdKYlF3puPYKAgYof00PZ+eP0e3oMW0Pj6007F2monG7Y:SMfc4JmnVXGBaetmFGAkkkWmlDW3sYAM-88vVprWKF+Y-2c",
+            "domain": "apple.com",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-07-30T11:31:21.637Z",
+            "lastAccessed": "2025-07-30T11:31:21.637Z"
+          },
+          {
+            "key": "as_dc",
+            "value": "ucp5",
+            "expires": "2025-07-30T13:31:21.000Z",
+            "maxAge": 7200,
+            "domain": "apple.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2025-07-30T11:31:21.637Z",
+            "lastAccessed": "2025-07-30T11:31:21.637Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-07-30T12:21:20.449Z",
+      "createdAt": "2025-07-30T11:31:20.449Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0

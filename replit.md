@@ -52,14 +52,16 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
-- **CRAWLEE DUMP SERVICE PHASE 3 IN PROGRESS**: Implementing enhanced link discovery and session management for Beta Testing Platform V2 (July 30, 2025)
+- **CRAWLEE DUMP SERVICE PHASE 3 COMPLETE**: Enhanced link discovery and lightweight metadata extraction for Beta Testing Platform V2 (July 30, 2025)
   - **Phase 1 Complete**: Single-page crawling with configurable parameters and comprehensive data collection
   - **Phase 2 Complete**: Multi-page crawling with network capture - successfully captured 141 network requests across 5 pages
-  - **Phase 3 Progress**: Enhanced link discovery implemented - crawler now finds truly different pages (category pages, not just index variations)
-  - **Link Discovery Features**: URL normalization, duplicate detection, priority-based selection (about/company pages prioritized)
-  - **Duplicate Prevention**: Added logic to skip normalized duplicates (prevents crawling both / and /index.html)
-  - **Crawl Intelligence**: Successfully crawled 5 distinct category pages from books.toscrape.com instead of index variations
-  - **Next Steps**: Session management, cookie persistence, request filtering, and UI development per implementation plan
+  - **Phase 3 Complete**: Enhanced link discovery + lightweight metadata extraction
+    - **Link Discovery**: URL normalization, duplicate prevention, priority-based selection (about/company pages prioritized)
+    - **Metadata Extraction**: Title, meta tags, structured data (JSON-LD), and links array extraction
+    - **Performance**: Minimal compute cost - uses already-parsed DOM, no data cleaning/transformation
+    - **Architecture**: Maintains separation - pure dump service with structured extraction only
+  - **UI Enhancement**: Updated to lighter color scheme matching main application design
+  - **Next Steps**: Session management, cookie persistence, request filtering per implementation plan
 - **OPENROUTER REASONING MODELS INTEGRATION COMPLETED**: Expanded model catalog with actual OpenRouter reasoning models and special reasoning token support (July 29, 2025)
   - **Reasoning Models Added**: DeepSeek R1 family (8 variants including free options), Microsoft Phi-4 Reasoning Plus, Qwen QWQ models (3 variants), Mistral Magistral Thinking, Perplexity Sonar Reasoning
   - **Reasoning Token Support**: Service now automatically adds `include_reasoning: true` for reasoning models to get transparent thinking process

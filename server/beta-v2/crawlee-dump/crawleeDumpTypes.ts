@@ -13,6 +13,14 @@ export interface PageData {
   url: string;
   html: string;
   text: string;
+  title?: string;  // Page title
+  metaTags?: Record<string, string>;  // Meta tag name/property -> content
+  links?: Array<{  // Links found on the page
+    url: string;
+    text: string;
+    type: 'internal' | 'external';
+  }>;
+  structuredData?: any[];  // JSON-LD structured data
   statusCode: number;
   headers: Record<string, string>;
   cookies: Array<{
