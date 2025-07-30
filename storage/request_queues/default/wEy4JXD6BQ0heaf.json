@@ -1,0 +1,9 @@
+{
+	"id": "wEy4JXD6BQ0heaf",
+	"json": "{\"id\":\"wEy4JXD6BQ0heaf\",\"url\":\"https://smarthr.co.jp/about/\",\"loadedUrl\":\"https://smarthr.co.jp/about/\",\"uniqueKey\":\"https://smarthr.co.jp/about\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2025-07-30T10:49:45.868Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://smarthr.co.jp/about",
+	"url": "https://smarthr.co.jp/about/"
+}
