@@ -1,9 +1,0 @@
-{
-	"id": "zkh5RSkdNeJc6VA",
-	"json": "{\"id\":\"zkh5RSkdNeJc6VA\",\"url\":\"https://cic.fr/fr/particuliers.html\",\"loadedUrl\":\"https://www.cic.fr/fr/particuliers.html\",\"uniqueKey\":\"https://cic.fr/fr/particuliers.html\",\"method\":\"GET\",\"noRetry\":true,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"enqueueStrategy\":\"same-hostname\",\"state\":7}},\"handledAt\":\"2025-07-30T11:39:47.430Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://cic.fr/fr/particuliers.html",
-	"url": "https://cic.fr/fr/particuliers.html"
-}

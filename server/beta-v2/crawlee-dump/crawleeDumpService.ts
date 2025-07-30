@@ -1,6 +1,7 @@
-import { CheerioCrawler, PlaywrightCrawler, Dataset, RequestQueue } from 'crawlee';
+import { CheerioCrawler, PlaywrightCrawler, Dataset, RequestQueue, Configuration } from 'crawlee';
 import type { CrawlConfig, CrawleeDumpData, PageData, NetworkRequest } from './crawleeDumpTypes';
 import { CrawleeDumpStorage } from './crawleeDumpStorage';
+import { randomUUID } from 'crypto';
 
 export class CrawleeDumpService {
   private storage: CrawleeDumpStorage;
@@ -62,6 +63,12 @@ export class CrawleeDumpService {
     
     console.log('[Crawlee] Using Cheerio crawler (captureNetworkRequests:', config.captureNetworkRequests, ')');
     
+    // Create unique configuration to isolate each crawl
+    const crawlId = randomUUID();
+    const crawlerConfig = Configuration.getGlobalConfig();
+    crawlerConfig.set('defaultDatasetId', `dataset-${crawlId}`);
+    crawlerConfig.set('defaultRequestQueueId', `queue-${crawlId}`);
+    
     // Create Cheerio crawler for basic crawling
     const crawler = new CheerioCrawler({
       maxRequestsPerCrawl: config.maxPages || 10,
@@ -70,6 +77,7 @@ export class CrawleeDumpService {
       
       // Request options
       requestHandler: async ({ request, response, $, enqueueLinks }) => {
+        console.log(`[Crawlee] Processing ${request.url}`);
         try {
           const html = $.html();
           const text = $.text();
@@ -248,6 +256,16 @@ export class CrawleeDumpService {
     
     // Update database with results
     await this.storage.updateDumpData(dumpId, dumpData, processingTimeMs);
+    
+    // Clean up datasets and queues to prevent state pollution
+    try {
+      const dataset = await Dataset.open(`dataset-${crawlId}`);
+      await dataset.drop();
+      const queue = await RequestQueue.open(`queue-${crawlId}`);
+      await queue.drop();
+    } catch (e) {
+      // Ignore cleanup errors
+    }
   }
 
   private async crawlWithPlaywright(

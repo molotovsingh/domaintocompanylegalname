@@ -1,9 +1,0 @@
-{
-	"id": "471Grl0suO8EmCo",
-	"json": "{\"id\":\"471Grl0suO8EmCo\",\"url\":\"https://cic.fr\",\"loadedUrl\":\"https://www.cic.fr/fr/particuliers.html\",\"uniqueKey\":\"https://cic.fr\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2025-07-30T11:39:42.818Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://cic.fr",
-	"url": "https://cic.fr"
-}

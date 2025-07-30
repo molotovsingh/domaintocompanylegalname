@@ -1,9 +1,0 @@
-{
-	"id": "3HoPnbC0YmzFeLt",
-	"json": "{\"id\":\"3HoPnbC0YmzFeLt\",\"url\":\"https://rediff.com\",\"loadedUrl\":\"https://www.rediff.com/\",\"uniqueKey\":\"https://rediff.com\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2025-07-30T11:38:39.915Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://rediff.com",
-	"url": "https://rediff.com"
-}

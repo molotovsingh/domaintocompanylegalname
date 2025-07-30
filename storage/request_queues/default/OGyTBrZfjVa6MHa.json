@@ -1,9 +1,0 @@
-{
-	"id": "OGyTBrZfjVa6MHa",
-	"json": "{\"id\":\"OGyTBrZfjVa6MHa\",\"url\":\"https://cic.fr/fr/contact/sourds-malentendants.html\",\"loadedUrl\":\"https://www.cic.fr/fr/contact/sourds-malentendants.html\",\"uniqueKey\":\"https://cic.fr/fr/contact/sourds-malentendants.html\",\"method\":\"GET\",\"noRetry\":true,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"enqueueStrategy\":\"same-hostname\",\"state\":7}},\"handledAt\":\"2025-07-30T11:39:45.187Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://cic.fr/fr/contact/sourds-malentendants.html",
-	"url": "https://cic.fr/fr/contact/sourds-malentendants.html"
-}

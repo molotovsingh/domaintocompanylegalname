@@ -52,6 +52,12 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **CRAWLEE STATE ISOLATION FIX IMPLEMENTED**: Fixed critical Crawlee service bug causing erratic results with 0 pages crawled despite "completed" status (July 30, 2025)
+  - **Root Cause**: Crawlee was maintaining state between runs causing dataset/queue conflicts
+  - **Solution**: Added unique dataset and queue IDs for each crawl session using randomUUID()
+  - **Cleanup**: Implemented automatic cleanup after each crawl to prevent state pollution
+  - **Verification**: Successfully tested with example.com (1 page) and books.toscrape.com (4 pages)
+  - **Impact**: Resolved "0 succeeded, 0 failed" logs - now shows proper statistics like "4 succeeded, 0 failed"
 - **CRAWLEE DUMP SERVICE PHASE 3 COMPLETE**: Enhanced link discovery and lightweight metadata extraction for Beta Testing Platform V2 (July 30, 2025)
   - **Phase 1 Complete**: Single-page crawling with configurable parameters and comprehensive data collection
   - **Phase 2 Complete**: Multi-page crawling with network capture - successfully captured 141 network requests across 5 pages
