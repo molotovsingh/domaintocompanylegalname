@@ -1,0 +1,117 @@
+Based on my research of OpenRouter's documentation and pricing, I can confirm that **Llama 3.1 8B Instruct is indeed free** on OpenRouter[1][2][3]. Here's the code snippet you requested:
+
+## Confirmation: Llama 3.1 8B Instruct is Free
+
+The model `meta-llama/llama-3.1-8b-instruct` is available **completely free** on OpenRouter[1][2]. According to the official pricing comparison, it shows "$0.000" for both input and output costs[1].
+
+## Code Snippet for Single-Step Cleaning
+
+```python
+import requests
+import json
+
+# Set your OpenRouter API Key
+API_KEY = "your_openrouter_api_key_here"
+
+# API endpoint for chat completion
+ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
+
+# Headers
+headers = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json"
+}
+
+def clean_scraped_dump(raw_dump):
+    """Clean scraped data using Llama 3.1 8B Instruct"""
+    
+    payload = {
+        "model": "meta-llama/llama-3.1-8b-instruct:free",  # Use the free version
+        "messages": [
+            {
+                "role": "system", 
+                "content": """You are a web scraping data cleaning assistant. Clean the provided dump by:
+1. Remove duplicate entries and empty content
+2. Extract meaningful URLs and categorize them (internal/external links)
+3. Remove analytics code, scripts, and debugging info
+4. Standardize URL formats
+5. Remove redundant whitespace and formatting
+6. Return structured, clean JSON format
+Be thorough but preserve all useful information."""
+            },
+            {
+                "role": "user",
+                "content": f"Clean this web scraping dump:\n\n{raw_dump}"
+            }
+        ],
+        "max_tokens": 4096,  # Generous token limit for comprehensive cleaning
+        "temperature": 0.1   # Low temperature for consistent cleaning output
+    }
+    
+    try:
+        response = requests.post(ENDPOINT, headers=headers, json=payload)
+        response.raise_for_status()
+        
+        result = response.json()
+        cleaned_content = result['choices'][0]['message']['content']
+        
+        return cleaned_content
+        
+    except requests.exceptions.RequestException as e:
+        print(f"API request failed: {e}")
+        return None
+    except KeyError as e:
+        print(f"Unexpected response format: {e}")
+        return None
+
+# Usage example
+if __name__ == "__main__":
+    # Your raw dump data
+    raw_dump = """
+    # Insert your CIC.fr or books.toscrape.com dump here
+    """
+    
+    cleaned_data = clean_scraped_dump(raw_dump)
+    
+    if cleaned_data:
+        print("Cleaned Data:")
+        print(cleaned_data)
+    else:
+        print("Cleaning failed")
+```
+
+## Key Features Confirmed:
+
+- **Cost**: **$0** - Completely free[1][2]
+- **Context Window**: **128k tokens**[1][3] - More than enough for your dumps
+- **Speed**: Fast inference suitable for batch processing[3]
+- **API Compatibility**: Uses OpenAI-compatible API format[4][5]
+
+## Getting Started:
+
+1. Sign up at [openrouter.ai](https://openrouter.ai) and get your free API key[6]
+2. The model identifier is: `meta-llama/llama-3.1-8b-instruct:free`[3]
+3. No credit card required for the free tier[1]
+
+The single-step cleaning approach using this free model should handle your CIC and books.toscrape dumps effectively without any cost concerns.
+
+[1] https://compare-openrouter-models.pages.dev
+[2] https://docs.novelcrafter.com/en/articles/8695405-how-much-does-the-ai-the-models-cost
+[3] https://openrouter.ai/meta-llama/llama-3.1-8b-instruct:free
+[4] https://openrouter.ai/docs/quickstart
+[5] https://openrouter.ai/docs/api-reference/overview
+[6] https://openrouter.ai/docs/api-reference/authentication
+[7] https://openrouter.ai/docs/api-reference/list-available-models
+[8] https://openrouter.ai
+[9] https://github.com/OpenRouterTeam/openrouter-examples
+[10] https://llmpricecheck.com/deepinfra/llama-3.1-8b-instruct/
+[11] https://openrouter.ai/docs/api-reference/parameters
+[12] https://llmpricecheck.com/deepinfra/llama-3-8b-instruct/
+[13] https://www.reddit.com/r/Chub_AI/comments/1dmbh23/open_router_cost_per_different_ai_models/
+[14] https://langdb.ai/app/providers/openrouter/llama-3.1-8b-instruct
+[15] https://openrouter.ai/docs/api-reference/list-endpoints-for-a-model
+[16] https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct
+[17] https://openrouter.ai/docs/models
+[18] https://openrouter.ai/docs/api-reference/limits
+[19] https://openrouter.ai/compare/openai/chatgpt-4o-latest
+[20] https://openrouter.ai/docs/features/provisioning-api-keys
