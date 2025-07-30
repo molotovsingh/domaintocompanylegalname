@@ -269,6 +269,24 @@ export class CrawleeDumpService {
       
       requestHandler: async ({ request, response, page, enqueueLinks }) => {
         console.log(`[Crawlee] Processing ${request.url} with Playwright`);
+        
+        // Check if this is a duplicate based on normalized URL
+        const currentUrlObj = new URL(request.url);
+        const normalizedCurrentPath = currentUrlObj.pathname
+          .replace(/\/$/, '')
+          .replace(/\/index\.(html?|php)$/i, '');
+        const normalizedCurrentUrl = `${currentUrlObj.protocol}//${currentUrlObj.host}${normalizedCurrentPath || '/'}`;
+        
+        // Skip if already processed a normalized version
+        if (pages.some(p => {
+          const pageUrl = new URL(p.url);
+          const pageNormalized = `${pageUrl.protocol}//${pageUrl.host}${pageUrl.pathname.replace(/\/$/, '').replace(/\/index\.(html?|php)$/i, '') || '/'}`;
+          return pageNormalized === normalizedCurrentUrl && p.url !== request.url;
+        })) {
+          console.log(`[Crawlee] Skipping duplicate: ${request.url} (normalized: ${normalizedCurrentUrl})`);
+          return;
+        }
+        
         try {
           
           // Wait for page to load
@@ -329,26 +347,79 @@ export class CrawleeDumpService {
           // Enqueue more links if within depth limit
           const maxDepth = config.maxDepth || 2;
           if (currentDepth < maxDepth && pages.length < (config.maxPages || 10)) {
-            const priorityLinks = foundLinks.filter(link => {
-              const url = link.url.toLowerCase();
-              const text = link.text.toLowerCase();
-              
-              return url.includes('/about') || url.includes('/company') || 
-                     url.includes('/legal') || url.includes('/terms') ||
-                     url.includes('/contact') || url.includes('/team') ||
-                     text.includes('about') || text.includes('company') ||
-                     text.includes('legal') || text.includes('contact');
+            // Filter and normalize links
+            const uniqueLinks = new Map<string, { url: string; text: string; priority: number }>();
+            
+            foundLinks.forEach(link => {
+              try {
+                const linkUrl = new URL(link.url);
+                const currentUrl = new URL(request.url);
+                
+                // Skip if different domain
+                if (linkUrl.hostname !== currentUrl.hostname) return;
+                
+                // Normalize URL
+                let normalizedPath = linkUrl.pathname
+                  .replace(/\/$/, '') // Remove trailing slash
+                  .replace(/\/index\.(html?|php)$/i, ''); // Remove index files
+                if (!normalizedPath) normalizedPath = '/';
+                
+                // Remove tracking parameters
+                ['utm_source', 'utm_medium', 'utm_campaign', 'fbclid', 'gclid'].forEach(param => {
+                  linkUrl.searchParams.delete(param);
+                });
+                
+                const normalizedUrl = `${linkUrl.protocol}//${linkUrl.host}${normalizedPath}${linkUrl.search}`;
+                
+                // Skip if already crawled
+                if (pages.some(p => {
+                  const pageUrl = new URL(p.url);
+                  const pageNormalized = `${pageUrl.protocol}//${pageUrl.host}${pageUrl.pathname.replace(/\/$/, '').replace(/\/index\.(html?|php)$/i, '')}`;
+                  return pageNormalized === normalizedUrl;
+                })) {
+                  return;
+                }
+                
+                // Calculate priority
+                let priority = 0;
+                const urlLower = link.url.toLowerCase();
+                const textLower = link.text.toLowerCase();
+                
+                // High priority patterns
+                if (urlLower.includes('/about') || textLower.includes('about')) priority += 3;
+                if (urlLower.includes('/company') || textLower.includes('company')) priority += 3;
+                if (urlLower.includes('/contact') || textLower.includes('contact')) priority += 2;
+                if (urlLower.includes('/products') || urlLower.includes('/services')) priority += 2;
+                if (urlLower.includes('/blog') || urlLower.includes('/news')) priority += 1;
+                
+                // Deprioritize certain patterns
+                if (urlLower.includes('#') || urlLower.includes('javascript:')) priority = -10;
+                if (urlLower.includes('.pdf') || urlLower.includes('.doc')) priority = -5;
+                
+                // Store with highest priority
+                const existing = uniqueLinks.get(normalizedUrl);
+                if (!existing || existing.priority < priority) {
+                  uniqueLinks.set(normalizedUrl, { url: link.url, text: link.text, priority });
+                }
+              } catch (e) {
+                // Invalid URL
+              }
             });
             
-            const linksToEnqueue = [...priorityLinks, ...foundLinks]
-              .slice(0, 10)
-              .map(link => link.url);
+            // Sort by priority and take top links
+            const sortedLinks = Array.from(uniqueLinks.values())
+              .sort((a, b) => b.priority - a.priority)
+              .slice(0, Math.min(10, (config.maxPages || 10) - pages.length));
+            
+            const linksToEnqueue = sortedLinks.map(link => link.url);
             
             for (const linkUrl of linksToEnqueue) {
               if (!urlDepths.has(linkUrl)) {
                 urlDepths.set(linkUrl, currentDepth + 1);
               }
             }
+            
+            console.log(`[Crawlee] Found ${uniqueLinks.size} unique links, enqueueing ${linksToEnqueue.length}`);
             
             await enqueueLinks({
               urls: linksToEnqueue,

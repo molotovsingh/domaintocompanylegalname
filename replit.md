@@ -52,14 +52,14 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
-- **CRAWLEE DUMP SERVICE PHASE 2 COMPLETED**: Successfully implemented enhanced multi-page crawling with Playwright network capture for Beta Testing Platform V2 (July 30, 2025)
+- **CRAWLEE DUMP SERVICE PHASE 3 IN PROGRESS**: Implementing enhanced link discovery and session management for Beta Testing Platform V2 (July 30, 2025)
   - **Phase 1 Complete**: Single-page crawling with configurable parameters and comprehensive data collection
-  - **Phase 2 Complete**: Multi-page crawling working with depth control, capturing 2-3 pages per crawl
-  - **Network Capture Working**: Playwright integration captures all network requests (HTML, CSS, JS, images) with full request/response details
-  - **Database Enhanced**: Added capture_network_requests column and storage methods for network data
-  - **API Configuration Fixed**: Resolved config passing issues, captureNetworkRequests flag now properly triggers Playwright crawler
-  - **Performance Metrics**: Successfully captured 60 network requests across 2 pages in books.toscrape.com test
-  - **Next Steps**: Session management, enhanced link discovery, cookie persistence, and UI development per implementation plan
+  - **Phase 2 Complete**: Multi-page crawling with network capture - successfully captured 141 network requests across 5 pages
+  - **Phase 3 Progress**: Enhanced link discovery implemented - crawler now finds truly different pages (category pages, not just index variations)
+  - **Link Discovery Features**: URL normalization, duplicate detection, priority-based selection (about/company pages prioritized)
+  - **Duplicate Prevention**: Added logic to skip normalized duplicates (prevents crawling both / and /index.html)
+  - **Crawl Intelligence**: Successfully crawled 5 distinct category pages from books.toscrape.com instead of index variations
+  - **Next Steps**: Session management, cookie persistence, request filtering, and UI development per implementation plan
 - **OPENROUTER REASONING MODELS INTEGRATION COMPLETED**: Expanded model catalog with actual OpenRouter reasoning models and special reasoning token support (July 29, 2025)
   - **Reasoning Models Added**: DeepSeek R1 family (8 variants including free options), Microsoft Phi-4 Reasoning Plus, Qwen QWQ models (3 variants), Mistral Magistral Thinking, Perplexity Sonar Reasoning
   - **Reasoning Token Support**: Service now automatically adds `include_reasoning: true` for reasoning models to get transparent thinking process

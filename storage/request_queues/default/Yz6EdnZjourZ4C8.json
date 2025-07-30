@@ -1,6 +1,6 @@
 {
 	"id": "Yz6EdnZjourZ4C8",
-	"json": "{\"id\":\"Yz6EdnZjourZ4C8\",\"url\":\"https://books.toscrape.com\",\"loadedUrl\":\"https://books.toscrape.com/\",\"uniqueKey\":\"https://books.toscrape.com\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2025-07-30T10:25:12.343Z\"}",
+	"json": "{\"id\":\"Yz6EdnZjourZ4C8\",\"url\":\"https://books.toscrape.com\",\"loadedUrl\":\"https://books.toscrape.com/\",\"uniqueKey\":\"https://books.toscrape.com\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2025-07-30T10:36:22.747Z\"}",
 	"method": "GET",
 	"orderNo": null,
 	"retryCount": 0,
