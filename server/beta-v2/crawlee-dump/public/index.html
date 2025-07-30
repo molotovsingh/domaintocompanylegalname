@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crawlee Dump Service</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f0f;
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: #1a1a1a;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .back-link {
+            color: #00ff88;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover {
+            opacity: 0.8;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+        .input-section {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #bbb;
+            font-size: 0.9rem;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0f0f0f;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        input[type="checkbox"] {
+            width: 1.2rem;
+            height: 1.2rem;
+            accent-color: #00ff88;
+        }
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: #00ff88;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn:hover {
+            background: #00cc66;
+            transform: translateY(-1px);
+        }
+        .btn:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #333;
+            color: #e0e0e0;
+        }
+        .btn-secondary:hover {
+            background: #444;
+        }
+        .results-section {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .results-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .result-card {
+            background: #0f0f0f;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 1rem;
+            transition: border-color 0.2s;
+        }
+        .result-card:hover {
+            border-color: #444;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .result-domain {
+            font-weight: 500;
+            color: #00ff88;
+        }
+        .result-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .status-processing {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+        .status-completed {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+        .status-failed {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        .stat-value {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .message {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .message-error {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+        .message-success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+        }
+        .loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #333;
+            border-top-color: #00ff88;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .data-viewer {
+            background: #0f0f0f;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .data-viewer pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.85rem;
+            color: #bbb;
+        }
+        .help-text {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/beta-testing-v2" class="back-link">
+            ← Back to Beta Testing v2
+        </a>
+        <h1>Crawlee Dump Service</h1>
+    </div>
+
+    <div class="container">
+        <div class="input-section">
+            <h2 style="margin-bottom: 1rem;">Configure Crawl</h2>
+            
+            <div class="form-group">
+                <label for="domain">Domain to Crawl</label>
+                <div class="form-row">
+                    <input type="text" id="domain" placeholder="example.com or https://example.com" />
+                    <button id="startBtn" class="btn">
+                        Start Crawl
+                    </button>
+                </div>
+            </div>
+
+            <div class="config-grid">
+                <div class="form-group">
+                    <label for="maxPages">Max Pages</label>
+                    <input type="number" id="maxPages" value="5" min="1" max="100" />
+                    <div class="help-text">Maximum pages to crawl</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="maxDepth">Max Depth</label>
+                    <input type="number" id="maxDepth" value="2" min="1" max="5" />
+                    <div class="help-text">How deep to follow links</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="waitTime">Wait Time (ms)</label>
+                    <input type="number" id="waitTime" value="1000" min="0" max="10000" />
+                    <div class="help-text">Delay between requests</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1rem;">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="captureNetworkRequests" />
+                    <label for="captureNetworkRequests">Capture Network Requests (uses Playwright)</label>
+                </div>
+                <div class="help-text" style="margin-left: 1.7rem;">
+                    Captures all HTTP requests (CSS, JS, images) - slower but more comprehensive
+                </div>
+            </div>
+        </div>
+
+        <div id="messageContainer"></div>
+
+        <div class="results-section">
+            <h2>Crawl Results</h2>
+            <div id="resultsContainer" class="results-grid">
+                <p style="color: #666;">No crawls started yet. Enter a domain above to begin.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.port === '5000' 
+            ? '/api/beta/crawlee-dump'
+            : `${window.location.protocol}//${window.location.hostname}:3001/api/beta/crawlee-dump`;
+
+        let currentDumpId = null;
+        let pollInterval = null;
+
+        function showMessage(text, type = 'error') {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `
+                <div class="message message-${type}">
+                    ${text}
+                </div>
+            `;
+            if (type === 'success') {
+                setTimeout(() => {
+                    container.innerHTML = '';
+                }, 3000);
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDuration(ms) {
+            if (ms < 1000) return `${ms}ms`;
+            return `${(ms / 1000).toFixed(1)}s`;
+        }
+
+        async function startCrawl() {
+            const domain = document.getElementById('domain').value.trim();
+            if (!domain) {
+                showMessage('Please enter a domain');
+                return;
+            }
+
+            const config = {
+                maxPages: parseInt(document.getElementById('maxPages').value) || 5,
+                maxDepth: parseInt(document.getElementById('maxDepth').value) || 2,
+                waitTime: parseInt(document.getElementById('waitTime').value) || 1000,
+                captureNetworkRequests: document.getElementById('captureNetworkRequests').checked
+            };
+
+            const startBtn = document.getElementById('startBtn');
+            startBtn.disabled = true;
+            startBtn.innerHTML = '<span class="loading"></span> Starting...';
+
+            try {
+                const response = await fetch(`${API_BASE}/dump`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ domain, config })
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(error || `HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+                currentDumpId = result.id;
+                showMessage('Crawl started successfully!', 'success');
+                
+                // Start polling for updates
+                startPolling();
+                
+                // Load initial results
+                await loadResults();
+                
+            } catch (error) {
+                showMessage(`Failed to start crawl: ${error.message}`);
+            } finally {
+                startBtn.disabled = false;
+                startBtn.innerHTML = 'Start Crawl';
+            }
+        }
+
+        function startPolling() {
+            if (pollInterval) clearInterval(pollInterval);
+            
+            pollInterval = setInterval(async () => {
+                if (currentDumpId) {
+                    const dump = await fetchDump(currentDumpId);
+                    if (dump && dump.status !== 'processing') {
+                        clearInterval(pollInterval);
+                        pollInterval = null;
+                    }
+                }
+            }, 2000);
+        }
+
+        async function fetchDump(id) {
+            try {
+                const response = await fetch(`${API_BASE}/dump/${id}`);
+                if (!response.ok) return null;
+                
+                const dump = await response.json();
+                updateDumpCard(dump);
+                return dump;
+            } catch (error) {
+                console.error('Failed to fetch dump:', error);
+                return null;
+            }
+        }
+
+        function updateDumpCard(dump) {
+            const card = document.getElementById(`dump-${dump.id}`);
+            if (!card) return;
+
+            const statusClass = dump.status === 'completed' ? 'completed' : 
+                               dump.status === 'failed' ? 'failed' : 'processing';
+            
+            let statsHtml = '';
+            if (dump.dumpData) {
+                const stats = dump.dumpData.crawlStats || {};
+                const pageCount = dump.dumpData.pages?.length || 0;
+                const requestCount = dump.dumpData.requests?.length || 0;
+                
+                statsHtml = `
+                    <div class="stat-item">
+                        <span class="stat-label">Pages</span>
+                        <span class="stat-value">${pageCount}</span>
+                    </div>
+                    ${requestCount > 0 ? `
+                        <div class="stat-item">
+                            <span class="stat-label">Network Requests</span>
+                            <span class="stat-value">${requestCount}</span>
+                        </div>
+                    ` : ''}
+                    <div class="stat-item">
+                        <span class="stat-label">Size</span>
+                        <span class="stat-value">${formatBytes(stats.totalSizeBytes || 0)}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Duration</span>
+                        <span class="stat-value">${formatDuration(stats.timeTakenMs || 0)}</span>
+                    </div>
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="result-header">
+                    <span class="result-domain">${dump.domain}</span>
+                    <span class="result-status status-${statusClass}">${dump.status}</span>
+                </div>
+                <div class="result-stats">
+                    ${statsHtml || '<span style="color: #666;">Processing...</span>'}
+                </div>
+                ${dump.status === 'completed' ? `
+                    <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary" onclick="viewDumpData(${dump.id})">
+                            View Data
+                        </button>
+                        <button class="btn btn-secondary" onclick="downloadDump(${dump.id})">
+                            Download JSON
+                        </button>
+                    </div>
+                ` : ''}
+                ${dump.error ? `
+                    <div style="margin-top: 0.5rem; color: #f44336; font-size: 0.9rem;">
+                        Error: ${dump.error}
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        async function loadResults() {
+            try {
+                const response = await fetch(`${API_BASE}/dumps`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const dumps = await response.json();
+                const container = document.getElementById('resultsContainer');
+                
+                if (dumps.length === 0) {
+                    container.innerHTML = '<p style="color: #666;">No crawls found. Start a new crawl above.</p>';
+                    return;
+                }
+                
+                container.innerHTML = dumps.map(dump => `
+                    <div id="dump-${dump.id}" class="result-card">
+                        ${renderDumpCard(dump)}
+                    </div>
+                `).join('');
+                
+                // Update current dump if it's in the list
+                dumps.forEach(dump => updateDumpCard(dump));
+                
+            } catch (error) {
+                showMessage(`Failed to load results: ${error.message}`);
+            }
+        }
+
+        function renderDumpCard(dump) {
+            const statusClass = dump.status === 'completed' ? 'completed' : 
+                               dump.status === 'failed' ? 'failed' : 'processing';
+            return `
+                <div class="result-header">
+                    <span class="result-domain">${dump.domain}</span>
+                    <span class="result-status status-${statusClass}">${dump.status}</span>
+                </div>
+                <div class="result-stats">
+                    <span style="color: #666;">Loading...</span>
+                </div>
+            `;
+        }
+
+        async function viewDumpData(id) {
+            try {
+                const response = await fetch(`${API_BASE}/dump/${id}/data`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                
+                // Create a modal or expand the card to show data
+                const card = document.getElementById(`dump-${id}`);
+                const existingViewer = card.querySelector('.data-viewer');
+                
+                if (existingViewer) {
+                    existingViewer.remove();
+                } else {
+                    const viewer = document.createElement('div');
+                    viewer.className = 'data-viewer';
+                    viewer.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    card.appendChild(viewer);
+                }
+                
+            } catch (error) {
+                showMessage(`Failed to load dump data: ${error.message}`);
+            }
+        }
+
+        async function downloadDump(id) {
+            try {
+                const response = await fetch(`${API_BASE}/dump/${id}/data`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `crawlee-dump-${id}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+            } catch (error) {
+                showMessage(`Failed to download dump: ${error.message}`);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', startCrawl);
+        document.getElementById('domain').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') startCrawl();
+        });
+
+        // Load initial results
+        loadResults();
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (pollInterval) clearInterval(pollInterval);
+        });
+    </script>
+</body>
+</html>

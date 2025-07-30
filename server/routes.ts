@@ -1144,6 +1144,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/crawlee-dump-ui', async (req, res) => {
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).send('Beta server is not running. Please wait a moment and refresh.');
+    }
+
+    try {
+      const response = await axios.get('http://localhost:3001/api/beta/crawlee-dump', {
+        headers: { 'Accept': 'text/html' }
+      });
+      res.send(response.data);
+    } catch (error: any) {
+      console.error('Crawlee UI proxy error:', error.message);
+      res.status(503).send('Failed to load Crawlee Dump UI. Please try again.');
+    }
+  });
+
   // Beta v2 API proxy routes for federated services
   app.all('/api/beta/scrapy-crawl/api/*', async (req, res) => {
     const isRunning = await checkBetaServerStatus();

@@ -1,4 +1,6 @@
 import express from 'express';
+import { join } from 'path';
+import { readFileSync } from 'fs';
 import { CrawleeDumpService } from './crawleeDumpService';
 import type { CrawlConfig } from './crawleeDumpTypes';
 
@@ -99,6 +101,18 @@ router.delete('/dump/:id', async (req, res) => {
   } catch (error) {
     console.error('[Crawlee] Delete dump error:', error);
     res.status(500).json({ error: 'Failed to delete dump' });
+  }
+});
+
+// Serve UI
+router.get('/', (req, res) => {
+  try {
+    const htmlPath = join(__dirname, 'public', 'index.html');
+    const htmlContent = readFileSync(htmlPath, 'utf-8');
+    res.send(htmlContent);
+  } catch (error) {
+    console.error('[Crawlee] Failed to serve UI:', error);
+    res.status(500).send('Failed to load Crawlee Dump UI');
   }
 });
 

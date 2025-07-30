@@ -18,11 +18,11 @@ export default function BetaTestingV2() {
       status: 'available'
     },
     {
-      id: 'crawlee-extract',
-      name: 'Crawlee Extract',
-      description: 'Node.js crawling with Puppeteer/Playwright',
-      path: '/api/beta/crawlee-extract',
-      status: 'coming-soon'
+      id: 'crawlee-dump',
+      name: 'Crawlee Dump',
+      description: 'Advanced Node.js crawler with network capture and intelligent link discovery',
+      path: '/crawlee-dump-ui',
+      status: 'available'
     }
   ];
 
