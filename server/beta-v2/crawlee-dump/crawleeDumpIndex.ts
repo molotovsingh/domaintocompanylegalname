@@ -107,8 +107,17 @@ router.delete('/dump/:id', async (req, res) => {
 // Serve UI
 router.get('/', (req, res) => {
   try {
-    const htmlPath = join(__dirname, 'public', 'index.html');
-    const htmlContent = readFileSync(htmlPath, 'utf-8');
+    // Try different path approaches for ES modules
+    const htmlPath1 = join(process.cwd(), 'server', 'beta-v2', 'crawlee-dump', 'public', 'index.html');
+    const htmlPath2 = join('server', 'beta-v2', 'crawlee-dump', 'public', 'index.html');
+    
+    let htmlContent;
+    try {
+      htmlContent = readFileSync(htmlPath1, 'utf-8');
+    } catch (e) {
+      htmlContent = readFileSync(htmlPath2, 'utf-8');
+    }
+    
     res.send(htmlContent);
   } catch (error) {
     console.error('[Crawlee] Failed to serve UI:', error);
