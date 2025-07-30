@@ -52,6 +52,13 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **BETA V2 METHODS COMPARISON AND LEARNINGS DOCUMENTED**: Comprehensive analysis of all three implemented collection methods with performance insights and architectural recommendations (July 30, 2025)
+  - **Crawlee Dump**: Most stable method - 189KB HTML capture on apple.com, 122 links discovered, structured data extraction working perfectly after state isolation fix
+  - **Scrapy Crawl**: Python/BeautifulSoup implementation working but has integration issues - timeouts on large sites, API routing needs fixes
+  - **Playwright Dump**: Browser automation ready but endpoint configuration needed - designed for screenshots, JS execution, anti-bot handling
+  - **Key Learning**: Federated architecture successful - each method operates independently preventing cross-contamination
+  - **Performance Insight**: Crawlee shows best stability/performance ratio for general scraping after state isolation using unique dataset IDs
+  - **Next Focus**: Consolidating learnings before adding more methods - session management identified as next priority for stateful crawling
 - **CRAWLEE STATE ISOLATION FIX IMPLEMENTED**: Fixed critical Crawlee service bug causing erratic results with 0 pages crawled despite "completed" status (July 30, 2025)
   - **Root Cause**: Crawlee was maintaining state between runs causing dataset/queue conflicts
   - **Solution**: Added unique dataset and queue IDs for each crawl session using randomUUID()

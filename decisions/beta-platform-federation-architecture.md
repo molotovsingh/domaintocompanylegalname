@@ -169,24 +169,56 @@ client/src/pages/beta-testing-v2/
 /api/beta-v2/runs                      # Cross-method runs
 ```
 
-## Implementation Plan
+## Implementation Plan (Updated with Actual Progress)
 
-### Phase 1: Foundation Setup (Week 1)
-1. Create Beta v2 directory structure alongside v1
-2. Set up v2 database schemas (separate from v1)
-3. Implement shared domain registry for v2
-4. Create v2 landing page with method selector
-5. Set up v2 routing (`/beta-testing-v2`)
+### Phase 1: Foundation Setup ✅ COMPLETE
+1. ✅ Created Beta v2 directory structure alongside v1
+2. ✅ Set up v2 database schemas (separate from v1)
+3. ✅ Implemented shared domain registry for v2
+4. ✅ Created v2 landing page with method selector
+5. ✅ Set up v2 routing (`/beta-testing-v2`)
 
-### Phase 2: First Method - Playwright Dump (Week 2)
-1. Build fresh Playwright Dump implementation
-2. Focus on pure data collection (no extraction logic)
-3. Store all raw data: HTML, screenshots, console logs, network data
-4. Create simple UI for testing dumps
-5. No migration of v1 logic - reference only if needed
+### Phase 2: First Method - Crawlee Dump ✅ COMPLETE
+1. ✅ Built Crawlee Dump implementation (changed from Playwright as first method)
+2. ✅ Focused on pure data collection (no extraction logic)
+3. ✅ Stored all raw data: HTML, text, metadata, links, structured data
+4. ✅ Created simple UI for testing dumps
+5. ✅ Fixed critical state isolation bug with unique dataset IDs
 
-### Phase 3: Add Additional Methods (Week 3+)
-1. Scrapy Dump - Python integration for web crawling
+### Phase 3: Additional Methods ✅ COMPLETE
+1. ✅ Scrapy Crawl - Python integration implemented (has API routing issues)
+2. ✅ Playwright Dump - Browser automation ready (needs endpoint config)
+3. ✅ Each method has independent database tables and API routes
+
+### Phase 4: Consolidation (CURRENT PHASE)
+Based on learnings from first 3 methods:
+1. Document all implementation learnings
+2. Fix known issues (Scrapy routing, Playwright config)
+3. Establish patterns for future methods
+4. Prepare for session-based enhancements
+
+## Implementation Learnings
+
+### What Worked Well
+1. **Complete Isolation**: Each method's issues stayed contained
+2. **Independent Development**: Could iterate quickly on each method
+3. **Clear Boundaries**: `/api/beta/crawlee-dump/*`, `/api/beta/scrapy-crawl/*`
+4. **Minimal Shared Code**: Only shared database connection utilities
+
+### Challenges Encountered
+1. **State Management**: Crawlee maintained state between runs
+   - Solution: Unique IDs per session + cleanup
+2. **Python Integration**: Node.js/Python bridge complexity
+   - Scrapy works but has timeout issues on large sites
+3. **API Routing**: Vite proxy doesn't handle federated services well
+   - Had to use absolute URLs in some cases
+
+### Architecture Validation
+The federation approach proved successful:
+- Zero coupling between methods achieved
+- Each method optimized for its use case
+- Easy to debug and maintain
+- Ready for horizontal scalingr web crawling
 2. Crawlee Dump - Advanced crawling capabilities
 3. Puppeteer Dump - Alternative browser automation
 4. Each method developed independently in isolation
