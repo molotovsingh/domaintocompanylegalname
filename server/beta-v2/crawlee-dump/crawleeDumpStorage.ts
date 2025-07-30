@@ -6,8 +6,8 @@ export class CrawleeDumpStorage {
     const query = `
       INSERT INTO crawlee_dumps (
         domain, status, max_pages, max_depth, wait_time, 
-        include_paths, exclude_paths
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+        include_paths, exclude_paths, capture_network_requests
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING id
     `;
     
@@ -18,7 +18,8 @@ export class CrawleeDumpStorage {
       config.maxDepth || 2,
       config.waitTime || 1000,
       config.includePaths || null,
-      config.excludePaths || null
+      config.excludePaths || null,
+      config.captureNetworkRequests || false
     ]);
     
     return result.rows[0].id;
@@ -65,7 +66,7 @@ export class CrawleeDumpStorage {
       SELECT 
         id, domain, status, 
         max_pages, max_depth, wait_time,
-        include_paths, exclude_paths,
+        include_paths, exclude_paths, capture_network_requests,
         dump_data, error_message,
         created_at, updated_at
       FROM crawlee_dumps 
@@ -88,7 +89,8 @@ export class CrawleeDumpStorage {
         maxDepth: row.max_depth,
         waitTime: row.wait_time,
         includePaths: row.include_paths,
-        excludePaths: row.exclude_paths
+        excludePaths: row.exclude_paths,
+        captureNetworkRequests: row.capture_network_requests
       },
       dumpData: row.dump_data,
       errorMessage: row.error_message,

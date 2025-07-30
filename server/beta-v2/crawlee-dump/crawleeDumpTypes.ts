@@ -6,6 +6,7 @@ export interface CrawlConfig {
   waitTime?: number;         // Milliseconds between requests, Default: 1000
   includePaths?: string[];   // Optional: paths to include
   excludePaths?: string[];   // Optional: paths to exclude
+  captureNetworkRequests?: boolean; // Enable network request capture (requires Playwright)
 }
 
 export interface PageData {
@@ -21,6 +22,7 @@ export interface PageData {
     path?: string;
   }>;
   timestamp: number;
+  depth?: number;  // Distance from the starting URL
 }
 
 export interface NetworkRequest {

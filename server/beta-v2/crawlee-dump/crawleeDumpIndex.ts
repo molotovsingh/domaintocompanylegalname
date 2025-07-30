@@ -20,7 +20,8 @@ router.post('/dump', async (req, res) => {
       maxDepth: Math.min(config.maxDepth || 2, 5),
       waitTime: Math.max(config.waitTime || 1000, 100),
       includePaths: config.includePaths || [],
-      excludePaths: config.excludePaths || []
+      excludePaths: config.excludePaths || [],
+      captureNetworkRequests: config.captureNetworkRequests || false
     };
     
     const dumpId = await crawleeService.startDump(domain, crawlConfig);
