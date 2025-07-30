@@ -1,9 +1,9 @@
 {
-  "usableSessionsCount": 2,
+  "usableSessionsCount": 5,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_bI0TetnVs7",
+      "id": "session_hcHdfMMmcY",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -11,29 +11,19 @@
         "enableLooseMode": false,
         "allowSpecialUseDomain": true,
         "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "geo",
-            "value": "US",
-            "domain": "apple.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-07-30T11:31:20.394Z",
-            "lastAccessed": "2025-07-30T11:31:20.394Z"
-          }
-        ]
+        "cookies": []
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-07-30T12:21:18.749Z",
-      "createdAt": "2025-07-30T11:31:18.749Z",
+      "expiresAt": "2025-07-30T12:28:38.046Z",
+      "createdAt": "2025-07-30T11:38:38.046Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_ngW6iVmg5H",
+      "id": "session_4jnPWhb9ID",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -43,98 +33,255 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "shld_bt_m",
-            "value": "dCnPb4WuyHQ9XY84Eeuliw|1753882281|qwkRRqmLNKzcXzLyvH3v-A|DIH13LPivL810i4oMS3niCkvkK4",
-            "expires": "2025-07-30T13:31:21.000Z",
-            "maxAge": 7200,
-            "domain": "apple.com",
-            "path": "/",
-            "secure": true,
-            "hostOnly": false,
-            "creation": "2025-07-30T11:31:21.634Z",
-            "lastAccessed": "2025-07-30T11:31:21.634Z",
-            "sameSite": "lax"
-          },
-          {
-            "key": "shld_bt_ck",
-            "expires": "1970-01-01T00:00:01.000Z",
-            "maxAge": 0,
-            "domain": "apple.com",
-            "path": "/",
-            "secure": true,
-            "hostOnly": false,
-            "creation": "2025-07-30T11:31:21.636Z",
-            "lastAccessed": "2025-07-30T11:31:21.636Z",
-            "sameSite": "lax"
-          },
-          {
-            "key": "dssid2",
-            "value": "fb86eb83-75d0-497b-b831-ce468c1222b0",
-            "expires": "2026-07-30T11:31:21.000Z",
+            "key": "nid",
+            "value": "65B15A43F7C3E5930CE5C4E77F61FDA120ECE73B",
             "maxAge": 31536000,
-            "domain": "apple.com",
+            "domain": "www.cic.fr",
             "path": "/",
             "secure": true,
             "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-07-30T11:31:21.637Z",
-            "lastAccessed": "2025-07-30T11:31:21.637Z"
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:41.782Z",
+            "lastAccessed": "2025-07-30T11:39:41.933Z"
           },
           {
-            "key": "dssf",
-            "value": "1",
-            "expires": "2026-07-30T11:31:21.000Z",
-            "maxAge": 31536000,
-            "domain": "apple.com",
+            "key": "I14wirt",
+            "value": "EIESPEQUParticulierSEPEICREQUSEPMARCHEEQUSEPFEDEEQUSEPOLDFEDEEQUSEPSSMARCHEEQUSEPCAISSEEQUSEPDIRREGEQU",
+            "expires": "2026-07-29T22:00:00.000Z",
+            "domain": "www.cic.fr",
             "path": "/",
             "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-07-30T11:31:21.637Z",
-            "lastAccessed": "2025-07-30T11:31:21.637Z"
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:42.782Z",
+            "lastAccessed": "2025-07-30T11:39:42.782Z"
           },
           {
-            "key": "as_xs",
-            "expires": "1970-01-01T00:00:00.000Z",
+            "key": "SessionStart",
+            "expires": "1971-01-01T01:00:00.000Z",
             "maxAge": 0,
-            "domain": "apple.com",
+            "domain": "www.cic.fr",
             "path": "/",
             "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-07-30T11:31:21.637Z",
-            "lastAccessed": "2025-07-30T11:31:21.637Z"
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:42.782Z",
+            "lastAccessed": "2025-07-30T11:39:42.782Z"
           },
           {
-            "key": "as_pcts",
-            "value": "cawVI-XPimVwuWmruWA2IuRVPJbdb6MxNl7jE6jMhjAOl4uQny-Zv+YN+b7UT7-iksyzlb5zguuGjdKYlF3puPYKAgYof00PZ+eP0e3oMW0Pj6007F2monG7Y:SMfc4JmnVXGBaetmFGAkkkWmlDW3sYAM-88vVprWKF+Y-2c",
-            "domain": "apple.com",
+            "key": "SessionTimeout",
+            "expires": "1971-01-01T01:00:00.000Z",
+            "maxAge": 0,
+            "domain": "www.cic.fr",
             "path": "/",
             "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-07-30T11:31:21.637Z",
-            "lastAccessed": "2025-07-30T11:31:21.637Z"
-          },
-          {
-            "key": "as_dc",
-            "value": "ucp5",
-            "expires": "2025-07-30T13:31:21.000Z",
-            "maxAge": 7200,
-            "domain": "apple.com",
-            "path": "/",
-            "secure": true,
-            "hostOnly": false,
-            "creation": "2025-07-30T11:31:21.637Z",
-            "lastAccessed": "2025-07-30T11:31:21.637Z"
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:42.782Z",
+            "lastAccessed": "2025-07-30T11:39:42.782Z"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-07-30T12:21:20.449Z",
-      "createdAt": "2025-07-30T11:31:20.449Z",
+      "expiresAt": "2025-07-30T12:29:39.117Z",
+      "createdAt": "2025-07-30T11:39:39.117Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_MZXPAiMrvE",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "I14wirt",
+            "value": "EIESPEQUSEPEICREQUSEPMARCHEEQUSEPFEDEEQUSEPOLDFEDEEQUSEPSSMARCHEEQUSEPCAISSEEQUSEPDIRREGEQU",
+            "expires": "2026-07-29T22:00:00.000Z",
+            "domain": "www.cic.fr",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:45.184Z",
+            "lastAccessed": "2025-07-30T11:39:45.184Z"
+          },
+          {
+            "key": "nid",
+            "value": "B0ED73B44311D62D0176773326AFF4CCF2C7130A",
+            "maxAge": 31536000,
+            "domain": "www.cic.fr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:45.184Z",
+            "lastAccessed": "2025-07-30T11:39:45.184Z"
+          },
+          {
+            "key": "SessionStart",
+            "expires": "1971-01-01T01:00:00.000Z",
+            "maxAge": 0,
+            "domain": "www.cic.fr",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:45.184Z",
+            "lastAccessed": "2025-07-30T11:39:45.184Z"
+          },
+          {
+            "key": "SessionTimeout",
+            "expires": "1971-01-01T01:00:00.000Z",
+            "maxAge": 0,
+            "domain": "www.cic.fr",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:45.184Z",
+            "lastAccessed": "2025-07-30T11:39:45.184Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-07-30T12:29:42.825Z",
+      "createdAt": "2025-07-30T11:39:42.825Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_I1RjpACp9a",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "I14wirt",
+            "value": "EIESPEQUParticulierSEPEICREQUSEPMARCHEEQUSEPFEDEEQUSEPOLDFEDEEQUSEPSSMARCHEEQUSEPCAISSEEQUSEPDIRREGEQU",
+            "expires": "2026-07-29T22:00:00.000Z",
+            "domain": "www.cic.fr",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:45.078Z",
+            "lastAccessed": "2025-07-30T11:39:45.078Z"
+          },
+          {
+            "key": "nid",
+            "value": "7071D747E74D678F73294E2989E2EC7B51AC976F",
+            "maxAge": 31536000,
+            "domain": "www.cic.fr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:45.078Z",
+            "lastAccessed": "2025-07-30T11:39:45.078Z"
+          },
+          {
+            "key": "SessionStart",
+            "expires": "1971-01-01T01:00:00.000Z",
+            "maxAge": 0,
+            "domain": "www.cic.fr",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:45.078Z",
+            "lastAccessed": "2025-07-30T11:39:45.078Z"
+          },
+          {
+            "key": "SessionTimeout",
+            "expires": "1971-01-01T01:00:00.000Z",
+            "maxAge": 0,
+            "domain": "www.cic.fr",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:45.079Z",
+            "lastAccessed": "2025-07-30T11:39:45.079Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-07-30T12:29:42.826Z",
+      "createdAt": "2025-07-30T11:39:42.826Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_JqOygNoFMk",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "I14wirt",
+            "value": "EIESPEQUParticulierSEPEICREQUSEPMARCHEEQUSEPFEDEEQUSEPOLDFEDEEQUSEPSSMARCHEEQUSEPCAISSEEQUSEPDIRREGEQU",
+            "expires": "2026-07-29T22:00:00.000Z",
+            "domain": "www.cic.fr",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:47.429Z",
+            "lastAccessed": "2025-07-30T11:39:47.429Z"
+          },
+          {
+            "key": "nid",
+            "value": "B86CDAA31EC9DB5291280BCEAC8B7451A00AF490",
+            "maxAge": 31536000,
+            "domain": "www.cic.fr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:47.429Z",
+            "lastAccessed": "2025-07-30T11:39:47.429Z"
+          },
+          {
+            "key": "SessionStart",
+            "expires": "1971-01-01T01:00:00.000Z",
+            "maxAge": 0,
+            "domain": "www.cic.fr",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:47.429Z",
+            "lastAccessed": "2025-07-30T11:39:47.429Z"
+          },
+          {
+            "key": "SessionTimeout",
+            "expires": "1971-01-01T01:00:00.000Z",
+            "maxAge": 0,
+            "domain": "www.cic.fr",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-07-30T11:39:47.429Z",
+            "lastAccessed": "2025-07-30T11:39:47.429Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-07-30T12:29:45.086Z",
+      "createdAt": "2025-07-30T11:39:45.086Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
