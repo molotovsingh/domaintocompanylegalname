@@ -1,0 +1,9 @@
+{
+	"id": "PiEXD32uOisujIg",
+	"json": "{\"id\":\"PiEXD32uOisujIg\",\"url\":\"https://apple.com/contact/\",\"loadedUrl\":\"https://www.apple.com/contact/\",\"uniqueKey\":\"https://apple.com/contact\",\"method\":\"GET\",\"noRetry\":true,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"enqueueStrategy\":\"same-hostname\",\"state\":7}},\"handledAt\":\"2025-07-30T12:10:39.820Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://apple.com/contact",
+	"url": "https://apple.com/contact/"
+}
