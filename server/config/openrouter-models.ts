@@ -65,11 +65,22 @@ export const openRouterModels: ModelConfig[] = [
   
   // Open Source Models (PRIMARY - Now with higher priority)
   {
+    id: 'meta-llama/llama-3.1-8b-instruct:free',
+    name: 'Llama 3.1 8B (Free)',
+    provider: 'Meta',
+    useCase: ['cleaning', 'entity-extraction', 'quick-analysis'],
+    priority: 1,  // Primary for cleaning tasks - completely free!
+    maxTokens: 4096,
+    temperature: 0.1,
+    costLimit: 0,  // FREE model
+    enabled: true
+  },
+  {
     id: 'meta-llama/llama-3-70b-instruct',
     name: 'Llama 3 70B',
     provider: 'Meta',
     useCase: ['entity-extraction', 'quick-analysis', 'complex-extraction', 'verification'],
-    priority: 1,  // CHANGED from 5 to 1 - Now primary model
+    priority: 2,  // Still important but not for cleaning
     maxTokens: 100,
     temperature: 0,
     costLimit: 0.005,
@@ -80,7 +91,7 @@ export const openRouterModels: ModelConfig[] = [
     name: 'Mixtral 8x7B',
     provider: 'Mistral',
     useCase: ['entity-extraction', 'quick-analysis', 'fallback'],
-    priority: 2,  // CHANGED from 6 to 2 - Now secondary model
+    priority: 3,  // Third priority after free models
     maxTokens: 100,
     temperature: 0,
     costLimit: 0.005,
@@ -347,9 +358,13 @@ export const modelStrategies = {
 // Get models for specific use case
 export function getModelsForUseCase(
   useCase: string, 
-  strategy: keyof typeof modelStrategies = 'priorityBased'
+  strategy: keyof typeof modelStrategies = 'priorityBased',
+  provider?: string
 ): ModelConfig[] {
-  return modelStrategies[strategy](openRouterModels, useCase);
+  if (strategy === 'providerSpecific' && provider) {
+    return modelStrategies[strategy](openRouterModels, useCase, provider);
+  }
+  return modelStrategies[strategy as 'costOptimized' | 'priorityBased' | 'consensus'](openRouterModels, useCase);
 }
 
 // Get a single model by ID

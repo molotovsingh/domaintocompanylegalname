@@ -56,11 +56,29 @@ export interface CrawlStats {
   errors: string[];
 }
 
+export interface CleanedPageData {
+  url: string;
+  companyName?: string;
+  addresses: string[];
+  phones: string[];
+  emails: string[];
+  currencies: string[];
+  footerLegal?: string;
+  keyText?: string;
+  links: {
+    internal: string[];
+    external: string[];
+  };
+  cleaningTimeMs?: number;
+}
+
 export interface CrawleeDumpData {
   pages: PageData[];
   requests: NetworkRequest[];
   siteMap: SiteMap;
   crawlStats: CrawlStats;
+  cleanedPages?: CleanedPageData[];  // LLM-cleaned data
+  totalCleaningTimeMs?: number;
 }
 
 export interface CrawleeDump {

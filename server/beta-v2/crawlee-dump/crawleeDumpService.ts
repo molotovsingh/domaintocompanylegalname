@@ -1,13 +1,16 @@
 import { CheerioCrawler, PlaywrightCrawler, Dataset, RequestQueue, Configuration } from 'crawlee';
-import type { CrawlConfig, CrawleeDumpData, PageData, NetworkRequest } from './crawleeDumpTypes';
+import type { CrawlConfig, CrawleeDumpData, PageData, NetworkRequest, CleanedPageData } from './crawleeDumpTypes';
 import { CrawleeDumpStorage } from './crawleeDumpStorage';
 import { randomUUID } from 'crypto';
+import { LLMCleaningService } from '../../services/llmCleaningService';
 
 export class CrawleeDumpService {
   private storage: CrawleeDumpStorage;
+  private cleaningService: LLMCleaningService;
 
   constructor() {
     this.storage = new CrawleeDumpStorage();
+    this.cleaningService = new LLMCleaningService();
   }
 
   async startDump(domain: string, config: CrawlConfig): Promise<number> {
@@ -236,6 +239,13 @@ export class CrawleeDumpService {
     
     const processingTimeMs = Date.now() - startTime;
     
+    // Clean pages with LLM service
+    console.log('[Crawlee] Starting LLM cleaning for', pages.length, 'pages');
+    const cleaningStartTime = Date.now();
+    const cleanedPages = await this.cleanPages(pages);
+    const totalCleaningTimeMs = Date.now() - cleaningStartTime;
+    console.log('[Crawlee] LLM cleaning completed in', totalCleaningTimeMs, 'ms');
+    
     // Prepare dump data
     const dumpData: CrawleeDumpData = {
       pages,
@@ -251,7 +261,9 @@ export class CrawleeDumpService {
         totalSizeBytes,
         timeTakenMs: processingTimeMs,
         errors
-      }
+      },
+      cleanedPages,
+      totalCleaningTimeMs
     };
     
     // Update database with results
@@ -604,5 +616,81 @@ export class CrawleeDumpService {
   
   async deleteDump(id: number) {
     return this.storage.deleteDump(id);
+  }
+
+  // Clean collected pages using LLM service
+  private async cleanPages(pages: PageData[]): Promise<CleanedPageData[]> {
+    const cleanedPages: CleanedPageData[] = [];
+    
+    // Process pages in batches to avoid overwhelming the API
+    const batchSize = 5;
+    for (let i = 0; i < pages.length; i += batchSize) {
+      const batch = pages.slice(i, i + batchSize);
+      
+      // Process batch in parallel
+      const cleanedBatch = await Promise.all(
+        batch.map(async (page) => {
+          try {
+            const startTime = Date.now();
+            const result = await this.cleaningService.cleanHtml({
+              url: page.url,
+              html: page.html,
+              extractedText: page.text
+            });
+            
+            if (result.success && result.cleanedData) {
+              return {
+                url: page.url,
+                companyName: result.cleanedData.companyName,
+                addresses: result.cleanedData.addresses || [],
+                phones: result.cleanedData.phones || [],
+                emails: result.cleanedData.emails || [],
+                currencies: result.cleanedData.currencies || [],
+                footerLegal: result.cleanedData.footerLegal,
+                keyText: result.cleanedData.keyText,
+                links: {
+                  internal: page.links?.filter(link => link.type === 'internal').map(link => link.url) || [],
+                  external: page.links?.filter(link => link.type === 'external').map(link => link.url) || []
+                },
+                cleaningTimeMs: Date.now() - startTime
+              };
+            } else {
+              // Return minimal cleaned data on error
+              return {
+                url: page.url,
+                addresses: [],
+                phones: [],
+                emails: [],
+                currencies: [],
+                links: {
+                  internal: page.links?.filter(link => link.type === 'internal').map(link => link.url) || [],
+                  external: page.links?.filter(link => link.type === 'external').map(link => link.url) || []
+                },
+                cleaningTimeMs: 0
+              };
+            }
+          } catch (error) {
+            console.error('[Crawlee] Error cleaning page', page.url, error);
+            // Return minimal cleaned data on error
+            return {
+              url: page.url,
+              addresses: [],
+              phones: [],
+              emails: [],
+              currencies: [],
+              links: {
+                internal: [],
+                external: []
+              },
+              cleaningTimeMs: 0
+            };
+          }
+        })
+      );
+      
+      cleanedPages.push(...cleanedBatch);
+    }
+    
+    return cleanedPages;
   }
 }

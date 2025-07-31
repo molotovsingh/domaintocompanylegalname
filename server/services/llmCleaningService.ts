@@ -1,11 +1,12 @@
-import axios from 'axios';
+import { OpenRouterService } from './openRouterService';
+import { getModelsForUseCase } from '../config/openrouter-models';
 
 interface CleaningRequest {
   rawDump: string;
   domain: string;
 }
 
-interface CleanedData {
+export interface CleanedData {
   companyName?: string;
   addresses: string[];
   phones: string[];
@@ -20,22 +21,13 @@ interface CleanedData {
 }
 
 export class LLMCleaningService {
-  private apiKey: string;
-  private baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
+  private openRouterService: OpenRouterService;
   
   constructor() {
-    this.apiKey = process.env.OPENROUTER_API_KEY || '';
-    if (!this.apiKey) {
-      console.warn('OpenRouter API key not found - cleaning service disabled');
-    }
+    this.openRouterService = new OpenRouterService();
   }
 
   async cleanDump(request: CleaningRequest): Promise<CleanedData | null> {
-    if (!this.apiKey) {
-      console.log('Skipping LLM cleaning - no API key');
-      return null;
-    }
-
     const systemPrompt = `You are a web scraping data cleaning assistant. Extract and structure the following information from the provided text:
 1. Company legal name (with suffix like Inc, Ltd, S.A.)
 2. All physical addresses found
@@ -62,41 +54,45 @@ Return as JSON in this exact format:
 }`;
 
     try {
-      const response = await axios.post(
-        this.baseUrl,
-        {
-          model: 'meta-llama/llama-3.1-8b-instruct:free',
-          messages: [
-            {
-              role: 'system',
-              content: systemPrompt
-            },
-            {
-              role: 'user',
-              content: `Clean and extract data from this website dump for ${request.domain}:\n\n${request.rawDump}`
-            }
-          ],
-          max_tokens: 4096,
-          temperature: 0.1  // Low temperature for consistent output
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      // Use the 'cleaning' use case to get Llama 3.1 8B free model
+      const cleaningModels = getModelsForUseCase('cleaning' as any);
+      if (cleaningModels.length === 0) {
+        console.error('No cleaning models available');
+        return null;
+      }
 
-      const content = response.data.choices[0].message.content;
+      const model = cleaningModels[0]; // Llama 3.1 8B should be first (priority 1)
       
+      // Make the request through OpenRouter service
+      const response = await this.openRouterService.makeRequest({
+        model: model.id,
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt
+          },
+          {
+            role: 'user',
+            content: `Clean and extract data from this website dump for ${request.domain}:\n\n${request.rawDump}`
+          }
+        ],
+        max_tokens: model.maxTokens,
+        temperature: model.temperature
+      });
+
+      if (!response.success || !response.content) {
+        console.error('OpenRouter request failed:', response.error);
+        return null;
+      }
+
       // Parse JSON response
       try {
-        const parsed = JSON.parse(content);
+        const parsed = JSON.parse(response.content);
         return parsed as CleanedData;
       } catch (parseError) {
-        console.error('Failed to parse LLM response as JSON:', content);
+        console.error('Failed to parse LLM response as JSON:', response.content);
         // Attempt to extract JSON from markdown code blocks
-        const jsonMatch = content.match(/```json?\n?([\s\S]*?)\n?```/);
+        const jsonMatch = response.content.match(/```json?\n?([\s\S]*?)\n?```/);
         if (jsonMatch) {
           return JSON.parse(jsonMatch[1]) as CleanedData;
         }

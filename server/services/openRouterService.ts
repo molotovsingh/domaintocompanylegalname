@@ -278,4 +278,51 @@ export class OpenRouterService {
     }
     return { success: false, error: 'Model not found' };
   }
+
+  // Generic method for making OpenRouter requests
+  async makeRequest(params: {
+    model: string;
+    messages: Array<{ role: string; content: string }>;
+    max_tokens?: number;
+    temperature?: number;
+    include_reasoning?: boolean;
+  }): Promise<{ success: boolean; content?: string; error?: string; usage?: any }> {
+    if (!this.apiKey) {
+      return {
+        success: false,
+        error: 'OpenRouter API key not configured'
+      };
+    }
+
+    try {
+      const response = await axios.post(
+        `${this.baseUrl}/chat/completions`,
+        {
+          model: params.model,
+          messages: params.messages,
+          max_tokens: params.max_tokens || 1000,
+          temperature: params.temperature || 0,
+          ...(params.include_reasoning && { include_reasoning: true })
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      return {
+        success: true,
+        content: response.data.choices[0].message.content.trim(),
+        usage: response.data.usage
+      };
+    } catch (error: any) {
+      console.error('OpenRouter request failed:', error.response?.data || error.message);
+      return {
+        success: false,
+        error: error.response?.data?.error?.message || error.message
+      };
+    }
+  }
 }
