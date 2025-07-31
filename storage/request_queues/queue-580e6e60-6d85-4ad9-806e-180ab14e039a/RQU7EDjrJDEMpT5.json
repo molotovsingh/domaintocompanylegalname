@@ -1,0 +1,9 @@
+{
+	"id": "RQU7EDjrJDEMpT5",
+	"json": "{\"id\":\"RQU7EDjrJDEMpT5\",\"url\":\"https://dixoninfo.com/investor-relations\",\"loadedUrl\":\"https://dixoninfo.com/investor-relations\",\"uniqueKey\":\"https://dixoninfo.com/investor-relations\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2025-07-31T02:50:19.009Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://dixoninfo.com/investor-relations",
+	"url": "https://dixoninfo.com/investor-relations"
+}

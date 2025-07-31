@@ -53,7 +53,7 @@ export class CrawleeDumpStorage {
     `;
     
     await executeBetaV2Query(query, [
-      dumpData,
+      JSON.stringify(dumpData),
       dumpData.pages.length,
       dumpData.crawlStats.totalSizeBytes,
       processingTimeMs,

@@ -1,9 +1,9 @@
 {
-  "usableSessionsCount": 1,
+  "usableSessionsCount": 2,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_Ooes0pK2fN",
+      "id": "session_U6yWGfim1f",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -16,8 +16,38 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-07-30T13:05:21.476Z",
-      "createdAt": "2025-07-30T12:15:21.476Z",
+      "expiresAt": "2025-07-31T03:48:27.373Z",
+      "createdAt": "2025-07-31T02:58:27.373Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_UFVtQwfUxL",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "geo",
+            "value": "US",
+            "domain": "apple.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-07-31T02:59:03.457Z",
+            "lastAccessed": "2025-07-31T02:59:03.457Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-07-31T03:49:01.087Z",
+      "createdAt": "2025-07-31T02:59:01.087Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0

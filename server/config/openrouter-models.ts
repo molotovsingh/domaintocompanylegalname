@@ -65,9 +65,9 @@ export const openRouterModels: ModelConfig[] = [
   
   // Open Source Models (PRIMARY - Now with higher priority)
   {
-    id: 'meta-llama/llama-3.1-8b-instruct:free',
-    name: 'Llama 3.1 8B (Free)',
-    provider: 'Meta',
+    id: 'deepseek/deepseek-chat-v3-0324:free',
+    name: 'DeepSeek Chat (Free)',
+    provider: 'DeepSeek',
     useCase: ['cleaning', 'entity-extraction', 'quick-analysis'],
     priority: 1,  // Primary for cleaning tasks - completely free!
     maxTokens: 4096,
