@@ -49,8 +49,8 @@ const navigationChecks: NavigationCheck[] = [
   },
   {
     page: '/beta-data-processing',
-    backLink: 'Back to Dashboard',
-    expectedDestination: '/',
+    backLink: 'Back to Beta Testing V2',
+    expectedDestination: '/beta-testing-v2',
     status: 'working'
   },
   {
