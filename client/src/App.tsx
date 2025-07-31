@@ -12,6 +12,7 @@ import SmokeTesting from "@/pages/smoke-testing";
 import GlobalExpansionStatus from './pages/global-expansion-status';
 import BetaTestingPage from './pages/beta-testing';
 import BetaTestingV2 from './pages/beta-testing-v2';
+import BetaDataProcessingPage from './pages/beta-data-processing';
 import GLEIFTestingPage from './pages/gleif-testing';
 import PerplexityTestingPage from './pages/perplexity-testing';
 import ScrapingTestingPage from './pages/scraping-testing';
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/jurisdictional-guide" component={JurisdictionalGuide} />
       <Route path="/beta-testing" component={BetaTestingPage} />
       <Route path="/beta-testing-v2" component={BetaTestingV2} />
+      <Route path="/beta-data-processing" component={BetaDataProcessingPage} />
       <Route path="/recent-changes" component={lazy(() => import("./pages/recent-changes"))} />
       <Route path="/settings" component={lazy(() => import("./pages/settings"))} />
       <Route path="/openrouter-settings" component={lazy(() => import("./pages/openrouter-settings"))} />

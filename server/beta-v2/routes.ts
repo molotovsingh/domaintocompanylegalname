@@ -6,6 +6,8 @@ import { fileURLToPath } from 'url';
 import { playwrightDump } from './playwright-dump/playwrightDumpService';
 import scrapyCrawlRouter from './scrapy-crawl/scrapyCrawlIndex';
 import crawleeDumpRouter from './crawlee-dump/crawleeDumpIndex';
+import { createCleaningRoutes } from './cleaning/cleaningRoutes';
+import { betaDb } from '../betaDb';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
@@ -29,6 +31,10 @@ router.use('/scrapy-crawl', scrapyCrawlRouter);
 
 // Mount crawlee dump router
 router.use('/crawlee-dump', crawleeDumpRouter);
+
+// Mount cleaning routes
+const cleaningRoutes = createCleaningRoutes();
+router.use('/cleaning', cleaningRoutes);
 
 // Dump a domain
 router.post('/dump', async (req, res) => {

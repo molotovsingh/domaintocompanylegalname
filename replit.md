@@ -1,324 +1,7 @@
 # Domain-to-Company Name Extractor
 
-## Project Overview
-A production-scale domain intelligence platform that transforms web domains into precise legal entity insights using advanced web scraping and intelligent business classification. Built with React frontend and Express backend, featuring real-time processing updates, comprehensive business intelligence categorization, and actionable acquisition research guidance.
-
-## Architecture
-- **Frontend**: React with TypeScript, TanStack Query, Wouter routing
-- **Backend**: Express server with TypeScript
-- **Storage**: In-memory storage (MemStorage) for development
-- **Processing**: Batch processor with web scraping service
-- **UI**: Material Design with Tailwind CSS and shadcn/ui components
-
-## Key Features
-- **Business Intelligence Classification**: Categorizes domains into actionable business categories (Good Target - Tech Issue, Bad Website - Skip, Protected - Manual Review)
-- **Enhanced Domain Processing**: Fortune 500 company mappings with 95% confidence, stricter legal entity validation
-- **Quality-Focused Extraction**: Disabled problematic footer extraction, enforced legal suffix requirements for corporate entities
-- **Comprehensive Results Management**: Enhanced results table with business categories, recommendations, and processing metrics
-- **PostgreSQL Analytics**: Cross-batch intelligence, duplicate detection, and permanent session results storage
-- **Real-time Processing Updates**: Live status tracking with 5-second refresh intervals and processing time metrics
-- **International Legal Entity Recognition**: 12 jurisdictions with comprehensive corporate structure validation (US, Canada, Germany, France, Mexico, Brazil, Ireland, Italy, Taiwan, Russia, Sri Lanka)
-- **Export and Analytics**: CSV/JSON export, session analytics, and performance trend tracking
-- **Early Connectivity Triage**: Performance optimization saving 7+ seconds per unreachable domain
-
-## Current System Performance (June 29, 2025)
-- **LEVEL 2 GLEIF BREAKTHROUGH**: Critical bug fix revealed true system performance - G20 batch achieved 46.6% success rate with 176 domains successfully matched to authentic legal entities with verified LEI codes from Global LEI Foundation (June 29, 2025)
-- **AUTHENTIC LEGAL ENTITY VERIFICATION**: 140 domains with successful GLEIF matches were incorrectly marked as failed - now properly classified as successes with verified Turkish banks (Isbank AG, VakifBank International AG, Akbank AG) and major corporations across 10+ jurisdictions
-
-## Previous System Performance (June 28, 2025)
-- **COMPREHENSIVE IRISH DOMAIN INTELLIGENCE VALIDATED**: Real-world testing across media (RTÉ, Independent News & Media PLC), small businesses (mimitoys.ie, Paulo Malley Solicitors), and Fortune 500 subsidiaries confirms production-ready Irish corporate intelligence
-- **REAL-WORLD IRISH DOMAIN VALIDATION**: mimitoys.ie correctly identified as "Protected - Manual Review" with proper anti-bot detection and business intelligence classification (368ms processing)
-- **IRISH PRIVATE COMPANIES VALIDATION SUCCESS**: Perfect 100% success rate across 24 large non-public Irish corporations with comprehensive legal entity recognition (Limited, DAC, UC, Branch structures) via domain_mapping method (95% confidence)
-- **IRISH COMPANIES VALIDATION SUCCESS**: Perfect 100% success rate across 20 Irish companies with complete legal entity recognition (PLC, DAC, Limited) via domain_mapping method (95% confidence)
-- **COMPREHENSIVE VALIDATION SUCCESS**: Clean database test confirms 100% success rate across 25 Brazilian domains with 19/20 Fortune 500 companies extracting via domain_mapping method (95% confidence)
-- **BRAZILIAN DOMAIN MAPPING VALIDATION COMPLETE**: Fixed critical system bug - all Fortune 500 Brazilian companies now extract proper legal entity names (Itaú Unibanco Holding S.A., Vale S.A., etc.) via domain_mapping method with 95% confidence
-- **Footer Extraction Operational**: Successfully extracted "br LTDA", "o S.A.", "TICOS LTDA" from MercadoLivre, Santander, Magazine Luiza with 75% confidence
-- **Meta Property Excellence**: 100% confidence extractions from Oi Fibra, Banco Bradesco, Portal Embraer, Home GLN (Gerdau)
-- **Dual-Layer Footer Search Validated**: Expected entity generation + Brazilian legal suffixes working across real Fortune 500 Brazilian companies
-- **Expected Entity Name Generation**: Transforms domain patterns into proper company names ("mcinc-products" → "Mcinc Products", "nissan-global" → "Nissan Global")
-- **Dual-Layer Footer Intelligence**: Method 1: Expected names + legal suffixes (98% confidence), Method 2: Domain stems + legal suffixes (95% confidence)
-- **Real-World Footer Validation**: Nissan footer shows "Nissan Motor Co.,Ltd." confirming expected entity approach captures actual legal entity names
-- **Enhanced Confidence Validation**: Proper ~10-25% confidence for incomplete extractions, preventing inflated success metrics
-- **Enhanced Country-Based Extraction**: Revolutionary targeted search using jurisdiction intelligence with 95-100% confidence for legal entities
-- **Intelligent Footer Processing**: Replaced blind extraction with country-aware pattern matching eliminating marketing copy contamination
-- **German Legal Entity Success**: Perfect extraction of "lat gmbh", "reststoffentsorgung gmbh" using targeted domain stem + suffix search
-- **Domain Mapping Success**: Fortune 500 companies correctly extracted (Apple Inc., Microsoft Corporation, Alphabet Inc.) with 100% confidence
-- **Legal Entity Validation**: Only 37% of previous extractions had proper corporate suffixes - now enforced for business domains
-- **Classification Distribution**: 35% Success, 24% Bad Website - Skip, 18% Protected - Manual Review (latest batch analysis)
-- **Processing Optimization**: Early connectivity triage saves 7+ seconds per unreachable domain
-- **Error Classification Accuracy**: Distinguishes between technical extraction issues vs genuinely problematic domains
-- **Edge Case Handling**: Improved Amazon/Tesla processing with enhanced domain structure recognition
-- **Real-time Updates**: 5-second refresh intervals with processing time tracking (ms/s precision)
-- **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
-
-## Recent Changes
-- **SEPARATE CLEANING STAGE ARCHITECTURE DESIGNED**: Created architectural plan for on-demand cleaning stage that can be applied to ANY collection method output - enables mix-and-match combinations like Scrapy+DeepSeek, Playwright+Llama, with A/B testing capabilities and cost optimization through selective model usage (July 31, 2025)
-  - **Maximum Flexibility**: Mix any collection method (Crawlee/Scrapy/Playwright) with any LLM model
-  - **A/B Testing**: Compare same raw data with different models to find optimal combinations
-  - **Async Processing**: Collect now, clean later - batch process or reprocess with better models
-  - **Maintains Federated Architecture**: Keeps collection services pure, separation of concerns intact
-- **OPENROUTER SMOKE TEST FIX IMPLEMENTED**: Fixed misleading smoke test that was testing paid models while actual implementation uses free models - smoke test now correctly validates the exact models we use in production (July 31, 2025)
-  - **Root Cause Identified**: Smoke test was checking paid models (openai/gpt-3.5-turbo, anthropic/claude-3-haiku) but implementation uses free models with `:free` suffix
-  - **Models Updated**: Changed smoke test to validate deepseek/deepseek-chat-v3-0324:free, meta-llama/llama-3-8b-instruct:free, mistralai/mixtral-8x7b-instruct:free
-  - **Production Model**: DeepSeek Chat (deepseek/deepseek-chat-v3-0324:free) confirmed as most reliable free model for LLM cleaning
-  - **Llama Models Deprecated**: Meta Llama free models no longer available on OpenRouter, switched to DeepSeek as primary
-- **LLM CLEANING INTEGRATION COMPLETE**: Successfully integrated free DeepSeek cleaning pipeline into Crawlee dump service with automatic processing of all crawled pages (July 31, 2025)
-  - **Two-Stage Pipeline Implemented**: Traditional HTML stripping (instant) → LLM enhancement (free with DeepSeek)
-  - **Batch Processing**: Pages cleaned in batches of 5 to avoid API overload with parallel processing
-  - **UI Enhancement**: Added tabbed view showing both raw dumps and cleaned data with extraction visualization
-  - **Performance Metrics**: Cleaning time tracked per page and total cleaning time displayed in stats
-  - **Test Endpoint Added**: `/api/beta/crawlee-dump/test-cleaning` for independent LLM cleaning testing
-  - **Automatic Integration**: All crawled pages automatically cleaned with LLM during dump processing
-- **LLM CLEANING IMPLEMENTATION PLAN CREATED**: Designed simple two-step cleaning pipeline using free Llama 3.1 8B model via OpenRouter for Beta V2 - confirmed API key exists in vault and configuration panel available at /openrouter-settings (July 30, 2025)
-- **BETA V2 METHODS COMPARISON AND LEARNINGS DOCUMENTED**: Comprehensive analysis of all three implemented collection methods with performance insights and architectural recommendations (July 30, 2025)
-  - **Crawlee Dump**: Most stable method - 189KB HTML capture on apple.com, 122 links discovered, structured data extraction working perfectly after state isolation fix
-  - **Scrapy Crawl**: Python/BeautifulSoup implementation working but has integration issues - timeouts on large sites, API routing needs fixes
-  - **Playwright Dump**: Browser automation ready but endpoint configuration needed - designed for screenshots, JS execution, anti-bot handling
-  - **Key Learning**: Federated architecture successful - each method operates independently preventing cross-contamination
-  - **Performance Insight**: Crawlee shows best stability/performance ratio for general scraping after state isolation using unique dataset IDs
-  - **Next Focus**: Consolidating learnings before adding more methods - session management identified as next priority for stateful crawling
-- **CRAWLEE STATE ISOLATION FIX IMPLEMENTED**: Fixed critical Crawlee service bug causing erratic results with 0 pages crawled despite "completed" status (July 30, 2025)
-  - **Root Cause**: Crawlee was maintaining state between runs causing dataset/queue conflicts
-  - **Solution**: Added unique dataset and queue IDs for each crawl session using randomUUID()
-  - **Cleanup**: Implemented automatic cleanup after each crawl to prevent state pollution
-  - **Verification**: Successfully tested with example.com (1 page) and books.toscrape.com (4 pages)
-  - **Impact**: Resolved "0 succeeded, 0 failed" logs - now shows proper statistics like "4 succeeded, 0 failed"
-- **CRAWLEE DUMP SERVICE PHASE 3 COMPLETE**: Enhanced link discovery and lightweight metadata extraction for Beta Testing Platform V2 (July 30, 2025)
-  - **Phase 1 Complete**: Single-page crawling with configurable parameters and comprehensive data collection
-  - **Phase 2 Complete**: Multi-page crawling with network capture - successfully captured 141 network requests across 5 pages
-  - **Phase 3 Complete**: Enhanced link discovery + lightweight metadata extraction
-    - **Link Discovery**: URL normalization, duplicate prevention, priority-based selection (about/company pages prioritized)
-    - **Metadata Extraction**: Title, meta tags, structured data (JSON-LD), and links array extraction
-    - **Performance**: Minimal compute cost - uses already-parsed DOM, no data cleaning/transformation
-    - **Architecture**: Maintains separation - pure dump service with structured extraction only
-  - **UI Enhancement**: Updated to lighter color scheme matching main application design
-  - **Next Steps**: Session management, cookie persistence, request filtering per implementation plan
-- **OPENROUTER REASONING MODELS INTEGRATION COMPLETED**: Expanded model catalog with actual OpenRouter reasoning models and special reasoning token support (July 29, 2025)
-  - **Reasoning Models Added**: DeepSeek R1 family (8 variants including free options), Microsoft Phi-4 Reasoning Plus, Qwen QWQ models (3 variants), Mistral Magistral Thinking, Perplexity Sonar Reasoning
-  - **Reasoning Token Support**: Service now automatically adds `include_reasoning: true` for reasoning models to get transparent thinking process
-  - **Model Catalog Expansion**: 23 total models (up from 6) with focus on open-source and reasoning capabilities
-  - **UI Enhancement**: Simple model configuration interface at Settings → OpenRouter Settings → Configure Models
-  - **Current Configuration**: Only open-source models enabled (Llama 3 70B priority 1, Mixtral 8x7B priority 2), all proprietary models disabled per user preference
-- **OPENROUTER MODEL CONTROL SYSTEM IMPLEMENTED**: Created comprehensive model configuration and control system allowing flexible model selection strategies (July 29, 2025)
-  - **Model Configuration**: Created `server/config/openrouter-models.ts` with configurable models including reasoning and standard models
-  - **Selection Strategies**: Implemented 4 strategies: costOptimized (cheapest first), priorityBased (by priority order), consensus (multiple models vote), providerSpecific (single provider)
-  - **Use Case Mapping**: Models tagged for specific use cases: entity-extraction, complex-extraction, arbitration, verification, fallback, reasoning, online-search
-  - **Cost Controls**: Per-model cost limits, automatic cost calculation, configurable max tokens
-  - **Service Implementation**: `OpenRouterService` class with automatic fallback, consensus extraction, and confidence scoring
-- **ARCHITECTURAL DECISION: SEPARATION OF DUMPS FROM EXTRACTION**: Identified critical performance bottleneck where combining web crawling with entity extraction causes timeouts. Documented why separation makes sense: current all-in-one approach is inherently slow (entity extraction with regex on large HTML is CPU intensive, geographic marker extraction adds processing, sleep(0.5) politeness delays, synchronous processing). Benefits of dump-only approach: Speed (just save raw HTML/text), Reliability (less timeouts), Flexibility (apply different extractors to same data), Debugging (inspect raw dumps), LLM Ready (raw dumps perfect for LLM analysis). Architecture options identified: Quick Fix (remove extraction from crawl), Better (separate extraction service), Best (pipeline architecture: dumps → extraction → LLM analysis) (January 26, 2025)
-- **BETA TESTING PLATFORM V2 FULLY OPERATIONAL**: Successfully completed federated microservice architecture with both Playwright Dump and Scrapy Crawl services working - fixed Python dependency management using UV instead of pip, resolved API routing issues causing "Failed to fetch" errors, implemented proper error handling for Python script execution. Both services accessible through /beta-testing-v2 with integrated UIs, Scrapy service crawling up to 100 pages with 2 levels depth focusing on legal documents and company information extraction. Fixed final JSON parsing errors by implementing smart proxy detection in both service UIs - services now correctly use main app proxy when accessed through port 5000 and direct connection when accessed through port 3001 (July 24, 2025)
-- **SCRAPY CRAWL SERVICE INTEGRATION COMPLETE**: Implemented multi-page web crawling service with Python/BeautifulSoup - crawls websites up to specified depth, extracts legal entities using pattern matching (Inc, LLC, Ltd), discovers legal documents (terms, privacy policies), identifies geographic markers (addresses, phone numbers, countries), prioritizes about/legal/contact pages. Fixed critical JSON parsing error by using UV for Python execution ensuring proper dependency resolution (July 24, 2025)
-- **PLAYWRIGHT DUMP SERVICE FULLY OPERATIONAL**: Successfully completed federated architecture implementation with comprehensive raw data collection capabilities - service now collecting HTML content, screenshots (full page and above-fold), text extraction, meta tags, links, images, and structured data for LLM analysis. Fixed all integration issues including API routing through Vite proxy, database operations, and browser automation setup. Service accessible at /beta-testing-v2 with standalone UI, processing domains in 3-10 seconds with proper error handling for timeouts and anti-bot protection (July 24, 2025)
-- **FEDERATED ARCHITECTURE IMPLEMENTATION COMPLETE**: Successfully implemented Beta Platform V2 federated architecture with Playwright Dump service fully operational - integrated service UI into beta server to avoid Replit port limitations, created method selector interface at /beta-testing-v2 that redirects to integrated service UIs, resolved file path issues and database routing conflicts, simplified architecture to use beta server paths (/api/beta/playwright-dump) instead of separate ports, maintained independent service concept with dedicated HTML UI and API endpoints - federated development model now functional with first collection method ready for testing (January 24, 2025)
-- **BETA PLATFORM V2 ARCHITECTURE INITIATED**: Started building federated microservice-like architecture for Beta v2 with complete database isolation - implemented separate PostgreSQL schema (beta_v2) for complete independence, created minimalist developer UI at /beta-testing-v2 route focusing on pure utility, adopted action-based naming convention (playwright-dump, scrapy-crawl, crawlee-extract), built foundation with Playwright dumper collecting comprehensive raw data including HTML, screenshots, text content, links, images, and meta tags - architecture designed for maximum development flexibility with each collection method operating independently (January 17, 2025)
-- **COMPREHENSIVE RAW DATA COLLECTION FOR STAGE 1 COMPLETE**: Successfully enhanced Playwright extractor with comprehensive data collection capabilities for future LLM analysis - fixed critical `__name is not defined` JavaScript error by simplifying regex patterns and avoiding complex syntax, implemented geographic marker extraction (countries, currencies, phone numbers, addresses, languages, legal jurisdictions), added contact information collection (emails, social media links, about/terms/privacy/contact page links), integrated business identifier extraction (company registration numbers, VAT/tax IDs, licenses), all data properly stored in JSONB column with organized structure (textData, visualData, geoMarkers, contactInfo, businessIdentifiers, processingContext) - tested successfully with apple.com collecting US geographic markers, page links, and currency information ready for Stage 2 LLM processing (January 12, 2025)
-- **VIEW RAW DATA UI IMPLEMENTATION COMPLETE**: Added user-friendly "View Raw Data" button to beta testing interface with comprehensive modal display functionality - successfully integrated test ID tracking in backend responses, created dedicated API endpoint `/api/beta/raw-data/:testId` for fetching raw extraction data, implemented collapsible sections for text data (HTML content, extraction attempts), visual data (screenshots, DOM metrics), and processing context - provides easy access to all collected raw data for analysis and debugging purposes (January 12, 2025)
-- **ENHANCED RAW DATA CAPTURE FOR LLM ANALYSIS**: Implemented comprehensive raw data collection in Playwright extractor to prepare for future LLM-based entity extraction - captures complete text data (HTML, all extraction attempts with confidence scores, structured data, meta tags, network requests), visual data (full page and above-fold screenshots as base64, DOM metrics), and processing context (detailed logs, performance metrics, error tracking) - all data stored in JSONB column for both successful and failed extractions enabling rich pattern analysis and ML training data generation (January 12, 2025)
-- **RECENT CHANGES TRACKING SYSTEM UPDATED**: Fixed outdated change history by adding comprehensive log of recent activities - system now shows balanced view of changes from today (React Suspense fix, project reorganization, Playwright implementation) and past week (server stability fixes, GLEIF display bug fix, beta platform) instead of single January entry - maintains chronological history with proper timestamps and categorization for better developer visibility (July 12, 2025)
-- **REACT SUSPENSE ERROR FIXED**: Resolved navigation error to /recent-changes route by adding Suspense boundary around Router component - lazy-loaded routes now properly handled with loading fallback preventing "component suspended" errors during navigation (July 12, 2025)
-- **PLAYWRIGHT BROWSER AUTOMATION IMPLEMENTATION COMPLETE**: Successfully implemented Playwright as 6th extraction method with advanced browser automation capabilities - fixed critical `__name is not defined` error by removing Python-style code references, implemented proper Playwright API patterns with user agent and viewport set at browser context level, added comprehensive extraction hierarchy (structured data 95% → meta properties 85% → footer copyright 75% → logo alt text 70% → h1 analysis 65% → page title 60%), configured to use system Chromium for Replit compatibility, and tested successfully extracting "Rediff" with 85% confidence from meta properties - provides robust alternative to Puppeteer with better error handling and cross-browser support potential (July 12, 2025)
-- **COMPREHENSIVE SERVER RESTART PROTECTION IMPLEMENTED**: Fixed root cause of environment update failures by implementing intelligent port conflict resolution with retry limits (max 3 attempts), targeted process cleanup using fuser to kill port conflicts, improved error handling preventing infinite retry loops, and non-blocking beta server initialization - ensures reliable server restarts when code changes trigger environment updates without manual intervention (July 08, 2025)
-- **SERVER STABILITY ROOT CAUSE FIXES IMPLEMENTED**: Resolved critical server startup issues by implementing robust error handling, non-blocking beta server initialization, improved process management with graceful shutdown handling, reduced beta server startup timeouts, and proper exception handling to prevent crashes - eliminated port conflicts and ensured stable server operation (July 08, 2025)
-- **BETA SERVER AUTOMATIC CLEANUP IMPLEMENTED**: Added intelligent cleanup system that automatically kills previous beta server instances before starting new ones - prevents port conflicts and ensures clean server startup with process cleanup, port freeing, and graceful shutdown handlers for reliable beta testing platform operation (July 07, 2025)
-- **GLEIF STATUS DISPLAY BUG FIXED**: Resolved frontend caching issue where GLEIF status showed "processing" instead of "failed" after completion - implemented enhanced auto-refresh logic that monitors Level 2 GLEIF processing states with 3-second refresh intervals and disabled result caching to ensure immediate UI updates when GLEIF processing completes (July 07, 2025)
-- **GLEIF PROCESSING PERFORMANCE CONFIRMED**: System operating normally with GLEIF processing completing in 1.5 seconds per domain - carwale.com processed successfully with proper failure classification (0% confidence due to missing legal suffix, 0 GLEIF candidates found) demonstrating working Level 2 GLEIF integration (July 07, 2025)
-- **BETA TESTING PLATFORM OPERATIONAL**: Fixed all beta server startup issues and JavaScript errors - comprehensive extraction system now working with company name extraction (90% confidence from structured data), geographic intelligence, legal document discovery, social media extraction, contact information, and about page content extraction (July 06, 2025)
-- **BETA TESTING ROUTE FIX COMPLETED**: Fixed 404 error on /beta-testing route by adding missing route definition in App.tsx Router component - BetaTestingPage component and all backend infrastructure were already implemented but route was never registered in the frontend router causing navigation failures (July 06, 2025)
-- **ON-DEMAND BETA SERVER ARCHITECTURE IMPLEMENTED**: Revolutionized beta testing platform with intelligent on-demand server startup - beta server now starts automatically when beta page is accessed, shows professional loading screen with progress tracking, continues running until app suspension, and self-heals if crashed with automatic restart on next access - eliminates resource waste from always-running beta services while providing seamless user experience (July 05, 2025)
-- **CRITICAL BUG FIXES COMPLETED - SYSTEM RELIABILITY RESTORED**: Successfully resolved major system reliability issues including success criteria bug where domains with 0% confidence were incorrectly marked as successful, fixed domain mapping functionality for Fortune 500 companies (Nike now gets 95% confidence from domain_mapping instead of 0% from domain_parse), and validated server restart requirement for domain mapping changes to take effect - achieved transformation from 0% failure rate to 100% success rate with proper high-confidence legal entity extraction and Level 2 GLEIF processing working correctly (July 05, 2025)
-- **MODEL CONTEXT PROTOCOL INTEGRATION STRATEGY DEVELOPED**: Created comprehensive MCP use case document outlining transformation from basic legal entity extractor to complete company intelligence hub with multi-source data aggregation, real-time GLEIF enhancement, domain intelligence hub, and geographic compliance validation - includes 8-month implementation roadmap with technical architecture for 10x intelligence depth increase and 95%+ verification accuracy (July 05, 2025)
-- **LEVEL 2 GLEIF PROCESSING INVESTIGATION COMPLETED**: Discovered and documented critical Level 2 system issues where 9 domains with extracted company names (Hasbro, Mattel, Spinmaster, etc.) were not being processed for GLEIF enhancement due to API routing problems and data retrieval failures - manually marked domains for Level 2 processing but identified fundamental routing breakdown where POST endpoints return HTML instead of JSON, preventing Level 2 GLEIF enhancement from functioning (July 04, 2025)
-- **STUCK BATCH PROCESSING CRISIS RESOLVED**: Successfully cleared classic stuck domain issues (konami.com) and completed batch processing by manually resolving 5 domains stuck in pending status for over 2 hours - implemented emergency batch completion with proper failure categorization and system status restoration to enable new batch processing (July 04, 2025) 
-- **COMPREHENSIVE TYPESCRIPT ERROR CLEANUP COMPLETED**: Successfully resolved all major TypeScript errors across the entire codebase with systematic fixes including missing Domain type imports, method signature mismatches between IStorage and implementations, property type inconsistencies (string vs null/undefined), missing interface methods (getRecentBatches, clearGleifCandidatesForBatch, getAnalyticsData), null safety issues in sorting operations, parameter type mismatches (string/number), and proper default value handling for all optional properties - significantly improved code reliability, maintainability, and development experience with clean TypeScript compilation (July 04, 2025)
-- **CRITICAL INTERFACE CONSISTENCY RESTORED**: Fixed fundamental IStorage interface inconsistencies where pgStorage.ts and MemStorage implementations had divergent method signatures causing compilation failures - added missing methods, corrected parameter types, unified return types, and ensured complete backward compatibility while maintaining all existing functionality (July 04, 2025)
-- **SYSTEM STATUS COMPONENT COMPLETELY REMOVED**: Eliminated redundant System Status component and associated BottleneckAnalysisComponent from dashboard as requested by user - removed "System Operating Normally" display, cleaned up imports, and deleted bottleneck-analysis.tsx file for cleaner interface (July 04, 2025)
-- **RESULTS TABLE DATA RETRIEVAL FIXED**: Backend API confirmed returning 50 domains correctly with proper debug logging - issue identified as frontend rendering problem, not data availability (July 04, 2025)
-- **CZECH REPUBLIC JURISDICTION INTEGRATION COMPLETE**: Added comprehensive Czech legal entity recognition with 10 distinct business structure types including limited liability companies (s.r.o.), joint-stock companies (a.s.), partnerships (v.o.s., k.s.), cooperatives (družstvo), foundations (nadace), and trust structures per Czech Civil Code 2014 reforms - integrated 20 major Czech company mappings including ČEZ a.s., Česká spořitelna a.s., ŠKODA AUTO a.s., Avast Software s.r.o., expanding jurisdictional coverage to 14 countries with 680+ corporate suffixes for enhanced Central European domain intelligence (July 03, 2025)
-- **ES MODULE COMPATIBILITY FIXED IN STRUCTURED LOGGING**: Resolved critical BatchLogger compatibility issue by replacing require() with proper ES module imports (readFileSync) - eliminated "ReferenceError: require is not defined" errors, restored AI analysis generation capability, and validated comprehensive structured logging data capture with immediate benefits demonstrated through 15-minute database schema fix and performance bimodality analysis (July 01, 2025)
-- **BATCH PROCESSING PERFORMANCE BIMODALITY DISCOVERED**: Structured logging revealed critical insight from batch mVauB1NiLnmWIt0BQqlzn - domain mapping achieves 100% success in 75-96ms while web scraping delivers only 38% success in 7-11 seconds, providing clear optimization path to double success rate by expanding Fortune 500 domain mapping coverage (57.9% → 90%+ achievable) (July 01, 2025)
-- **COMPREHENSIVE STRUCTURED LOGGING INFRASTRUCTURE IMPLEMENTED**: Built complete AI-optimized logging system for post-mortem analysis with BatchLogger service, comprehensive event tracking (batch start/complete, domain success/failure/timeout, progress monitoring), structured JSON output in logs/ directory, AI analysis summaries with performance metrics and recommendations, and complete API endpoints (/api/logs/batches, /api/logs/batch/:id, /api/logs/analysis/:id) for Perplexity integration - enables detailed performance analysis and optimization recommendations based on actual processing patterns (July 01, 2025)
-- **DYNAMIC ETA CALCULATION SYSTEM IMPLEMENTED**: Fixed static and unhelpful ETA estimates by implementing dynamic processing rate calculation based on actual batch performance - system now calculates realistic ETAs using real progress data (7.8 domains/minute actual rate vs 2 domains/second static estimate), detects processing stalls with "Stalled" status indicator, and provides meaningful time estimates with hour/minute formatting for better visibility (July 01, 2025)
-- **PROCESSING STALL ROOT CAUSE RESOLVED**: Fixed underlying batch processing issue where domains would get genuinely stuck in "processing" status due to timeout conflicts - implemented automated stuck domain monitor that detects and clears domains stuck >15 seconds every 30 seconds, enabling smooth G20 batch completion from 66% to 100% (378/378 domains) with 31 successful extractions and comprehensive Level 2 GLEIF corporate relationship discovery (July 01, 2025)
-- **AUTOMATED STUCK DOMAIN PREVENTION SYSTEM IMPLEMENTED**: Created comprehensive background monitoring service that automatically detects and clears domains stuck in processing status for over 15 seconds, running every 30 seconds - successfully cleared 6 stuck domains (hhi.co.kr, bca.co.id, bajajfinserv.in, etc.) within seconds of server restart, enabling smooth processing advancement from 244 to 250 domains (66% completion) with permanent prevention of future processing stalls (July 01, 2025)
-- **STUCK DOMAIN CLEARING SYSTEM IMPLEMENTED**: Resolved processing stall at 51% completion by identifying and clearing 8 domains stuck in "processing" status for over 11 hours (tenaris.com, samsung.com, orange.com, etc.) - automated clearing with proper failure categorization enables immediate processing resumption from 52.9% to 54.8% completion with active progress tracking (July 01, 2025)
-- **TIMEOUT SYSTEM ALIGNMENT COMPLETE**: Fixed critical timeout conflicts where competing systems (25s legacy, 30s processor, 11s optimized) caused domains to get stuck at arbitrary completion percentages - unified all timeout systems to use optimized 11-second configuration, eliminating processing stalls and enabling smooth batch completion from 38% to 52.6% without interruption (June 30, 2025)
-- **TIMEOUT OPTIMIZATION BASED ON PROCESSING DATA ANALYSIS**: Reduced per-domain timeout from 15s to 11s based on empirical analysis showing longest successful extraction (streebo.com) took 10.96 seconds while failed domains wasted up to 3,600 seconds (1 full hour) - new timeout provides 99.7% reduction in failed domain processing time while maintaining ability to extract all successful records, dramatically improving batch processing efficiency (June 30, 2025)
-- **DASHBOARD DISPLAY SYNCHRONIZATION FIX COMPLETE**: Resolved critical dashboard display bug where processing status showed 11% completion instead of actual 82% progress due to SQL syntax errors and incorrect data mapping - fixed stats endpoint SQL syntax, corrected progress calculation from processedDomains/totalDomains, and updated progress bar display to show accurate G20 batch completion (310/378 domains processed) with real-time updates every 5 seconds (June 30, 2025)
-- **ANTI-BOT PROTECTION TIMEOUT OPTIMIZATION COMPLETE**: Reduced processing timeouts from 25s to 15s per domain, HTML extraction from 10s to 6s, and connectivity check from 5s to 3s - eliminated batch processing stalls caused by anti-bot protection, achieving 67% completion rate (386/574 domains) with 2 domains/second processing speed and 90-second completion ETA for G20 dataset (June 30, 2025)
-- **CRITICAL UPLOAD PERFORMANCE FIX**: Resolved domain hash generation bottleneck causing upload delays - added generateDomainHash() calls to both batch upload and single domain test routes, ensuring required domainHash field is populated during domain creation eliminating schema conflicts and 10+ second upload delays (June 30, 2025)
-- **DOMAIN HASH UNIQUE ID SYSTEM IMPLEMENTED**: Revolutionary solution to duplicate domain challenge with MD5 hash-based persistent identification - successfully added domain_hash column to existing domains table, populated 196 existing domains with consistent hashes, created index for performance, and validated cross-batch intelligence capabilities showing domains like tidewater.com maintaining same hash (45f83645f512b08a9c8de22273af9298) across both batches enabling proper historical tracking and export aggregation (June 30, 2025)
-- **EXPORT AGGREGATION CRISIS RESOLVED**: Fixed critical JOIN aggregation failures using domain hash grouping strategy - FastAPI proof-of-concept demonstrates working export with clean GLEIF candidate aggregation (tidewater.com: 10 LEI codes, sterling-group.com: 10 LEI codes) solving the database architecture issues that were preventing bulk export functionality (June 30, 2025)
-- **COMPREHENSIVE CSV EXPORT ENHANCEMENT COMPLETED**: Upgraded CSV export functionality with 23 comprehensive fields including all Level 2 GLEIF data (Enhanced Name, Primary LEI, Candidate Count), geographic marker extraction results (Country, Geographic Markers, Legal Jurisdiction), detailed processing diagnostics (Error Messages, Failure Categories, Technical Details), and complete audit trail (Created At, Processed At, Retry Count) - provides complete business intelligence dataset for downstream analysis (June 30, 2025)
-- **COMPREHENSIVE GEOGRAPHIC MARKER EXTRACTION SYSTEM IMPLEMENTED**: Completed Level 1 geographic intelligence system capturing country detection signals from website content including addresses, phone numbers, currency symbols, legal jurisdictions, and language patterns - added "Country" column to results table and CSV export, integrated geographic markers into domain extraction pipeline for enhanced GLEIF candidate selection accuracy (June 30, 2025)
-- **ENHANCED GLEIF SELECTION WITH GEOGRAPHIC INTELLIGENCE**: Implemented Level 1 geographic intelligence integration into GLEIF candidate selection algorithm addressing critical selection errors like wildenstein.com (Austrian foundation incorrectly selected over US corporation) - .com domains now heavily favor US entities (+95 vs +15 points), commercial entity types preferred for business domains, reduced penalties for LAPSED but ACTIVE entities, business context awareness prioritizing corporations over foundations for commercial domains (June 30, 2025)
-- **CRITICAL FOOTER COPYRIGHT EXTRACTION BUG FIXED**: Resolved regex pattern issue that truncated legal entity names at periods, cutting off "Merck & Co., Inc." to "Merck & Co" and "Exxon Mobil Corporation" extraction - enhanced pattern now captures complete corporate names with proper legal suffixes including Inc., Corp., Co., etc. (June 29, 2025)
-- **GLEIF VALIDATION SYSTEM IMPLEMENTED**: Comprehensive accuracy control system addressing false positive matches through generic term detection, domain-entity correlation analysis, geographic consistency validation, and quality scoring - prevents issues like corporate.exxonmobil.com matching unrelated "CORPORATE+" entities while maintaining 47-entity knowledge base accumulation success (June 29, 2025)
-- **GLEIF KNOWLEDGE BASE V3 IMPLEMENTED**: Revolutionary transformation from simple domain extractor to comprehensive entity intelligence accumulation system with 5-10x data multiplication effect - every GLEIF API call now stores all discovered entities (not just primary selections) enabling compound intelligence growth and proprietary entity moat (June 29, 2025)
-- **Enhanced Database Architecture**: Added master GLEIF entities table, domain-entity relationship mapping, and corporate hierarchy discovery with frequency tracking and confidence scoring
-- **Data Accumulation Strategy**: Integrated GLEIF knowledge base service into processing pipeline storing all discovered entities, mapping corporate relationships, and building cross-domain intelligence
-- **Intelligence APIs**: Created comprehensive entity intelligence endpoints (/api/intelligence/domain, /api/intelligence/entity, /api/intelligence/stats) for downstream system integration
-- **Periodic GLEIF Update Service**: Implemented comprehensive GLEIF synchronization system with manual triggers, configurable scheduling, and entity status tracking to maintain current legal entity information
-- **Update Management APIs**: Created periodic update endpoints (/api/gleif/update/manual, /api/gleif/update/status, /api/gleif/update/config) for system maintenance and data freshness
-- **GLEIF Validation Service**: Implemented comprehensive accuracy validation system preventing false positive matches through generic term detection, domain-entity correlation analysis, geographic consistency checks, and quality scoring - eliminates issues like "Corporate" matching unrelated entities from corporate.exxonmobil.com
-- **Strategic Foundation**: Positioned system as authoritative "get the right company first" layer for broader company intelligence ecosystem (firmographics, news, financials, contact intelligence)
-- **DUPLICATION PREVENTION SYSTEM VALIDATED**: Complete testing confirms enhanced upload process correctly skips high-confidence domains (85%+) while processing lower-confidence domains for improvement - validated with 5 Fortune 500 companies skipped and 5 lower-confidence domains processed, maintaining data integrity and optimizing performance (June 29, 2025)
-- **PROCESSING STATUS SYSTEM ENHANCED**: Fixed real-time status display to correctly show "System Ready" when idle vs "Processing" during active batch processing with live progress tracking and batch queue management (June 29, 2025)
-- **DUPLICATE DETECTION SYSTEM FIXED**: Enhanced upload process to prevent reprocessing successful domains with 85%+ confidence scores - Fortune 500 companies like apple.com, microsoft.com, db.com now properly skipped to avoid redundant processing and maintain data integrity (June 29, 2025)
-- **GLEIF CANDIDATES MODAL FIX**: Resolved React Query configuration issue preventing GLEIF candidates from displaying in modal - casino.fr now correctly shows 4 verified candidates with complete LEI data and selection algorithms (June 29, 2025)
-- **CSV EXPORT ENHANCEMENT**: Updated export functionality to include all Level 2 GLEIF fields (Business Category, GLEIF Status, LEI Code, Recommendation, Processing Time) matching the UI display for complete business intelligence analysis (June 29, 2025)
-- **COMPREHENSIVE ANALYTICS ENHANCEMENT**: Added total processing time metrics to performance dashboard with 5-grid layout displaying batch completion times, per-domain averages, success rates, confidence scores, and domain mapping efficiency for complete batch processing analysis (June 29, 2025)
-- **CRITICAL GLEIF STATUS BUG FIXED**: Resolved Level 2 processing issue where 140 domains with successful GLEIF matches were incorrectly marked as "failed" - isbank.com.tr and similar domains now correctly show "success" status with authentic LEI codes, boosting G20 batch success rate from 9.5% to 46.6% (June 29, 2025)
-- **CRITICAL DEUTSCHE BANK BUG FIXED**: Resolved GLEIF integration issue where db.com incorrectly returned "DB CONSULTING" instead of "Deutsche Bank AG" - added proper domain mapping and fixed Level 2 enhancement to find authentic Deutsche Bank entities (June 28, 2025)
-- **RESULTS TABLE ENHANCEMENT**: Fixed company name display to show GLEIF-enhanced legal entity names with original extraction as subtitle when enhanced (June 28, 2025)
-- **LEVEL 2 GLEIF FRONTEND INTEGRATION COMPLETE**: Successfully implemented comprehensive frontend interface for Level 2 GLEIF functionality with enhanced results table, candidate management modal, analytics dashboard, and complete API integration (June 28, 2025)
-- **Enhanced Results Table**: Added Level 2 columns (GLEIF Status, LEI Code) with interactive status badges, candidate viewing capabilities, and integrated candidate selection workflow
-- **GLEIF Candidates Modal**: Created comprehensive modal interface for viewing all GLEIF candidates with weighted scores, jurisdiction indicators, entity status, selection algorithms, and primary candidate management
-- **Level 2 Analytics Dashboard**: Built real-time analytics dashboard displaying Level 2 processing metrics, success rates, jurisdiction breakdowns, entity status distribution, and manual review queue management
-- **Complete API Integration**: Implemented all Level 2 backend endpoints (/api/domains/:id/candidates, /api/domains/:id/select-candidate, /api/analytics/level2) with proper error handling and validation
-- **Comprehensive Unit Tests**: Created extensive test suite validating GLEIF service functionality, API integration, frontend components, and complete workflow validation ensuring system reliability
-- **LEVEL 2 GLEIF INTEGRATION PHASE 2 COMPLETE**: Successfully integrated GLEIF service into domain processing pipeline with automatic Level 2 enhancement triggers, maintaining complete backward compatibility with Version 1 functionality (June 28, 2025)
-- **MACHINE-FRIENDLY PARSING RULES SYSTEM COMPLETE**: Centralized all extraction methods, confidence modifiers, validation rules, and processing timeouts in unified TypeScript configuration enabling instant system updates through JSON modifications (June 28, 2025)
-- **Unified Configuration Architecture**: Single source of truth in shared/parsing-rules.ts serving domain extractor, documentation page, and validation system with automatic propagation across 7 extraction methods and all confidence calculations
-- **MACHINE-FRIENDLY JURISDICTION SYSTEM IMPLEMENTED**: Transformed hardcoded HTML documentation into TypeScript data structure with dynamic UI generation, enabling instant jurisdiction updates through single JSON modifications while maintaining full human observability (June 28, 2025)
-- **Data-Driven Architecture**: Unified jurisdiction data source serving both documentation page and domain extraction engine, eliminating duplicate maintenance and ensuring consistency across 13 jurisdictions with 390+ legal suffixes
-- **SINGAPORE JURISDICTION INTEGRATION COMPLETE**: Added comprehensive Singapore legal entity recognition with major financial and technology corporation mappings including banks (DBS Group Holdings Ltd, OCBC Ltd), telecommunications (Singapore Telecommunications Ltd), and conglomerates (CapitaLand Investment Ltd) with proper Pte Ltd/Ltd suffix validation (June 28, 2025)
-- **13th Jurisdiction Added**: Extended international coverage to include Singapore Companies Act compliance with Private Limited, Public Limited, Branch, and Representative Office structures alongside .sg TLD recognition
-- **COMPREHENSIVE SYSTEM VALIDATION COMPLETE**: Validated machine-friendly architecture transformation across 43 test domains with 100% configuration consistency, proving JSON-based updates work instantly across all system components (June 28, 2025)
-- **SRI LANKAN LEGAL ENTITY INTEGRATION COMPLETE**: Added comprehensive Sri Lankan business structure recognition with 55+ major company mappings including banks (Dialog Axiata PLC, Sampath Bank PLC), conglomerates (John Keells Holdings PLC), and telecommunications (Sri Lanka Telecom PLC) with proper PLC/Pvt Ltd suffix validation (June 28, 2025)
-- **12th Jurisdiction Added**: Extended international coverage to include Sri Lankan Companies Act 2007 compliance with Private Limited, Public Limited, Trust, Cooperative, and Society structures alongside .lk TLD recognition
-- **SINGLE DOMAIN TEST CACHING BUG FIXED**: Resolved issue where repeated testing of same domain showed cached failed results instead of fresh extraction attempts (June 28, 2025)
-- **Fresh Processing for Single Tests**: Single domain tests now bypass caching logic and always perform fresh extraction to ensure accurate repeated testing
-- **Single Domain Test Feature Added**: Implemented real-time single domain testing with instant results, business intelligence classification, and detailed extraction metrics (June 28, 2025)
-- **Enhanced Testing UI**: Added dedicated single domain input component with processing time display, confidence scoring, and business categorization badges
-- **CRITICAL PROCESSING LOOP BUG FIXED**: Resolved infinite processing loops caused by domains with minimal footer content getting stuck in repeated extraction attempts (June 28, 2025)
-- **Comprehensive Timeout Protection**: Implemented multi-layer timeout system with 25s extraction limits, 30s processing detection, and automatic stuck domain recovery
-- **Processing Stability Enhanced**: Added early exit for minimal footer content (<50 chars), Promise.race timeout protection, and stuck processing detection
-- **GLEIF KNOWLEDGE BASE PRESERVATION IMPLEMENTED**: Enhanced database clearing to preserve valuable GLEIF entity intelligence while clearing domain processing data - maintains accumulated entities (Brookfield, RBC, Gazprom PAO, etc.) across sessions enabling compound intelligence growth and reducing redundant GLEIF API calls (July 01, 2025)
-- **Database Management Button Added**: Implemented delete database button in dashboard header with proper API endpoint, PostgreSQL clearing functionality, and toast notifications for easy system reset (June 28, 2025)
-
-## Previous Changes
-- **CRITICAL FALSE POSITIVE ELIMINATED**: Fixed domain mapping system that was completely non-functional - now extracts "Natura & Co Holding S.A." instead of "Veja como" (Portuguese marketing copy) with proper 95% confidence (June 28, 2025)
-- **Footer Method Operational Confirmation**: Successfully extracted Brazilian corporate entities via footer_copyright method with 75% confidence (MercadoLivre "br LTDA", Santander "o S.A.")
-- **Cross-Jurisdiction Validation**: System now confirmed operational across German (Volkswagen Leasing GmbH), Finnish (Nokia Corporation), and Brazilian (multiple S.A./LTDA) legal entities
-- **Performance Optimization Validated**: Early connectivity triage preventing expensive processing on protected Brazilian sites (WEG, Suzano, Braskem)
-- **ENHANCED EXPECTED ENTITY NAME EXTRACTION IMPLEMENTED**: Revolutionary dual-layer approach combining jurisdiction intelligence with domain-derived entity expectations (June 28, 2025)
-- **Expected Entity Generation**: Transform domain patterns into expected company names ("mcinc-products.jp" → "Mcinc Products") with 98% confidence footer search
-- **Dual-Layer Footer Search**: Method 1: Expected entity names + legal suffixes (98% confidence), Method 2: Domain stems + legal suffixes (95% confidence)  
-- **Validation System Enhanced**: Fixed critical confidence calculation bugs, implemented -50% penalty for missing legal suffixes ensuring ~10% confidence for incomplete extractions
-- **Cache Validation Fixed**: Prevents cached results without legal suffixes from achieving high confidence scores through enhanced validation pipeline
-- **Real-World Validation**: "nissan-global.com" footer contains "Nissan Motor Co.,Ltd." validating the expected entity approach - system generates "Nissan Global" and would search for legal suffix combinations
-- **Performance Validation**: "mcinc-products.jp" correctly extracts "Mcinc Products" demonstrating successful expected entity name transformation
-- **COMPREHENSIVE SYSTEM OVERHAUL COMPLETE**: Transformed from basic extraction to business intelligence platform (June 26, 2025)
-- **Business Intelligence Classification**: Implemented actionable 5-category system (Success, Good Target - Tech Issue, Protected - Manual Review, Bad Website - Skip, Incomplete - Low Priority)
-- **Results Table Redesigned**: Added business category column with color-coded badges and recommendation guidance for acquisition research
-- **Quality Crisis Resolution**: Disabled footer extraction eliminating 85 false positives extracting website copy instead of legal entity names
-- **Domain Mapping Validation**: Confirmed Fortune 500 mappings working correctly (Apple Inc., Microsoft Corporation, Alphabet Inc.) with 100% confidence
-- **Enhanced Database Schema**: Added failure_category, technical_details, extraction_attempts, recommendation fields for comprehensive business intelligence
-- **Legal Entity Enforcement**: Stricter validation requiring corporate suffixes for business domains while allowing nonprofits/government exceptions
-- **User Feedback Integration**: Assessment approach and quality improvements validated through independent parsing analysis
-- **Russian Legal Entity Integration**: Added comprehensive Russian corporate structures (OOO/ООО, AO/АО, PAO/ПАО, IP/ИП, ANO/АНО) with major company mappings and proper Cyrillic recognition
-- **Jurisdictional Guide Updated**: Added Taiwan and Russia sections to documentation page, now covers 11 jurisdictions with 190+ corporate suffixes
-- **Documentation Updated**: Comprehensive documentation reflecting current business intelligence capabilities and performance metrics
-- Enhanced company name extraction with proper legal entity names (June 24, 2025)
-- Added known company mappings for accurate Fortune 500 entity names
-- Improved extraction patterns to filter out error messages and generic content
-- Implemented for-profit vs institutional entity distinction per user guidance
-- Added confidence scoring based on legal suffixes and institutional patterns
-- Added intelligent duplicate domain handling with high-confidence result caching
-- System now reuses existing results with 85%+ confidence to avoid redundant processing
-- Implemented stricter confidence thresholds to prioritize domain mappings over HTML extraction
-- Enhanced filtering to completely reject marketing taglines and descriptive content
-- Configured system to ALWAYS use domain mappings as authoritative source for known companies
-- Fixed extraction priority to prefer legal entity names over marketing content
-- Added comprehensive session results feature for QC and feedback tracking
-- Session results include success/failure metrics, confidence breakdowns, and processing analytics
-- Restructured processing options to prioritize domain mapping as primary method (not fallback)
-- Domain mapping now always enabled with 95% confidence, HTML extraction as backup only
-- Migrated from in-memory storage to PostgreSQL for data persistence and production readiness
-- Database provides duplicate detection, cross-batch intelligence, and permanent session results
-- Refactored Analytics Dashboard for faster performance and real-time updates
-- Simplified interface with key metrics, batch history, and summary statistics
-- Increased refresh rate to 5 seconds with manual refresh capability for immediate updates
-- Added per-domain processing time tracking with millisecond precision in database schema
-- Enhanced analytics to show actual processing times instead of estimated batch averages
-- Results table now displays individual domain processing times (ms/s format)
-- Added cumulative performance tracking comparing latest run vs historical averages
-- Dashboard now shows over/under performance indicators for confidence, success rate, domain mapping, and processing time
-- Enhanced file upload debugging with comprehensive parsing and deduplication logging
-- Fixed domain validation for international TLDs and improved duplicate detection
-- Upload now shows exact counts: total parsed, unique domains, duplicates removed
-- Enhanced Chinese company domain mappings with proper Fortune 500 entities and state-owned enterprises
-- Fixed confidence scoring for known global companies (95% for domain mapping vs 55% for generic parsing)
-- Added comprehensive Chinese corporate structure recognition (Co. Ltd., Group Ltd., etc.)
-- Added Taiwanese technology company mappings: TSMC, Foxconn, ASUS, Acer, HTC, MediaTek, Delta, etc. (June 26, 2025)
-- Enhanced Taiwanese legal entity recognition: Co., Ltd., Inc., Corporation, Foundation, Branch, Cooperative structures
-- Added comprehensive Taiwanese business form validation based on Company Act requirements
-- Fixed Session Stats component to properly display session results including duplicate detection metrics
-- Session Stats now shows comprehensive failure analysis confirming Chinese company web scraping resistance
-- Auto-batch selection ensures most recent processing results are always visible in UI
-- Session Stats now automatically populates with latest session data without requiring manual batch selection
-- Enhanced Session Stats flow to show most recent session by default with fallback to specific batch selection
-- Fixed Session Stats empty display issue by optimizing session results API query performance
-- Fixed Analytics Dashboard outdated data by correcting batch completion timestamp recording
-- Updated analytics to use actual completion times instead of synthetic timestamps
-- Enhanced HTML extraction to scrape About Us and Terms pages for better company name detection
-- Added intelligent sub-page crawling for /about, /company, /terms paths where legal entity names appear
-- Created comprehensive Parsing Rules documentation page for developers
-- Documented extraction methods, confidence scoring, pattern recognition, and validation rules
-- Added comprehensive Jurisdictional Knowledge Reference with detailed legal entity explanations across 9 jurisdictions
-- Included capital requirements, regulatory details, and validation algorithms with minimal visual elements
-- Implemented early triage connectivity check for performance optimization (saves 7+ seconds per unreachable domain)
-- All unreachable domains properly count as failures - bad websites are legitimately unusable for business purposes
-- Enhanced error classification provides diagnostic clarity while maintaining accurate success rate metrics
-- Fixed processor to use enhanced DomainExtractor with About Us/Terms page crawling (June 24, 2025)
-- About Us and Terms page crawling now active for improved legal entity name extraction
-- CRITICAL FIX: Early triage connectivity check now properly prevents success classification for unreachable domains (June 24, 2025)
-- Enhanced processor logic to reject domain parsing results when connectivity check indicates "unreachable" status
-- Unreachable domains now correctly show as "failed" with proper error messages instead of false domain parsing success
-- Streamlined UI by removing redundant elements: mock worker status, unused processing options, non-functional config selectors
-- Simplified interface focuses on essential functionality with clear extraction method hierarchy display
-- Enhanced SSL error handling to catch certificate issues (ERR_TLS_CERT_ALTNAME_INVALID, expired certs, etc.)
-- Fixed HTTP fallback logic to prevent broken SSL domains from appearing as successful extractions
-- Added ECONNRESET handling to properly catch connection reset errors (socket hang up issues)
-- Cleaned up debug logging for production readiness while maintaining connectivity accuracy
-- Validated early triage system performance: 71% success rate with proper business intelligence classification
-- Confirmed network failure detection accuracy: DNS errors, SSL issues, connection drops properly marked as unreachable
-- Performance optimization verified: Failed domains processed 25% faster (1.2s vs 1.6s) through early connectivity triage
-- Business logic validation: 28/29 failures from legitimate connectivity issues, only 1 from extraction challenges
-- Emergency fix: Restored proper validation logic to prevent extraction of marketing taglines and generic content
-- Enhanced invalid pattern detection to reject "Our business is", "Client Challenge", "Grocery Store", etc.
-- Added German company domain mappings to fix current bad extractions (Springer, RTL, Wirecard, etc.)
-- Implemented dual-layer validation with marketing content detection to completely block descriptive phrases
-- Enhanced German legal entity recognition: GmbH, AG, UG, KG, SE, Stiftung, e.V., etc. (June 24, 2025)
-- Added 37+ German company mappings with proper legal entity names and suffixes
-- Fixed major German retailer/media failures: REWE Group, Bertelsmann SE & Co. KGaA, ALDI Group, ProSiebenSat.1 Media SE
-- CRITICAL FIX: Domain mappings now override cached results to prevent bad extractions from persisting
-- Updated database to correct all cached German company names to proper legal entity names
-- HTML title extraction identified as unreliable source - heavily penalized and deprioritized (June 24, 2025)
-- **COMPLETE REMOVAL**: HTML title extraction eliminated entirely due to marketing content contamination
-- Added comprehensive Indian company mappings with proper legal entity names (Ltd, Pvt Ltd, etc.)
-- Added French legal entity recognition: SARL, SA, SAS, SNC, SCS, SCA, EURL, SC, SCOP, GIE, SEM, Fondation
-- Added Mexican legal entity recognition: S.A., S.A. de C.V., S. de R.L., S. de R.L. de C.V., S.C., A.C., I.A.P., S.A.P.I.
-- Enhanced US legal entity recognition: Added professional entities (P.C., PLLC), partnerships (LP, LLP, LLLP), cooperatives, trusts
-- Added Canadian legal entity recognition: Inc., Ltd., Corp., P.C., LP, LLP, Co-op, Trust, Ltée (Quebec French variants)
-- Added Brazilian legal entity recognition: Ltda., S.A., SLU, EIRELI, MEI, Cooperativa, Fundação, Associação
-- Added Irish legal entity recognition: Ltd, DAC, PLC, CLG, UC, ULC, LP, Society, Trust (comprehensive Companies Act 2014 compliance)
-- Added Italian legal entity recognition: S.p.A., S.r.l., S.r.l.s., S.n.c., S.a.s., S.a.p.a., Soc. Coop., Fondazione (Italian Civil Code compliance)
-- CRITICAL FIX: Implemented global penalty system for missing legal suffixes (-25% confidence penalty)
-- Added 55+ French company domain mappings with proper legal entity names (SA, SE suffixes)
-- Fixed all false positives: Credit Agricole → Crédit Agricole SA, Saint-Gobain SA, etc.
-- Global principle: Absence of legal suffix indicates either extraction error or nonprofit status
-- Updated extraction methods to modern standards: structured data (JSON-LD), enhanced meta properties, about/legal page extraction (June 25, 2025)
-- Added structured data extraction with 98% confidence for JSON-LD Schema.org organization data
-- Enhanced meta property extraction from og:site_name, application-name, twitter:title for better accuracy
-- Modernized User-Agent string to Chrome 120 for improved website compatibility
-- Final extraction priority: Structured data → Footer copyright → Meta properties → About/Legal pages → Domain parsing (fallback)
-- Implemented stricter success criteria for higher quality results (June 25, 2025)
-- Raised minimum confidence threshold from 50% to 65% for marking domains as successful
-- Enhanced validation: Minimum 5-character company names, max 1 generic marketing word allowed
-- Stricter penalties: -40% confidence for missing legal suffixes, -30% for marketing terms
-- Quality bonuses: +20% for proper legal suffixes, +15% for optimal word count (2-4 words)
-- Corporate entities without legal suffixes now automatically rejected unless nonprofit/personal
+## Overview
+A production-scale domain intelligence platform transforming web domains into precise legal entity insights through advanced web scraping and intelligent business classification. It provides real-time processing updates, comprehensive business intelligence categorization, and actionable acquisition research guidance. The project aims to deliver highly accurate, verified legal entity information for market analysis and strategic decision-making.
 
 ## User Preferences
 - Professional interface without excessive technical jargon
@@ -330,29 +13,44 @@ A production-scale domain intelligence platform that transforms web domains into
 - Independent validation approach: Perform comprehensive analysis to identify and fix parsing quality issues
 - Performance optimization priority: Early triage to save processing time on problematic domains
 
-## Development Learnings
-### Federated Service Architecture Patterns (July 24, 2025)
-- **Vite Proxy Limitations**: When building federated services on different ports (e.g., beta server on 3001), Vite doesn't automatically proxy these routes
-- **Solution Pattern**: Use absolute URLs in frontend code to bypass Vite's proxy and connect directly to the service port
-  ```javascript
-  // Pattern 1: Protocol-aware absolute URL
-  const API_BASE = window.location.protocol + '//' + window.location.hostname + ':3001/api/beta';
-  
-  // Pattern 2: Conditional URL based on environment
-  const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3001' : '';
-  ```
-- **CORS Requirement**: Ensure federated services have CORS enabled (`app.use(cors())`) to allow cross-origin requests
-- **Recurring Issues**: Both Playwright Dump and Scrapy Crawl services encountered the same Vite proxy issue - fixed with absolute URLs
+## System Architecture
+The platform is built with a React frontend and an Express backend, both utilizing TypeScript. A federated microservice-like architecture is employed for collection methods, ensuring independence and scalability.
 
-### Python Dependency Management (July 24, 2025)
-- **Use UV, not pip**: Project uses UV for Python dependency management - add dependencies to `pyproject.toml` and run `uv sync`
-- **Python Script Execution**: When executing Python scripts from Node.js, use `uv run python` for proper dependency resolution
-- **Error Handling**: Python script output may include warnings before JSON - parse carefully and handle edge cases
-- **JSON Response Consistency**: Always wrap Python script execution in try-except blocks that return proper JSON even on errors
+- **Frontend**: React with TypeScript, TanStack Query for data management, Wouter for routing, Material Design principles, Tailwind CSS, and shadcn/ui components for a clean, professional UI.
+- **Backend**: Express server with TypeScript, designed for robust API handling and processing orchestration.
+- **Storage**: PostgreSQL for persistent storage, enabling cross-batch intelligence, duplicate detection, and permanent session results. In-memory storage (MemStorage) is used for development.
+- **Processing**: Features a batch processor with a sophisticated web scraping service. It includes a two-stage cleaning pipeline (HTML stripping followed by LLM enhancement).
+- **Core Logic**:
+    - **Business Intelligence Classification**: Categorizes domains into actionable categories like "Good Target - Tech Issue," "Bad Website - Skip," and "Protected - Manual Review."
+    - **Enhanced Domain Processing**: Includes Fortune 500 company mappings with high confidence and strict legal entity validation, enforcing corporate suffixes.
+    - **Quality-Focused Extraction**: Disables problematic footer extraction and uses country-aware pattern matching.
+    - **International Legal Entity Recognition**: Supports comprehensive corporate structure validation across 14 jurisdictions.
+    - **Real-time Processing Updates**: Live status tracking with 5-second refresh intervals and processing time metrics.
+    - **Federated Architecture**: Utilizes separate services (e.g., Playwright Dump, Scrapy Crawl, Crawlee Dump) for data collection, designed for maximum flexibility and independent operation, enabling mix-and-match combinations of collection methods and LLM models.
+    - **LLM Cleaning Pipeline**: Integrates free DeepSeek models for cleaning and enhancing crawled page data, with a designed two-stage pipeline for efficient processing.
+    - **OpenRouter Integration**: Implements a comprehensive model control system for flexible LLM selection, supporting various strategies (cost-optimized, priority-based, consensus) and specific use cases.
+    - **Data Collection**: Comprehensive raw data capture includes HTML content, screenshots, text extraction, meta tags, links, and structured data for LLM analysis.
+    - **Error Handling**: Robust server restart protection, intelligent port conflict resolution, and automatic cleanup of beta server instances.
+    - **Data Management**: Implements unique domain hash IDs for persistent identification and duplicate prevention, alongside comprehensive CSV/JSON export capabilities with detailed analytics.
+    - **GLEIF Integration**: Incorporates Level 2 GLEIF (Global Legal Entity Identifier Foundation) processing for authentic legal entity verification, including knowledge base accumulation and geographic intelligence for enhanced candidate selection.
+    - **Machine-Friendly Configuration**: Centralizes extraction methods, confidence modifiers, validation rules, and jurisdiction data in TypeScript configurations for dynamic updates.
+    - **Performance Optimization**: Early connectivity triage saves processing time on unreachable domains. Multi-layer timeout systems prevent processing stalls.
+    - **Extraction Hierarchy**: Utilizes structured data (JSON-LD), enhanced meta properties, footer copyright, logo alt text, H1 analysis, and page title for extraction, with a focus on legal entity names.
 
-## Technical Stack
-- React 18 with TypeScript
-- Express.js with Multer for file uploads
-- Axios for HTTP requests and Cheerio for HTML parsing
-- TanStack Query for state management
-- Tailwind CSS with custom Material Design styling
+## External Dependencies
+- **React**: Frontend library.
+- **Express.js**: Backend web framework.
+- **Multer**: For file uploads in Express.
+- **Axios**: For HTTP requests.
+- **Cheerio**: For HTML parsing.
+- **TanStack Query**: For asynchronous state management.
+- **Tailwind CSS**: For styling.
+- **shadcn/ui**: UI component library.
+- **PostgreSQL**: Database for persistent storage.
+- **UV**: Python dependency manager.
+- **OpenRouter**: For LLM API access and model management (e.g., DeepSeek Chat, Meta Llama models).
+- **Crawlee**: Web scraping library for data collection.
+- **Playwright**: Browser automation library for data collection.
+- **Scrapy (Python)**: Web crawling framework for data collection.
+- **BeautifulSoup (Python)**: For HTML parsing in Python scripts.
+- **Global LEI Foundation (GLEIF) API**: For legal entity verification and enrichment.

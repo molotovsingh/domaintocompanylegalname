@@ -1,7 +1,9 @@
-import { Link } from 'wouter';
-import { ArrowLeft } from 'lucide-react';
+import { Link, useLocation } from 'wouter';
+import { ArrowLeft, Database, Cpu } from 'lucide-react';
 
 export default function BetaTestingV2() {
+  const [, setLocation] = useLocation();
+  
   const methods = [
     {
       id: 'playwright-dump',
@@ -82,6 +84,30 @@ export default function BetaTestingV2() {
                   </div>
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* Data Processing Section */}
+          <div className="mt-8 space-y-4">
+            <h2 className="text-lg font-medium">Data Processing</h2>
+            <div 
+              onClick={() => setLocation('/beta-data-processing')}
+              className="p-4 rounded-lg border hover:border-primary hover:shadow-md cursor-pointer transition-all"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                    <Cpu className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Process Collected Data</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Apply LLM models to extract entities from raw dumps
+                    </p>
+                  </div>
+                </div>
+                <span className="text-sm text-green-600 font-medium">Available</span>
+              </div>
             </div>
           </div>
 
