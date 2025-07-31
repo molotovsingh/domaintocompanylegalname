@@ -26,7 +26,7 @@ The platform is built with a React frontend and an Express backend, both utilizi
     - **Quality-Focused Extraction**: Disables problematic footer extraction and uses country-aware pattern matching.
     - **International Legal Entity Recognition**: Supports comprehensive corporate structure validation across 14 jurisdictions.
     - **Real-time Processing Updates**: Live status tracking with 5-second refresh intervals and processing time metrics.
-    - **Federated Architecture**: Utilizes separate services (e.g., Playwright Dump, Scrapy Crawl, Crawlee Dump) for data collection, designed for maximum flexibility and independent operation, enabling mix-and-match combinations of collection methods and LLM models.
+    - **Federated Architecture**: Utilizes separate services (e.g., Playwright Dump, Scrapy Crawl, Crawlee Dump, Axios+Cheerio) for data collection, designed for maximum flexibility and independent operation, enabling mix-and-match combinations of collection methods and LLM models. Includes documented conventions for voluntary consistency across services while maintaining complete independence.
     - **LLM Cleaning Pipeline**: Integrates free DeepSeek models for cleaning and enhancing crawled page data, with a designed two-stage pipeline for efficient processing.
     - **OpenRouter Integration**: Implements a comprehensive model control system for flexible LLM selection, supporting various strategies (cost-optimized, priority-based, consensus) and specific use cases.
     - **Data Collection**: Comprehensive raw data capture includes HTML content, screenshots, text extraction, meta tags, links, and structured data for LLM analysis.

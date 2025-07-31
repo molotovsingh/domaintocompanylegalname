@@ -2,9 +2,13 @@
 
 import { Router } from 'express';
 import { AxiosCheerioService } from './axiosCheerioService';
+import { AXIOS_CHEERIO_CONFIG } from './config';
 
 const router = Router();
 const service = new AxiosCheerioService();
+
+// Track service start time for uptime
+const serviceStartTime = Date.now();
 
 // Start a new extraction
 router.post('/start', async (req, res) => {
@@ -108,6 +112,41 @@ router.get('/recent', async (req, res) => {
     console.error('[Axios+Cheerio Routes] Recent dumps error:', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     res.status(500).json({ error: 'Failed to get recent dumps', details: errorMessage });
+  }
+});
+
+// Health check endpoint
+router.get('/health', async (req, res) => {
+  try {
+    // Check database connectivity
+    let databaseStatus = 'healthy';
+    try {
+      await service.getRecentDumps(1);
+    } catch (dbError) {
+      databaseStatus = 'unhealthy';
+    }
+    
+    const uptime = Math.floor((Date.now() - serviceStartTime) / 1000);
+    
+    res.json({
+      service: AXIOS_CHEERIO_CONFIG.serviceName,
+      status: databaseStatus === 'healthy' ? 'healthy' : 'degraded',
+      version: AXIOS_CHEERIO_CONFIG.version,
+      timestamp: new Date().toISOString(),
+      uptime,
+      checks: {
+        database: databaseStatus
+      }
+    });
+  } catch (error) {
+    console.error('[Axios+Cheerio Routes] Health check error:', error);
+    res.status(503).json({
+      service: AXIOS_CHEERIO_CONFIG.serviceName,
+      status: 'unhealthy',
+      version: AXIOS_CHEERIO_CONFIG.version,
+      timestamp: new Date().toISOString(),
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
