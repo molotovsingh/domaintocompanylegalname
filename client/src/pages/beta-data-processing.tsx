@@ -164,8 +164,8 @@ export default function BetaDataProcessingPage() {
                               {methodName}
                             </span>
                             {dump.hasBeenCleaned && (
-                              <span className="ml-2 text-xs text-muted-foreground">
-                                ✓ Cleaned with: {dump.cleanedWith?.join(', ')}
+                              <span className="ml-2 text-xs text-green-600">
+                                ✓ Previously processed with: {dump.cleanedWith?.join(', ')}
                               </span>
                             )}
                           </Label>
@@ -224,7 +224,7 @@ export default function BetaDataProcessingPage() {
         </Card>
 
         {/* Process Button */}
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center gap-2">
           <Button
             size="lg"
             onClick={handleProcess}
@@ -239,6 +239,12 @@ export default function BetaDataProcessingPage() {
               'Process Data'
             )}
           </Button>
+          
+          {selectedDump && dumps.find(d => `${d.type}:${d.id}` === selectedDump)?.hasBeenCleaned && (
+            <p className="text-sm text-amber-600 text-center">
+              ⚠️ This data has been processed before. Re-processing will update the existing results.
+            </p>
+          )}
         </div>
 
         {/* Results */}

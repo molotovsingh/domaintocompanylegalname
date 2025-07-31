@@ -337,29 +337,65 @@ export class CleaningService {
     modelName: string,
     result: CleaningResult
   ): Promise<{ id: number }> {
-    const query = `
-      INSERT INTO cleaned_data (
-        source_type, source_id, model_name, model_provider,
-        cleaned_data, processing_time_ms, token_count,
-        cost_estimate, confidence_score
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      RETURNING id
+    // First check if this combination already exists
+    const checkQuery = `
+      SELECT id FROM cleaned_data 
+      WHERE source_type = $1 AND source_id = $2 AND model_name = $3
     `;
+    
+    const existingResult = await executeBetaV2Query(checkQuery, [sourceType, sourceId, modelName]);
+    
+    if (existingResult.rows.length > 0) {
+      console.log(`[CleaningService] Result already exists for ${sourceType}:${sourceId} with ${modelName}, updating...`);
+      
+      // Update existing record
+      const updateQuery = `
+        UPDATE cleaned_data 
+        SET cleaned_data = $1, processing_time_ms = $2, token_count = $3,
+            cost_estimate = $4, confidence_score = $5, created_at = NOW()
+        WHERE source_type = $6 AND source_id = $7 AND model_name = $8
+        RETURNING id
+      `;
+      
+      const updateValues = [
+        result.extractedData,
+        result.metadata.processingTimeMs,
+        result.metadata.tokenCount,
+        result.metadata.costEstimate,
+        result.metadata.confidenceScore,
+        sourceType,
+        sourceId,
+        modelName
+      ];
+      
+      const dbResult = await executeBetaV2Query(updateQuery, updateValues);
+      return { id: dbResult.rows[0].id };
+    } else {
+      // Insert new record
+      const insertQuery = `
+        INSERT INTO cleaned_data (
+          source_type, source_id, model_name, model_provider,
+          cleaned_data, processing_time_ms, token_count,
+          cost_estimate, confidence_score
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING id
+      `;
 
-    const values = [
-      sourceType,
-      sourceId,
-      modelName,
-      result.metadata.provider,
-      result.extractedData,
-      result.metadata.processingTimeMs,
-      result.metadata.tokenCount,
-      result.metadata.costEstimate,
-      result.metadata.confidenceScore
-    ];
+      const insertValues = [
+        sourceType,
+        sourceId,
+        modelName,
+        result.metadata.provider,
+        result.extractedData,
+        result.metadata.processingTimeMs,
+        result.metadata.tokenCount,
+        result.metadata.costEstimate,
+        result.metadata.confidenceScore
+      ];
 
-    const dbResult = await executeBetaV2Query(query, values);
-    return { id: dbResult.rows[0].id };
+      const dbResult = await executeBetaV2Query(insertQuery, insertValues);
+      return { id: dbResult.rows[0].id };
+    }
   }
 
   /**
