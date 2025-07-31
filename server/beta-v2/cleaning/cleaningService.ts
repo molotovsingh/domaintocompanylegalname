@@ -151,7 +151,7 @@ export class CleaningService {
       switch (sourceType) {
         case 'crawlee_dump':
           query = `
-            SELECT id, domain, pages_data as content, created_at
+            SELECT id, domain, dump_data as content, created_at
             FROM crawlee_dumps
             WHERE id = $1 AND status = 'completed'
           `;
@@ -188,18 +188,29 @@ export class CleaningService {
       // Extract text content based on source type
       let textContent = '';
       
-      if (sourceType === 'crawlee_dump' && row.content?.cleanedPages) {
-        // Use cleaned pages if available
-        textContent = row.content.cleanedPages.map((p: any) => p.cleanedText).join('\n\n');
+      if (sourceType === 'crawlee_dump' && row.content?.pages) {
+        // For crawlee dumps, extract text from each page
+        textContent = row.content.pages.map((page: any) => {
+          // Use cleaned text if available, otherwise extract from HTML
+          if (page.text) {
+            return page.text;
+          } else if (page.html) {
+            // Simple HTML text extraction - remove tags
+            return page.html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+          }
+          return '';
+        }).filter((text: string) => text.length > 0).join('\n\n');
       } else if (sourceType === 'scrapy_crawl' && row.content?.pages) {
         // Extract text from scrapy pages
         textContent = row.content.pages.map((p: any) => p.extracted_data?.text || '').join('\n\n');
       } else if (sourceType === 'playwright_dump' && row.content?.textContent) {
         // Use text content from playwright
         textContent = row.content.textContent;
-      } else {
-        // Fallback to stringifying the content
-        textContent = JSON.stringify(row.content);
+      }
+      
+      // If no text content extracted, provide structured data as fallback
+      if (!textContent || textContent.length < 100) {
+        textContent = JSON.stringify(row.content, null, 2);
       }
 
       return {

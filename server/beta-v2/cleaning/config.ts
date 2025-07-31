@@ -83,7 +83,7 @@ export const CLEANING_SERVICE_CONFIG = {
   enablePaidModels: process.env.ENABLE_PAID_MODELS === 'true',
   
   // OpenRouter API key
-  openRouterApiKey: process.env.OPENROUTER_API_KEY || '',
+  openRouterApiKey: process.env.openrouter || '',
   
   // Rate limiting
   rateLimiting: {

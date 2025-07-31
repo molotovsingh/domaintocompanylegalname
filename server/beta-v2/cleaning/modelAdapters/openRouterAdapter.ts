@@ -56,13 +56,19 @@ export class OpenRouterAdapter extends BaseModelAdapter {
       );
 
       // Parse the response
-      const content = response.data.choices[0].message.content;
+      let content = response.data.choices[0].message.content;
       let extractedData: ExtractedData;
       
       try {
+        // Strip markdown code blocks if present
+        const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          content = jsonMatch[1].trim();
+        }
+        
         extractedData = JSON.parse(content);
       } catch (parseError) {
-        console.error('Failed to parse LLM response:', content);
+        console.error('Failed to parse LLM response as JSON:', content);
         extractedData = this.extractBasicInfo(rawData);
       }
 
