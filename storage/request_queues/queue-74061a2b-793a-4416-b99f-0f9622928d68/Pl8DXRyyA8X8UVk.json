@@ -1,0 +1,9 @@
+{
+	"id": "Pl8DXRyyA8X8UVk",
+	"json": "{\"id\":\"Pl8DXRyyA8X8UVk\",\"url\":\"https://deepseek.com\",\"loadedUrl\":\"https://www.deepseek.com/\",\"uniqueKey\":\"https://deepseek.com\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2025-07-31T19:52:48.990Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://deepseek.com",
+	"url": "https://deepseek.com"
+}

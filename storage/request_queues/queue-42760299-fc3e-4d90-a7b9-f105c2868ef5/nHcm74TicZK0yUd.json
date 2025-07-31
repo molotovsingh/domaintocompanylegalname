@@ -1,0 +1,9 @@
+{
+	"id": "nHcm74TicZK0yUd",
+	"json": "{\"id\":\"nHcm74TicZK0yUd\",\"url\":\"https://wikipedia.com\",\"loadedUrl\":\"https://www.wikipedia.org/\",\"uniqueKey\":\"https://wikipedia.com\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2025-07-31T19:50:53.942Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://wikipedia.com",
+	"url": "https://wikipedia.com"
+}

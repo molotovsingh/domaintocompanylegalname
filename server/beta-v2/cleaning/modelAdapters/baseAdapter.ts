@@ -48,6 +48,8 @@ export abstract class BaseModelAdapter {
   protected getDefaultSystemPrompt(): string {
     return `You are a data extraction specialist. Extract company and business information from the provided text.
     
+    IMPORTANT: Always respond in English, regardless of the source language.
+    
     Return a JSON object with the following structure:
     {
       "companyName": "Official company name",

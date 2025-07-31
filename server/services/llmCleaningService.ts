@@ -29,6 +29,9 @@ export class LLMCleaningService {
 
   async cleanDump(request: CleaningRequest): Promise<CleanedData | null> {
     const systemPrompt = `You are a web scraping data cleaning assistant. Extract and structure the following information from the provided text:
+
+IMPORTANT: Always respond in English, regardless of the source language.
+
 1. Company legal name (with suffix like Inc, Ltd, S.A.)
 2. All physical addresses found
 3. Phone numbers with country codes
