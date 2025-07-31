@@ -586,6 +586,13 @@ export class CrawleeDumpService {
     
     const processingTimeMs = Date.now() - startTime;
     
+    // Clean pages with LLM service  
+    console.log('[Crawlee] Starting LLM cleaning for', pages.length, 'pages (Playwright)');
+    const cleaningStartTime = Date.now();
+    const cleanedPages = await this.cleanPages(pages);
+    const totalCleaningTimeMs = Date.now() - cleaningStartTime;
+    console.log('[Crawlee] LLM cleaning completed in', totalCleaningTimeMs, 'ms');
+    
     const dumpData: CrawleeDumpData = {
       pages,
       requests,
@@ -600,7 +607,9 @@ export class CrawleeDumpService {
         totalSizeBytes,
         timeTakenMs: processingTimeMs,
         errors
-      }
+      },
+      cleanedPages,
+      totalCleaningTimeMs
     };
     
     await this.storage.updateDumpData(dumpId, dumpData, processingTimeMs);
@@ -632,22 +641,22 @@ export class CrawleeDumpService {
         batch.map(async (page) => {
           try {
             const startTime = Date.now();
-            const result = await this.cleaningService.cleanHtml({
-              url: page.url,
-              html: page.html,
-              extractedText: page.text
-            });
+            // Use the two-stage pipeline for optimal cleaning
+            const cleanedData = await this.cleaningService.cleanWithPipeline(
+              page.html, 
+              new URL(page.url).hostname
+            );
             
-            if (result.success && result.cleanedData) {
+            if (cleanedData) {
               return {
                 url: page.url,
-                companyName: result.cleanedData.companyName,
-                addresses: result.cleanedData.addresses || [],
-                phones: result.cleanedData.phones || [],
-                emails: result.cleanedData.emails || [],
-                currencies: result.cleanedData.currencies || [],
-                footerLegal: result.cleanedData.footerLegal,
-                keyText: result.cleanedData.keyText,
+                companyName: cleanedData.companyName,
+                addresses: cleanedData.addresses || [],
+                phones: cleanedData.phones || [],
+                emails: cleanedData.emails || [],
+                currencies: cleanedData.currencies || [],
+                footerLegal: cleanedData.footerLegal,
+                keyText: cleanedData.keyText,
                 links: {
                   internal: page.links?.filter(link => link.type === 'internal').map(link => link.url) || [],
                   external: page.links?.filter(link => link.type === 'external').map(link => link.url) || []

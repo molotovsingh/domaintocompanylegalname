@@ -52,6 +52,13 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **LLM CLEANING INTEGRATION COMPLETE**: Successfully integrated free Llama 3.1 8B cleaning pipeline into Crawlee dump service with automatic processing of all crawled pages (July 31, 2025)
+  - **Two-Stage Pipeline Implemented**: Traditional HTML stripping (instant) → LLM enhancement (free with Llama 3.1 8B)
+  - **Batch Processing**: Pages cleaned in batches of 5 to avoid API overload with parallel processing
+  - **UI Enhancement**: Added tabbed view showing both raw dumps and cleaned data with extraction visualization
+  - **Performance Metrics**: Cleaning time tracked per page and total cleaning time displayed in stats
+  - **Test Endpoint Added**: `/api/beta/crawlee-dump/test-cleaning` for independent LLM cleaning testing
+  - **Automatic Integration**: All crawled pages automatically cleaned with LLM during dump processing
 - **LLM CLEANING IMPLEMENTATION PLAN CREATED**: Designed simple two-step cleaning pipeline using free Llama 3.1 8B model via OpenRouter for Beta V2 - confirmed API key exists in vault and configuration panel available at /openrouter-settings (July 30, 2025)
 - **BETA V2 METHODS COMPARISON AND LEARNINGS DOCUMENTED**: Comprehensive analysis of all three implemented collection methods with performance insights and architectural recommendations (July 30, 2025)
   - **Crawlee Dump**: Most stable method - 189KB HTML capture on apple.com, 122 links discovered, structured data extraction working perfectly after state isolation fix

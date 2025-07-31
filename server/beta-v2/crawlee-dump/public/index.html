@@ -454,6 +454,9 @@
                 const pageCount = dump.dumpData.pages?.length || 0;
                 const requestCount = dump.dumpData.requests?.length || 0;
                 
+                const cleanedPagesCount = dump.dumpData.cleanedPages?.length || 0;
+                const cleaningTimeMs = dump.dumpData.totalCleaningTimeMs || 0;
+                
                 statsHtml = `
                     <div class="stat-item">
                         <span class="stat-label">Pages</span>
@@ -473,6 +476,16 @@
                         <span class="stat-label">Duration</span>
                         <span class="stat-value">${formatDuration(stats.timeTakenMs || 0)}</span>
                     </div>
+                    ${cleanedPagesCount > 0 ? `
+                        <div class="stat-item">
+                            <span class="stat-label">LLM Cleaned</span>
+                            <span class="stat-value">${cleanedPagesCount} pages</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Cleaning Time</span>
+                            <span class="stat-value">${formatDuration(cleaningTimeMs)}</span>
+                        </div>
+                    ` : ''}
                 `;
             }
 
@@ -559,8 +572,64 @@
                 } else {
                     const viewer = document.createElement('div');
                     viewer.className = 'data-viewer';
-                    viewer.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    viewer.style.padding = '15px';
+                    viewer.style.marginTop = '15px';
+                    viewer.style.background = '#f8f9fa';
+                    viewer.style.borderRadius = '5px';
+                    
+                    // Create tabs for different data views
+                    let viewerHtml = `
+                        <div class="data-tabs" style="margin-bottom: 10px;">
+                            <button class="tab-btn" style="padding: 8px 16px; margin-right: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px;" onclick="showDataTab(${id}, 'raw')" id="tab-btn-raw-${id}">Raw Data</button>
+                            ${data.cleanedPages ? `<button class="tab-btn" style="padding: 8px 16px; border: 1px solid #ddd; background: #e9ecef; cursor: pointer; border-radius: 4px;" onclick="showDataTab(${id}, 'cleaned')" id="tab-btn-cleaned-${id}">Cleaned Data</button>` : ''}
+                        </div>
+                        <div id="tab-content-raw-${id}" class="tab-content" style="display: block;">
+                            <pre style="max-height: 400px; overflow: auto;">${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                    
+                    if (data.cleanedPages && data.cleanedPages.length > 0) {
+                        viewerHtml += `
+                            <div id="tab-content-cleaned-${id}" class="tab-content" style="display: none;">
+                                <h3 style="margin-top: 0;">LLM Cleaned Data (${data.cleanedPages.length} pages)</h3>
+                                <div style="max-height: 400px; overflow-y: auto;">
+                                    ${data.cleanedPages.map((page, idx) => `
+                                        <div style="margin-bottom: 20px; padding: 15px; background: #fff; border: 1px solid #e9ecef; border-radius: 5px;">
+                                            <h4 style="margin: 0 0 10px 0; color: #333;">Page ${idx + 1}: ${page.url}</h4>
+                                            ${page.companyName ? `<p style="margin: 5px 0;"><strong>Company:</strong> ${page.companyName}</p>` : ''}
+                                            ${page.addresses && page.addresses.length > 0 ? `<p style="margin: 5px 0;"><strong>Addresses:</strong><br/>${page.addresses.join('<br/>')}</p>` : ''}
+                                            ${page.phones && page.phones.length > 0 ? `<p style="margin: 5px 0;"><strong>Phones:</strong> ${page.phones.join(', ')}</p>` : ''}
+                                            ${page.emails && page.emails.length > 0 ? `<p style="margin: 5px 0;"><strong>Emails:</strong> ${page.emails.join(', ')}</p>` : ''}
+                                            ${page.currencies && page.currencies.length > 0 ? `<p style="margin: 5px 0;"><strong>Currencies:</strong> ${page.currencies.join(', ')}</p>` : ''}
+                                            ${page.footerLegal ? `<p style="margin: 5px 0;"><strong>Footer Legal:</strong> ${page.footerLegal}</p>` : ''}
+                                            ${page.keyText ? `<p style="margin: 5px 0;"><strong>Key Text:</strong> ${page.keyText.substring(0, 200)}...</p>` : ''}
+                                            <p style="margin: 5px 0 0 0;"><small style="color: #666;">Cleaning time: ${formatDuration(page.cleaningTimeMs || 0)}</small></p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    viewer.innerHTML = viewerHtml;
                     card.appendChild(viewer);
+                    
+                    // Add tab switching function to window
+                    window.showDataTab = function(dumpId, tab) {
+                        // Hide all tabs
+                        document.getElementById(`tab-content-raw-${dumpId}`).style.display = 'none';
+                        const cleanedTab = document.getElementById(`tab-content-cleaned-${dumpId}`);
+                        if (cleanedTab) cleanedTab.style.display = 'none';
+                        
+                        // Reset all buttons
+                        document.getElementById(`tab-btn-raw-${dumpId}`).style.background = '#e9ecef';
+                        const cleanedBtn = document.getElementById(`tab-btn-cleaned-${dumpId}`);
+                        if (cleanedBtn) cleanedBtn.style.background = '#e9ecef';
+                        
+                        // Show selected tab
+                        document.getElementById(`tab-content-${tab}-${dumpId}`).style.display = 'block';
+                        document.getElementById(`tab-btn-${tab}-${dumpId}`).style.background = '#fff';
+                    };
                 }
                 
             } catch (error) {

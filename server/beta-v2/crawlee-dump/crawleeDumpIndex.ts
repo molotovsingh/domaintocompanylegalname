@@ -104,6 +104,44 @@ router.delete('/dump/:id', async (req, res) => {
   }
 });
 
+// Test LLM cleaning
+router.post('/test-cleaning', async (req, res) => {
+  try {
+    const { html, domain } = req.body;
+    
+    if (!html || !domain) {
+      return res.status(400).json({ error: 'HTML and domain are required' });
+    }
+    
+    // Import and use the LLM cleaning service
+    const { llmCleaningService } = await import('../../services/llmCleaningService');
+    
+    console.log('[Crawlee] Testing LLM cleaning for domain:', domain);
+    const startTime = Date.now();
+    
+    const cleanedData = await llmCleaningService.cleanWithPipeline(html, domain);
+    const cleaningTimeMs = Date.now() - startTime;
+    
+    if (cleanedData) {
+      res.json({
+        success: true,
+        cleanedData,
+        cleaningTimeMs
+      });
+    } else {
+      res.json({
+        success: false,
+        error: 'Failed to clean data',
+        cleaningTimeMs
+      });
+    }
+  } catch (error) {
+    console.error('[Crawlee] Test cleaning error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    res.status(500).json({ error: 'Failed to test cleaning', details: errorMessage });
+  }
+});
+
 // Serve UI
 router.get('/', (req, res) => {
   try {
