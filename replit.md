@@ -52,6 +52,11 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
+- **SEPARATE CLEANING STAGE ARCHITECTURE DESIGNED**: Created architectural plan for on-demand cleaning stage that can be applied to ANY collection method output - enables mix-and-match combinations like Scrapy+DeepSeek, Playwright+Llama, with A/B testing capabilities and cost optimization through selective model usage (July 31, 2025)
+  - **Maximum Flexibility**: Mix any collection method (Crawlee/Scrapy/Playwright) with any LLM model
+  - **A/B Testing**: Compare same raw data with different models to find optimal combinations
+  - **Async Processing**: Collect now, clean later - batch process or reprocess with better models
+  - **Maintains Federated Architecture**: Keeps collection services pure, separation of concerns intact
 - **OPENROUTER SMOKE TEST FIX IMPLEMENTED**: Fixed misleading smoke test that was testing paid models while actual implementation uses free models - smoke test now correctly validates the exact models we use in production (July 31, 2025)
   - **Root Cause Identified**: Smoke test was checking paid models (openai/gpt-3.5-turbo, anthropic/claude-3-haiku) but implementation uses free models with `:free` suffix
   - **Models Updated**: Changed smoke test to validate deepseek/deepseek-chat-v3-0324:free, meta-llama/llama-3-8b-instruct:free, mistralai/mixtral-8x7b-instruct:free
