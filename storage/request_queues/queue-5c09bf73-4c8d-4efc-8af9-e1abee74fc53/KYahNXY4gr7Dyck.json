@@ -1,0 +1,9 @@
+{
+	"id": "KYahNXY4gr7Dyck",
+	"json": "{\"id\":\"KYahNXY4gr7Dyck\",\"url\":\"https://sakana.ai/company-info/\",\"loadedUrl\":\"https://sakana.ai/company-info/\",\"uniqueKey\":\"https://sakana.ai/company-info\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2025-07-31T19:32:40.790Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://sakana.ai/company-info",
+	"url": "https://sakana.ai/company-info/"
+}

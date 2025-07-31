@@ -1,0 +1,9 @@
+{
+	"id": "HiOnSMoqR6L4i5Y",
+	"json": "{\"id\":\"HiOnSMoqR6L4i5Y\",\"url\":\"https://sakana.ai/ai-scientist\",\"loadedUrl\":\"https://sakana.ai/ai-scientist/\",\"uniqueKey\":\"https://sakana.ai/ai-scientist\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2025-07-31T19:32:42.044Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://sakana.ai/ai-scientist",
+	"url": "https://sakana.ai/ai-scientist"
+}

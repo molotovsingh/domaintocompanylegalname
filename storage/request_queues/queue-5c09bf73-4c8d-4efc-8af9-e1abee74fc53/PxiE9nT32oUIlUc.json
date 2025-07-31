@@ -1,0 +1,9 @@
+{
+	"id": "PxiE9nT32oUIlUc",
+	"json": "{\"id\":\"PxiE9nT32oUIlUc\",\"url\":\"https://sakana.ai/\",\"loadedUrl\":\"https://sakana.ai/\",\"uniqueKey\":\"https://sakana.ai\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2025-07-31T19:32:41.880Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://sakana.ai",
+	"url": "https://sakana.ai/"
+}
