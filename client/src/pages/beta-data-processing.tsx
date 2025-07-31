@@ -11,7 +11,7 @@ import { toast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
 
 interface AvailableDump {
-  type: 'crawlee_dump' | 'scrapy_crawl' | 'playwright_dump';
+  type: 'crawlee_dump' | 'scrapy_crawl' | 'playwright_dump' | 'axios_cheerio_dump';
   id: number;
   domain: string;
   pages?: number;
@@ -149,7 +149,8 @@ export default function BetaDataProcessingPage() {
                     const methodName = {
                       'crawlee_dump': 'Crawlee',
                       'scrapy_crawl': 'Scrapy',
-                      'playwright_dump': 'Playwright'
+                      'playwright_dump': 'Playwright',
+                      'axios_cheerio_dump': 'Axios+Cheerio'
                     }[dump.type];
 
                     return (
