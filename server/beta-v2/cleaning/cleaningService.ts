@@ -60,6 +60,8 @@ export class CleaningService {
     const dumps: AvailableDump[] = [];
 
     try {
+      console.log('[CleaningService] Fetching available dumps from all collection methods...');
+      
       // Get Crawlee dumps
       const crawleeResult = await executeBetaV2Query(`
         SELECT id, domain, created_at, 
@@ -70,6 +72,8 @@ export class CleaningService {
         ORDER BY created_at DESC
         LIMIT 20
       `);
+
+      console.log(`[CleaningService] Found ${crawleeResult.rows.length} Crawlee dumps`);
 
       for (const row of crawleeResult.rows) {
         const cleanedResults = await this.getCleanedModels(row.id, 'crawlee_dump');
@@ -85,9 +89,9 @@ export class CleaningService {
         });
       }
 
-      // Get Scrapy crawls
+      // Get Scrapy crawls - include both 'completed' and 'success' status
       const scrapyResult = await executeBetaV2Query(`
-        SELECT id, domain, created_at,
+        SELECT id, domain, created_at, status,
                CASE 
                  WHEN raw_data ? 'pages' THEN jsonb_array_length(raw_data->'pages')
                  WHEN raw_data ? 'siteMap' THEN jsonb_array_length(raw_data->'siteMap')
@@ -95,10 +99,12 @@ export class CleaningService {
                END as pages,
                pg_size_pretty(length(raw_data::text)::bigint) as size
         FROM scrapy_crawls
-        WHERE status = 'completed'
+        WHERE status IN ('completed', 'success') AND raw_data IS NOT NULL
         ORDER BY created_at DESC
         LIMIT 20
       `);
+
+      console.log(`[CleaningService] Found ${scrapyResult.rows.length} Scrapy crawls`);
 
       for (const row of scrapyResult.rows) {
         const cleanedResults = await this.getCleanedModels(row.id, 'scrapy_crawl');
@@ -114,15 +120,17 @@ export class CleaningService {
         });
       }
 
-      // Get Playwright dumps
+      // Get Playwright dumps - include both 'completed' and 'success' status
       const playwrightResult = await executeBetaV2Query(`
-        SELECT id, domain, created_at,
+        SELECT id, domain, created_at, status,
                pg_size_pretty(length(raw_data::text)::bigint) as size
         FROM playwright_dumps
-        WHERE status = 'completed'
+        WHERE status IN ('completed', 'success') AND raw_data IS NOT NULL
         ORDER BY created_at DESC
         LIMIT 20
       `);
+
+      console.log(`[CleaningService] Found ${playwrightResult.rows.length} Playwright dumps`);
 
       for (const row of playwrightResult.rows) {
         const cleanedResults = await this.getCleanedModels(row.id, 'playwright_dump');
@@ -138,6 +146,8 @@ export class CleaningService {
         });
       }
 
+      console.log(`[CleaningService] Total dumps found: ${dumps.length} (Crawlee: ${dumps.filter(d => d.type === 'crawlee_dump').length}, Scrapy: ${dumps.filter(d => d.type === 'scrapy_crawl').length}, Playwright: ${dumps.filter(d => d.type === 'playwright_dump').length})`);
+      
       return dumps;
     } catch (error) {
       console.error('[CleaningService] Error getting available dumps:', error);
