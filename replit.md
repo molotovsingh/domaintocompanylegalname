@@ -52,8 +52,13 @@ A production-scale domain intelligence platform that transforms web domains into
 - **Cross-batch Intelligence**: PostgreSQL persistence with duplicate detection and session analytics
 
 ## Recent Changes
-- **LLM CLEANING INTEGRATION COMPLETE**: Successfully integrated free Llama 3.1 8B cleaning pipeline into Crawlee dump service with automatic processing of all crawled pages (July 31, 2025)
-  - **Two-Stage Pipeline Implemented**: Traditional HTML stripping (instant) → LLM enhancement (free with Llama 3.1 8B)
+- **OPENROUTER SMOKE TEST FIX IMPLEMENTED**: Fixed misleading smoke test that was testing paid models while actual implementation uses free models - smoke test now correctly validates the exact models we use in production (July 31, 2025)
+  - **Root Cause Identified**: Smoke test was checking paid models (openai/gpt-3.5-turbo, anthropic/claude-3-haiku) but implementation uses free models with `:free` suffix
+  - **Models Updated**: Changed smoke test to validate deepseek/deepseek-chat-v3-0324:free, meta-llama/llama-3-8b-instruct:free, mistralai/mixtral-8x7b-instruct:free
+  - **Production Model**: DeepSeek Chat (deepseek/deepseek-chat-v3-0324:free) confirmed as most reliable free model for LLM cleaning
+  - **Llama Models Deprecated**: Meta Llama free models no longer available on OpenRouter, switched to DeepSeek as primary
+- **LLM CLEANING INTEGRATION COMPLETE**: Successfully integrated free DeepSeek cleaning pipeline into Crawlee dump service with automatic processing of all crawled pages (July 31, 2025)
+  - **Two-Stage Pipeline Implemented**: Traditional HTML stripping (instant) → LLM enhancement (free with DeepSeek)
   - **Batch Processing**: Pages cleaned in batches of 5 to avoid API overload with parallel processing
   - **UI Enhancement**: Added tabbed view showing both raw dumps and cleaned data with extraction visualization
   - **Performance Metrics**: Cleaning time tracked per page and total cleaning time displayed in stats

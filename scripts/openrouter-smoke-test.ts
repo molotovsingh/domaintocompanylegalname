@@ -51,13 +51,13 @@ async function testListModels() {
     const models = response.data.data;
     log(`✅ Found ${models.length} available models`, 'success');
     
-    // Show some popular models
+    // Show FREE models that we actually use
     const popularModels = [
-      'openai/gpt-3.5-turbo',
-      'openai/gpt-4',
-      'anthropic/claude-3-haiku',
-      'anthropic/claude-3-sonnet',
-      'meta-llama/llama-3-8b-instruct'
+      'deepseek/deepseek-chat-v3-0324:free',
+      'meta-llama/llama-3-8b-instruct:free',
+      'mistralai/mixtral-8x7b-instruct:free',
+      'meta-llama/llama-3.3-70b-instruct:free',
+      'google/gemini-2.0-flash-exp:free'
     ];
     
     log('\nPopular models available:', 'info');
@@ -84,7 +84,7 @@ async function testChatCompletion() {
   log('\n=== Test 3: Simple Chat Completion ===', 'info');
   
   try {
-    const model = 'openai/gpt-3.5-turbo';
+    const model = 'deepseek/deepseek-chat-v3-0324:free';
     const messages = [
       {
         role: 'system',
@@ -142,7 +142,7 @@ async function testEntityExtraction() {
   };
   
   try {
-    const model = 'anthropic/claude-3-haiku'; // Good balance of speed and quality
+    const model = 'deepseek/deepseek-chat-v3-0324:free'; // Free model we actually use
     const messages = [
       {
         role: 'system',
@@ -218,9 +218,9 @@ async function testModelComparison() {
   log('\n=== Test 5: Model Comparison for Entity Extraction ===', 'info');
   
   const models = [
-    'openai/gpt-3.5-turbo',
-    'anthropic/claude-3-haiku',
-    'meta-llama/llama-3-8b-instruct'
+    'deepseek/deepseek-chat-v3-0324:free',
+    'meta-llama/llama-3-8b-instruct:free',
+    'mistralai/mixtral-8x7b-instruct:free'
   ];
   
   const testData = {
