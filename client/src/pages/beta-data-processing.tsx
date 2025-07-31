@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { Link } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
 
@@ -105,6 +106,11 @@ export default function BetaDataProcessingPage() {
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
+      <Link href="/beta-testing-v2" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
+        <ArrowLeft className="h-4 w-4" />
+        Back to Beta Testing V2
+      </Link>
+      
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Data Processing</h1>
         <p className="text-muted-foreground">
