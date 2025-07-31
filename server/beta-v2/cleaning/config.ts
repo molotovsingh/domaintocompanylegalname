@@ -12,6 +12,7 @@ export interface ModelConfig {
 }
 
 export const CLEANING_MODELS: Record<string, ModelConfig> = {
+  // DeepSeek Models
   'deepseek-chat': {
     modelId: 'deepseek/deepseek-chat',
     provider: 'openrouter',
@@ -21,6 +22,55 @@ export const CLEANING_MODELS: Record<string, ModelConfig> = {
     temperature: 0.3,
     enabled: true
   },
+  'deepseek-v3': {
+    modelId: 'deepseek/deepseek-chat-v3-0324:free',
+    provider: 'openrouter',
+    isFree: true,
+    costPer1kTokens: 0,
+    maxTokens: 4000,
+    temperature: 0.3,
+    enabled: true
+  },
+  'deepseek-r1': {
+    modelId: 'deepseek/deepseek-r1:free',
+    provider: 'openrouter',
+    isFree: true,
+    costPer1kTokens: 0,
+    maxTokens: 4000,
+    temperature: 0.3,
+    enabled: true
+  },
+  
+  // Qwen Models
+  'qwen-2.5': {
+    modelId: 'qwen/qwen-2.5-72b-instruct:free',
+    provider: 'openrouter',
+    isFree: true,
+    costPer1kTokens: 0,
+    maxTokens: 4000,
+    temperature: 0.3,
+    enabled: true
+  },
+  'qwen3-coder': {
+    modelId: 'qwen/qwen3-coder:free',
+    provider: 'openrouter',
+    isFree: true,
+    costPer1kTokens: 0,
+    maxTokens: 4000,
+    temperature: 0.3,
+    enabled: true
+  },
+  'qwen3-14b': {
+    modelId: 'qwen/qwen3-14b:free',
+    provider: 'openrouter',
+    isFree: true,
+    costPer1kTokens: 0,
+    maxTokens: 4000,
+    temperature: 0.3,
+    enabled: true
+  },
+  
+  // Meta Models
   'llama-3-8b': {
     modelId: 'meta-llama/llama-3-8b-instruct:free',
     provider: 'openrouter',
@@ -30,6 +80,8 @@ export const CLEANING_MODELS: Record<string, ModelConfig> = {
     temperature: 0.3,
     enabled: true
   },
+  
+  // Mistral Models
   'mixtral-8x7b': {
     modelId: 'mistralai/mixtral-8x7b-instruct:free',
     provider: 'openrouter',
@@ -39,8 +91,19 @@ export const CLEANING_MODELS: Record<string, ModelConfig> = {
     temperature: 0.3,
     enabled: true
   },
-  'qwen-2.5': {
-    modelId: 'qwen/qwen-2.5-72b-instruct:free',
+  'mistral-nemo': {
+    modelId: 'mistralai/mistral-nemo:free',
+    provider: 'openrouter',
+    isFree: true,
+    costPer1kTokens: 0,
+    maxTokens: 4000,
+    temperature: 0.3,
+    enabled: true
+  },
+  
+  // Google Models
+  'gemini-2-flash': {
+    modelId: 'google/gemini-2.0-flash-exp:free',
     provider: 'openrouter',
     isFree: true,
     costPer1kTokens: 0,
