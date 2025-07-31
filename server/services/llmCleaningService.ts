@@ -87,15 +87,18 @@ Return as JSON in this exact format:
 
       // Parse JSON response
       try {
+        // First try to extract JSON from markdown code blocks
+        const jsonMatch = response.content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[1].trim());
+          return parsed as CleanedData;
+        }
+        
+        // Otherwise parse directly
         const parsed = JSON.parse(response.content);
         return parsed as CleanedData;
       } catch (parseError) {
         console.error('Failed to parse LLM response as JSON:', response.content);
-        // Attempt to extract JSON from markdown code blocks
-        const jsonMatch = response.content.match(/```json?\n?([\s\S]*?)\n?```/);
-        if (jsonMatch) {
-          return JSON.parse(jsonMatch[1]) as CleanedData;
-        }
         return null;
       }
       
