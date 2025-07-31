@@ -100,8 +100,8 @@ export default function BetaDataProcessingPage() {
     });
   };
 
-  const dumps = dumpsData?.dumps || [];
-  const models = modelsData?.models || [];
+  const dumps = (dumpsData as any)?.dumps || [];
+  const models = (modelsData as any)?.models || [];
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
