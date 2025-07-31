@@ -88,7 +88,11 @@ export class CleaningService {
       // Get Scrapy crawls
       const scrapyResult = await executeBetaV2Query(`
         SELECT id, domain, created_at,
-               jsonb_array_length(raw_data->'pages') as pages,
+               CASE 
+                 WHEN raw_data ? 'pages' THEN jsonb_array_length(raw_data->'pages')
+                 WHEN raw_data ? 'siteMap' THEN jsonb_array_length(raw_data->'siteMap')
+                 ELSE 1
+               END as pages,
                pg_size_pretty(length(raw_data::text)::bigint) as size
         FROM scrapy_crawls
         WHERE status = 'completed'
@@ -102,7 +106,7 @@ export class CleaningService {
           type: 'scrapy_crawl',
           id: row.id,
           domain: row.domain,
-          pages: row.pages_crawled || 1,
+          pages: row.pages || 1,
           size: row.size,
           collectedAt: row.created_at,
           hasBeenCleaned: cleanedResults.length > 0,
@@ -159,7 +163,7 @@ export class CleaningService {
           
         case 'scrapy_crawl':
           query = `
-            SELECT id, domain, crawl_data as content, created_at
+            SELECT id, domain, raw_data as content, created_at
             FROM scrapy_crawls
             WHERE id = $1 AND status = 'completed'
           `;
@@ -200,9 +204,29 @@ export class CleaningService {
           }
           return '';
         }).filter((text: string) => text.length > 0).join('\n\n');
-      } else if (sourceType === 'scrapy_crawl' && row.content?.pages) {
-        // Extract text from scrapy pages
-        textContent = row.content.pages.map((p: any) => p.extracted_data?.text || '').join('\n\n');
+      } else if (sourceType === 'scrapy_crawl') {
+        // Handle both old and new scrapy data formats
+        if (row.content?.pages) {
+          // New format with pages array
+          textContent = row.content.pages.map((page: any) => {
+            // Check for text in various locations
+            if (page.text) return page.text;
+            if (page.extracted_data?.text) return page.extracted_data.text;
+            if (page.html) {
+              // Extract text from HTML
+              return page.html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            }
+            return '';
+          }).filter((text: string) => text.length > 0).join('\n\n');
+        } else if (row.content?.siteMap) {
+          // Old format - extract what we can
+          textContent = JSON.stringify({
+            domain: row.domain,
+            siteMap: row.content.siteMap,
+            entities: row.content.entities || [],
+            geographicPresence: row.content.geographicPresence || []
+          }, null, 2);
+        }
       } else if (sourceType === 'playwright_dump' && row.content?.textContent) {
         // Use text content from playwright
         textContent = row.content.textContent;
