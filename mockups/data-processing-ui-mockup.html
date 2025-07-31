@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beta V2 Data Processing - UI Mockup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            color: #4A00E0;
+            margin-bottom: 10px;
+        }
+        
+        /* Tab Navigation */
+        .tabs {
+            display: flex;
+            gap: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 30px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .tab:hover {
+            color: #4A00E0;
+        }
+        
+        .tab.active {
+            color: #4A00E0;
+            border-bottom-color: #4A00E0;
+        }
+        
+        /* Main Content */
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* Step Sections */
+        .step {
+            margin-bottom: 30px;
+        }
+        
+        .step-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #4A00E0;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+        }
+        
+        /* Data Selection */
+        .data-selection {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 20px;
+        }
+        
+        .data-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .data-item:hover {
+            border-color: #4A00E0;
+            background: #f8f0ff;
+        }
+        
+        .data-item.selected {
+            border-color: #4A00E0;
+            background: #f8f0ff;
+        }
+        
+        .data-item input[type="radio"] {
+            margin-right: 15px;
+        }
+        
+        .data-info {
+            flex: 1;
+        }
+        
+        .data-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .data-meta {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .method-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .method-badge.scrapy {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        .method-badge.playwright {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        /* Model Selection */
+        .model-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        
+        .model-select:focus {
+            outline: none;
+            border-color: #4A00E0;
+        }
+        
+        .compare-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .compare-checkbox input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        /* Process Button */
+        .process-btn {
+            background: #4A00E0;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .process-btn:hover {
+            background: #3d00b8;
+        }
+        
+        .process-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        /* Results Section */
+        .results {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .result-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .result-meta {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .result-meta-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .result-meta-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .result-data {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 20px;
+        }
+        
+        .extracted-item {
+            margin-bottom: 15px;
+        }
+        
+        .extracted-label {
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .extracted-value {
+            font-size: 16px;
+        }
+        
+        /* Model Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .model-name {
+            font-weight: 600;
+            color: #4A00E0;
+        }
+        
+        .processing-time {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* Status Messages */
+        .status {
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status.info {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ddd;
+            border-top-color: #4A00E0;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Beta Testing Platform V2</h1>
+            <p>Federated web scraping and data processing</p>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab">Collection Methods</div>
+            <div class="tab active">Data Processing</div>
+            <div class="tab">Results Archive</div>
+        </div>
+        
+        <div class="content">
+            <!-- Step 1: Select Raw Data -->
+            <div class="step">
+                <h2 class="step-header">
+                    <span class="step-number">1</span>
+                    Select Raw Data to Process
+                </h2>
+                <div class="data-selection">
+                    <div class="data-item selected">
+                        <input type="radio" name="data" checked>
+                        <div class="data-info">
+                            <div class="data-title">
+                                apple.com
+                                <span class="method-badge">Crawlee</span>
+                            </div>
+                            <div class="data-meta">
+                                5 pages • 245 KB • Collected 2 hours ago
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="data-item">
+                        <input type="radio" name="data">
+                        <div class="data-info">
+                            <div class="data-title">
+                                nike.com
+                                <span class="method-badge scrapy">Scrapy</span>
+                            </div>
+                            <div class="data-meta">
+                                50 pages • 2.3 MB • Collected 5 hours ago
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="data-item">
+                        <input type="radio" name="data">
+                        <div class="data-info">
+                            <div class="data-title">
+                                tesla.com
+                                <span class="method-badge playwright">Playwright</span>
+                            </div>
+                            <div class="data-meta">
+                                1 page • 156 KB • Collected 1 day ago
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 2: Select Model -->
+            <div class="step">
+                <h2 class="step-header">
+                    <span class="step-number">2</span>
+                    Select Processing Model
+                </h2>
+                <select class="model-select">
+                    <option value="deepseek">DeepSeek Chat (Free) - Recommended</option>
+                    <option value="llama">Llama 3 8B (Free)</option>
+                    <option value="mixtral">Mixtral 8x7B (Free)</option>
+                    <option value="qwen">Qwen 2.5 (Free)</option>
+                    <option value="gpt3.5">GPT-3.5 Turbo ($0.002/1K tokens)</option>
+                    <option value="claude">Claude 3 Haiku ($0.25/1M tokens)</option>
+                </select>
+                
+                <div class="compare-checkbox">
+                    <input type="checkbox" id="compare">
+                    <label for="compare">Compare multiple models (process with 3 models simultaneously)</label>
+                </div>
+            </div>
+            
+            <button class="process-btn">Process Data</button>
+            
+            <!-- Results Section -->
+            <div class="results">
+                <h3 class="result-header">Processing Results</h3>
+                
+                <!-- Processing Status -->
+                <div class="status info">
+                    <div class="spinner"></div>
+                    Processing apple.com with DeepSeek Chat...
+                </div>
+                
+                <!-- Single Model Result -->
+                <div class="result-meta">
+                    <div class="result-meta-item">
+                        <span>Source:</span>
+                        <strong>apple.com (Crawlee dump)</strong>
+                    </div>
+                    <div class="result-meta-item">
+                        <span>Model:</span>
+                        <strong>DeepSeek Chat</strong>
+                    </div>
+                    <div class="result-meta-item">
+                        <span>Processing Time:</span>
+                        <strong>3.2 seconds</strong>
+                    </div>
+                </div>
+                
+                <div class="result-data">
+                    <div class="extracted-item">
+                        <div class="extracted-label">Company Name</div>
+                        <div class="extracted-value">Apple Inc.</div>
+                    </div>
+                    <div class="extracted-item">
+                        <div class="extracted-label">Addresses</div>
+                        <div class="extracted-value">One Apple Park Way, Cupertino, CA 95014</div>
+                    </div>
+                    <div class="extracted-item">
+                        <div class="extracted-label">Phone Numbers</div>
+                        <div class="extracted-value">+1-800-MY-APPLE (800-692-7753)</div>
+                    </div>
+                    <div class="extracted-item">
+                        <div class="extracted-label">Emails</div>
+                        <div class="extracted-value">accessibility@apple.com, investor_relations@apple.com</div>
+                    </div>
+                    <div class="extracted-item">
+                        <div class="extracted-label">Currencies</div>
+                        <div class="extracted-value">USD, EUR, GBP, JPY</div>
+                    </div>
+                </div>
+                
+                <!-- Model Comparison Result (shown when compare is checked) -->
+                <h3 class="result-header" style="margin-top: 40px;">Model Comparison</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>DeepSeek Chat</th>
+                            <th>Llama 3 8B</th>
+                            <th>Mixtral 8x7B</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Company Name</strong></td>
+                            <td class="model-name">Apple Inc.</td>
+                            <td class="model-name">Apple Inc.</td>
+                            <td class="model-name">Apple</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Location</strong></td>
+                            <td>Cupertino, CA 95014</td>
+                            <td>California, USA</td>
+                            <td>USA</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phone</strong></td>
+                            <td>+1-800-692-7753</td>
+                            <td>800-MY-APPLE</td>
+                            <td>+1-800-692-7753</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Processing Time</strong></td>
+                            <td class="processing-time">3.2s</td>
+                            <td class="processing-time">2.8s</td>
+                            <td class="processing-time">4.1s</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Simple interactivity for the mockup
+        document.querySelectorAll('.data-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.data-item').forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+                this.querySelector('input[type="radio"]').checked = true;
+            });
+        });
+        
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
