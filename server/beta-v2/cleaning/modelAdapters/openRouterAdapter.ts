@@ -136,9 +136,15 @@ export class OpenRouterAdapter extends BaseModelAdapter {
   private getDisplayName(): string {
     const displayNames: Record<string, string> = {
       'deepseek-chat': 'DeepSeek Chat (Free)',
+      'deepseek-v3': 'DeepSeek V3 (Free)',
+      'deepseek-r1': 'DeepSeek R1 Reasoning (Free)',
       'llama-3-8b': 'Llama 3 8B (Free)',
       'mixtral-8x7b': 'Mixtral 8x7B (Free)',
-      'qwen-2.5': 'Qwen 2.5 (Free)',
+      'qwen-2.5': 'Qwen 2.5 72B (Free)',
+      'qwen3-coder': 'Qwen3 Coder (Free)',
+      'qwen3-14b': 'Qwen3 14B (Free)',
+      'mistral-nemo': 'Mistral Nemo (Free)',
+      'gemini-2-flash': 'Gemini 2.0 Flash (Free)',
       'gpt-3.5-turbo': 'GPT-3.5 Turbo',
       'claude-3-haiku': 'Claude 3 Haiku'
     };
@@ -148,9 +154,15 @@ export class OpenRouterAdapter extends BaseModelAdapter {
   private getModelDescription(): string {
     const descriptions: Record<string, string> = {
       'deepseek-chat': 'Fast and reliable free model, recommended for most extractions',
+      'deepseek-v3': 'Latest DeepSeek V3 with 238B tokens, powerful and accurate',
+      'deepseek-r1': 'Advanced reasoning model similar to OpenAI o1, best for complex analysis',
       'llama-3-8b': 'Open source model with good accuracy',
       'mixtral-8x7b': 'Mixture of experts model with strong performance',
       'qwen-2.5': 'Latest Qwen model with improved extraction capabilities',
+      'qwen3-coder': 'Optimized for code and technical content, 159B tokens',
+      'qwen3-14b': 'Efficient 14.8B parameter model, good balance of speed and quality',
+      'mistral-nemo': '12B multilingual model, excellent for international domains',
+      'gemini-2-flash': 'Google\'s fastest experimental model, great for quick processing',
       'gpt-3.5-turbo': 'OpenAI model with consistent quality ($0.002/1K tokens)',
       'claude-3-haiku': 'Anthropic model with excellent accuracy ($0.25/1M tokens)'
     };
