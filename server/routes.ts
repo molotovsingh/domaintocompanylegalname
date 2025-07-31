@@ -1161,6 +1161,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/axios-cheerio-ui', async (req, res) => {
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).send('Beta server is not running. Please wait a moment and refresh.');
+    }
+
+    try {
+      const response = await axios.get('http://localhost:3001/api/beta/axios-cheerio', {
+        headers: { 'Accept': 'text/html' }
+      });
+      res.send(response.data);
+    } catch (error: any) {
+      console.error('Axios+Cheerio UI proxy error:', error.message);
+      res.status(503).send('Failed to load Axios+Cheerio Dump UI. Please try again.');
+    }
+  });
+
   // Beta v2 API proxy routes for federated services
   app.all('/api/beta/scrapy-crawl/api/*', async (req, res) => {
     const isRunning = await checkBetaServerStatus();
@@ -1235,6 +1252,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(response.data);
     } catch (error: any) {
       console.error('Crawlee API proxy error:', error.message);
+      res.status(error.response?.status || 500).json({ 
+        error: error.message || 'Proxy error' 
+      });
+    }
+  });
+
+  // Axios+Cheerio dump API proxy routes
+  app.all('/api/beta/axios-cheerio/*', async (req, res) => {
+    const isRunning = await checkBetaServerStatus();
+    if (!isRunning) {
+      return res.status(503).json({ error: 'Beta server is not running' });
+    }
+
+    try {
+      const fullPath = req.path.replace('/api/beta/', '');
+      const response = await axios({
+        method: req.method,
+        url: `http://localhost:3001/api/beta/${fullPath}`,
+        data: req.body,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 30000 // 30 seconds for extraction
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      console.error('Axios+Cheerio API proxy error:', error.message);
       res.status(error.response?.status || 500).json({ 
         error: error.message || 'Proxy error' 
       });

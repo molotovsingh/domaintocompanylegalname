@@ -150,3 +150,47 @@ export async function updateScrapyCrawlStatus(
     [status, data ? JSON.stringify(data) : null, processingTime, errorMessage || null, id]
   );
 }
+
+// Create axios_cheerio_dumps table
+export async function initAxiosCheerioTable() {
+  try {
+    await betaV2Db.execute(sql`
+      CREATE TABLE IF NOT EXISTS axios_cheerio_dumps (
+        id SERIAL PRIMARY KEY,
+        domain TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'pending',
+        company_name TEXT,
+        extraction_method TEXT,
+        confidence_score INTEGER,
+        http_status INTEGER,
+        response_time_ms INTEGER,
+        html_size_bytes INTEGER,
+        processing_time_ms INTEGER,
+        raw_html TEXT,
+        headers JSONB,
+        meta_tags JSONB,
+        extraction_results JSONB,
+        page_metadata JSONB,
+        error_message TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        completed_at TIMESTAMP
+      )
+    `);
+    
+    // Create indexes
+    await betaV2Db.execute(sql`
+      CREATE INDEX IF NOT EXISTS idx_axios_cheerio_dumps_domain ON axios_cheerio_dumps(domain)
+    `);
+    await betaV2Db.execute(sql`
+      CREATE INDEX IF NOT EXISTS idx_axios_cheerio_dumps_status ON axios_cheerio_dumps(status)
+    `);
+    await betaV2Db.execute(sql`
+      CREATE INDEX IF NOT EXISTS idx_axios_cheerio_dumps_created_at ON axios_cheerio_dumps(created_at DESC)
+    `);
+    
+    console.log('[Beta v2] Axios+Cheerio dumps table initialized');
+  } catch (error) {
+    console.error('[Beta v2] Axios+Cheerio table initialization error:', error);
+    // Continue anyway - table might already exist
+  }
+}

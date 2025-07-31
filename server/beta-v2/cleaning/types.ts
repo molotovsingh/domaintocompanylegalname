@@ -1,7 +1,7 @@
 // Types for Beta V2 Cleaning Service
 
 export interface CleaningRequest {
-  sourceType: 'crawlee_dump' | 'scrapy_crawl' | 'playwright_dump';
+  sourceType: 'crawlee_dump' | 'scrapy_crawl' | 'playwright_dump' | 'axios_cheerio_dump';
   sourceId: number;
   modelName: string;
   compareModels?: string[]; // For A/B testing multiple models
@@ -61,7 +61,7 @@ export interface RawDumpData {
 }
 
 export interface AvailableDump {
-  type: 'crawlee_dump' | 'scrapy_crawl' | 'playwright_dump';
+  type: 'crawlee_dump' | 'scrapy_crawl' | 'playwright_dump' | 'axios_cheerio_dump';
   id: number;
   domain: string;
   pages?: number;

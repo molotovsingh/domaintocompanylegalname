@@ -25,6 +25,13 @@ export default function BetaTestingV2() {
       description: 'Advanced Node.js crawler with network capture and intelligent link discovery',
       path: '/crawlee-dump-ui',
       status: 'available'
+    },
+    {
+      id: 'axios-cheerio',
+      name: 'Axios + Cheerio',
+      description: 'Lightning-fast extraction for static websites (100-500ms)',
+      path: '/axios-cheerio-ui',
+      status: 'available'
     }
   ];
 

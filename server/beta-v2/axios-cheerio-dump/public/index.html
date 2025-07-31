@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axios + Cheerio Dump - Beta Testing V2</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f9fafb;
+    }
+    
+    .header {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
+    }
+    
+    .header h1 {
+      margin: 0 0 8px 0;
+      color: #1f2937;
+      font-size: 24px;
+    }
+    
+    .header p {
+      margin: 0;
+      color: #6b7280;
+    }
+    
+    .method-badge {
+      display: inline-block;
+      background: #ec4899;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 12px;
+    }
+    
+    .input-section {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 500;
+      color: #374151;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    .config-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .config-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .config-option input[type="checkbox"] {
+      width: auto;
+    }
+    
+    .config-option input[type="number"] {
+      width: 100px;
+    }
+    
+    button {
+      background: #ec4899;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    button:hover {
+      background: #db2777;
+    }
+    
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    
+    .results-section {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .result-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .result-domain {
+      font-weight: 600;
+      color: #1f2937;
+    }
+    
+    .result-status {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .status-processing {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .status-completed {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status-failed {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .result-details {
+      display: grid;
+      gap: 8px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+    
+    .result-actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+    }
+    
+    .result-actions button {
+      padding: 4px 12px;
+      font-size: 12px;
+    }
+    
+    .extracted-info {
+      background: #f3f4f6;
+      padding: 12px;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+    
+    .extracted-info h4 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      color: #374151;
+    }
+    
+    .info-grid {
+      display: grid;
+      gap: 4px;
+      font-size: 13px;
+    }
+    
+    .info-item {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .info-label {
+      font-weight: 500;
+      color: #4b5563;
+      min-width: 120px;
+    }
+    
+    .info-value {
+      color: #1f2937;
+    }
+    
+    .confidence-high {
+      color: #059669;
+      font-weight: 600;
+    }
+    
+    .confidence-medium {
+      color: #d97706;
+      font-weight: 600;
+    }
+    
+    .confidence-low {
+      color: #dc2626;
+      font-weight: 600;
+    }
+    
+    .error-message {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #ec4899;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>
+      Axios + Cheerio Dump
+      <span class="method-badge">Ultra-Fast Static</span>
+    </h1>
+    <p>Lightning-fast extraction for static websites (100-500ms). No JavaScript execution.</p>
+  </div>
+  
+  <div class="input-section">
+    <h3>Extract Company Information</h3>
+    
+    <div class="form-group">
+      <label for="domain">Domain</label>
+      <input 
+        type="text" 
+        id="domain" 
+        placeholder="Enter domain (e.g., apple.com)"
+        onkeypress="if(event.key === 'Enter') startExtraction()"
+      >
+    </div>
+    
+    <div class="config-options">
+      <div class="config-option">
+        <label>
+          <input type="checkbox" id="followRedirects" checked>
+          Follow redirects
+        </label>
+      </div>
+      <div class="config-option">
+        <label for="timeout">Timeout (ms):</label>
+        <input type="number" id="timeout" value="10000" min="1000" max="30000" step="1000">
+      </div>
+    </div>
+    
+    <button onclick="startExtraction()" id="extractBtn">
+      Start Extraction
+    </button>
+  </div>
+  
+  <div class="results-section">
+    <h3>Extraction Results</h3>
+    <div id="results"></div>
+  </div>
+  
+  <script>
+    let activePolls = new Map();
+    
+    async function startExtraction() {
+      const domain = document.getElementById('domain').value.trim();
+      if (!domain) {
+        alert('Please enter a domain');
+        return;
+      }
+      
+      const button = document.getElementById('extractBtn');
+      button.disabled = true;
+      button.innerHTML = 'Starting... <span class="loading"></span>';
+      
+      const config = {
+        followRedirects: document.getElementById('followRedirects').checked,
+        timeout: parseInt(document.getElementById('timeout').value)
+      };
+      
+      try {
+        const response = await fetch('/api/beta/axios-cheerio/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain, config })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to start extraction');
+        }
+        
+        addResult(data.dumpId, domain);
+        startPolling(data.dumpId);
+        
+        document.getElementById('domain').value = '';
+      } catch (error) {
+        alert('Error: ' + error.message);
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Start Extraction';
+      }
+    }
+    
+    function addResult(dumpId, domain) {
+      const resultsDiv = document.getElementById('results');
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'result-item';
+      resultDiv.id = `result-${dumpId}`;
+      resultDiv.innerHTML = `
+        <div class="result-header">
+          <span class="result-domain">${domain}</span>
+          <span class="result-status status-pending">pending</span>
+        </div>
+        <div class="result-details">
+          <div>Starting extraction...</div>
+        </div>
+      `;
+      resultsDiv.insertBefore(resultDiv, resultsDiv.firstChild);
+    }
+    
+    async function startPolling(dumpId) {
+      // Clear any existing poll for this dump
+      if (activePolls.has(dumpId)) {
+        clearInterval(activePolls.get(dumpId));
+      }
+      
+      const pollInterval = setInterval(async () => {
+        try {
+          const response = await fetch(`/api/beta/axios-cheerio/status/${dumpId}`);
+          const status = await response.json();
+          
+          updateResult(dumpId, status);
+          
+          if (status.status === 'completed' || status.status === 'failed') {
+            clearInterval(pollInterval);
+            activePolls.delete(dumpId);
+            
+            if (status.status === 'completed') {
+              // Fetch full results
+              const resultsResponse = await fetch(`/api/beta/axios-cheerio/results/${dumpId}`);
+              const results = await resultsResponse.json();
+              showFullResults(dumpId, results);
+            }
+          }
+        } catch (error) {
+          console.error('Polling error:', error);
+        }
+      }, 1000);
+      
+      activePolls.set(dumpId, pollInterval);
+    }
+    
+    function updateResult(dumpId, status) {
+      const resultDiv = document.getElementById(`result-${dumpId}`);
+      if (!resultDiv) return;
+      
+      const statusSpan = resultDiv.querySelector('.result-status');
+      statusSpan.className = `result-status status-${status.status}`;
+      statusSpan.textContent = status.status;
+      
+      const detailsDiv = resultDiv.querySelector('.result-details');
+      
+      if (status.status === 'processing') {
+        detailsDiv.innerHTML = '<div>Extracting company information...</div>';
+      } else if (status.status === 'failed') {
+        detailsDiv.innerHTML = `<div class="error-message">Error: ${status.error}</div>`;
+      }
+    }
+    
+    function showFullResults(dumpId, results) {
+      const resultDiv = document.getElementById(`result-${dumpId}`);
+      if (!resultDiv) return;
+      
+      const detailsDiv = resultDiv.querySelector('.result-details');
+      
+      const confidenceClass = results.confidence >= 80 ? 'confidence-high' : 
+                            results.confidence >= 60 ? 'confidence-medium' : 
+                            'confidence-low';
+      
+      detailsDiv.innerHTML = `
+        <div class="extracted-info">
+          <h4>Extracted Information</h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Company Name:</span>
+              <span class="info-value">${results.companyName || 'Not found'}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Confidence:</span>
+              <span class="info-value ${confidenceClass}">${results.confidence}%</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Extraction Method:</span>
+              <span class="info-value">${results.extractionMethod || 'N/A'}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">HTTP Status:</span>
+              <span class="info-value">${results.httpStatus}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Response Time:</span>
+              <span class="info-value">${results.responseTimeMs}ms</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">HTML Size:</span>
+              <span class="info-value">${(results.htmlSizeBytes / 1024).toFixed(1)} KB</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Processing Time:</span>
+              <span class="info-value">${results.processingTimeMs}ms</span>
+            </div>
+          </div>
+        </div>
+        <div class="result-actions">
+          <button onclick="viewDetails(${dumpId})">View Details</button>
+          <button onclick="downloadHTML(${dumpId})">Download HTML</button>
+        </div>
+      `;
+    }
+    
+    async function viewDetails(dumpId) {
+      try {
+        const response = await fetch(`/api/beta/axios-cheerio/results/${dumpId}`);
+        const results = await response.json();
+        
+        console.log('Full results:', results);
+        alert('Check console for full extraction details including meta tags, headers, and alternative candidates.');
+      } catch (error) {
+        alert('Error fetching details: ' + error.message);
+      }
+    }
+    
+    async function downloadHTML(dumpId) {
+      window.location.href = `/api/beta/axios-cheerio/download/${dumpId}`;
+    }
+    
+    // Load recent dumps on page load
+    async function loadRecentDumps() {
+      try {
+        const response = await fetch('/api/beta/axios-cheerio/recent');
+        const data = await response.json();
+        
+        data.dumps.forEach(dump => {
+          addResult(dump.id, dump.domain);
+          updateResult(dump.id, dump);
+          
+          if (dump.status === 'completed') {
+            // Fetch and show full results
+            fetch(`/api/beta/axios-cheerio/results/${dump.id}`)
+              .then(res => res.json())
+              .then(results => showFullResults(dump.id, results))
+              .catch(console.error);
+          }
+        });
+      } catch (error) {
+        console.error('Error loading recent dumps:', error);
+      }
+    }
+    
+    // Load recent dumps when page loads
+    loadRecentDumps();
+  </script>
+</body>
+</html>

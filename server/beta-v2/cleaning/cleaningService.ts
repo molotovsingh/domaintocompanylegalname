@@ -146,7 +146,36 @@ export class CleaningService {
         });
       }
 
-      console.log(`[CleaningService] Total dumps found: ${dumps.length} (Crawlee: ${dumps.filter(d => d.type === 'crawlee_dump').length}, Scrapy: ${dumps.filter(d => d.type === 'scrapy_crawl').length}, Playwright: ${dumps.filter(d => d.type === 'playwright_dump').length})`);
+      // Get Axios+Cheerio dumps
+      const axiosCheerioResult = await executeBetaV2Query(`
+        SELECT id, domain, created_at, 
+               html_size_bytes,
+               pg_size_pretty(html_size_bytes::bigint) as size,
+               company_name,
+               confidence_score
+        FROM axios_cheerio_dumps
+        WHERE status = 'completed'
+        ORDER BY created_at DESC
+        LIMIT 20
+      `);
+
+      console.log(`[CleaningService] Found ${axiosCheerioResult.rows.length} Axios+Cheerio dumps`);
+
+      for (const row of axiosCheerioResult.rows) {
+        const cleanedResults = await this.getCleanedModels(row.id, 'axios_cheerio_dump');
+        dumps.push({
+          type: 'axios_cheerio_dump',
+          id: row.id,
+          domain: row.domain,
+          pages: 1, // Axios+Cheerio captures single page
+          size: row.size,
+          collectedAt: row.created_at,
+          hasBeenCleaned: cleanedResults.length > 0,
+          cleanedWith: cleanedResults
+        });
+      }
+
+      console.log(`[CleaningService] Total dumps found: ${dumps.length} (Crawlee: ${dumps.filter(d => d.type === 'crawlee_dump').length}, Scrapy: ${dumps.filter(d => d.type === 'scrapy_crawl').length}, Playwright: ${dumps.filter(d => d.type === 'playwright_dump').length}, Axios+Cheerio: ${dumps.filter(d => d.type === 'axios_cheerio_dump').length})`);
       
       return dumps;
     } catch (error) {
@@ -183,6 +212,14 @@ export class CleaningService {
           query = `
             SELECT id, domain, raw_data as content, created_at
             FROM playwright_dumps
+            WHERE id = $1 AND status = 'completed'
+          `;
+          break;
+          
+        case 'axios_cheerio_dump':
+          query = `
+            SELECT id, domain, raw_html as content, created_at
+            FROM axios_cheerio_dumps
             WHERE id = $1 AND status = 'completed'
           `;
           break;
@@ -240,6 +277,12 @@ export class CleaningService {
       } else if (sourceType === 'playwright_dump' && row.content?.textContent) {
         // Use text content from playwright
         textContent = row.content.textContent;
+      } else if (sourceType === 'axios_cheerio_dump') {
+        // For axios+cheerio, the content is already raw HTML
+        if (typeof row.content === 'string') {
+          // Extract text from HTML
+          textContent = row.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+        }
       }
       
       // If no text content extracted, provide structured data as fallback
