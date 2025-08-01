@@ -62,12 +62,15 @@ export function BetaV2GleifSearch() {
       }
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['gleif-searches'] });
-      toast({
-        title: "Search completed",
-        description: "GLEIF search has been executed successfully"
-      });
+    onSuccess: (data) => {
+      if (data.searchId) {
+        setSelectedSearchId(data.searchId);
+        queryClient.invalidateQueries({ queryKey: ['gleif-searches'] });
+        toast({
+          title: "Search completed",
+          description: `Found ${data.totalMatches || 0} matching entities`
+        });
+      }
     },
     onError: (error: Error) => {
       toast({
