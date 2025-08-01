@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'wouter';
-import { ArrowLeft, Database, Cpu } from 'lucide-react';
+import { ArrowLeft, Database, Cpu, Shield } from 'lucide-react';
 
 export default function BetaTestingV2() {
   const [, setLocation] = useLocation();
@@ -31,6 +31,13 @@ export default function BetaTestingV2() {
       name: 'Axios + Cheerio',
       description: 'Lightning-fast extraction for static websites (100-500ms)',
       path: '/axios-cheerio-ui',
+      status: 'available'
+    },
+    {
+      id: 'gleif-search',
+      name: 'GLEIF Search',
+      description: 'Search Global Legal Entity Identifier database for verified company information',
+      path: '/beta-v2/gleif-search',
       status: 'available'
     }
   ];
@@ -74,12 +81,18 @@ export default function BetaTestingV2() {
                   `}
                 >
                   <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium">{method.name}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {method.description}
-                      </p>
-
+                    <div className="flex items-center gap-3">
+                      {method.id === 'gleif-search' && (
+                        <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                          <Shield className="h-5 w-5" />
+                        </div>
+                      )}
+                      <div>
+                        <h3 className="font-medium">{method.name}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {method.description}
+                        </p>
+                      </div>
                     </div>
                     <div>
                       {method.status === 'available' ? (

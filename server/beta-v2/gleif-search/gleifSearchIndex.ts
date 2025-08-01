@@ -75,12 +75,12 @@ router.post('/search', async (req: Request, res: Response) => {
       // Get complete result
       const result = await gleifStorage.getSearchResult(searchId);
 
-      const response: GLEIFSearchResponse = {
+      // Return simplified response format for frontend
+      res.json({
         success: true,
-        data: result!
-      };
-
-      res.json(response);
+        searchId: searchId,
+        totalMatches: result?.candidates.length || 0
+      });
     } catch (searchError: any) {
       // Update search request with error
       await gleifStorage.updateSearchRequest(searchId, 'failed', searchError.message);
