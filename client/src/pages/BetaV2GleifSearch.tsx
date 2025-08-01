@@ -50,19 +50,31 @@ export function BetaV2GleifSearch() {
   // Search mutation
   const searchMutation = useMutation({
     mutationFn: async (data: { suspectedName: string; domain?: string }) => {
-      const response = await apiRequest('/api/beta/gleif-search/search', {
+      const response = await fetch('/api/beta/gleif-search/search', {
         method: 'POST',
-        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       });
-      const result = await response.json();
-      return result;
-    },
-    onSuccess: (data) => {
-      if (data.searchId) {
-        setSelectedSearchId(data.searchId);
-        queryClient.invalidateQueries({ queryKey: ['/api/beta/gleif-search/searches'] });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Search failed');
       }
+      return response.json();
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['gleif-searches'] });
+      toast({
+        title: "Search completed",
+        description: "GLEIF search has been executed successfully"
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Search failed", 
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   });
 
   // Get search result
@@ -79,15 +91,32 @@ export function BetaV2GleifSearch() {
     totalCandidates: number;
     createdAt: string;
   }>>({
-    queryKey: ['/api/beta/gleif-search/searches'],
+    queryKey: ['gleif-searches'],
+    queryFn: async () => {
+      const response = await fetch('/api/beta/gleif-search/searches');
+      if (!response.ok) throw new Error('Failed to fetch searches');
+      return response.json();
+    }
   });
 
-  const handleSearch = () => {
-    if (!suspectedName.trim()) return;
-    searchMutation.mutate({
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!suspectedName.trim()) {
+      toast({
+        title: "Invalid input",
+        description: "Please enter a company name to search",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const searchData = {
       suspectedName: suspectedName.trim(),
-      domain: domain.trim() || undefined,
-    });
+      ...(domain.trim() && { domain: domain.trim() })
+    };
+
+    searchMutation.mutate(searchData);
   };
 
   const getScoreBadgeColor = (score: number) => {
@@ -129,6 +158,7 @@ export function BetaV2GleifSearch() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <form onSubmit={handleSearch}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <Label htmlFor="suspectedName">Company Name *</Label>
@@ -137,7 +167,7 @@ export function BetaV2GleifSearch() {
                 placeholder="e.g., Apple, Microsoft, Google"
                 value={suspectedName}
                 onChange={(e) => setSuspectedName(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
               />
             </div>
             <div>
@@ -147,12 +177,12 @@ export function BetaV2GleifSearch() {
                 placeholder="e.g., apple.com"
                 value={domain}
                 onChange={(e) => setDomain(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
               />
             </div>
           </div>
           <Button 
-            onClick={handleSearch} 
+            type="submit"
             disabled={!suspectedName.trim() || searchMutation.isPending}
             className="w-full md:w-auto"
           >
@@ -168,6 +198,7 @@ export function BetaV2GleifSearch() {
               </>
             )}
           </Button>
+          </form>
 
           {searchMutation.error && (
             <Alert variant="destructive" className="mt-4">
