@@ -253,9 +253,17 @@ class ProcessingStorage {
   async getAxiosCheerioDumps(): Promise<any[]> {
     try {
       const result = await betaV2Db.execute(sql`
-        SELECT id, domain, status, dump_data, created_at 
+        SELECT id, domain, status, 
+               JSONB_BUILD_OBJECT(
+                 'html', raw_html,
+                 'headers', headers,
+                 'meta_tags', meta_tags,
+                 'extraction_strategies', extraction_strategies,
+                 'page_metadata', page_metadata
+               ) AS dump_data, 
+               created_at 
         FROM axios_cheerio_dumps 
-        WHERE status = 'completed' AND dump_data IS NOT NULL
+        WHERE status = 'completed' AND raw_html IS NOT NULL
         ORDER BY created_at DESC 
         LIMIT 20
       `);
