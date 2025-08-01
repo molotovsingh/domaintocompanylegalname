@@ -466,7 +466,7 @@ export class CleaningService {
 
     const result = await executeBetaV2Query(query, [sourceType, sourceId]);
     
-    return result.rows.map(row => ({
+    return result.rows.map((row: any) => ({
       id: row.id,
       extractedData: row.cleaned_data,
       metadata: {
@@ -491,7 +491,7 @@ export class CleaningService {
     `;
 
     const result = await executeBetaV2Query(query, [sourceType, sourceId]);
-    return result.rows.map(row => row.model_name);
+    return result.rows.map((row: any) => row.model_name);
   }
 
   /**
