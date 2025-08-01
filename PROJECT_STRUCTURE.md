@@ -46,6 +46,18 @@ This guide helps you navigate the Domain Intelligence Platform codebase and unde
 - Proof of concept implementations
 - Technical conventions and guides
 
+### `/Project-History` - Evolution Documentation
+- Original project specifications
+- Historical documents showing platform evolution
+- From simple scraper to intelligence platform
+- Philosophical shifts and key decisions
+
+### `/Critical Document` - Core Philosophy
+- Business problem statements
+- Domain-entity mapping philosophy
+- Claims-based framework
+- Strategic arbitration approaches
+
 ### `/logs` - Application Logs
 - Server logs
 - Beta server logs
