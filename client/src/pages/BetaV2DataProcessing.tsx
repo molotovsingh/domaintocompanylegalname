@@ -83,13 +83,11 @@ export default function BetaV2DataProcessingPage() {
   // Process dump mutation
   const processDumpMutation = useMutation({
     mutationFn: async (dump: AvailableDump) => {
-      return apiRequest('/api/beta/processing/process', {
-        method: 'POST',
-        body: {
-          sourceType: dump.sourceType,
-          sourceId: dump.id
-        }
+      const response = await apiRequest('POST', '/api/beta/processing/process', {
+        sourceType: dump.sourceType,
+        sourceId: dump.id
       });
+      return response.json();
     },
     onSuccess: (data) => {
       if (data.success) {
