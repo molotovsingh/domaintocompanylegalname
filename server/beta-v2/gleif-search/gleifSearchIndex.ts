@@ -8,6 +8,26 @@ const router = Router();
 const gleifService = new GLEIFSearchService();
 const gleifStorage = new GLEIFSearchStorage();
 
+// Root endpoint - show API info or redirect to UI
+router.get('/', (req: Request, res: Response) => {
+  // If accessed from browser, redirect to frontend UI
+  if (req.headers.accept && req.headers.accept.includes('text/html')) {
+    return res.redirect('/beta-v2/gleif-search');
+  }
+  
+  // Otherwise, return API info
+  res.json({
+    service: 'GLEIF Search',
+    endpoints: [
+      'POST /search - Search for GLEIF entities',
+      'GET /search/:id - Get search result by ID',
+      'GET /searches - List recent searches',
+      'DELETE /cleanup - Clean up old searches',
+      'GET /health - Health check'
+    ]
+  });
+});
+
 // Health check endpoint
 router.get('/health', (req: Request, res: Response) => {
   res.json({
