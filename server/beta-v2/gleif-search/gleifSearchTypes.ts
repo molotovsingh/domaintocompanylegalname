@@ -45,6 +45,28 @@ export interface GLEIFCandidate {
   nextRenewalDate?: string;
   managingLou?: string;
   
+  // Relationship data (NEW)
+  relationships?: {
+    ultimateParent?: {
+      leiCode: string;
+      legalName: string;
+      relationship: string;
+      status: string;
+    };
+    directParent?: {
+      leiCode: string;
+      legalName: string;
+      relationship: string;
+      status: string;
+    };
+    children?: Array<{
+      leiCode: string;
+      legalName: string;
+      relationship: string;
+      status: string;
+    }>;
+  };
+  
   // Algorithmic scores
   nameMatchScore?: number;
   fortune500Score?: number;
