@@ -128,7 +128,10 @@ export default function BetaV2DataProcessingPage() {
     switch (status) {
       case 'completed':
         return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'processing':
+      case 'stage1':
+      case 'stage2':
+      case 'stage3':
+      case 'stage4':
         return <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />;
       case 'failed':
         return <AlertCircle className="h-4 w-4 text-red-500" />;
@@ -338,31 +341,31 @@ export default function BetaV2DataProcessingPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            {getStatusIcon(result.status)}
-                            <span className="capitalize">{result.status}</span>
+                            {getStatusIcon(result.processingStatus)}
+                            <span className="capitalize">{result.processingStatus}</span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          {result.stage2Result?.entityName || 
-                           result.finalResult?.primaryLegalName || 
+                          {result.stage3EntityName || 
+                           result.stage4PrimaryLegalName || 
                            '-'}
                         </TableCell>
                         <TableCell className="font-mono text-xs">
-                          {result.finalResult?.primaryLei || '-'}
+                          {result.stage4PrimaryLei || '-'}
                         </TableCell>
                         <TableCell>
-                          {result.finalResult?.confidenceScore 
-                            ? `${result.finalResult.confidenceScore.toFixed(1)}%`
+                          {result.stage4ConfidenceScore 
+                            ? `${(Number(result.stage4ConfidenceScore) * 100).toFixed(1)}%`
                             : '-'}
                         </TableCell>
                         <TableCell>
-                          {result.processingTimeMs 
-                            ? formatProcessingTime(result.processingTimeMs)
+                          {result.totalProcessingTimeMs 
+                            ? formatProcessingTime(result.totalProcessingTimeMs)
                             : '-'}
                         </TableCell>
                         <TableCell>
-                          {result.completedAt 
-                            ? formatTimestamp(result.completedAt)
+                          {result.updatedAt 
+                            ? formatTimestamp(result.updatedAt)
                             : '-'}
                         </TableCell>
                       </TableRow>
