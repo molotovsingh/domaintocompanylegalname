@@ -2,25 +2,18 @@
 # Utility Scripts
 
 *Created: July 12, 2025 at 2:52 AM UTC*
+*Updated: August 1, 2025 - Testing scripts moved to HowTo folder*
 
-This folder contains standalone scripts for testing, debugging, and maintenance of the Domain Intelligence Platform.
+This folder contains standalone scripts for maintenance and operations of the Domain Intelligence Platform.
 
-## Testing Scripts
+## 📍 Note: Testing Scripts Moved
+All testing scripts have been relocated to the `/HowTo` folder for better organization. This includes:
+- GLEIF testing scripts
+- Extraction testing utilities
+- System integration tests
+- API testing scripts
 
-### **Extraction Testing**
-- **`test_geographic_extraction.js`** - Geographic domain extraction validation
-- **`extract_footer.js`** - Footer-based company name extraction testing
-- **`extract_exxon_footer.js`** - Specific case study for Exxon domain
-
-### **GLEIF Integration Testing**
-- **`test_gleif_connection.js`** - Basic GLEIF API connectivity
-- **`test_gleif_validation.js`** - Entity validation accuracy testing
-- **`test_gleif_debug.js`** - Detailed debugging for GLEIF issues
-- **`test_wildenstein_gleif.js`** - Specific case validation
-
-### **System Integration**
-- **`test_fastapi_integration.py`** - FastAPI analytics server testing
-- **`test-beta-server.js`** - Beta server functionality validation
+See `/HowTo/README.md` for complete testing documentation.
 
 ## Maintenance Scripts
 

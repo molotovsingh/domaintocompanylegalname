@@ -36,9 +36,15 @@ This guide helps you navigate the Domain Intelligence Platform codebase and unde
 - Validation data
 
 ### `/scripts` - Utility Scripts
-- Testing scripts
-- Extraction demos
-- GLEIF validation tools
+- Server management scripts
+- Batch recovery utilities
+- Navigation flow checks
+
+### `/HowTo` - Technical Guides & Testing
+- API documentation (GLEIF, Perplexity)
+- Testing scripts and validation tools
+- Proof of concept implementations
+- Technical conventions and guides
 
 ### `/logs` - Application Logs
 - Server logs
