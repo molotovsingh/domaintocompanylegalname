@@ -12,6 +12,7 @@ A production-scale domain intelligence platform transforming web domains into pr
 - Actionable business intelligence: Clear categorization for acquisition research (Good Target vs Skip vs Manual Review)
 - Independent validation approach: Perform comprehensive analysis to identify and fix parsing quality issues
 - Performance optimization priority: Early triage to save processing time on problematic domains
+- **Domain-to-Entity Mapping Philosophy**: Embrace 1-to-many mappings (1x4 or 1x5 entities per domain). Present multiple entity claims with evidence, let LLM arbitrator apply user bias. Truth is a range of entities with confidence scores, not a single answer. For larger companies, multiple valid entities exist (e.g., QIAGEN GmbH as operator AND QIAGEN N.V. as holding company are both correct)
 
 ## System Architecture
 The platform is built with a React frontend and an Express backend, both utilizing TypeScript. A federated microservice-like architecture is employed for collection methods, ensuring independence and scalability.
