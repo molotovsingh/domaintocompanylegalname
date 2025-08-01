@@ -204,7 +204,7 @@ export class CleaningService {
           query = `
             SELECT id, domain, raw_data as content, created_at
             FROM scrapy_crawls
-            WHERE id = $1 AND status = 'completed'
+            WHERE id = $1 AND status IN ('completed', 'success')
           `;
           break;
           
@@ -212,7 +212,7 @@ export class CleaningService {
           query = `
             SELECT id, domain, raw_data as content, created_at
             FROM playwright_dumps
-            WHERE id = $1 AND status = 'completed'
+            WHERE id = $1 AND status IN ('completed', 'success')
           `;
           break;
           
