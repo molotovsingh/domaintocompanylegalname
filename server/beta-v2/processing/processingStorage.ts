@@ -374,6 +374,33 @@ class ProcessingStorage {
       updatedAt: row.updated_at
     };
   }
+
+  /**
+   * Get GLEIF candidates for a search ID
+   */
+  async getGleifCandidates(searchId: number): Promise<any[]> {
+    try {
+      const results = await betaV2Db.execute(sql`
+        SELECT 
+          lei_code,
+          legal_name,
+          entity_status,
+          legal_form,
+          headquarters_city,
+          headquarters_country,
+          weighted_total_score,
+          selection_reason
+        FROM gleif_candidates_v2 
+        WHERE search_id = ${searchId}
+        ORDER BY weighted_total_score DESC
+      `);
+      
+      return results.rows;
+    } catch (error) {
+      console.error('[ProcessingStorage] Error getting GLEIF candidates:', error);
+      return [];
+    }
+  }
 }
 
 // Export singleton instance

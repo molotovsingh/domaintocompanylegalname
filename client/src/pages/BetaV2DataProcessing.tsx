@@ -5,7 +5,7 @@ import { queryClient } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, RefreshCw, PlayCircle, CheckCircle, Clock, AlertCircle, Database, Brain, Search } from 'lucide-react';
+import { ArrowLeft, RefreshCw, PlayCircle, CheckCircle, Clock, AlertCircle, Database, Brain, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import {
@@ -54,9 +54,22 @@ interface BetaServerStatus {
   status: 'ready' | 'starting' | 'stopped';
 }
 
+interface GLEIFCandidate {
+  lei_code: string;
+  legal_name: string;
+  entity_status: string;
+  legal_form: string;
+  headquarters_city: string;
+  headquarters_country: string;
+  weighted_total_score: number;
+  selection_reason: string;
+}
+
 export default function BetaV2DataProcessingPage() {
   const [selectedDump, setSelectedDump] = useState<AvailableDump | null>(null);
   const [activeTab, setActiveTab] = useState<string>('dumps');
+  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [candidatesData, setCandidatesData] = useState<Record<number, GLEIFCandidate[]>>({});
 
   // Check beta server status
   const { data: serverStatus } = useQuery<BetaServerStatus>({
@@ -147,6 +160,34 @@ export default function BetaV2DataProcessingPage() {
   const formatProcessingTime = (ms: number) => {
     if (ms < 1000) return `${ms}ms`;
     return `${(ms / 1000).toFixed(1)}s`;
+  };
+
+  const toggleCandidates = async (resultId: number) => {
+    const newExpanded = new Set(expandedRows);
+    
+    if (newExpanded.has(resultId)) {
+      newExpanded.delete(resultId);
+    } else {
+      newExpanded.add(resultId);
+      
+      // Fetch candidates if not already loaded
+      if (!candidatesData[resultId]) {
+        try {
+          const response = await apiRequest('GET', `/api/beta/processing/result/${resultId}/candidates`);
+          const data = await response.json();
+          if (data.success) {
+            setCandidatesData(prev => ({
+              ...prev,
+              [resultId]: data.data
+            }));
+          }
+        } catch (error) {
+          console.error('Failed to fetch candidates:', error);
+        }
+      }
+    }
+    
+    setExpandedRows(newExpanded);
   };
 
   if (serverStatus?.status !== 'ready') {
@@ -332,43 +373,93 @@ export default function BetaV2DataProcessingPage() {
                   </TableHeader>
                   <TableBody>
                     {results.map((result) => (
-                      <TableRow key={result.id}>
-                        <TableCell className="font-medium">{result.domain}</TableCell>
-                        <TableCell>
-                          <Badge className={getSourceTypeColor(result.sourceType)}>
-                            {result.sourceType.replace('_', ' ')}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {getStatusIcon(result.processingStatus)}
-                            <span className="capitalize">{result.processingStatus}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {result.stage3EntityName || 
-                           result.stage4PrimaryLegalName || 
-                           '-'}
-                        </TableCell>
-                        <TableCell className="font-mono text-xs">
-                          {result.stage4PrimaryLei || '-'}
-                        </TableCell>
-                        <TableCell>
-                          {result.stage4ConfidenceScore 
-                            ? `${(Number(result.stage4ConfidenceScore) * 100).toFixed(1)}%`
-                            : '-'}
-                        </TableCell>
-                        <TableCell>
-                          {result.totalProcessingTimeMs 
-                            ? formatProcessingTime(result.totalProcessingTimeMs)
-                            : '-'}
-                        </TableCell>
-                        <TableCell>
-                          {result.updatedAt 
-                            ? formatTimestamp(result.updatedAt)
-                            : '-'}
-                        </TableCell>
-                      </TableRow>
+                      <>
+                        <TableRow key={result.id}>
+                          <TableCell className="font-medium">{result.domain}</TableCell>
+                          <TableCell>
+                            <Badge className={getSourceTypeColor(result.sourceType)}>
+                              {result.sourceType.replace('_', ' ')}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {getStatusIcon(result.processingStatus)}
+                              <span className="capitalize">{result.processingStatus}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {result.stage3EntityName || 
+                               result.stage4PrimaryLegalName || 
+                               '-'}
+                              {result.stage4TotalCandidates > 0 && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => toggleCandidates(result.id)}
+                                  className="h-6 w-6 p-0"
+                                >
+                                  {expandedRows.has(result.id) ? (
+                                    <ChevronUp className="h-4 w-4" />
+                                  ) : (
+                                    <ChevronDown className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-mono text-xs">
+                            {result.stage4PrimaryLei || '-'}
+                          </TableCell>
+                          <TableCell>
+                            {result.stage4ConfidenceScore 
+                              ? `${(Number(result.stage4ConfidenceScore) * 100).toFixed(1)}%`
+                              : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {result.totalProcessingTimeMs 
+                              ? formatProcessingTime(result.totalProcessingTimeMs)
+                              : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {result.updatedAt 
+                              ? formatTimestamp(result.updatedAt)
+                              : '-'}
+                          </TableCell>
+                        </TableRow>
+                        {expandedRows.has(result.id) && candidatesData[result.id] && (
+                          <TableRow>
+                            <TableCell colSpan={8} className="p-0">
+                              <div className="bg-muted/50 p-4">
+                                <h4 className="text-sm font-semibold mb-3">All GLEIF Candidates ({candidatesData[result.id].length})</h4>
+                                <div className="space-y-2">
+                                  {candidatesData[result.id].map((candidate, idx) => (
+                                    <div key={candidate.lei_code} className="bg-background rounded-lg p-3 border">
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                          <p className="text-sm font-medium">{candidate.legal_name}</p>
+                                          <p className="text-xs text-muted-foreground">LEI: {candidate.lei_code}</p>
+                                        </div>
+                                        <div className="text-right">
+                                          <Badge variant="outline" className="mb-1">
+                                            Score: {(candidate.weighted_total_score * 100).toFixed(1)}%
+                                          </Badge>
+                                          <p className="text-xs text-muted-foreground">
+                                            {candidate.headquarters_city}, {candidate.headquarters_country}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      {candidate.selection_reason && (
+                                        <p className="text-xs text-muted-foreground mt-2">{candidate.selection_reason}</p>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </>
                     ))}
                   </TableBody>
                 </Table>

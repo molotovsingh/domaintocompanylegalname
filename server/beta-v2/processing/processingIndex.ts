@@ -157,4 +157,42 @@ router.get('/result/:id', async (req: Request, res: Response) => {
   }
 });
 
+// Get GLEIF candidates for a processing result
+router.get('/result/:id/candidates', async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id);
+    
+    if (isNaN(id)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid result ID'
+      });
+    }
+    
+    // First get the processing result to find the GLEIF search ID
+    const result = await processingStorage.getProcessingResult(id);
+    
+    if (!result || !result.stage4GleifSearchId) {
+      return res.json({
+        success: true,
+        data: []
+      });
+    }
+    
+    // Get the candidates for this GLEIF search
+    const candidates = await processingStorage.getGleifCandidates(result.stage4GleifSearchId);
+    
+    res.json({
+      success: true,
+      data: candidates
+    });
+  } catch (error: any) {
+    console.error('[Processing] Error fetching candidates:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch GLEIF candidates'
+    });
+  }
+});
+
 export default router;
