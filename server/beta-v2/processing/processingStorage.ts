@@ -304,7 +304,9 @@ class ProcessingStorage {
   async getPlaywrightDump(id: number): Promise<any> {
     try {
       const result = await betaV2Db.execute(sql`
-        SELECT * FROM playwright_dumps WHERE id = ${id}
+        SELECT id, domain, status, raw_data AS dump_data, created_at 
+        FROM playwright_dumps 
+        WHERE id = ${id}
       `);
       return result.rows[0];
     } catch (error) {
@@ -316,7 +318,17 @@ class ProcessingStorage {
   async getAxiosCheerioDump(id: number): Promise<any> {
     try {
       const result = await betaV2Db.execute(sql`
-        SELECT * FROM axios_cheerio_dumps WHERE id = ${id}
+        SELECT id, domain, status, 
+               JSONB_BUILD_OBJECT(
+                 'html', raw_html,
+                 'headers', headers,
+                 'meta_tags', meta_tags,
+                 'extraction_strategies', extraction_strategies,
+                 'page_metadata', page_metadata
+               ) AS dump_data, 
+               created_at 
+        FROM axios_cheerio_dumps 
+        WHERE id = ${id}
       `);
       return result.rows[0];
     } catch (error) {
