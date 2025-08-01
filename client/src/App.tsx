@@ -17,6 +17,7 @@ import GLEIFTestingPage from './pages/gleif-testing';
 import PerplexityTestingPage from './pages/perplexity-testing';
 import ScrapingTestingPage from './pages/scraping-testing';
 import { BetaV2GleifSearch } from './pages/BetaV2GleifSearch';
+import BetaV2DataProcessing from './pages/BetaV2DataProcessing';
 import NotFound from "@/pages/not-found";
 import { lazy, Suspense } from "react";
 
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/beta-testing-v2" component={BetaTestingV2} />
       <Route path="/beta-data-processing" component={BetaDataProcessingPage} />
       <Route path="/beta-v2/gleif-search" component={BetaV2GleifSearch} />
+      <Route path="/beta-v2/data-processing" component={BetaV2DataProcessing} />
       <Route path="/recent-changes" component={lazy(() => import("./pages/recent-changes"))} />
       <Route path="/settings" component={lazy(() => import("./pages/settings"))} />
       <Route path="/openrouter-settings" component={lazy(() => import("./pages/openrouter-settings"))} />

@@ -236,6 +236,45 @@ export async function initGLEIFSearchTables() {
   }
 }
 
+// Create processing_results table
+export async function initProcessingResultsTable() {
+  try {
+    await betaV2Db.execute(sql`
+      CREATE TABLE IF NOT EXISTS processing_results (
+        id SERIAL PRIMARY KEY,
+        domain TEXT NOT NULL,
+        source_type TEXT NOT NULL,
+        source_id INTEGER NOT NULL,
+        status TEXT NOT NULL DEFAULT 'processing',
+        stage1_result JSONB,
+        stage2_result JSONB,
+        stage3_result JSONB,
+        final_result JSONB,
+        error_message TEXT,
+        processing_time_ms INTEGER,
+        created_at TIMESTAMP DEFAULT NOW(),
+        completed_at TIMESTAMP
+      )
+    `);
+    
+    // Create indexes
+    await betaV2Db.execute(sql`
+      CREATE INDEX IF NOT EXISTS idx_processing_results_domain ON processing_results(domain)
+    `);
+    await betaV2Db.execute(sql`
+      CREATE INDEX IF NOT EXISTS idx_processing_results_status ON processing_results(status)
+    `);
+    await betaV2Db.execute(sql`
+      CREATE INDEX IF NOT EXISTS idx_processing_results_created_at ON processing_results(created_at DESC)
+    `);
+    
+    console.log('[Beta v2] Processing results table initialized');
+  } catch (error) {
+    console.error('[Beta v2] Processing results table initialization error:', error);
+    // Continue anyway - table might already exist
+  }
+}
+
 export async function initAxiosCheerioTable() {
   try {
     await betaV2Db.execute(sql`

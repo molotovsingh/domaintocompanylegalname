@@ -39,6 +39,13 @@ export default function BetaTestingV2() {
       description: 'Search Global Legal Entity Identifier database for verified company information',
       path: '/beta-v2/gleif-search',
       status: 'available'
+    },
+    {
+      id: 'data-processing',
+      name: 'Data Processing Stage 2',
+      description: 'Process collected dumps through the three-stage pipeline: Collection → Entity Extraction → GLEIF Verification',
+      path: '/beta-v2/data-processing',
+      status: 'available'
     }
   ];
 
