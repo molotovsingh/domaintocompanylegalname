@@ -4,6 +4,8 @@
 
 Domain-to-entity mapping is fundamentally a **many-to-many relationship problem** disguised as a simple lookup task. The core challenge is not finding "the correct" legal entity for a domain, but rather understanding that multiple valid entities exist, each serving different business intelligence needs. The solution requires embracing ambiguity, presenting multiple claims, and allowing user bias to guide final selection.
 
+**This entire domain intelligence platform is purpose-built to solve this specific business problem.** Every architectural decision, from the federated microservice design to the multi-stage processing pipeline, is engineered to handle the inherent complexity of mapping domains to their constellation of related legal entities.
+
 ## The Fundamental Misconception
 
 ### What People Think
@@ -178,3 +180,59 @@ The truth isn't a single entity - it's a constellation of related entities, each
 **"The best entity depends entirely on why you're asking."**
 
 A system that returns one answer is making assumptions about user intent. A system that returns multiple claims with evidence empowers users to make informed decisions based on their actual business needs.
+
+## This Platform: The Solution Architecture
+
+### Platform Mission
+This entire domain intelligence platform exists solely to solve the domain-to-entity mapping complexity problem. Every feature, every design decision, every line of code serves this singular purpose.
+
+### How the Platform Addresses Each Dimension
+
+#### 1. **Federated Microservice Architecture**
+- **Problem**: Different data sources reveal different entities
+- **Solution**: Independent crawlers (Playwright, Scrapy, Crawlee, Axios+Cheerio) can each find different legal entities
+- **Result**: Comprehensive entity discovery from multiple perspectives
+
+#### 2. **Multi-Stage Processing Pipeline**
+- **Stage 1**: Raw data collection (casts the widest net)
+- **Stage 2**: LLM cleaning (preserves all entity mentions)
+- **Stage 3**: Entity claims generation (no premature selection)
+- **Stage 4**: GLEIF verification (adds parent-child relationships)
+- **Result**: Progressive enrichment without information loss
+
+#### 3. **Claims-Based Data Model**
+- **Problem**: Single entity selection loses valuable alternatives
+- **Solution**: Store multiple entity claims with evidence
+- **Result**: Full spectrum of valid entities preserved
+
+#### 4. **GLEIF Integration with Relationships**
+- **Problem**: Corporate structures are complex hierarchies
+- **Solution**: Fetch and store parent-child relationships
+- **Result**: Complete corporate family trees
+
+#### 5. **Bias-Aware LLM Arbitration**
+- **Problem**: Different users need different entities
+- **Solution**: Apply user-specified bias at the final stage
+- **Result**: Customized results for each use case
+
+#### 6. **Comprehensive Evidence Tracking**
+- **Problem**: Users need to understand and trust entity selection
+- **Solution**: Track source, context, and reasoning for each claim
+- **Result**: Transparent, auditable intelligence
+
+### Platform Capabilities Aligned to Problem
+
+| Problem Dimension | Platform Feature | Business Value |
+|------------------|------------------|----------------|
+| Multiple valid entities | Claims-based architecture | No information loss |
+| Corporate hierarchies | GLEIF parent-child data | Complete structure understanding |
+| User-specific needs | Configurable bias system | Customized intelligence |
+| Trust and verification | Evidence tracking | Auditable results |
+| Geographic complexity | Multi-jurisdiction support | Global coverage |
+| Legal document authority | Targeted legal page crawling | Authoritative sources |
+
+### The Platform Promise
+
+This platform doesn't just process domains - it understands that behind every domain is a complex web of legal entities, each with its own purpose and validity. By embracing this complexity rather than hiding it, we provide business intelligence that adapts to user needs rather than forcing users to adapt to our assumptions.
+
+**We don't find "the answer" - we illuminate the full constellation of answers and empower users to navigate it based on their unique business requirements.**
