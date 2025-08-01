@@ -341,7 +341,7 @@ export class ProcessingPipelineService {
         gleifSearchId: searchId,
         primaryLei: topCandidate?.leiCode || null,
         primaryLegalName: topCandidate?.legalName || null,
-        confidenceScore: topCandidate?.weightedTotalScore || 0,
+        confidenceScore: topCandidate ? (topCandidate.weightedTotalScore / 100) : 0, // Convert percentage to decimal
         totalCandidates: searchResult.entities.length
       };
     } catch (error) {
