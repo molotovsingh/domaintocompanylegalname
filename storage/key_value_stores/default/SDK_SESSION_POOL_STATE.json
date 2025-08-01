@@ -3,7 +3,7 @@
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_RE81b1T7vc",
+      "id": "session_JjnISpEK21",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -11,126 +11,13 @@
         "enableLooseMode": false,
         "allowSpecialUseDomain": true,
         "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "test",
-            "value": "naukri.com",
-            "expires": "2045-07-27T11:15:01.000Z",
-            "maxAge": 630720000,
-            "domain": "naukri.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-01T11:15:01.309Z",
-            "lastAccessed": "2025-08-01T11:15:01.309Z"
-          },
-          {
-            "key": "_t_ds",
-            "value": "5a2916f81754046900-115a2916f8-05a2916f8",
-            "expires": "2026-08-01T11:15:01.000Z",
-            "domain": "naukri.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-01T11:15:01.313Z",
-            "lastAccessed": "2025-08-01T11:15:01.314Z",
-            "sameSite": "lax"
-          },
-          {
-            "key": "_t_us",
-            "value": "688CA1B5",
-            "expires": "2025-08-01T11:45:01.000Z",
-            "domain": "naukri.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-01T11:15:01.314Z",
-            "lastAccessed": "2025-08-01T11:15:01.314Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "_t_s",
-            "value": "direct",
-            "expires": "2025-08-02T11:15:01.000Z",
-            "domain": "naukri.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-01T11:15:01.314Z",
-            "lastAccessed": "2025-08-01T11:15:01.314Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "_t_r",
-            "value": "1030%2F%2F",
-            "domain": "naukri.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-01T11:15:01.314Z",
-            "lastAccessed": "2025-08-01T11:15:01.314Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "persona",
-            "value": "default",
-            "domain": "naukri.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-01T11:15:01.314Z",
-            "lastAccessed": "2025-08-01T11:15:01.314Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "J",
-            "value": "0",
-            "expires": "2026-08-01T11:15:01.000Z",
-            "domain": "naukri.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-01T11:15:01.314Z",
-            "lastAccessed": "2025-08-01T11:15:01.314Z",
-            "sameSite": "lax"
-          },
-          {
-            "key": "ak_bmsc",
-            "value": "7B070B22C7C87E0827C367E101A9EA50~000000000000000000000000000000~YAAQygfUF5fqqkmYAQAAJqxXZRz6rRZbAenJ55+xbqrv526Y1qqHV2yzm8F8f4U1sjdUiti3gKokqhUVZG4g6flnasaJG5tBXq5WwJ27oNX8G1VeS18lpPdu6VAUfHjhLadUQ7S9bH9CRNKKEJxotv+zrO44907bRujDGHcL6TYIkK+jtTl67szwnE03sqZpG5mJSsY/mFKYc7DBKlDF7c5Zh/NR6FQiRyEnenkuAGqgcV7gVFczT+ZdDQIG7B1sSZAcbsG4h389R7/X66HhnH+6owEx+WrmgLR/jSa1t3xjoeu9csh5bXp1711TJaW8xTMXweO4cj+FnmL4cRe8JF4hQ8ISVaZaHNdPvpQ1PASsg3YNQ58cJuL8JYmBCIjE9No=",
-            "expires": "2025-08-01T13:15:00.000Z",
-            "maxAge": 7199,
-            "domain": "naukri.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-01T11:15:01.314Z",
-            "lastAccessed": "2025-08-01T11:15:01.314Z"
-          },
-          {
-            "key": "bm_mi",
-            "value": "37907F5F980A6AE3BCEED67439E9D682~YAAQygfUF5jqqkmYAQAAJqxXZRxokYjDS1QNNxqBopEwZLQ2qpBHhXjCxUT08nG8ijswPZwdBoGi4ITWver/5BZhL/19vodIFfVkr88JWXETv39K89zx6jEdkchSsbSZHjAxpsWPiNtjkV+M2k6c71VatB2rzPb0DDVdB89SsqF7nCQfud2D9AbAEIg3I7x60tMeevVFovxEcpUZPOwod/l+x2WPI29fx0EaGD5JG7HOgIDzZBQvYxu2OjvrHDkstBjw0yC8i1qh3usUWfYx5mjDhUz7hhh8lLoasa/qV/qcxlCrK+jClUmmU94+zQ==~1",
-            "expires": "2025-08-01T11:15:01.000Z",
-            "maxAge": 0,
-            "domain": "naukri.com",
-            "path": "/",
-            "secure": true,
-            "hostOnly": false,
-            "creation": "2025-08-01T11:15:01.314Z",
-            "lastAccessed": "2025-08-01T11:15:01.314Z"
-          }
-        ]
+        "cookies": []
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-01T12:04:59.172Z",
-      "createdAt": "2025-08-01T11:14:59.172Z",
+      "expiresAt": "2025-08-01T12:20:29.866Z",
+      "createdAt": "2025-08-01T11:30:29.866Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
