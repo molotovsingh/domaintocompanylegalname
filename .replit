@@ -128,3 +128,6 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd server && npx tsx betaIndex.ts"
+
+[agent]
+integrations = ["javascript_openai==1.0.0"]
