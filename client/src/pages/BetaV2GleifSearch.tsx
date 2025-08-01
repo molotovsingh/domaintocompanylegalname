@@ -229,10 +229,10 @@ export function BetaV2GleifSearch() {
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Search Results</CardTitle>
-            {searchResult && searchResult.candidates && Array.isArray(searchResult.candidates) && searchResult.candidates.length > 0 && searchResult.searchRequest && (
+            {searchResult?.candidates && Array.isArray(searchResult.candidates) && searchResult.candidates.length > 0 && searchResult?.searchRequest && (
               <CardDescription>
-                Found {searchResult.candidates.length} legal entities matching "{searchResult.searchRequest.suspectedName}"
-                {searchResult.searchRequest.domain && ` for domain ${searchResult.searchRequest.domain}`}
+                Found {searchResult.candidates.length} legal entities matching "{searchResult?.searchRequest?.suspectedName}"
+                {searchResult?.searchRequest?.domain && ` for domain ${searchResult?.searchRequest?.domain}`}
               </CardDescription>
             )}
           </CardHeader>
@@ -241,7 +241,7 @@ export function BetaV2GleifSearch() {
               <div className="flex justify-center p-8">
                 <Loader2 className="h-8 w-8 animate-spin" />
               </div>
-            ) : searchResult && searchResult.candidates && Array.isArray(searchResult.candidates) && searchResult.candidates.length > 0 ? (
+            ) : searchResult?.candidates && Array.isArray(searchResult.candidates) && searchResult.candidates.length > 0 ? (
               <div className="space-y-4">
                 {searchResult.candidates.map((candidate, index) => (
                   <Card key={candidate.leiCode} className="border-l-4" style={{
