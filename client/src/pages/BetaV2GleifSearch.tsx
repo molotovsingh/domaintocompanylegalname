@@ -82,10 +82,18 @@ export function BetaV2GleifSearch() {
   });
 
   // Get search result
-  const { data: searchResult, isLoading: isLoadingResult } = useQuery<GLEIFSearchResult>({
+  const { data: searchResultResponse, isLoading: isLoadingResult } = useQuery({
     queryKey: [`/api/beta/gleif-search/search/${selectedSearchId}`],
     enabled: !!selectedSearchId,
+    queryFn: async () => {
+      const response = await fetch(`/api/beta/gleif-search/search/${selectedSearchId}`);
+      if (!response.ok) throw new Error('Failed to fetch search result');
+      const data = await response.json();
+      return data.data || data; // Handle wrapped response
+    }
   });
+  
+  const searchResult = searchResultResponse as GLEIFSearchResult;
 
   // Get recent searches
   const { data: recentSearches } = useQuery<Array<{
@@ -215,21 +223,23 @@ export function BetaV2GleifSearch() {
       </Card>
 
       {/* Search Results */}
-      {selectedSearchId && searchResult && (
+      {selectedSearchId && (
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Search Results</CardTitle>
-            <CardDescription>
-              Found {searchResult.candidates.length} legal entities matching "{searchResult.searchRequest.suspectedName}"
-              {searchResult.searchRequest.domain && ` for domain ${searchResult.searchRequest.domain}`}
-            </CardDescription>
+            {searchResult && searchResult.candidates && searchResult.searchRequest && (
+              <CardDescription>
+                Found {searchResult.candidates.length} legal entities matching "{searchResult.searchRequest.suspectedName}"
+                {searchResult.searchRequest.domain && ` for domain ${searchResult.searchRequest.domain}`}
+              </CardDescription>
+            )}
           </CardHeader>
           <CardContent>
             {isLoadingResult ? (
               <div className="flex justify-center p-8">
                 <Loader2 className="h-8 w-8 animate-spin" />
               </div>
-            ) : (
+            ) : searchResult && searchResult.candidates ? (
               <div className="space-y-4">
                 {searchResult.candidates.map((candidate, index) => (
                   <Card key={candidate.leiCode} className="border-l-4" style={{
@@ -315,6 +325,10 @@ export function BetaV2GleifSearch() {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            ) : (
+              <div className="text-center p-8 text-muted-foreground">
+                No results to display
               </div>
             )}
           </CardContent>
