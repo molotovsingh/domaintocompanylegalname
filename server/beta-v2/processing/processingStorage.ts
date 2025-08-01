@@ -237,9 +237,9 @@ class ProcessingStorage {
   async getPlaywrightDumps(): Promise<any[]> {
     try {
       const result = await betaV2Db.execute(sql`
-        SELECT id, domain, status, dump_data, created_at 
+        SELECT id, domain, status, raw_data AS dump_data, created_at 
         FROM playwright_dumps 
-        WHERE status = 'completed' AND dump_data IS NOT NULL
+        WHERE status = 'completed' AND raw_data IS NOT NULL
         ORDER BY created_at DESC 
         LIMIT 20
       `);

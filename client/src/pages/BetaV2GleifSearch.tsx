@@ -96,13 +96,13 @@ export function BetaV2GleifSearch() {
   const searchResult = searchResultResponse as GLEIFSearchResult;
 
   // Get recent searches
-  const { data: recentSearches } = useQuery<Array<{
+  const { data: recentSearchesData } = useQuery<{ data: Array<{
     id: number;
     suspectedName: string;
     domain?: string;
     totalCandidates: number;
     createdAt: string;
-  }>>({
+  }> }>({
     queryKey: ['gleif-searches'],
     queryFn: async () => {
       const response = await fetch('/api/beta/gleif-search/searches');
@@ -110,6 +110,8 @@ export function BetaV2GleifSearch() {
       return response.json();
     }
   });
+
+  const recentSearches = recentSearchesData?.data || [];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

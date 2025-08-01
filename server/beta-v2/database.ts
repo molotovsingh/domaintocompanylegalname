@@ -240,32 +240,57 @@ export async function initGLEIFSearchTables() {
 export async function initProcessingResultsTable() {
   try {
     await betaV2Db.execute(sql`
-      CREATE TABLE IF NOT EXISTS processing_results (
+      CREATE TABLE IF NOT EXISTS beta_v2_processing_results (
         id SERIAL PRIMARY KEY,
-        domain TEXT NOT NULL,
-        source_type TEXT NOT NULL,
+        source_type VARCHAR(50) NOT NULL,
         source_id INTEGER NOT NULL,
-        status TEXT NOT NULL DEFAULT 'processing',
-        stage1_result JSONB,
-        stage2_result JSONB,
-        stage3_result JSONB,
-        final_result JSONB,
+        domain VARCHAR(255) NOT NULL,
+        
+        -- Stage 1: HTML Stripping
+        stage1_stripped_text TEXT,
+        stage1_processing_time_ms INTEGER,
+        
+        -- Stage 2: Data Extraction
+        stage2_extracted_data JSONB,
+        stage2_model_used VARCHAR(100),
+        stage2_processing_time_ms INTEGER,
+        
+        -- Stage 3: Entity Name Extraction
+        stage3_entity_name VARCHAR(255),
+        stage3_entity_confidence DECIMAL(3,2),
+        stage3_model_used VARCHAR(100),
+        stage3_processing_time_ms INTEGER,
+        stage3_reasoning TEXT,
+        stage3_alternative_names JSONB,
+        
+        -- Stage 4: GLEIF Results
+        stage4_gleif_search_id INTEGER,
+        stage4_primary_lei VARCHAR(20),
+        stage4_primary_legal_name VARCHAR(500),
+        stage4_confidence_score DECIMAL(3,2),
+        stage4_total_candidates INTEGER,
+        
+        -- Overall status
+        processing_status VARCHAR(50) DEFAULT 'pending',
         error_message TEXT,
-        processing_time_ms INTEGER,
+        total_processing_time_ms INTEGER,
         created_at TIMESTAMP DEFAULT NOW(),
-        completed_at TIMESTAMP
+        updated_at TIMESTAMP DEFAULT NOW()
       )
     `);
     
     // Create indexes
     await betaV2Db.execute(sql`
-      CREATE INDEX IF NOT EXISTS idx_processing_results_domain ON processing_results(domain)
+      CREATE INDEX IF NOT EXISTS idx_processing_results_source ON beta_v2_processing_results(source_type, source_id)
     `);
     await betaV2Db.execute(sql`
-      CREATE INDEX IF NOT EXISTS idx_processing_results_status ON processing_results(status)
+      CREATE INDEX IF NOT EXISTS idx_processing_results_domain ON beta_v2_processing_results(domain)
     `);
     await betaV2Db.execute(sql`
-      CREATE INDEX IF NOT EXISTS idx_processing_results_created_at ON processing_results(created_at DESC)
+      CREATE INDEX IF NOT EXISTS idx_processing_results_status ON beta_v2_processing_results(processing_status)
+    `);
+    await betaV2Db.execute(sql`
+      CREATE INDEX IF NOT EXISTS idx_processing_results_created ON beta_v2_processing_results(created_at DESC)
     `);
     
     console.log('[Beta v2] Processing results table initialized');
