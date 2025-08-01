@@ -211,6 +211,95 @@ export class SmartExtractionService {
     }
     return 'unknown';
   }
+  
+  /**
+   * Integrate jurisdiction intelligence from shared/jurisdictions.ts
+   */
+  private async extractJurisdictionContext(
+    $: cheerio.CheerioAPI, 
+    domain: string,
+    evidence: Evidence
+  ): Promise<JurisdictionContext> {
+    const { 
+      JURISDICTIONS, 
+      getJurisdictionByTLD, 
+      getJurisdictionSuffixes 
+    } = await import('@shared/jurisdictions');
+    
+    // Detect jurisdictions from multiple sources
+    const jurisdictionsDetected = new Set<string>();
+    
+    // 1. From domain TLD
+    const tldJurisdiction = getJurisdictionByTLD(domain);
+    if (tldJurisdiction) jurisdictionsDetected.add(tldJurisdiction);
+    
+    // 2. From addresses
+    evidence.addresses.forEach(addr => {
+      const country = this.detectCountry(addr.full);
+      const jurisdictionKey = this.countryToJurisdictionKey(country);
+      if (jurisdictionKey) jurisdictionsDetected.add(jurisdictionKey);
+    });
+    
+    // 3. From phone numbers
+    evidence.phones.forEach(phone => {
+      const jurisdictionKey = this.phoneCountryToJurisdiction(phone.countryCode);
+      if (jurisdictionKey) jurisdictionsDetected.add(jurisdictionKey);
+    });
+    
+    // 4. From VAT numbers (EU countries)
+    evidence.vatNumbers.forEach(vat => {
+      const countryCode = vat.substring(0, 2);
+      const jurisdictionKey = this.vatCountryToJurisdiction(countryCode);
+      if (jurisdictionKey) jurisdictionsDetected.add(jurisdictionKey);
+    });
+    
+    // Build jurisdiction context
+    const detectedArray = Array.from(jurisdictionsDetected);
+    const primary = detectedArray[0] || 'us'; // Default to US if none detected
+    
+    // Collect all applicable suffixes
+    const applicableSuffixes: Record<string, string[]> = {};
+    for (const jur of detectedArray) {
+      if (JURISDICTIONS[jur]) {
+        applicableSuffixes[jur] = getJurisdictionSuffixes(jur);
+      }
+    }
+    
+    // Collect mandatory rules
+    const mandatoryRules: string[] = [];
+    for (const jur of detectedArray) {
+      if (JURISDICTIONS[jur]) {
+        mandatoryRules.push(...JURISDICTIONS[jur].rules);
+      }
+    }
+    
+    return {
+      primaryJurisdiction: primary,
+      possibleJurisdictions: detectedArray,
+      applicableSuffixes: {
+        corporations: this.getSuffixesByType(detectedArray, 'corporations'),
+        limitedLiability: this.getSuffixesByType(detectedArray, 'llc'),
+        partnerships: this.getSuffixesByType(detectedArray, 'partnerships'),
+        professional: this.getSuffixesByType(detectedArray, 'professional'),
+        byJurisdiction: applicableSuffixes
+      },
+      mandatoryRules
+    };
+  }
+  
+  private getSuffixesByType(jurisdictions: string[], entityType: string): string[] {
+    const { JURISDICTIONS } = require('@shared/jurisdictions');
+    const suffixes = new Set<string>();
+    
+    for (const jur of jurisdictions) {
+      const jurisdiction = JURISDICTIONS[jur];
+      if (jurisdiction?.entities[entityType]) {
+        jurisdiction.entities[entityType].suffixes.forEach(s => suffixes.add(s));
+      }
+    }
+    
+    return Array.from(suffixes);
+  }
 
   private extractCurrencies(text: string): string[] {
     const currencies = new Set<string>();
@@ -309,17 +398,40 @@ export class MultiEntityOpenRouterAdapter extends BaseModelAdapter {
     }
   }
 
-  private getMultiEntityPrompt(): string {
-    return `You are analyzing a website to identify ALL legal entities associated with this domain.
+  private getMultiEntityPrompt(jurisdictionContext?: JurisdictionContext): string {
+    const basePrompt = `You are analyzing a website to identify ALL legal entities associated with this domain.
 
-CRITICAL: One domain often represents multiple valid entities. Do not try to pick just one "correct" answer.
+CRITICAL: One domain often represents multiple valid entities. Do not try to pick just one "correct" answer.`;
+
+    const jurisdictionRules = jurisdictionContext ? `
+
+JURISDICTION CONTEXT:
+- Primary jurisdiction detected: ${jurisdictionContext.primaryJurisdiction}
+- All detected jurisdictions: ${jurisdictionContext.possibleJurisdictions.join(', ')}
+- Mandatory suffix rules:
+${jurisdictionContext.mandatoryRules.map(rule => `  • ${rule}`).join('\n')}
+
+APPLICABLE ENTITY SUFFIXES BY JURISDICTION:
+${Object.entries(jurisdictionContext.applicableSuffixes.byJurisdiction)
+  .map(([jur, suffixes]) => `- ${jur.toUpperCase()}: ${suffixes.slice(0, 10).join(', ')}`)
+  .join('\n')}
+
+IMPORTANT:
+- Entity suffixes are MANDATORY in most jurisdictions
+- Verify each entity has appropriate suffix for its jurisdiction
+- Some entities (nonprofits, universities) may be exempt
+- Cross-jurisdiction structures are common (e.g., US parent with German subsidiary)` : '';
+
+    return basePrompt + jurisdictionRules + `
 
 Your task:
 1. Identify ALL distinct legal entities mentioned (operator, holding company, subsidiaries)
-2. Extract exact legal names with proper suffixes (Inc., Ltd., GmbH, S.A., N.V., etc.)
-3. Collect specific evidence for each entity claim
-4. Determine entity relationships (operator vs holding vs subsidiary)
-5. Note geographic markers and jurisdictions
+2. Extract exact legal names with proper suffixes${jurisdictionContext ? ' matching the jurisdiction' : ''}
+3. Validate suffix correctness based on jurisdiction rules
+4. Collect specific evidence for each entity claim
+5. Determine entity relationships (operator vs holding vs subsidiary)
+6. Note geographic markers and jurisdictions
+7. Flag any entities that appear to be missing required suffixes
 
 Look for entities in:
 - Copyright notices (often contain legal operator names)
@@ -346,14 +458,28 @@ Return a JSON object with this structure:
         "country": "ISO code",
         "headquarters": "city if known",
         "jurisdiction": "legal jurisdiction"
+      },
+      "jurisdictionValidation": {
+        "detectedJurisdiction": "jurisdiction code",
+        "suffixValid": true/false,
+        "suffixType": "entity type",
+        "mandatorySuffix": true/false,
+        "validationNotes": "explanation of suffix validity"
       }
     }
   ],
+  "jurisdictionAnalysis": {
+    "primaryJurisdiction": "main jurisdiction",
+    "detectedJurisdictions": ["list of all jurisdictions"],
+    "crossJurisdictionStructure": true/false,
+    "structureType": "description of structure"
+  },
   "industryClassification": "primary industry",
   "extractionMetadata": {
     "multiEntityDomain": true/false,
     "complexStructure": true/false,
-    "evidenceQuality": "high|medium|low"
+    "evidenceQuality": "high|medium|low",
+    "jurisdictionComplexity": "high|medium|low"
   }
 }
 

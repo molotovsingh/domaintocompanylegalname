@@ -78,6 +78,22 @@ interface SmartExtractionResult {
     domainTLD: string;
     industryKeywords: string[];
   };
+  
+  // Jurisdiction intelligence
+  jurisdiction: {
+    primaryJurisdiction: string; // Detected from TLD, addresses, language
+    possibleJurisdictions: string[]; // All detected jurisdictions
+    applicableSuffixes: JurisdictionSuffixes; // Legal suffixes for detected jurisdictions
+    mandatoryRules: string[]; // Jurisdiction-specific rules
+  };
+}
+
+interface JurisdictionSuffixes {
+  corporations: string[]; // Inc., Corp., SA, AG, etc.
+  limitedLiability: string[]; // LLC, GmbH, SARL, etc.
+  partnerships: string[]; // LP, LLP, etc.
+  professional: string[]; // P.C., PLLC, etc.
+  byJurisdiction: Record<string, string[]>; // Grouped by country
 }
 ```
 
@@ -96,7 +112,46 @@ const entitySelectors = {
 };
 ```
 
-### Stage 2: Evidence Collection (New)
+### Stage 2: Jurisdiction Intelligence Layer (New)
+
+#### Jurisdiction Detection Strategy
+```typescript
+interface JurisdictionDetection {
+  // Primary detection methods
+  detectFromDomain(domain: string): JurisdictionInfo;
+  detectFromAddresses(addresses: AddressEvidence[]): JurisdictionInfo[];
+  detectFromPhones(phones: PhoneEvidence[]): JurisdictionInfo[];
+  detectFromLegalText(text: string): JurisdictionInfo[];
+  
+  // Consolidation
+  consolidateJurisdictions(detections: JurisdictionInfo[]): {
+    primary: string;
+    secondary: string[];
+    confidence: Record<string, number>;
+  };
+}
+```
+
+#### Key Jurisdiction Rules to Apply
+1. **Mandatory Suffix Rules**
+   - US: Corporations must have Inc., Corp., LLC, etc.
+   - Germany: GmbH, AG are mandatory
+   - France: SA, SARL, SAS required
+   - UK: Ltd, PLC required
+   - Singapore: Pte Ltd for private companies
+
+2. **Exemption Rules**
+   - Nonprofits often exempt from suffix requirements
+   - Universities, hospitals don't need corporate suffixes
+   - Government entities have different rules
+   - Trusts may not be separate legal entities
+
+3. **Multi-Jurisdiction Complexity**
+   - Parent in one jurisdiction, subsidiary in another
+   - Different suffixes for same company group
+   - Cross-border entity structures
+
+### Stage 3: Evidence Collection (Enhanced with Jurisdiction Context)
 
 #### Evidence Types to Collect
 1. **Geographic Evidence**
@@ -110,31 +165,65 @@ const entitySelectors = {
    - Terms of service entity references
    - Privacy policy data controller names
    - Regulatory registration numbers
+   - Jurisdiction-specific identifiers (VAT, EIN, etc.)
 
 3. **Structural Evidence**
    - Parent-subsidiary relationships mentioned
    - "Part of" or "Division of" statements
    - Multi-entity copyright notices
    - Regional office listings
+   - Cross-jurisdiction entity mentions
 
-### Stage 3: Multi-Entity LLM Enhancement
+### Stage 4: Multi-Entity LLM Enhancement (Jurisdiction-Aware)
 
-#### Evolved Prompting Strategy
+#### Evolved Prompting Strategy with Jurisdiction Context
 ```
 System: You are analyzing a website to identify ALL legal entities associated with this domain.
-Remember: One domain often represents multiple valid entities (operator, holding company, regional subsidiaries).
+
+CRITICAL CONTEXT - Jurisdiction Rules:
+{jurisdiction_rules}
+
+Key principles:
+1. One domain often represents multiple valid entities (operator, holding company, regional subsidiaries)
+2. Entity suffixes are MANDATORY in most jurisdictions (Inc., Corp., Ltd., GmbH, SA, etc.)
+3. Different jurisdictions have different suffix requirements
+4. Some entities (nonprofits, universities) may be exempt from suffix requirements
 
 Your task:
 1. Identify ALL distinct legal entities mentioned
-2. Collect evidence supporting each entity's relationship to the domain
-3. Determine the entity type (operator, holding, subsidiary, division)
-4. Extract exact legal names with proper suffixes (Inc., Ltd., GmbH, etc.)
-5. Note geographic markers for each entity
+2. Verify each entity has appropriate suffix for its jurisdiction
+3. Collect evidence supporting each entity's relationship to the domain
+4. Determine the entity type (operator, holding, subsidiary, division)
+5. Extract exact legal names with jurisdiction-appropriate suffixes
+6. Note if an entity appears to be missing a required suffix
+7. Consider cross-jurisdiction structures (e.g., US parent, German subsidiary)
 
-Return multiple entity claims, not just one "correct" answer.
+Return multiple entity claims with jurisdiction validation.
 ```
 
-#### Expected Output Structure
+#### Jurisdiction-Enhanced Prompt Variables
+```typescript
+const jurisdictionRules = {
+  detectedJurisdictions: ['us', 'de'], // From detection stage
+  applicableSuffixes: {
+    us: ['Inc.', 'Corp.', 'LLC', 'L.L.C.', 'Ltd.', 'Co.'],
+    de: ['GmbH', 'AG', 'KG', 'GmbH & Co. KG', 'SE']
+  },
+  mandatoryRules: [
+    'US corporations must have Inc., Corp., or Corporation',
+    'German limited liability companies must have GmbH',
+    'Nonprofits may omit corporate suffixes'
+  ],
+  exemptions: [
+    'Universities (e.g., Harvard University)',
+    'Hospitals (e.g., Mayo Clinic)',
+    'Government entities',
+    'Certain trusts and foundations'
+  ]
+};
+```
+
+#### Expected Output Structure with Jurisdiction Validation
 ```json
 {
   "entityClaims": [
@@ -151,6 +240,13 @@ Return multiple entity claims, not just one "correct" answer.
       "geography": {
         "country": "Germany",
         "headquarters": "Hilden"
+      },
+      "jurisdictionValidation": {
+        "detectedJurisdiction": "de",
+        "suffixValid": true,
+        "suffixType": "limited_liability",
+        "mandatorySuffix": true,
+        "validationNotes": "GmbH is correct suffix for German limited liability company"
       }
     },
     {
@@ -166,15 +262,29 @@ Return multiple entity claims, not just one "correct" answer.
       "geography": {
         "country": "Netherlands",
         "incorporation": "Venlo"
+      },
+      "jurisdictionValidation": {
+        "detectedJurisdiction": "nl",
+        "suffixValid": true,
+        "suffixType": "public_limited",
+        "mandatorySuffix": true,
+        "validationNotes": "N.V. is correct suffix for Dutch public company"
       }
     }
   ],
+  "jurisdictionAnalysis": {
+    "primaryJurisdiction": "de",
+    "detectedJurisdictions": ["de", "nl"],
+    "crossJurisdictionStructure": true,
+    "structureType": "multinational_parent_subsidiary"
+  },
   "industryClassification": "biotechnology",
   "primaryLanguage": "en",
   "extractionMetadata": {
     "multiEntityDomain": true,
     "complexStructure": true,
-    "evidenceQuality": "high"
+    "evidenceQuality": "high",
+    "jurisdictionComplexity": "high"
   }
 }
 ```
