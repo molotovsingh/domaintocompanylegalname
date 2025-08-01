@@ -32,7 +32,7 @@ The platform is built with a React frontend and an Express backend, both utilizi
     - **Data Collection**: Comprehensive raw data capture includes HTML content, screenshots, text extraction, meta tags, links, and structured data for LLM analysis.
     - **Error Handling**: Robust server restart protection, intelligent port conflict resolution, and automatic cleanup of beta server instances.
     - **Data Management**: Implements unique domain hash IDs for persistent identification and duplicate prevention, alongside comprehensive CSV/JSON export capabilities with detailed analytics.
-    - **GLEIF Integration**: Incorporates Level 2 GLEIF (Global Legal Entity Identifier Foundation) processing for authentic legal entity verification, including knowledge base accumulation and geographic intelligence for enhanced candidate selection.
+    - **GLEIF Integration (Beta V2)**: Implements phased GLEIF search service within Beta V2 federation. Phase 1 (Complete): Direct GLEIF API search with algorithmic scoring. Phase 2 (Planned): Analysis of outputs and patterns. Phase 3 (Planned): LLM arbitration for confident domain-to-company matching using geographic markers and headquarters data.
     - **Machine-Friendly Configuration**: Centralizes extraction methods, confidence modifiers, validation rules, and jurisdiction data in TypeScript configurations for dynamic updates.
     - **Performance Optimization**: Early connectivity triage saves processing time on unreachable domains. Multi-layer timeout systems prevent processing stalls.
     - **Extraction Hierarchy**: Utilizes structured data (JSON-LD), enhanced meta properties, footer copyright, logo alt text, H1 analysis, and page title for extraction, with a focus on legal entity names.

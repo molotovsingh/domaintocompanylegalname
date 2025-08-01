@@ -1,5 +1,5 @@
 import express from 'express';
-import { executeBetaV2Query, initBetaV2Database, initScrapyCrawlTable, initCrawleeDumpTable, initAxiosCheerioTable } from './database';
+import { executeBetaV2Query, initBetaV2Database, initScrapyCrawlTable, initCrawleeDumpTable, initAxiosCheerioTable, initGLEIFSearchTables } from './database';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -9,6 +9,7 @@ import crawleeDumpRouter from './crawlee-dump/crawleeDumpIndex';
 import axiosCheerioRouter from './axios-cheerio-dump/axiosCheerioIndex';
 import { createCleaningRoutes } from './cleaning/cleaningRoutes';
 import { betaDb } from '../betaDb';
+import gleifSearchRouter from './gleif-search/gleifSearchIndex';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
@@ -18,13 +19,14 @@ initBetaV2Database().catch(console.error);
 initScrapyCrawlTable().catch(console.error);
 initCrawleeDumpTable().catch(console.error);
 initAxiosCheerioTable().catch(console.error);
+initGLEIFSearchTables().catch(console.error);
 
 // Health check
 router.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     platform: 'beta-v2',
-    methods: ['playwright-dump', 'scrapy-crawl', 'crawlee-dump', 'axios-cheerio']
+    methods: ['playwright-dump', 'scrapy-crawl', 'crawlee-dump', 'axios-cheerio', 'gleif-search']
   });
 });
 
@@ -40,6 +42,9 @@ router.use('/axios-cheerio', axiosCheerioRouter);
 // Mount cleaning routes
 const cleaningRoutes = createCleaningRoutes();
 router.use('/cleaning', cleaningRoutes);
+
+// Mount GLEIF search router
+router.use('/gleif-search', gleifSearchRouter);
 
 // Dump a domain
 router.post('/dump', async (req, res) => {
