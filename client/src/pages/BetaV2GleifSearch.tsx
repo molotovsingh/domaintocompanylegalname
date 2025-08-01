@@ -10,6 +10,7 @@ import { queryClient, apiRequest } from '@/lib/queryClient';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Link } from 'wouter';
+import { toast } from '@/hooks/use-toast';
 
 interface GLEIFCandidate {
   leiCode: string;
