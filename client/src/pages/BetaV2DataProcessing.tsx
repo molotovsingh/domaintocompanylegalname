@@ -567,10 +567,10 @@ export default function BetaV2DataProcessingPage() {
                             domain: selectedDumpForClaims.domain,
                             dumpId: selectedDumpForClaims.id.toString(),
                             collectionType: selectedDumpForClaims.sourceType,
-                            apiPath: '/api/beta-v2/gleif-claims/generate-claims'
+                            apiPath: '/api/beta/gleif-claims/generate-claims'
                           });
                           
-                          const response = await apiRequest('POST', '/api/beta-v2/gleif-claims/generate-claims', {
+                          const response = await apiRequest('POST', '/api/beta/gleif-claims/generate-claims', {
                             domain: selectedDumpForClaims.domain,
                             dumpId: selectedDumpForClaims.id.toString(),
                             collectionType: selectedDumpForClaims.sourceType
