@@ -236,6 +236,15 @@ export class CleaningService {
 
       const row = result.rows[0];
       
+      // Parse JSON content if it's a string
+      if (typeof row.content === 'string' && row.content.trim().startsWith('{')) {
+        try {
+          row.content = JSON.parse(row.content);
+        } catch (e) {
+          console.error('[CleaningService] Failed to parse JSON content:', e);
+        }
+      }
+      
       // Extract text content based on source type
       let textContent = '';
       
@@ -300,7 +309,8 @@ export class CleaningService {
       return {
         id: row.id,
         domain: row.domain,
-        content: textContent,
+        content: row.content,  // Return raw content with HTML
+        textContent: textContent,  // Include extracted text separately
         metadata: metadata,
         collectedAt: row.created_at
       };

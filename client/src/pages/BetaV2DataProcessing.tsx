@@ -72,10 +72,16 @@ interface GLEIFCandidate {
 }
 
 interface EntityClaim {
-  legalName: string;
-  type: 'extracted' | 'gleif_verified' | 'suffix_suggestion' | 'gleif_relationship';
-  confidence: number;
-  source: string;
+  claimType: 'extracted' | 'gleif_verified' | 'gleif_relationship' | 'generated' | 'suspect';
+  entityName: string;
+  confidence?: 'high' | 'medium' | 'low';
+  source?: string;
+  leiCode?: string;
+  evidence?: {
+    type: string;
+    jurisdiction?: string;
+    [key: string]: any;
+  };
   evidence?: {
     leiCode?: string;
     jurisdiction?: string;

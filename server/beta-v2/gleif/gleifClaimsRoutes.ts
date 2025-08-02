@@ -22,7 +22,16 @@ function extractTitle(content: any): string {
     return content.pages[0].title;
   }
   
-  // Extract from HTML
+  // Handle old crawlee dumps with only HTML in pages array
+  if (content?.pages?.[0]?.html && !content.pages[0].title) {
+    const htmlContent = content.pages[0].html;
+    const titleMatch = htmlContent.match(/<title[^>]*>([^<]+)<\/title>/i);
+    if (titleMatch) {
+      return titleMatch[1].trim().replace(/&amp;/g, '&').replace(/&gt;/g, '>').replace(/&lt;/g, '<');
+    }
+  }
+  
+  // Extract from HTML string
   if (typeof content === 'string') {
     const titleMatch = content.match(/<title[^>]*>([^<]+)<\/title>/i);
     return titleMatch ? titleMatch[1].trim() : '';
@@ -35,11 +44,31 @@ function extractMetaTags(content: any): Record<string, string> {
   const metaTags: Record<string, string> = {};
   
   // Extract from structured data
-  if (content?.pages?.[0]?.metadata) {
-    return content.pages[0].metadata;
+  if (content?.pages?.[0]?.metaTags) {
+    return content.pages[0].metaTags;
   }
   
-  // Extract from HTML
+  // Handle old crawlee dumps with only HTML in pages array
+  if (content?.pages?.[0]?.html && !content.pages[0].metaTags) {
+    const htmlContent = content.pages[0].html;
+    // Match both name and property attributes, and handle escaped quotes
+    const metaRegex = /<meta\s+(?:name|property)=(?:["']([^"']+)["'])\s+content=(?:["']([^"']+)["'])/gi;
+    let match;
+    while ((match = metaRegex.exec(htmlContent)) !== null) {
+      const name = match[1];
+      const content = match[2]
+        .replace(/&amp;/g, '&')
+        .replace(/&gt;/g, '>')
+        .replace(/&lt;/g, '<')
+        .replace(/&#x27;/g, "'")
+        .replace(/&#xfc;/g, 'ü')
+        .replace(/&#x2713;/g, '✓')
+        .replace(/&#x27a4;/g, '➤');
+      metaTags[name] = content;
+    }
+  }
+  
+  // Extract from HTML string
   if (typeof content === 'string') {
     const metaRegex = /<meta\s+(?:name|property)=["']([^"']+)["']\s+content=["']([^"']+)["']/gi;
     let match;
@@ -73,9 +102,18 @@ function extractStructuredData(content: any): any {
 }
 
 function extractTextContent(content: any): string {
-  // Extract from scrapy/crawlee format
+  // Extract from scrapy/crawlee format with text field
   if (content?.pages) {
-    return content.pages.map((page: any) => page.text || '').join('\n\n');
+    return content.pages.map((page: any) => {
+      if (page.text) {
+        return page.text;
+      }
+      // Handle old crawlee dumps - extract text from HTML
+      if (page.html) {
+        return page.html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+      }
+      return '';
+    }).join('\n\n');
   }
   
   // Extract from HTML by removing tags
@@ -366,6 +404,17 @@ router.post('/pre-check', async (req, res) => {
       });
     }
     
+    // Debug log the raw data structure
+    console.log('[Beta] [GleifClaimsRoutes] Pre-check raw data:', {
+      hasContent: !!rawData.content,
+      contentType: typeof rawData.content,
+      contentIsString: typeof rawData.content === 'string',
+      contentKeys: rawData.content && typeof rawData.content === 'object' ? Object.keys(rawData.content) : [],
+      contentSample: typeof rawData.content === 'string' ? 
+        rawData.content.substring(0, 200) : 
+        JSON.stringify(rawData.content).substring(0, 200)
+    });
+    
     // Analyze available data
     let availableData = {
       hasTitle: false,
@@ -377,18 +426,95 @@ router.post('/pre-check', async (req, res) => {
       sampleMetaTags: [] as string[]
     };
     
+    // Handle crawlee dumps stored as strings (old format)
+    if (collectionType === 'crawlee_dump' && typeof rawData.content === 'string') {
+      console.log('[Beta] [GleifClaimsRoutes] Detected old crawlee dump format (string)');
+      
+      // Check if it's JSON or plain HTML
+      const trimmedContent = rawData.content.trim();
+      if (trimmedContent.startsWith('<') || trimmedContent.includes('<!DOCTYPE') || 
+          trimmedContent.includes('<html') || trimmedContent.includes('<title')) {
+        // It's HTML - convert to pages structure
+        console.log('[Beta] [GleifClaimsRoutes] Converting plain HTML to pages structure');
+        rawData.content = {
+          pages: [{
+            url: rawData.domain || '1und1.com',
+            html: rawData.content
+          }]
+        };
+      } else {
+        // Try to parse as JSON
+        try {
+          const parsedContent = JSON.parse(rawData.content);
+          if (parsedContent?.pages) {
+            rawData.content = parsedContent;
+          }
+        } catch (e) {
+          console.log('[Beta] [GleifClaimsRoutes] Failed to parse string content as JSON');
+          // If JSON parsing fails, assume it's HTML anyway
+          if (trimmedContent.length > 100) {
+            console.log('[Beta] [GleifClaimsRoutes] Fallback: treating as HTML');
+            rawData.content = {
+              pages: [{
+                url: rawData.domain || '1und1.com',
+                html: rawData.content
+              }]
+            };
+          }
+        }
+      }
+    }
+    
     if (collectionType === 'crawlee_dump' && rawData.content?.pages) {
       const firstPage = rawData.content.pages[0];
       if (firstPage) {
-        availableData.hasTitle = !!firstPage.title;
-        availableData.title = firstPage.title || '';
-        availableData.metaTagCount = firstPage.metaTags ? Object.keys(firstPage.metaTags).length : 0;
-        availableData.hasStructuredData = !!firstPage.structuredData;
-        availableData.textLength = firstPage.text ? firstPage.text.length : 0;
-        if (firstPage.metaTags) {
-          availableData.sampleMetaTags = Object.entries(firstPage.metaTags)
+        // Handle newer dumps with extracted fields
+        if (firstPage.title || firstPage.metaTags || firstPage.structuredData) {
+          availableData.hasTitle = !!firstPage.title;
+          availableData.title = firstPage.title || '';
+          availableData.metaTagCount = firstPage.metaTags ? Object.keys(firstPage.metaTags).length : 0;
+          availableData.hasStructuredData = !!firstPage.structuredData;
+          availableData.textLength = firstPage.text ? firstPage.text.length : 0;
+          if (firstPage.metaTags) {
+            availableData.sampleMetaTags = Object.entries(firstPage.metaTags)
+              .slice(0, 5)
+              .map(([key, value]) => `${key}: ${value}`);
+          }
+        } 
+        // Handle old dumps with only HTML
+        else if (firstPage.html) {
+          availableData.hasHtml = true;
+          
+          // Extract title from HTML
+          const titleMatch = firstPage.html.match(/<title[^>]*>([^<]+)<\/title>/i);
+          if (titleMatch) {
+            availableData.hasTitle = true;
+            availableData.title = titleMatch[1].trim().replace(/&amp;/g, '&').replace(/&gt;/g, '>').replace(/&lt;/g, '<');
+          }
+          
+          // Extract meta tags from HTML
+          const metaTags: Record<string, string> = {};
+          const metaRegex = /<meta\s+(?:name|property)=(?:["']([^"']+)["'])\s+content=(?:["']([^"']+)["'])/gi;
+          let match;
+          while ((match = metaRegex.exec(firstPage.html)) !== null) {
+            const content = match[2]
+              .replace(/&amp;/g, '&')
+              .replace(/&gt;/g, '>')
+              .replace(/&lt;/g, '<')
+              .replace(/&#x27;/g, "'");
+            metaTags[match[1]] = content;
+          }
+          availableData.metaTagCount = Object.keys(metaTags).length;
+          availableData.sampleMetaTags = Object.entries(metaTags)
             .slice(0, 5)
-            .map(([key, value]) => `${key}: ${value}`);
+            .map(([key, value]) => `${key}: ${value.substring(0, 100)}`);
+          
+          // Extract text length
+          const textContent = firstPage.html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+          availableData.textLength = textContent.length;
+          
+          // Check for structured data
+          availableData.hasStructuredData = firstPage.html.includes('application/ld+json');
         }
       }
     } else if (collectionType === 'axios_cheerio_dump') {
