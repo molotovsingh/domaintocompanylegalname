@@ -27,7 +27,7 @@ export async function initBetaV2Database() {
         created_at TIMESTAMP DEFAULT NOW()
       )
     `);
-    
+
     console.log('[Beta v2] Database schema initialized');
   } catch (error) {
     console.error('[Beta v2] Database initialization error:', error);
@@ -36,7 +36,7 @@ export async function initBetaV2Database() {
 }
 
 // Helper to execute raw SQL
-export async function executeBetaV2Query(query: string, params?: any[]): Promise<any> {
+export async function executeBetaV2Query(query: string, params: any[]): Promise<any> {
   try {
     // Replace $1, $2, etc. with actual values for Neon compatibility
     let processedQuery = query;
@@ -50,17 +50,25 @@ export async function executeBetaV2Query(query: string, params?: any[]): Promise
         processedQuery = processedQuery.replace(placeholder, value);
       });
     }
-    
+
     // Execute the query directly without schema prefix
     const result = await betaV2Db.execute(sql.raw(processedQuery));
-    
+
     // Return normalized result
     return { 
       rows: Array.isArray(result) ? result : (result as any).rows || [],
       rowCount: Array.isArray(result) ? result.length : (result as any).rowCount || 0
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Beta v2] Query execution error:', error);
+
+    // Handle specific Neon database errors
+    if (error.message?.includes('endpoint has been disabled')) {
+      console.error('[Beta v2] Database endpoint is disabled. Please check Neon console.');
+      // Return empty result to prevent crashes
+      return { rows: [] };
+    }
+
     throw error;
   }
 }
@@ -87,7 +95,7 @@ export async function initCrawleeDumpTable() {
         updated_at TIMESTAMP DEFAULT NOW()
       )
     `);
-    
+
     // Create indexes
     await betaV2Db.execute(sql`
       CREATE INDEX IF NOT EXISTS idx_crawlee_dumps_domain ON crawlee_dumps(domain)
@@ -98,7 +106,7 @@ export async function initCrawleeDumpTable() {
     await betaV2Db.execute(sql`
       CREATE INDEX IF NOT EXISTS idx_crawlee_dumps_created_at ON crawlee_dumps(created_at DESC)
     `);
-    
+
     console.log('[Beta v2] Crawlee dumps table initialized');
   } catch (error) {
     console.error('[Beta v2] Crawlee table initialization error:', error);
@@ -245,16 +253,16 @@ export async function initProcessingResultsTable() {
         source_type VARCHAR(50) NOT NULL,
         source_id INTEGER NOT NULL,
         domain VARCHAR(255) NOT NULL,
-        
+
         -- Stage 1: HTML Stripping
         stage1_stripped_text TEXT,
         stage1_processing_time_ms INTEGER,
-        
+
         -- Stage 2: Data Extraction
         stage2_extracted_data JSONB,
         stage2_model_used VARCHAR(100),
         stage2_processing_time_ms INTEGER,
-        
+
         -- Stage 3: Entity Name Extraction
         stage3_entity_name VARCHAR(255),
         stage3_entity_confidence DECIMAL(3,2),
@@ -262,14 +270,14 @@ export async function initProcessingResultsTable() {
         stage3_processing_time_ms INTEGER,
         stage3_reasoning TEXT,
         stage3_alternative_names JSONB,
-        
+
         -- Stage 4: GLEIF Results
         stage4_gleif_search_id INTEGER,
         stage4_primary_lei VARCHAR(20),
         stage4_primary_legal_name VARCHAR(500),
         stage4_confidence_score DECIMAL(3,2),
         stage4_total_candidates INTEGER,
-        
+
         -- Overall status
         processing_status VARCHAR(50) DEFAULT 'pending',
         error_message TEXT,
@@ -278,7 +286,7 @@ export async function initProcessingResultsTable() {
         updated_at TIMESTAMP DEFAULT NOW()
       )
     `);
-    
+
     // Create indexes
     await betaV2Db.execute(sql`
       CREATE INDEX IF NOT EXISTS idx_processing_results_source ON beta_v2_processing_results(source_type, source_id)
@@ -292,7 +300,7 @@ export async function initProcessingResultsTable() {
     await betaV2Db.execute(sql`
       CREATE INDEX IF NOT EXISTS idx_processing_results_created ON beta_v2_processing_results(created_at DESC)
     `);
-    
+
     console.log('[Beta v2] Processing results table initialized');
   } catch (error) {
     console.error('[Beta v2] Processing results table initialization error:', error);
@@ -324,7 +332,7 @@ export async function initAxiosCheerioTable() {
         completed_at TIMESTAMP
       )
     `);
-    
+
     // Create indexes
     await betaV2Db.execute(sql`
       CREATE INDEX IF NOT EXISTS idx_axios_cheerio_dumps_domain ON axios_cheerio_dumps(domain)
@@ -335,7 +343,7 @@ export async function initAxiosCheerioTable() {
     await betaV2Db.execute(sql`
       CREATE INDEX IF NOT EXISTS idx_axios_cheerio_dumps_created_at ON axios_cheerio_dumps(created_at DESC)
     `);
-    
+
     console.log('[Beta v2] Axios+Cheerio dumps table initialized');
   } catch (error) {
     console.error('[Beta v2] Axios+Cheerio table initialization error:', error);

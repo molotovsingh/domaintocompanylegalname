@@ -164,12 +164,12 @@ export default function BetaV2DataProcessingPage() {
 
   const toggleCandidates = async (resultId: number) => {
     const newExpanded = new Set(expandedRows);
-    
+
     if (newExpanded.has(resultId)) {
       newExpanded.delete(resultId);
     } else {
       newExpanded.add(resultId);
-      
+
       // Fetch candidates if not already loaded
       if (!candidatesData[resultId]) {
         try {
@@ -186,7 +186,7 @@ export default function BetaV2DataProcessingPage() {
         }
       }
     }
-    
+
     setExpandedRows(newExpanded);
   };
 
@@ -373,8 +373,8 @@ export default function BetaV2DataProcessingPage() {
                   </TableHeader>
                   <TableBody>
                     {results.map((result) => (
-                      <>
-                        <TableRow key={result.id}>
+                      <React.Fragment key={result.id}>
+                        <TableRow>
                           <TableCell className="font-medium">{result.domain}</TableCell>
                           <TableCell>
                             <Badge className={getSourceTypeColor(result.sourceType)}>
@@ -383,16 +383,16 @@ export default function BetaV2DataProcessingPage() {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              {getStatusIcon(result.processingStatus)}
-                              <span className="capitalize">{result.processingStatus}</span>
+                              {getStatusIcon(result.status)}
+                              <span className="capitalize">{result.status}</span>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              {result.stage3EntityName || 
-                               result.stage4PrimaryLegalName || 
+                              {result.stage3Result?.entityName || 
+                               result.stage4Result?.primaryLegalName || 
                                '-'}
-                              {result.stage4TotalCandidates > 0 && (
+                              {result.stage4Result?.totalCandidates > 0 && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -409,21 +409,21 @@ export default function BetaV2DataProcessingPage() {
                             </div>
                           </TableCell>
                           <TableCell className="font-mono text-xs">
-                            {result.stage4PrimaryLei || '-'}
+                            {result.stage4Result?.primaryLei || '-'}
                           </TableCell>
                           <TableCell>
-                            {result.stage4ConfidenceScore 
-                              ? `${(Number(result.stage4ConfidenceScore) * 100).toFixed(1)}%`
+                            {result.stage4Result?.confidenceScore 
+                              ? `${(Number(result.stage4Result.confidenceScore) * 100).toFixed(1)}%`
                               : '-'}
                           </TableCell>
                           <TableCell>
-                            {result.totalProcessingTimeMs 
-                              ? formatProcessingTime(result.totalProcessingTimeMs)
+                            {result.processingTimeMs 
+                              ? formatProcessingTime(result.processingTimeMs)
                               : '-'}
                           </TableCell>
                           <TableCell>
-                            {result.updatedAt 
-                              ? formatTimestamp(result.updatedAt)
+                            {result.completedAt 
+                              ? formatTimestamp(result.completedAt)
                               : '-'}
                           </TableCell>
                         </TableRow>
@@ -433,7 +433,7 @@ export default function BetaV2DataProcessingPage() {
                               <div className="bg-muted/50 p-4">
                                 <h4 className="text-sm font-semibold mb-3">All GLEIF Candidates ({candidatesData[result.id].length})</h4>
                                 <div className="space-y-2">
-                                  {candidatesData[result.id].map((candidate, idx) => (
+                                  {candidatesData[result.id].map((candidate) => (
                                     <div key={candidate.lei_code} className="bg-background rounded-lg p-3 border">
                                       <div className="grid grid-cols-2 gap-4">
                                         <div>
@@ -459,7 +459,7 @@ export default function BetaV2DataProcessingPage() {
                             </TableCell>
                           </TableRow>
                         )}
-                      </>
+                      </React.Fragment>
                     ))}
                   </TableBody>
                 </Table>
