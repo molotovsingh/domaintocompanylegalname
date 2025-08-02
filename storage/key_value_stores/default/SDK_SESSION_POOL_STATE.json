@@ -3,60 +3,7 @@
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_13Fy8DjGQV",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "COUNTRY",
-            "value": "US",
-            "expires": "2026-08-01T21:04:11.000Z",
-            "domain": "qiagen.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-01T21:04:11.746Z",
-            "lastAccessed": "2025-08-01T21:04:11.751Z"
-          },
-          {
-            "key": "Language",
-            "value": "en",
-            "expires": "2026-08-01T21:04:11.000Z",
-            "domain": "qiagen.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-01T21:04:11.750Z",
-            "lastAccessed": "2025-08-01T21:04:11.751Z"
-          },
-          {
-            "key": "StickySession",
-            "value": "id.93873450278.073",
-            "domain": "www.qiagen.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": true,
-            "creation": "2025-08-01T21:04:11.751Z",
-            "lastAccessed": "2025-08-01T21:04:11.751Z",
-            "sameSite": "none"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-01T21:54:07.901Z",
-      "createdAt": "2025-08-01T21:04:07.901Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_xAS9LVH0hv",
+      "id": "session_iUV4bwxUvW",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -69,14 +16,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-01T21:54:12.560Z",
-      "createdAt": "2025-08-01T21:04:12.560Z",
+      "expiresAt": "2025-08-02T04:09:52.030Z",
+      "createdAt": "2025-08-02T03:19:52.030Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_ulEU9ik0g2",
+      "id": "session_ToUR8kIOlP",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -89,14 +36,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-01T21:54:12.561Z",
-      "createdAt": "2025-08-01T21:04:12.561Z",
+      "expiresAt": "2025-08-02T04:09:55.614Z",
+      "createdAt": "2025-08-02T03:19:55.614Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_ZzTeBtMqFs",
+      "id": "session_4CeG8LhnZy",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -109,8 +56,28 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-01T21:54:14.921Z",
-      "createdAt": "2025-08-01T21:04:14.921Z",
+      "expiresAt": "2025-08-02T04:09:55.616Z",
+      "createdAt": "2025-08-02T03:19:55.616Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_t9LEvbgTIf",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": []
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-02T04:09:57.349Z",
+      "createdAt": "2025-08-02T03:19:57.349Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
