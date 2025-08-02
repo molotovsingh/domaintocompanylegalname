@@ -7,7 +7,8 @@
  * Flow: Cleaned Dump → Entity Extraction → Suffix Suggestions → GLEIF Claims
  */
 
-import { db } from '../../db';
+// Use betaDb instead of production db for isolation
+import { betaDb } from '../../betaDb';
 import { gleifEntities, entityRelationships } from '../../../shared/schema';
 import { eq, like, or, and } from 'drizzle-orm';
 import { JURISDICTIONS, getJurisdictionByTLD, getJurisdictionSuffixes } from '../../../shared/jurisdictions';
@@ -218,7 +219,7 @@ export class GleifClaimsService {
         like(gleifEntities.legalName, pattern)
       );
 
-      const results = await db.select()
+      const results = await betaDb.select()
         .from(gleifEntities)
         .where(or(...conditions))
         .limit(50);
@@ -235,7 +236,7 @@ export class GleifClaimsService {
    */
   private async getEntityRelationships(leiCode: string): Promise<any[]> {
     try {
-      const relationships = await db.select()
+      const relationships = await betaDb.select()
         .from(entityRelationships)
         .where(
           or(
@@ -256,7 +257,7 @@ export class GleifClaimsService {
    */
   private async getGleifEntity(leiCode: string): Promise<any | null> {
     try {
-      const [entity] = await db.select()
+      const [entity] = await betaDb.select()
         .from(gleifEntities)
         .where(eq(gleifEntities.leiCode, leiCode))
         .limit(1);
