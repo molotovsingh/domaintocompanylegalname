@@ -1,89 +1,9 @@
 {
-  "usableSessionsCount": 8,
+  "usableSessionsCount": 1,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_ClyPterp5M",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-02T06:20:28.129Z",
-      "createdAt": "2025-08-02T05:30:28.129Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_cmlBlhnxP3",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-02T06:20:29.956Z",
-      "createdAt": "2025-08-02T05:30:29.956Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_HLPjX7w8eb",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-02T06:20:29.962Z",
-      "createdAt": "2025-08-02T05:30:29.962Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_AxS5HrV2DN",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-02T06:20:31.281Z",
-      "createdAt": "2025-08-02T05:30:31.281Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_kg0KvOT80A",
+      "id": "session_iQEddmpsrS",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -93,175 +13,80 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "__cf_bm",
-            "value": "sN4ndSTYL_riC23rcuzwI77TAQ_g6Ued117EcuS14.E-1754112671-1.0.1.1-pXwoQMqMSVh8iiGN8vum5Eu3Gequ9nVie58tEbWJfXB6lUf1RtAjxyo5SQHktYrkCtna6pvuf4SOKtccQp45WfKu9EBoauXJytzH03kcyzE",
-            "expires": "2025-08-02T06:01:11.000Z",
-            "domain": "zerodha.com",
+            "key": "DPX",
+            "value": "v1:g4MxwX/MHY:j8KziBsL:688dbfb7:gb",
+            "expires": "2025-08-02T07:35:14.000Z",
+            "domain": "1und1.com",
             "path": "/",
             "secure": true,
             "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T05:31:11.377Z",
-            "lastAccessed": "2025-08-02T05:31:11.377Z",
-            "sameSite": "none"
+            "hostOnly": true,
+            "creation": "2025-08-02T06:35:14.804Z",
+            "lastAccessed": "2025-08-02T06:35:14.804Z",
+            "sameSite": "lax"
           },
           {
-            "key": "_cfuvid",
-            "value": "Vc5qxPpIm0xHU8TBJzeO7.tb5EmeUAif3d1OqqucnAs-1754112671323-0.0.1.1-604800000",
-            "domain": "zerodha.com",
+            "key": "DPX",
+            "value": "v1:OZZtzsjJVn:v2HyVhyU:688dbfb8:gb",
+            "expires": "2025-08-02T07:35:15.000Z",
+            "domain": "www.1und1.de",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-02T06:35:16.187Z",
+            "lastAccessed": "2025-08-02T06:35:16.187Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "tnt_sc",
+            "value": "YWMscHNfaWQsZG0sc2UsbHAsdCxhcCxiayxtYyx3aW5fbWMsa3drLG1iaWQsenh1aWQKLCwxLGV1ZSxldWUsMTc1NDExNjUxNSwxLCwwOTRERjExLDA5NERGMTEsLCw%3D",
+            "expires": "2025-09-01T06:35:15.000Z",
+            "maxAge": 2592000,
+            "domain": "1und1.de",
             "path": "/",
             "secure": true,
             "httpOnly": true,
             "hostOnly": false,
-            "creation": "2025-08-02T05:31:11.378Z",
-            "lastAccessed": "2025-08-02T05:31:11.378Z",
-            "sameSite": "none"
+            "creation": "2025-08-02T06:35:16.187Z",
+            "lastAccessed": "2025-08-02T06:35:16.187Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "ses_ase_generic_ab_cookie",
+            "value": "generic_ab_variation",
+            "expires": "2025-09-01T06:35:15.000Z",
+            "maxAge": 2592000,
+            "domain": "1und1.de",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-08-02T06:35:16.192Z",
+            "lastAccessed": "2025-08-02T06:35:16.192Z",
+            "sameSite": "strict"
+          },
+          {
+            "key": "eue_delivery_session_id",
+            "value": "07b3fd68-575a-4007-8dd4-41c60d6673a5",
+            "expires": "2025-08-02T07:05:15.000Z",
+            "maxAge": 1800,
+            "domain": "1und1.de",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-08-02T06:35:16.194Z",
+            "lastAccessed": "2025-08-02T06:35:16.194Z",
+            "sameSite": "lax"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-02T06:21:09.923Z",
-      "createdAt": "2025-08-02T05:31:09.923Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_pYzb108Y3I",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "__cf_bm",
-            "value": "IhiWnJ1YVkpayhl2JesQN1ZVzNH.66wKhQGe6LfqSgM-1754112672-1.0.1.1-lw23P19nxKxk.Yc1VV471WPDqlP0ggaFcRyAMQIU63LlDB2kKEnJcAJnpKHCj12revri98q1abE9cxs0VVlK_92QBMGwGfqdYaAWT6qYcjQ",
-            "expires": "2025-08-02T06:01:12.000Z",
-            "domain": "zerodha.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T05:31:12.731Z",
-            "lastAccessed": "2025-08-02T05:31:12.731Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "_cfuvid",
-            "value": "rhgfWrAEJ3ZOUORXKOgKsPcXFNKxMwL37MwvOW0DBXw-1754112672691-0.0.1.1-604800000",
-            "domain": "zerodha.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T05:31:12.731Z",
-            "lastAccessed": "2025-08-02T05:31:12.731Z",
-            "sameSite": "none"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-02T06:21:11.442Z",
-      "createdAt": "2025-08-02T05:31:11.442Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_t3l08PEaQa",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "__cf_bm",
-            "value": "CDxLJkKfg8i.BP8IQxfbEITqoO_UjZgn_tF.obUSP4g-1754112672-1.0.1.1-kSK.GDmicmXBwWZTyi1Acbtrjyg7dPoDRwUA44xOG_cxGngPxXUybqSlfBkRw0BrrESNWpSDUd_Qgp9jrF07wjU9slhigRlCYdhmGj5FB.E",
-            "expires": "2025-08-02T06:01:12.000Z",
-            "domain": "zerodha.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T05:31:12.762Z",
-            "lastAccessed": "2025-08-02T05:31:12.762Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "_cfuvid",
-            "value": "tivD8.djfDO41C9wLGOfQiPQvkSTBRKWd5tfJhg9kWQ-1754112672700-0.0.1.1-604800000",
-            "domain": "zerodha.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T05:31:12.762Z",
-            "lastAccessed": "2025-08-02T05:31:12.762Z",
-            "sameSite": "none"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-02T06:21:11.443Z",
-      "createdAt": "2025-08-02T05:31:11.443Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_BeQdJYxEWx",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "__cf_bm",
-            "value": "u0ukP.YhygKBdgG91nF1TxF98f5oNV4sMF4dhJ_8fEo-1754112674-1.0.1.1-m8P9BUrwK5UWCrRzB_yUYaLZggrVbCNOKR3dzvrfXpdrxxGQrd1eHViDfDQChSjb9OWfOe2b7BGmdyKSfSj6xamEFTAec413.0Gsy8fjSEw",
-            "expires": "2025-08-02T06:01:14.000Z",
-            "domain": "zerodha.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T05:31:14.154Z",
-            "lastAccessed": "2025-08-02T05:31:14.154Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "_cfuvid",
-            "value": "Mo_PTMzkMXh7au2mOHFjFI5.tCFfo9V6ATWOWaJCrG0-1754112674120-0.0.1.1-604800000",
-            "domain": "zerodha.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T05:31:14.154Z",
-            "lastAccessed": "2025-08-02T05:31:14.154Z",
-            "sameSite": "none"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-02T06:21:12.804Z",
-      "createdAt": "2025-08-02T05:31:12.804Z",
+      "expiresAt": "2025-08-02T07:25:12.649Z",
+      "createdAt": "2025-08-02T06:35:12.649Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
