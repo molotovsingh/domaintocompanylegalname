@@ -90,6 +90,9 @@ function extractTextContent(content: any): string {
 router.post('/generate-claims', async (req, res) => {
   console.log('[Beta] [GleifClaimsRoutes] Generating claims from dump', req.body);
   
+  // Set JSON content type explicitly
+  res.setHeader('Content-Type', 'application/json');
+  
   try {
     const { domain, dumpId, collectionType } = req.body;
 

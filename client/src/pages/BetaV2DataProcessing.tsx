@@ -579,7 +579,18 @@ export default function BetaV2DataProcessingPage() {
                           console.log('[Entity Claims] Response status:', response.status);
                           console.log('[Entity Claims] Response headers:', response.headers);
                           
-                          const data = await response.json();
+                          // Get raw response first to diagnose the issue
+                          const rawResponse = await response.text();
+                          console.log('[Entity Claims] Raw Response:', rawResponse);
+                          
+                          // Try to parse as JSON
+                          let data;
+                          try {
+                            data = JSON.parse(rawResponse);
+                          } catch (parseError) {
+                            console.error('[Entity Claims] Failed to parse response as JSON');
+                            throw new Error('Server returned invalid response format');
+                          }
                           
                           if (data.success) {
                             setClaimsResults(prev => [{
