@@ -11,6 +11,7 @@ import { createCleaningRoutes } from './cleaning/cleaningRoutes';
 import { betaDb } from '../betaDb';
 import gleifSearchRouter from './gleif-search/gleifSearchIndex';
 import processingRouter from './processing/processingIndex';
+import gleifClaimsRouter from './gleif/gleifClaimsRoutes';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
@@ -28,7 +29,7 @@ router.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     platform: 'beta-v2',
-    methods: ['playwright-dump', 'scrapy-crawl', 'crawlee-dump', 'axios-cheerio', 'gleif-search', 'processing']
+    methods: ['playwright-dump', 'scrapy-crawl', 'crawlee-dump', 'axios-cheerio', 'gleif-search', 'processing', 'gleif-claims']
   });
 });
 
@@ -50,6 +51,9 @@ router.use('/gleif-search', gleifSearchRouter);
 
 // Mount processing router
 router.use('/processing', processingRouter);
+
+// Mount GLEIF claims router
+router.use('/gleif-claims', gleifClaimsRouter);
 
 // Dump a domain
 router.post('/dump', async (req, res) => {

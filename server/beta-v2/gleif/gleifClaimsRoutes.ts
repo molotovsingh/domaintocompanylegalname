@@ -1,0 +1,269 @@
+import { Router } from 'express';
+import { GleifClaimsService } from './gleifClaimsService';
+import { CleaningService } from '../cleaning/cleaningService';
+
+const router = Router();
+const gleifClaimsService = new GleifClaimsService();
+const cleaningService = new CleaningService();
+
+// Helper functions for extracting data from raw content
+function extractTitle(content: any): string {
+  // Extract from scrapy/crawlee format
+  if (content?.pages?.[0]?.title) {
+    return content.pages[0].title;
+  }
+  
+  // Extract from HTML
+  if (typeof content === 'string') {
+    const titleMatch = content.match(/<title[^>]*>([^<]+)<\/title>/i);
+    return titleMatch ? titleMatch[1].trim() : '';
+  }
+  
+  return '';
+}
+
+function extractMetaTags(content: any): Record<string, string> {
+  const metaTags: Record<string, string> = {};
+  
+  // Extract from structured data
+  if (content?.pages?.[0]?.metadata) {
+    return content.pages[0].metadata;
+  }
+  
+  // Extract from HTML
+  if (typeof content === 'string') {
+    const metaRegex = /<meta\s+(?:name|property)=["']([^"']+)["']\s+content=["']([^"']+)["']/gi;
+    let match;
+    while ((match = metaRegex.exec(content)) !== null) {
+      metaTags[match[1]] = match[2];
+    }
+  }
+  
+  return metaTags;
+}
+
+function extractStructuredData(content: any): any {
+  // Extract from scrapy/crawlee format
+  if (content?.pages?.[0]?.structuredData) {
+    return content.pages[0].structuredData;
+  }
+  
+  // Extract JSON-LD from HTML
+  if (typeof content === 'string') {
+    const jsonLdMatch = content.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([^<]+)<\/script>/i);
+    if (jsonLdMatch) {
+      try {
+        return JSON.parse(jsonLdMatch[1]);
+      } catch (e) {
+        // Invalid JSON
+      }
+    }
+  }
+  
+  return null;
+}
+
+function extractTextContent(content: any): string {
+  // Extract from scrapy/crawlee format
+  if (content?.pages) {
+    return content.pages.map((page: any) => page.text || '').join('\n\n');
+  }
+  
+  // Extract from HTML by removing tags
+  if (typeof content === 'string') {
+    return content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  
+  return '';
+}
+
+/**
+ * Generate GLEIF claims from a specific dump
+ */
+router.post('/generate-claims', async (req, res) => {
+  console.log('[Beta] [GleifClaimsRoutes] Generating claims from dump');
+  
+  try {
+    const { domain, dumpId, collectionType } = req.body;
+
+    if (!domain || !dumpId || !collectionType) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required parameters: domain, dumpId, collectionType'
+      });
+    }
+
+    // Step 1: Get the dump
+    console.log(`[Beta] [GleifClaimsRoutes] Fetching ${collectionType} dump: ${dumpId}`);
+    const dumps = await cleaningService.getAvailableDumps();
+    const dump = dumps.find(d => d.id === dumpId && d.type === collectionType);
+
+    if (!dump) {
+      return res.status(404).json({
+        success: false,
+        error: 'Dump not found'
+      });
+    }
+
+    // Step 2: Get raw dump data
+    console.log('[Beta] [GleifClaimsRoutes] Getting raw dump content');
+    const rawData = await cleaningService.getRawData(collectionType, parseInt(dumpId));
+    
+    if (!rawData) {
+      return res.status(404).json({
+        success: false,
+        error: 'Failed to retrieve dump content'
+      });
+    }
+    
+    // For now, use raw data directly (Stage 1 & 2 cleaning can be added later)
+    const cleanedContent = {
+      domain: rawData.domain,
+      title: extractTitle(rawData.content),
+      metaTags: extractMetaTags(rawData.content),
+      structuredData: extractStructuredData(rawData.content),
+      extractedText: extractTextContent(rawData.content)
+    };
+
+    // Step 3: Generate GLEIF claims
+    console.log('[Beta] [GleifClaimsRoutes] Generating GLEIF claims');
+    const claims = await gleifClaimsService.generateClaims(domain, cleanedContent);
+
+    console.log(`[Beta] [GleifClaimsRoutes] Generated ${claims.entityClaims.length} claims in ${claims.processingTime}ms`);
+
+    res.json({
+      success: true,
+      data: claims
+    });
+
+  } catch (error) {
+    console.error('[Beta] [GleifClaimsRoutes] Error generating claims:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to generate claims'
+    });
+  }
+});
+
+/**
+ * Process batch of domains for GLEIF claims
+ */
+router.post('/process-batch', async (req, res) => {
+  console.log('[Beta] [GleifClaimsRoutes] Processing batch for GLEIF claims');
+  
+  try {
+    const { domains } = req.body;
+
+    if (!domains || !Array.isArray(domains)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing or invalid domains array'
+      });
+    }
+
+    const batchId = `gleif-claims-${Date.now()}`;
+    const results = [];
+
+    // Process each domain
+    for (const domain of domains) {
+      try {
+        // Find best available dump for domain
+        const dumps = await cleaningService.getAvailableDumps();
+        const domainDumps = dumps.filter(d => d.domain === domain);
+        
+        if (domainDumps.length === 0) {
+          results.push({
+            domain,
+            success: false,
+            error: 'No dumps available for domain'
+          });
+          continue;
+        }
+
+        // Use the most recent dump
+        const dump = domainDumps[0];
+        
+        // Get raw data and extract content
+        const rawData = await cleaningService.getRawData(dump.type, dump.id);
+        
+        if (!rawData) {
+          results.push({
+            domain,
+            success: false,
+            error: 'Failed to retrieve dump content'
+          });
+          continue;
+        }
+        
+        const cleanedContent = {
+          domain: rawData.domain,
+          title: extractTitle(rawData.content),
+          metaTags: extractMetaTags(rawData.content),
+          structuredData: extractStructuredData(rawData.content),
+          extractedText: extractTextContent(rawData.content)
+        };
+        
+        const claims = await gleifClaimsService.generateClaims(domain, cleanedContent);
+        
+        results.push({
+          domain,
+          success: true,
+          claims: claims.entityClaims,
+          claimCount: claims.entityClaims.length,
+          processingTime: claims.processingTime
+        });
+
+      } catch (error) {
+        console.error(`[Beta] [GleifClaimsRoutes] Error processing ${domain}:`, error);
+        results.push({
+          domain,
+          success: false,
+          error: error instanceof Error ? error.message : 'Processing failed'
+        });
+      }
+    }
+
+    res.json({
+      success: true,
+      batchId,
+      processed: results.length,
+      successful: results.filter(r => r.success).length,
+      results
+    });
+
+  } catch (error) {
+    console.error('[Beta] [GleifClaimsRoutes] Batch processing error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Batch processing failed'
+    });
+  }
+});
+
+/**
+ * Get GLEIF entity details with relationships
+ */
+router.get('/entity/:leiCode', async (req, res) => {
+  console.log('[Beta] [GleifClaimsRoutes] Getting entity details');
+  
+  try {
+    const { leiCode } = req.params;
+
+    // This would query the gleifEntities and entityRelationships tables
+    // For now, returning a placeholder response
+    res.json({
+      success: true,
+      message: 'Entity lookup not yet implemented',
+      leiCode
+    });
+
+  } catch (error) {
+    console.error('[Beta] [GleifClaimsRoutes] Entity lookup error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Entity lookup failed'
+    });
+  }
+});
+
+export default router;

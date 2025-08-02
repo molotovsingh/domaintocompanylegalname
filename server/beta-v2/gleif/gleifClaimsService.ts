@@ -1,0 +1,389 @@
+/**
+ * GLEIF Claims Service
+ * 
+ * Generates entity claims from cleaned dumps for GLEIF verification.
+ * Philosophy: Multiple claims with evidence, not single "correct" answers.
+ * 
+ * Flow: Cleaned Dump → Entity Extraction → Suffix Suggestions → GLEIF Claims
+ */
+
+import { db } from '../../db';
+import { gleifEntities, entityRelationships } from '../../../shared/schema';
+import { eq, like, or, and } from 'drizzle-orm';
+import { JURISDICTIONS, getJurisdictionByTLD, getJurisdictionSuffixes } from '../../../shared/jurisdictions';
+
+interface EntityClaim {
+  claimType: 'extracted' | 'gleif_verified' | 'suffix_suggestion' | 'gleif_relationship';
+  entityName: string;
+  confidence?: 'high' | 'medium' | 'low';
+  source?: string;
+  leiCode?: string;
+  evidence?: {
+    type: string;
+    relationships?: string[];
+    jurisdiction?: string;
+    parent?: string;
+  };
+  reasoning?: string;
+}
+
+interface GleifClaimsResult {
+  domain: string;
+  entityClaims: EntityClaim[];
+  searchPatternsUsed: string[];
+  processingTime: number;
+}
+
+export class GleifClaimsService {
+  constructor() {}
+
+  /**
+   * Generate entity claims from cleaned dump content
+   */
+  async generateClaims(domain: string, cleanedContent: any): Promise<GleifClaimsResult> {
+    const startTime = Date.now();
+    const claims: EntityClaim[] = [];
+    const searchPatterns: string[] = [];
+
+    try {
+      // Step 1: Extract entities from cleaned content
+      const extractedEntities = this.extractEntities(cleanedContent);
+      
+      // Add extracted entity claims
+      extractedEntities.forEach(entity => {
+        claims.push({
+          claimType: 'extracted',
+          entityName: entity.name,
+          confidence: entity.confidence,
+          source: entity.source
+        });
+      });
+
+      // Step 2: Generate search patterns with wildcards
+      const patterns = this.generateSearchPatterns(extractedEntities);
+      searchPatterns.push(...patterns);
+
+      // Step 3: Query GLEIF database with patterns
+      const gleifResults = await this.queryGleifDatabase(patterns);
+
+      // Step 4: Add GLEIF verified claims
+      for (const gleifEntity of gleifResults) {
+        claims.push({
+          claimType: 'gleif_verified',
+          entityName: gleifEntity.legalName,
+          leiCode: gleifEntity.leiCode,
+          evidence: {
+            type: 'database_match',
+            jurisdiction: gleifEntity.jurisdiction || undefined
+          }
+        });
+
+        // Add relationship claims
+        const relationships = await this.getEntityRelationships(gleifEntity.leiCode);
+        for (const rel of relationships) {
+          const relatedEntity = await this.getGleifEntity(
+            rel.relationshipType === 'parent' ? rel.parentLei! : rel.childLei!
+          );
+          
+          if (relatedEntity) {
+            claims.push({
+              claimType: 'gleif_relationship',
+              entityName: relatedEntity.legalName,
+              leiCode: relatedEntity.leiCode,
+              evidence: {
+                type: rel.relationshipType === 'parent' ? 'parent_entity' : 'child_entity',
+                parent: rel.relationshipType === 'child' ? gleifEntity.legalName : undefined
+              }
+            });
+          }
+        }
+      }
+
+      // Step 5: Generate suffix suggestions for base entities
+      const suffixSuggestions = this.generateSuffixSuggestions(extractedEntities, cleanedContent);
+      claims.push(...suffixSuggestions);
+
+      return {
+        domain,
+        entityClaims: claims,
+        searchPatternsUsed: searchPatterns,
+        processingTime: Date.now() - startTime
+      };
+
+    } catch (error) {
+      console.error('[GleifClaimsService] Error generating claims:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Extract entity mentions from cleaned content
+   */
+  private extractEntities(cleanedContent: any): Array<{name: string; confidence: 'high' | 'medium' | 'low'; source: string}> {
+    const entities: Array<{name: string; confidence: 'high' | 'medium' | 'low'; source: string}> = [];
+    
+    // Extract from structured data if available
+    if (cleanedContent.structuredData?.organization?.name) {
+      entities.push({
+        name: cleanedContent.structuredData.organization.name,
+        confidence: 'high',
+        source: 'structured_data'
+      });
+    }
+
+    // Extract from meta tags
+    if (cleanedContent.metaTags?.['og:site_name']) {
+      entities.push({
+        name: cleanedContent.metaTags['og:site_name'],
+        confidence: 'high',
+        source: 'meta_og_site_name'
+      });
+    }
+
+    // Extract from title
+    if (cleanedContent.title) {
+      const titleEntity = this.extractFromTitle(cleanedContent.title);
+      if (titleEntity) {
+        entities.push({
+          name: titleEntity,
+          confidence: 'medium',
+          source: 'page_title'
+        });
+      }
+    }
+
+    // Extract from copyright text
+    if (cleanedContent.extractedText) {
+      const copyrightEntities = this.extractFromCopyright(cleanedContent.extractedText);
+      copyrightEntities.forEach(entity => {
+        entities.push({
+          name: entity,
+          confidence: 'medium',
+          source: 'copyright_text'
+        });
+      });
+    }
+
+    // Deduplicate by name
+    const uniqueEntities = new Map<string, typeof entities[0]>();
+    entities.forEach(entity => {
+      const normalized = entity.name.trim();
+      if (!uniqueEntities.has(normalized) || 
+          (uniqueEntities.get(normalized)!.confidence === 'low' && entity.confidence !== 'low')) {
+        uniqueEntities.set(normalized, entity);
+      }
+    });
+
+    return Array.from(uniqueEntities.values());
+  }
+
+  /**
+   * Generate search patterns with wildcards
+   */
+  private generateSearchPatterns(entities: Array<{name: string}>): string[] {
+    const patterns = new Set<string>();
+
+    entities.forEach(entity => {
+      const baseName = entity.name.trim();
+      
+      // Standard suffix wildcard
+      patterns.add(`${baseName}%`);
+      
+      // Prefix wildcard for typos/variations
+      if (baseName.length > 5) {
+        patterns.add(`%${baseName.substring(2)}%`);
+      }
+      
+      // Handle multi-word entities
+      const words = baseName.split(/\s+/);
+      if (words.length > 1) {
+        // First word only
+        patterns.add(`${words[0]}%`);
+        // Last word with prefix wildcard
+        patterns.add(`%${words[words.length - 1]}%`);
+      }
+    });
+
+    return Array.from(patterns);
+  }
+
+  /**
+   * Query GLEIF database with search patterns
+   */
+  private async queryGleifDatabase(patterns: string[]): Promise<any[]> {
+    if (patterns.length === 0) return [];
+
+    try {
+      const conditions = patterns.map(pattern => 
+        like(gleifEntities.legalName, pattern)
+      );
+
+      const results = await db.select()
+        .from(gleifEntities)
+        .where(or(...conditions))
+        .limit(50);
+
+      return results;
+    } catch (error) {
+      console.error('[GleifClaimsService] Database query error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get entity relationships from database
+   */
+  private async getEntityRelationships(leiCode: string): Promise<any[]> {
+    try {
+      const relationships = await db.select()
+        .from(entityRelationships)
+        .where(
+          or(
+            eq(entityRelationships.parentLei, leiCode),
+            eq(entityRelationships.childLei, leiCode)
+          )
+        );
+
+      return relationships;
+    } catch (error) {
+      console.error('[GleifClaimsService] Relationship query error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get single GLEIF entity by LEI
+   */
+  private async getGleifEntity(leiCode: string): Promise<any | null> {
+    try {
+      const [entity] = await db.select()
+        .from(gleifEntities)
+        .where(eq(gleifEntities.leiCode, leiCode))
+        .limit(1);
+
+      return entity || null;
+    } catch (error) {
+      console.error('[GleifClaimsService] Entity query error:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Generate suffix suggestions based on jurisdiction clues
+   */
+  private generateSuffixSuggestions(
+    entities: Array<{name: string}>, 
+    cleanedContent: any
+  ): EntityClaim[] {
+    const suggestions: EntityClaim[] = [];
+    
+    // Try to detect country from content
+    const countryHints = this.detectCountryHints(cleanedContent);
+    
+    entities.forEach(entity => {
+      const baseName = entity.name.trim();
+      
+      // Skip if already has a suffix
+      if (this.hasCorporateSuffix(baseName)) return;
+
+      countryHints.forEach(country => {
+        const jurisdictionKey = country.toLowerCase();
+        const jurisdiction = JURISDICTIONS[jurisdictionKey];
+        
+        if (jurisdiction) {
+          // Get all suffixes for this jurisdiction
+          const suffixes = getJurisdictionSuffixes(jurisdictionKey);
+          
+          // Add top 3 most common suffixes
+          suffixes.slice(0, 3).forEach((suffix: string, index: number) => {
+            suggestions.push({
+              claimType: 'suffix_suggestion',
+              entityName: `${baseName} ${suffix}`,
+              confidence: index === 0 ? 'medium' : 'low',
+              source: 'llm_jurisdiction_guess',
+              reasoning: `${jurisdiction.name} company, ${suffix} is ${index === 0 ? 'most common' : 'common'} suffix`
+            });
+          });
+        }
+      });
+    });
+
+    return suggestions;
+  }
+
+  /**
+   * Extract entity from title
+   */
+  private extractFromTitle(title: string): string | null {
+    // Remove common patterns
+    const cleaned = title
+      .replace(/\s*[\|–-]\s*.*$/, '') // Remove everything after separator
+      .replace(/^(Home|Welcome to|About)\s+/i, '') // Remove common prefixes
+      .trim();
+
+    return cleaned.length > 2 ? cleaned : null;
+  }
+
+  /**
+   * Extract entities from copyright text
+   */
+  private extractFromCopyright(text: string): string[] {
+    const entities: string[] = [];
+    const copyrightRegex = /(?:©|Copyright|All rights reserved?)\s+(?:by\s+)?([A-Z][A-Za-z0-9\s&.,'-]+?)(?:\.|,|\s+All|\s+Rights|\s+\d{4}|$)/gi;
+    
+    let match;
+    while ((match = copyrightRegex.exec(text)) !== null) {
+      const entity = match[1].trim();
+      if (entity.length > 2 && !entity.match(/^\d+$/)) {
+        entities.push(entity);
+      }
+    }
+
+    return entities;
+  }
+
+  /**
+   * Check if entity name already has a corporate suffix
+   */
+  private hasCorporateSuffix(name: string): boolean {
+    const suffixPatterns = [
+      /\b(?:Inc|Corp|LLC|Ltd|GmbH|AG|SA|SAS|SpA|BV|NV|Pty|PLC|SE)\b\.?$/i,
+      /\b(?:Limited|Corporation|Company|Incorporated)\b\.?$/i
+    ];
+
+    return suffixPatterns.some(pattern => pattern.test(name));
+  }
+
+  /**
+   * Detect country hints from content
+   */
+  private detectCountryHints(content: any): string[] {
+    const countries = new Set<string>();
+
+    // Check structured data
+    if (content.structuredData?.address?.addressCountry) {
+      countries.add(content.structuredData.address.addressCountry);
+    }
+
+    // Check meta tags
+    if (content.metaTags?.['og:locale']) {
+      const locale = content.metaTags['og:locale'];
+      const country = locale.split('_')[1];
+      if (country) countries.add(country);
+    }
+
+    // Check domain TLD
+    if (content.domain) {
+      const tld = content.domain.split('.').pop();
+      const tldCountryMap: Record<string, string> = {
+        'de': 'DE', 'fr': 'FR', 'uk': 'GB', 'it': 'IT',
+        'es': 'ES', 'nl': 'NL', 'ch': 'CH', 'at': 'AT'
+      };
+      if (tld && tldCountryMap[tld]) {
+        countries.add(tldCountryMap[tld]);
+      }
+    }
+
+    return Array.from(countries);
+  }
+}
