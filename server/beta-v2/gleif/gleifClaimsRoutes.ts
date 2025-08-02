@@ -4,7 +4,14 @@ import { CleaningService } from '../cleaning/cleaningService';
 
 const router = Router();
 const gleifClaimsService = new GleifClaimsService();
-const cleaningService = new CleaningService();
+let cleaningService: CleaningService;
+
+try {
+  cleaningService = new CleaningService();
+} catch (error) {
+  console.error('[Beta] [GleifClaimsRoutes] Error initializing CleaningService:', error);
+  throw error;
+}
 
 // Helper functions for extracting data from raw content
 function extractTitle(content: any): string {
@@ -81,7 +88,7 @@ function extractTextContent(content: any): string {
  * Generate GLEIF claims from a specific dump
  */
 router.post('/generate-claims', async (req, res) => {
-  console.log('[Beta] [GleifClaimsRoutes] Generating claims from dump');
+  console.log('[Beta] [GleifClaimsRoutes] Generating claims from dump', req.body);
   
   try {
     const { domain, dumpId, collectionType } = req.body;
@@ -96,7 +103,7 @@ router.post('/generate-claims', async (req, res) => {
     // Step 1: Get the dump
     console.log(`[Beta] [GleifClaimsRoutes] Fetching ${collectionType} dump: ${dumpId}`);
     const dumps = await cleaningService.getAvailableDumps();
-    const dump = dumps.find(d => d.id === dumpId && d.type === collectionType);
+    const dump = dumps.find(d => d.id === parseInt(dumpId) && d.type === collectionType);
 
     if (!dump) {
       return res.status(404).json({
@@ -133,14 +140,19 @@ router.post('/generate-claims', async (req, res) => {
 
     res.json({
       success: true,
-      data: claims
+      claims: claims.entityClaims,
+      processingTime: claims.processingTime
     });
 
   } catch (error) {
     console.error('[Beta] [GleifClaimsRoutes] Error generating claims:', error);
-    res.status(500).json({
+    console.error('[Beta] [GleifClaimsRoutes] Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+    
+    // Always return JSON, never let Express return HTML error pages
+    return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to generate claims'
+      error: error instanceof Error ? error.message : 'Failed to generate claims',
+      details: process.env.NODE_ENV === 'development' ? String(error) : undefined
     });
   }
 });
