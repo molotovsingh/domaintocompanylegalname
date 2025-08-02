@@ -1,0 +1,9 @@
+{
+	"id": "wvd7WImbus2CsMA",
+	"json": "{\"id\":\"wvd7WImbus2CsMA\",\"url\":\"https://tradingview.com/ideas/\",\"loadedUrl\":\"https://www.tradingview.com/ideas/\",\"uniqueKey\":\"https://tradingview.com/ideas\",\"method\":\"GET\",\"noRetry\":true,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"enqueueStrategy\":\"same-hostname\",\"state\":7}},\"handledAt\":\"2025-08-02T05:30:32.644Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://tradingview.com/ideas",
+	"url": "https://tradingview.com/ideas/"
+}

@@ -1,0 +1,9 @@
+{
+	"id": "OkQ2747LJqMUCB8",
+	"json": "{\"id\":\"OkQ2747LJqMUCB8\",\"url\":\"https://tradingview.com\",\"loadedUrl\":\"https://www.tradingview.com/\",\"uniqueKey\":\"https://tradingview.com\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2025-08-02T05:30:29.941Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://tradingview.com",
+	"url": "https://tradingview.com"
+}

@@ -5,7 +5,7 @@ import { queryClient } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, RefreshCw, PlayCircle, CheckCircle, Clock, AlertCircle, Database, Brain, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, RefreshCw, PlayCircle, CheckCircle, Clock, AlertCircle, Database, Brain, Search, ChevronDown, ChevronUp, FileSearch } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import {
@@ -559,71 +559,119 @@ export default function BetaV2DataProcessingPage() {
                   )}
                   
                   {selectedDumpForClaims && (
-                    <Button
-                      className="w-full mt-4"
-                      onClick={async () => {
-                        try {
-                          console.log('[Entity Claims] Starting claim generation for:', {
-                            domain: selectedDumpForClaims.domain,
-                            dumpId: selectedDumpForClaims.id.toString(),
-                            collectionType: selectedDumpForClaims.sourceType,
-                            apiPath: '/api/beta/gleif-claims/generate-claims'
-                          });
-                          
-                          const response = await apiRequest('POST', '/api/beta/gleif-claims/generate-claims', {
-                            domain: selectedDumpForClaims.domain,
-                            dumpId: selectedDumpForClaims.id.toString(),
-                            collectionType: selectedDumpForClaims.sourceType
-                          });
-                          
-                          console.log('[Entity Claims] Response status:', response.status);
-                          console.log('[Entity Claims] Response headers:', response.headers);
-                          
-                          // Get raw response first to diagnose the issue
-                          const rawResponse = await response.text();
-                          console.log('[Entity Claims] Raw Response:', rawResponse);
-                          
-                          // Try to parse as JSON
-                          let data;
+                    <div className="flex gap-2 mt-4">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={async () => {
                           try {
-                            data = JSON.parse(rawResponse);
-                          } catch (parseError) {
-                            console.error('[Entity Claims] Failed to parse response as JSON');
-                            throw new Error('Server returned invalid response format');
-                          }
-                          
-                          if (data.success) {
-                            setClaimsResults(prev => [{
+                            const response = await apiRequest('POST', '/api/beta/gleif-claims/pre-check', {
                               domain: selectedDumpForClaims.domain,
-                              dumpId: selectedDumpForClaims.id,
-                              collectionType: selectedDumpForClaims.sourceType,
-                              claims: data.claims,
-                              processedAt: new Date().toISOString()
-                            }, ...prev]);
-                            
-                            toast({
-                              title: "Claims Generated",
-                              description: `Found ${data.claims.length} entity claims for ${selectedDumpForClaims.domain}`,
+                              dumpId: selectedDumpForClaims.id.toString(),
+                              collectionType: selectedDumpForClaims.sourceType
                             });
-                          } else {
+                            
+                            const rawResponse = await response.text();
+                            const data = JSON.parse(rawResponse);
+                            
+                            if (data.success) {
+                              const info = data.availableData;
+                              toast({
+                                title: "Pre-Check Complete",
+                                description: (
+                                  <div className="mt-2 space-y-1">
+                                    <p>✓ Title: {info.hasTitle ? `"${info.title}"` : 'Not found'}</p>
+                                    <p>✓ Meta Tags: {info.metaTagCount || 0} found</p>
+                                    <p>✓ Structured Data: {info.hasStructuredData ? 'Available' : 'Not found'}</p>
+                                    <p>✓ Text Content: {info.textLength || 0} characters</p>
+                                  </div>
+                                ),
+                              });
+                            } else {
+                              toast({
+                                title: "Pre-Check Failed",
+                                description: data.error || "Failed to check data",
+                                variant: "destructive"
+                              });
+                            }
+                          } catch (error) {
                             toast({
-                              title: "Generation Failed",
-                              description: data.error || "Failed to generate claims",
+                              title: "Error",
+                              description: error instanceof Error ? error.message : "Failed to pre-check data",
                               variant: "destructive"
                             });
                           }
-                        } catch (error) {
-                          toast({
-                            title: "Error",
-                            description: error instanceof Error ? error.message : "Failed to generate claims",
-                            variant: "destructive"
-                          });
-                        }
-                      }}
-                    >
-                      <Brain className="mr-2 h-4 w-4" />
-                      Generate Claims for {selectedDumpForClaims.domain}
-                    </Button>
+                        }}
+                      >
+                        <FileSearch className="mr-2 h-4 w-4" />
+                        Pre-Check Data
+                      </Button>
+                      <Button
+                        className="flex-1"
+                        onClick={async () => {
+                          try {
+                            console.log('[Entity Claims] Starting claim generation for:', {
+                              domain: selectedDumpForClaims.domain,
+                              dumpId: selectedDumpForClaims.id.toString(),
+                              collectionType: selectedDumpForClaims.sourceType,
+                              apiPath: '/api/beta/gleif-claims/generate-claims'
+                            });
+                            
+                            const response = await apiRequest('POST', '/api/beta/gleif-claims/generate-claims', {
+                              domain: selectedDumpForClaims.domain,
+                              dumpId: selectedDumpForClaims.id.toString(),
+                              collectionType: selectedDumpForClaims.sourceType
+                            });
+                            
+                            console.log('[Entity Claims] Response status:', response.status);
+                            console.log('[Entity Claims] Response headers:', response.headers);
+                            
+                            // Get raw response first to diagnose the issue
+                            const rawResponse = await response.text();
+                            console.log('[Entity Claims] Raw Response:', rawResponse);
+                            
+                            // Try to parse as JSON
+                            let data;
+                            try {
+                              data = JSON.parse(rawResponse);
+                            } catch (parseError) {
+                              console.error('[Entity Claims] Failed to parse response as JSON');
+                              throw new Error('Server returned invalid response format');
+                            }
+                            
+                            if (data.success) {
+                              setClaimsResults(prev => [{
+                                domain: selectedDumpForClaims.domain,
+                                dumpId: selectedDumpForClaims.id,
+                                collectionType: selectedDumpForClaims.sourceType,
+                                claims: data.claims,
+                                processedAt: new Date().toISOString()
+                              }, ...prev]);
+                              
+                              toast({
+                                title: "Claims Generated",
+                                description: `Found ${data.claims.length} entity claims for ${selectedDumpForClaims.domain}`,
+                              });
+                            } else {
+                              toast({
+                                title: "Generation Failed",
+                                description: data.error || "Failed to generate claims",
+                                variant: "destructive"
+                              });
+                            }
+                          } catch (error) {
+                            toast({
+                              title: "Error",
+                              description: error instanceof Error ? error.message : "Failed to generate claims",
+                              variant: "destructive"
+                            });
+                          }
+                        }}
+                      >
+                        <Brain className="mr-2 h-4 w-4" />
+                        Generate Claims
+                      </Button>
+                    </div>
                   )}
                 </div>
 

@@ -137,6 +137,33 @@ router.post('/generate-claims', async (req, res) => {
         JSON.stringify(rawData.content).substring(0, 200)
     });
     
+    // Pre-check: Extract and log what data we have BEFORE cleaning
+    console.log('[Beta] [GleifClaimsRoutes] PRE-CHECK - Available data before extraction:');
+    
+    // Check for different dump types
+    if (collectionType === 'crawlee_dump' && rawData.content?.pages) {
+      console.log('  - Crawlee dump with pages:', rawData.content.pages.length);
+      const firstPage = rawData.content.pages[0];
+      if (firstPage) {
+        console.log('  - First page has:', {
+          title: firstPage.title || 'NO TITLE',
+          metaTags: firstPage.metaTags ? Object.keys(firstPage.metaTags).length + ' tags' : 'NO META TAGS',
+          structuredData: firstPage.structuredData ? 'YES' : 'NO',
+          textLength: firstPage.text ? firstPage.text.length : 0
+        });
+      }
+    } else if (collectionType === 'axios_cheerio_dump') {
+      console.log('  - Axios+Cheerio dump');
+      console.log('  - Raw HTML length:', rawData.content?.length || 0);
+      console.log('  - Metadata:', {
+        metaTags: rawData.metadata?.meta_tags ? Object.keys(rawData.metadata.meta_tags).length + ' tags' : 'NO META TAGS',
+        pageMetadata: rawData.metadata?.page_metadata ? 'YES' : 'NO'
+      });
+      if (rawData.metadata?.meta_tags) {
+        console.log('  - Sample meta tags:', Object.entries(rawData.metadata.meta_tags).slice(0, 3));
+      }
+    }
+    
     // For now, use raw data directly (Stage 1 & 2 cleaning can be added later)
     const cleanedContent = {
       domain: rawData.domain,
@@ -305,6 +332,93 @@ router.get('/entity/:leiCode', async (req, res) => {
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Entity lookup failed'
+    });
+  }
+});
+
+/**
+ * Pre-check endpoint to verify data availability
+ */
+router.post('/pre-check', async (req, res) => {
+  try {
+    const { domain, dumpId, collectionType } = req.body;
+    
+    console.log('[Beta] [GleifClaimsRoutes] Pre-check request:', { domain, dumpId, collectionType });
+    
+    // Validate input
+    if (!domain || !dumpId || !collectionType) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: domain, dumpId, and collectionType'
+      });
+    }
+    
+    // Get raw data from cleaning service
+    const cleaningService = new CleaningService();
+    const rawData = await cleaningService.getRawData(collectionType, parseInt(dumpId));
+    
+    if (!rawData) {
+      return res.status(404).json({
+        success: false,
+        error: 'No data found for the specified dump'
+      });
+    }
+    
+    // Analyze available data
+    let availableData = {
+      hasTitle: false,
+      title: '',
+      metaTagCount: 0,
+      hasStructuredData: false,
+      textLength: 0,
+      hasHtml: false,
+      sampleMetaTags: [] as string[]
+    };
+    
+    if (collectionType === 'crawlee_dump' && rawData.content?.pages) {
+      const firstPage = rawData.content.pages[0];
+      if (firstPage) {
+        availableData.hasTitle = !!firstPage.title;
+        availableData.title = firstPage.title || '';
+        availableData.metaTagCount = firstPage.metaTags ? Object.keys(firstPage.metaTags).length : 0;
+        availableData.hasStructuredData = !!firstPage.structuredData;
+        availableData.textLength = firstPage.text ? firstPage.text.length : 0;
+        if (firstPage.metaTags) {
+          availableData.sampleMetaTags = Object.entries(firstPage.metaTags)
+            .slice(0, 5)
+            .map(([key, value]) => `${key}: ${value}`);
+        }
+      }
+    } else if (collectionType === 'axios_cheerio_dump') {
+      availableData.hasHtml = !!rawData.content;
+      availableData.textLength = rawData.content?.length || 0;
+      if (rawData.metadata?.meta_tags) {
+        availableData.metaTagCount = Object.keys(rawData.metadata.meta_tags).length;
+        availableData.sampleMetaTags = Object.entries(rawData.metadata.meta_tags)
+          .slice(0, 5)
+          .map(([key, value]) => `${key}: ${value}`);
+      }
+      if (rawData.metadata?.page_metadata?.title) {
+        availableData.hasTitle = true;
+        availableData.title = rawData.metadata.page_metadata.title;
+      }
+    }
+    
+    console.log('[Beta] [GleifClaimsRoutes] Pre-check analysis:', availableData);
+    
+    return res.json({
+      success: true,
+      availableData,
+      recommendation: availableData.metaTagCount > 0 || availableData.hasTitle ? 
+        'Data is available for entity extraction' : 
+        'Limited data available, extraction may not yield results'
+    });
+    
+  } catch (error) {
+    console.error('[Beta] [GleifClaimsRoutes] Pre-check error:', error);
+    return res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to perform pre-check'
     });
   }
 });
