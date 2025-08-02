@@ -65,11 +65,37 @@ interface GLEIFCandidate {
   selection_reason: string;
 }
 
+interface EntityClaim {
+  legalName: string;
+  type: 'extracted' | 'gleif_verified' | 'suffix_suggestion' | 'gleif_relationship';
+  confidence: number;
+  source: string;
+  evidence?: {
+    leiCode?: string;
+    jurisdiction?: string;
+    status?: string;
+    city?: string;
+    country?: string;
+    relationshipType?: string;
+  };
+  reasoning?: string;
+}
+
+interface ClaimsResult {
+  domain: string;
+  dumpId: number;
+  collectionType: string;
+  claims: EntityClaim[];
+  processedAt: string;
+}
+
 export default function BetaV2DataProcessingPage() {
   const [selectedDump, setSelectedDump] = useState<AvailableDump | null>(null);
   const [activeTab, setActiveTab] = useState<string>('dumps');
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
   const [candidatesData, setCandidatesData] = useState<Record<number, GLEIFCandidate[]>>({});
+  const [selectedDumpForClaims, setSelectedDumpForClaims] = useState<AvailableDump | null>(null);
+  const [claimsResults, setClaimsResults] = useState<ClaimsResult[]>([]);
 
   // Check beta server status
   const { data: serverStatus } = useQuery<BetaServerStatus>({
@@ -235,7 +261,7 @@ export default function BetaV2DataProcessingPage() {
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="dumps">
             <Database className="mr-2 h-4 w-4" />
             Available Dumps
@@ -243,6 +269,10 @@ export default function BetaV2DataProcessingPage() {
           <TabsTrigger value="results">
             <Search className="mr-2 h-4 w-4" />
             Processing Results
+          </TabsTrigger>
+          <TabsTrigger value="claims">
+            <Brain className="mr-2 h-4 w-4" />
+            Entity Claims Discovery
           </TabsTrigger>
         </TabsList>
 
@@ -464,6 +494,188 @@ export default function BetaV2DataProcessingPage() {
                   </TableBody>
                 </Table>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="claims" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Entity Claims Discovery</CardTitle>
+              <CardDescription>
+                Generate multiple entity claims with evidence from cleaned dumps. This approach presents all possible entities as claims rather than seeking a single "correct" answer.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {/* Dump Selection */}
+                <div className="border rounded-lg p-4">
+                  <h3 className="text-sm font-semibold mb-3">Select a Dump to Generate Claims</h3>
+                  {dumpsLoading ? (
+                    <div className="flex items-center justify-center py-4">
+                      <RefreshCw className="h-6 w-6 animate-spin" />
+                    </div>
+                  ) : dumps.length === 0 ? (
+                    <div className="text-center py-4 text-muted-foreground">
+                      No dumps available. Collect data using one of the collection methods first.
+                    </div>
+                  ) : (
+                    <div className="grid gap-2">
+                      {dumps.slice(0, 10).map((dump) => (
+                        <div
+                          key={`${dump.sourceType}-${dump.id}`}
+                          className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors ${
+                            selectedDumpForClaims?.id === dump.id && selectedDumpForClaims?.sourceType === dump.sourceType
+                              ? 'border-primary bg-primary/5'
+                              : 'hover:bg-muted/50'
+                          }`}
+                          onClick={() => setSelectedDumpForClaims(dump)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <p className="font-medium">{dump.domain}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge variant="outline" className="text-xs">
+                                  {dump.sourceType.replace('_', ' ')}
+                                </Badge>
+                                <span className="text-xs text-muted-foreground">
+                                  {formatTimestamp(dump.createdAt)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          {selectedDumpForClaims?.id === dump.id && selectedDumpForClaims?.sourceType === dump.sourceType && (
+                            <CheckCircle className="h-5 w-5 text-primary" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {selectedDumpForClaims && (
+                    <Button
+                      className="w-full mt-4"
+                      onClick={async () => {
+                        try {
+                          const response = await apiRequest('POST', '/api/beta/gleif-claims/generate-claims', {
+                            domain: selectedDumpForClaims.domain,
+                            dumpId: selectedDumpForClaims.id.toString(),
+                            collectionType: selectedDumpForClaims.sourceType
+                          });
+                          const data = await response.json();
+                          
+                          if (data.success) {
+                            setClaimsResults(prev => [{
+                              domain: selectedDumpForClaims.domain,
+                              dumpId: selectedDumpForClaims.id,
+                              collectionType: selectedDumpForClaims.sourceType,
+                              claims: data.claims,
+                              processedAt: new Date().toISOString()
+                            }, ...prev]);
+                            
+                            toast({
+                              title: "Claims Generated",
+                              description: `Found ${data.claims.length} entity claims for ${selectedDumpForClaims.domain}`,
+                            });
+                          } else {
+                            toast({
+                              title: "Generation Failed",
+                              description: data.error || "Failed to generate claims",
+                              variant: "destructive"
+                            });
+                          }
+                        } catch (error) {
+                          toast({
+                            title: "Error",
+                            description: error instanceof Error ? error.message : "Failed to generate claims",
+                            variant: "destructive"
+                          });
+                        }
+                      }}
+                    >
+                      <Brain className="mr-2 h-4 w-4" />
+                      Generate Claims for {selectedDumpForClaims.domain}
+                    </Button>
+                  )}
+                </div>
+
+                {/* Claims Results */}
+                {claimsResults.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-semibold">Generated Claims</h3>
+                    {claimsResults.map((result, idx) => (
+                      <Card key={idx}>
+                        <CardHeader>
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="text-lg">{result.domain}</CardTitle>
+                              <CardDescription>
+                                {result.claims.length} claims • Generated {formatTimestamp(result.processedAt)}
+                              </CardDescription>
+                            </div>
+                            <Badge variant="outline">
+                              {result.collectionType.replace('_', ' ')}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            {result.claims.map((claim, claimIdx) => (
+                              <div key={claimIdx} className="border rounded-lg p-4 space-y-2">
+                                <div className="flex items-start justify-between">
+                                  <div>
+                                    <p className="font-medium">{claim.legalName}</p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                      <Badge variant={
+                                        claim.type === 'gleif_verified' ? 'default' :
+                                        claim.type === 'gleif_relationship' ? 'secondary' :
+                                        claim.type === 'suffix_suggestion' ? 'outline' :
+                                        'secondary'
+                                      }>
+                                        {claim.type.replace('_', ' ')}
+                                      </Badge>
+                                      <span className="text-sm text-muted-foreground">
+                                        Confidence: {(claim.confidence * 100).toFixed(0)}%
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                {claim.evidence && (
+                                  <div className="text-sm text-muted-foreground space-y-1">
+                                    {claim.evidence.leiCode && (
+                                      <p>LEI: <code className="text-xs">{claim.evidence.leiCode}</code></p>
+                                    )}
+                                    {claim.evidence.jurisdiction && (
+                                      <p>Jurisdiction: {claim.evidence.jurisdiction}</p>
+                                    )}
+                                    {claim.evidence.city && claim.evidence.country && (
+                                      <p>Location: {claim.evidence.city}, {claim.evidence.country}</p>
+                                    )}
+                                    {claim.evidence.relationshipType && (
+                                      <p>Relationship: {claim.evidence.relationshipType}</p>
+                                    )}
+                                  </div>
+                                )}
+                                
+                                {claim.reasoning && (
+                                  <p className="text-sm text-muted-foreground italic">
+                                    {claim.reasoning}
+                                  </p>
+                                )}
+                                
+                                <p className="text-xs text-muted-foreground">
+                                  Source: {claim.source}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
