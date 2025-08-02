@@ -443,7 +443,15 @@
 
         function formatTimestamp(timestamp) {
             if (!timestamp) return 'Unknown';
-            const date = new Date(timestamp);
+            
+            // Parse the timestamp as UTC by adding 'Z' if it doesn't have timezone info
+            let dateStr = timestamp;
+            if (typeof timestamp === 'string' && !timestamp.endsWith('Z') && !timestamp.includes('+') && !timestamp.includes('T')) {
+                // PostgreSQL timestamp without timezone - treat as UTC
+                dateStr = timestamp.replace(' ', 'T') + 'Z';
+            }
+            
+            const date = new Date(dateStr);
             const now = new Date();
             const diffMs = now - date;
             
