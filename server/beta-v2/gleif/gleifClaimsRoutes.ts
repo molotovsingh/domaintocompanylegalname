@@ -137,12 +137,16 @@ router.post('/generate-claims', async (req, res) => {
     const claims = await gleifClaimsService.generateClaims(domain, cleanedContent);
 
     console.log(`[Beta] [GleifClaimsRoutes] Generated ${claims.entityClaims.length} claims in ${claims.processingTime}ms`);
-
-    res.json({
+    
+    const response = {
       success: true,
       claims: claims.entityClaims,
       processingTime: claims.processingTime
-    });
+    };
+    
+    console.log('[Beta] [GleifClaimsRoutes] Sending response:', JSON.stringify(response, null, 2));
+    
+    res.json(response);
 
   } catch (error) {
     console.error('[Beta] [GleifClaimsRoutes] Error generating claims:', error);
