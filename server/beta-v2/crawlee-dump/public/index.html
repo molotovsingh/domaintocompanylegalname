@@ -581,7 +581,7 @@
                     let viewerHtml = `
                         <div class="data-tabs" style="margin-bottom: 10px;">
                             <button class="tab-btn" style="padding: 8px 16px; margin-right: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px;" onclick="showDataTab(${id}, 'raw')" id="tab-btn-raw-${id}">Raw Data</button>
-                            ${data.cleanedPages ? `<button class="tab-btn" style="padding: 8px 16px; border: 1px solid #ddd; background: #e9ecef; cursor: pointer; border-radius: 4px;" onclick="showDataTab(${id}, 'cleaned')" id="tab-btn-cleaned-${id}">Cleaned Data</button>` : ''}
+                            ${data.cleanedPages && data.cleanedPages.length > 0 ? `<button class="tab-btn" style="padding: 8px 16px; border: 1px solid #ddd; background: #e9ecef; cursor: pointer; border-radius: 4px;" onclick="showDataTab(${id}, 'cleaned')" id="tab-btn-cleaned-${id}">Cleaned Data</button>` : ''}
                         </div>
                         <div id="tab-content-raw-${id}" class="tab-content" style="display: block;">
                             <pre style="max-height: 400px; overflow: auto;">${JSON.stringify(data, null, 2)}</pre>
@@ -607,6 +607,23 @@
                                         </div>
                                     `).join('')}
                                 </div>
+                            </div>
+                        `;
+                    } else if (data.cleanedPages !== undefined) {
+                        // Add a message explaining why there's no cleaned data
+                        viewerHtml += `
+                            <div style="padding: 20px; background: #f0f4f8; border: 1px solid #d0d7de; border-radius: 5px; margin-top: 10px;">
+                                <p style="margin: 0 0 10px 0; color: #24292f;">
+                                    <strong>No cleaned data available</strong>
+                                </p>
+                                <p style="margin: 0; color: #57606a;">
+                                    This dump was created before the LLM cleaning system was implemented. To process this dump through the cleaning pipeline:
+                                </p>
+                                <ol style="margin: 10px 0 0 20px; color: #57606a;">
+                                    <li>Navigate to Beta V2 Data Processing</li>
+                                    <li>Find this dump in the Available Dumps list</li>
+                                    <li>Click "Process" to generate cleaned data</li>
+                                </ol>
                             </div>
                         `;
                     }
