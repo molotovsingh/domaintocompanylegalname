@@ -441,6 +441,30 @@
             }
         }
 
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return 'Unknown';
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            
+            // If less than 1 minute ago
+            if (diffMs < 60000) {
+                return 'Just now';
+            }
+            // If less than 1 hour ago
+            if (diffMs < 3600000) {
+                const minutes = Math.floor(diffMs / 60000);
+                return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            }
+            // If less than 24 hours ago
+            if (diffMs < 86400000) {
+                const hours = Math.floor(diffMs / 3600000);
+                return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            }
+            // Otherwise show date and time
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+
         function updateDumpCard(dump) {
             const card = document.getElementById(`dump-${dump.id}`);
             if (!card) return;
@@ -493,6 +517,9 @@
                 <div class="result-header">
                     <span class="result-domain">${dump.domain}</span>
                     <span class="result-status status-${statusClass}">${dump.status}</span>
+                </div>
+                <div style="font-size: 0.85rem; color: #666; margin: 0.25rem 0;">
+                    <span>${dump.status === 'completed' ? 'Completed' : dump.status === 'failed' ? 'Failed' : 'Started'}: ${formatTimestamp(dump.updatedAt || dump.createdAt)}</span>
                 </div>
                 <div class="result-stats">
                     ${statsHtml || '<span style="color: #666;">Processing...</span>'}
@@ -549,6 +576,9 @@
                 <div class="result-header">
                     <span class="result-domain">${dump.domain}</span>
                     <span class="result-status status-${statusClass}">${dump.status}</span>
+                </div>
+                <div style="font-size: 0.85rem; color: #666; margin: 0.25rem 0;">
+                    <span>${dump.status === 'completed' ? 'Completed' : dump.status === 'failed' ? 'Failed' : 'Started'}: ${formatTimestamp(dump.updatedAt || dump.createdAt)}</span>
                 </div>
                 <div class="result-stats">
                     <span style="color: #666;">Loading...</span>
