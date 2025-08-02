@@ -563,11 +563,22 @@ export default function BetaV2DataProcessingPage() {
                       className="w-full mt-4"
                       onClick={async () => {
                         try {
+                          console.log('[Entity Claims] Starting claim generation for:', {
+                            domain: selectedDumpForClaims.domain,
+                            dumpId: selectedDumpForClaims.id.toString(),
+                            collectionType: selectedDumpForClaims.sourceType,
+                            apiPath: '/api/beta-v2/gleif-claims/generate-claims'
+                          });
+                          
                           const response = await apiRequest('POST', '/api/beta-v2/gleif-claims/generate-claims', {
                             domain: selectedDumpForClaims.domain,
                             dumpId: selectedDumpForClaims.id.toString(),
                             collectionType: selectedDumpForClaims.sourceType
                           });
+                          
+                          console.log('[Entity Claims] Response status:', response.status);
+                          console.log('[Entity Claims] Response headers:', response.headers);
+                          
                           const data = await response.json();
                           
                           if (data.success) {
