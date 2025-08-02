@@ -199,11 +199,41 @@ export class GleifClaimsService {
   private generateSearchPatterns(entities: Array<{name: string}>): string[] {
     const patterns = new Set<string>();
 
+    // Common corporate suffixes to strip
+    const corpSuffixes = [
+      'Inc', 'Inc.', 'Incorporated', 'Corp', 'Corp.', 'Corporation',
+      'Ltd', 'Ltd.', 'Limited', 'LLC', 'L.L.C.', 'LLP',
+      'GmbH', 'AG', 'SE', 'SA', 'S.A.', 'NV', 'N.V.',
+      'Pty', 'Pty Ltd', 'Pte Ltd', 'Pvt Ltd', 'Co', 'Co.'
+    ];
+
+    // Common country names for subsidiary patterns
+    const countries = [
+      'Germany', 'USA', 'UK', 'France', 'Japan', 'China', 'India', 
+      'Canada', 'Australia', 'Netherlands', 'Switzerland', 'Singapore'
+    ];
+
     entities.forEach(entity => {
       const baseName = entity.name.trim();
       
       // Standard suffix wildcard
       patterns.add(`${baseName}%`);
+      
+      // Remove corporate suffixes and search for base name
+      let cleanedName = baseName;
+      corpSuffixes.forEach(suffix => {
+        const regex = new RegExp(`\\s+${suffix.replace('.', '\\.')}$`, 'i');
+        cleanedName = cleanedName.replace(regex, '').trim();
+      });
+      
+      if (cleanedName !== baseName) {
+        patterns.add(`${cleanedName}%`);
+      }
+      
+      // Add country-specific patterns for subsidiaries
+      countries.forEach(country => {
+        patterns.add(`${cleanedName} ${country}%`);
+      });
       
       // Prefix wildcard for typos/variations
       if (baseName.length > 5) {
@@ -213,11 +243,16 @@ export class GleifClaimsService {
       // Handle multi-word entities
       const words = baseName.split(/\s+/);
       if (words.length > 1) {
-        // First word only
+        // First word only (catches parent company patterns)
         patterns.add(`${words[0]}%`);
         // Last word with prefix wildcard
         patterns.add(`%${words[words.length - 1]}%`);
       }
+
+      // Add pattern for holdings and subsidiaries
+      patterns.add(`${cleanedName} Holdings%`);
+      patterns.add(`${cleanedName} International%`);
+      patterns.add(`${cleanedName} Global%`);
     });
 
     return Array.from(patterns);
@@ -237,7 +272,7 @@ export class GleifClaimsService {
       const results = await betaDb.select()
         .from(gleifEntities)
         .where(or(...conditions))
-        .limit(50);
+        .limit(100);
 
       return results;
     } catch (error) {
