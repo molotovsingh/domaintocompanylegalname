@@ -218,7 +218,7 @@ export class CleaningService {
           
         case 'axios_cheerio_dump':
           query = `
-            SELECT id, domain, raw_html as content, created_at
+            SELECT id, domain, raw_html as content, meta_tags, page_metadata, created_at
             FROM axios_cheerio_dumps
             WHERE id = $1 AND status = 'completed'
           `;
@@ -278,11 +278,8 @@ export class CleaningService {
         // Use text content from playwright
         textContent = row.content.textContent;
       } else if (sourceType === 'axios_cheerio_dump') {
-        // For axios+cheerio, the content is already raw HTML
-        if (typeof row.content === 'string') {
-          // Extract text from HTML
-          textContent = row.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-        }
+        // For axios+cheerio, keep the raw HTML for processing
+        textContent = row.content; // Keep as HTML, not text
       }
       
       // If no text content extracted, provide structured data as fallback
@@ -290,11 +287,21 @@ export class CleaningService {
         textContent = JSON.stringify(row.content, null, 2);
       }
 
+      // Build proper metadata object for axios_cheerio dumps
+      let metadata = row.content;
+      if (sourceType === 'axios_cheerio_dump') {
+        metadata = {
+          raw_html: row.content,
+          meta_tags: row.meta_tags,
+          page_metadata: row.page_metadata
+        };
+      }
+
       return {
         id: row.id,
         domain: row.domain,
         content: textContent,
-        metadata: row.content,
+        metadata: metadata,
         collectedAt: row.created_at
       };
     } catch (error) {

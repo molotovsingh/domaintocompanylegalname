@@ -123,8 +123,20 @@ export class GleifClaimsService {
   private extractEntities(cleanedContent: any): Array<{name: string; confidence: 'high' | 'medium' | 'low'; source: string}> {
     const entities: Array<{name: string; confidence: 'high' | 'medium' | 'low'; source: string}> = [];
     
+    console.log('[GleifClaimsService] Starting entity extraction from:', {
+      hasStructuredData: !!cleanedContent.structuredData,
+      structuredDataKeys: cleanedContent.structuredData ? Object.keys(cleanedContent.structuredData) : [],
+      hasMetaTags: !!cleanedContent.metaTags && Object.keys(cleanedContent.metaTags).length > 0,
+      metaTagsSample: cleanedContent.metaTags ? Object.entries(cleanedContent.metaTags).slice(0, 3) : [],
+      hasTitle: !!cleanedContent.title,
+      title: cleanedContent.title,
+      hasExtractedText: !!cleanedContent.extractedText,
+      textLength: cleanedContent.extractedText?.length || 0
+    });
+    
     // Extract from structured data if available
     if (cleanedContent.structuredData?.organization?.name) {
+      console.log('[GleifClaimsService] Found entity in structured data:', cleanedContent.structuredData.organization.name);
       entities.push({
         name: cleanedContent.structuredData.organization.name,
         confidence: 'high',
@@ -134,6 +146,7 @@ export class GleifClaimsService {
 
     // Extract from meta tags
     if (cleanedContent.metaTags?.['og:site_name']) {
+      console.log('[GleifClaimsService] Found entity in og:site_name:', cleanedContent.metaTags['og:site_name']);
       entities.push({
         name: cleanedContent.metaTags['og:site_name'],
         confidence: 'high',
@@ -145,6 +158,7 @@ export class GleifClaimsService {
     if (cleanedContent.title) {
       const titleEntity = this.extractFromTitle(cleanedContent.title);
       if (titleEntity) {
+        console.log('[GleifClaimsService] Found entity in title:', titleEntity);
         entities.push({
           name: titleEntity,
           confidence: 'medium',
@@ -156,6 +170,7 @@ export class GleifClaimsService {
     // Extract from copyright text
     if (cleanedContent.extractedText) {
       const copyrightEntities = this.extractFromCopyright(cleanedContent.extractedText);
+      console.log('[GleifClaimsService] Copyright extraction found:', copyrightEntities.length, 'entities');
       copyrightEntities.forEach(entity => {
         entities.push({
           name: entity,
