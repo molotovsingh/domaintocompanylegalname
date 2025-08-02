@@ -126,6 +126,17 @@ router.post('/generate-claims', async (req, res) => {
       });
     }
     
+    // Debug: Log raw data structure
+    console.log('[Beta] [GleifClaimsRoutes] Raw data structure:', {
+      domain: rawData.domain,
+      contentType: typeof rawData.content,
+      hasContent: !!rawData.content,
+      contentKeys: rawData.content && typeof rawData.content === 'object' ? Object.keys(rawData.content) : [],
+      contentSample: typeof rawData.content === 'string' ? 
+        rawData.content.substring(0, 200) : 
+        JSON.stringify(rawData.content).substring(0, 200)
+    });
+    
     // For now, use raw data directly (Stage 1 & 2 cleaning can be added later)
     const cleanedContent = {
       domain: rawData.domain,
@@ -134,6 +145,19 @@ router.post('/generate-claims', async (req, res) => {
       structuredData: extractStructuredData(rawData.content),
       extractedText: extractTextContent(rawData.content)
     };
+
+    // Debug logging
+    console.log('[Beta] [GleifClaimsRoutes] Cleaned content:', {
+      domain: cleanedContent.domain,
+      hasTitle: !!cleanedContent.title,
+      title: cleanedContent.title?.substring(0, 100),
+      hasMetaTags: !!cleanedContent.metaTags && Object.keys(cleanedContent.metaTags).length > 0,
+      metaTagKeys: cleanedContent.metaTags ? Object.keys(cleanedContent.metaTags) : [],
+      hasStructuredData: !!cleanedContent.structuredData,
+      hasExtractedText: !!cleanedContent.extractedText,
+      extractedTextLength: cleanedContent.extractedText?.length || 0,
+      extractedTextSample: cleanedContent.extractedText?.substring(0, 200)
+    });
 
     // Step 3: Generate GLEIF claims
     console.log('[Beta] [GleifClaimsRoutes] Generating GLEIF claims');
