@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { Link } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
@@ -43,6 +43,12 @@ interface ProcessingResult {
   stage1Result?: any;
   stage2Result?: any;
   stage3Result?: any;
+  stage4Result?: {
+    primaryLegalName?: string;
+    primaryLei?: string;
+    confidenceScore?: number;
+    totalCandidates?: number;
+  };
   finalResult?: any;
   errorMessage?: string;
   processingTimeMs?: number;
@@ -100,7 +106,7 @@ export default function BetaV2DataProcessingPage() {
   // Check beta server status
   const { data: serverStatus } = useQuery<BetaServerStatus>({
     queryKey: ['/api/beta/status'],
-    refetchInterval: (data) => data?.status === 'ready' ? false : 2000
+    refetchInterval: 2000
   });
 
   // Fetch available dumps
@@ -403,7 +409,7 @@ export default function BetaV2DataProcessingPage() {
                   </TableHeader>
                   <TableBody>
                     {results.map((result) => (
-                      <React.Fragment key={result.id}>
+                      <Fragment key={result.id}>
                         <TableRow>
                           <TableCell className="font-medium">{result.domain}</TableCell>
                           <TableCell>
@@ -422,7 +428,7 @@ export default function BetaV2DataProcessingPage() {
                               {result.stage3Result?.entityName || 
                                result.stage4Result?.primaryLegalName || 
                                '-'}
-                              {result.stage4Result?.totalCandidates > 0 && (
+                              {(result.stage4Result?.totalCandidates ?? 0) > 0 && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -489,7 +495,7 @@ export default function BetaV2DataProcessingPage() {
                             </TableCell>
                           </TableRow>
                         )}
-                      </React.Fragment>
+                      </Fragment>
                     ))}
                   </TableBody>
                 </Table>
@@ -557,7 +563,7 @@ export default function BetaV2DataProcessingPage() {
                       className="w-full mt-4"
                       onClick={async () => {
                         try {
-                          const response = await apiRequest('POST', '/api/beta/gleif-claims/generate-claims', {
+                          const response = await apiRequest('POST', '/api/beta-v2/gleif-claims/generate-claims', {
                             domain: selectedDumpForClaims.domain,
                             dumpId: selectedDumpForClaims.id.toString(),
                             collectionType: selectedDumpForClaims.sourceType
