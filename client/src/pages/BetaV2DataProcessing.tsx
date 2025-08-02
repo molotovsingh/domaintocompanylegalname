@@ -700,18 +700,22 @@ export default function BetaV2DataProcessingPage() {
                               <div key={claimIdx} className="border rounded-lg p-4 space-y-2">
                                 <div className="flex items-start justify-between">
                                   <div>
-                                    <p className="font-medium">{claim.legalName}</p>
+                                    <p className="font-medium">{claim.entityName || claim.legalName}</p>
                                     <div className="flex items-center gap-2 mt-1">
                                       <Badge variant={
-                                        claim.type === 'gleif_verified' ? 'default' :
-                                        claim.type === 'gleif_relationship' ? 'secondary' :
-                                        claim.type === 'suffix_suggestion' ? 'outline' :
+                                        (claim.claimType || claim.type) === 'gleif_verified' ? 'default' :
+                                        (claim.claimType || claim.type) === 'gleif_relationship' ? 'secondary' :
+                                        (claim.claimType || claim.type) === 'suffix_suggestion' ? 'outline' :
                                         'secondary'
                                       }>
-                                        {claim.type.replace('_', ' ')}
+                                        {((claim.claimType || claim.type) || '').replace('_', ' ')}
                                       </Badge>
                                       <span className="text-sm text-muted-foreground">
-                                        Confidence: {(claim.confidence * 100).toFixed(0)}%
+                                        Confidence: {
+                                          typeof claim.confidence === 'number' 
+                                            ? (claim.confidence * 100).toFixed(0) + '%'
+                                            : claim.confidence
+                                        }
                                       </span>
                                     </div>
                                   </div>
