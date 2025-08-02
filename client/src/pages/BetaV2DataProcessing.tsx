@@ -114,6 +114,12 @@ export default function BetaV2DataProcessingPage() {
     queryKey: ['/api/beta/processing/dumps'],
     enabled: serverStatus?.status === 'ready'
   });
+  
+  // Separate query for GLEIF claims - only dumps with data
+  const { data: claimsDumpsData } = useQuery<{ data: AvailableDump[] }>({
+    queryKey: ['/api/beta/gleif-claims/available-dumps'],
+    enabled: serverStatus?.status === 'ready' && activeTab === 'claims'
+  });
 
   // Fetch processing results
   const { data: resultsData, isLoading: resultsLoading, refetch: refetchResults } = useQuery<{ data: ProcessingResult[] }>({
@@ -521,13 +527,13 @@ export default function BetaV2DataProcessingPage() {
                     <div className="flex items-center justify-center py-4">
                       <RefreshCw className="h-6 w-6 animate-spin" />
                     </div>
-                  ) : dumps.length === 0 ? (
+                  ) : (claimsDumpsData?.data || []).length === 0 ? (
                     <div className="text-center py-4 text-muted-foreground">
-                      No dumps available. Collect data using one of the collection methods first.
+                      No dumps with valid data available. Collect data using one of the collection methods first.
                     </div>
                   ) : (
                     <div className="grid gap-2">
-                      {dumps.slice(0, 10).map((dump) => (
+                      {(claimsDumpsData?.data || []).slice(0, 10).map((dump) => (
                         <div
                           key={`${dump.sourceType}-${dump.id}`}
                           className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors ${

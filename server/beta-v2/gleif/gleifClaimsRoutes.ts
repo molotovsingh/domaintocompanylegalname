@@ -1,9 +1,11 @@
 import { Router } from 'express';
 import { GleifClaimsService } from './gleifClaimsService';
 import { CleaningService } from '../cleaning/cleaningService';
+import { ProcessingPipelineService } from '../processing/processingPipelineService';
 
 const router = Router();
 const gleifClaimsService = new GleifClaimsService();
+const processingPipelineService = new ProcessingPipelineService();
 let cleaningService: CleaningService;
 
 try {
@@ -419,6 +421,35 @@ router.post('/pre-check', async (req, res) => {
     return res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Failed to perform pre-check'
+    });
+  }
+});
+
+// Get available dumps with data for claims generation
+router.get('/available-dumps', async (req: Request, res: Response) => {
+  try {
+    console.log('[Beta] [GleifClaimsRoutes] Fetching dumps with valid data');
+    
+    // Get all dumps from processing service
+    const allDumps = await processingPipelineService.getAvailableDumps();
+    
+    // Filter to only include dumps with data and successful status
+    const validDumps = allDumps.filter(dump => {
+      return dump.hasData && 
+             (dump.status === 'completed' || dump.status === 'success' || !dump.status);
+    });
+    
+    console.log(`[Beta] [GleifClaimsRoutes] Found ${validDumps.length} valid dumps out of ${allDumps.length} total`);
+    
+    res.json({
+      success: true,
+      data: validDumps
+    });
+  } catch (error: any) {
+    console.error('[Beta] [GleifClaimsRoutes] Error fetching dumps:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch available dumps'
     });
   }
 });
