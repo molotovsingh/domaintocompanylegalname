@@ -1,0 +1,9 @@
+{
+	"id": "dwMMEjqx8h8Lfzi",
+	"json": "{\"id\":\"dwMMEjqx8h8Lfzi\",\"url\":\"https://timesofindia.com/toi-plus\",\"loadedUrl\":\"https://timesofindia.indiatimes.com/toi-plus\",\"uniqueKey\":\"https://timesofindia.com/toi-plus\",\"method\":\"GET\",\"noRetry\":true,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"enqueueStrategy\":\"same-hostname\",\"state\":7}},\"handledAt\":\"2025-08-09T10:35:57.032Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://timesofindia.com/toi-plus",
+	"url": "https://timesofindia.com/toi-plus"
+}

@@ -267,7 +267,14 @@ export class CrawleeDumpService {
     };
     
     // Update database with results
-    await this.storage.updateDumpData(dumpId, dumpData, processingTimeMs);
+    try {
+      await this.storage.updateDumpData(dumpId, dumpData, processingTimeMs);
+    } catch (error) {
+      console.error('[Beta Error] [Crawlee] Failed to update dump data:', error);
+      // Update status to failed if we couldn't save the data
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      await this.storage.updateDumpStatus(dumpId, 'failed', 'Failed to save crawl data: ' + errorMessage);
+    }
     
     // Clean up datasets and queues to prevent state pollution
     try {
@@ -612,7 +619,15 @@ export class CrawleeDumpService {
       totalCleaningTimeMs
     };
     
-    await this.storage.updateDumpData(dumpId, dumpData, processingTimeMs);
+    // Update database with results
+    try {
+      await this.storage.updateDumpData(dumpId, dumpData, processingTimeMs);
+    } catch (error) {
+      console.error('[Beta Error] [Crawlee Playwright] Failed to update dump data:', error);
+      // Update status to failed if we couldn't save the data
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      await this.storage.updateDumpStatus(dumpId, 'failed', 'Failed to save crawl data: ' + errorMessage);
+    }
   }
   
   async getDump(id: number) {

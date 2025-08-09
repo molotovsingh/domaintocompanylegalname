@@ -1,0 +1,9 @@
+{
+	"id": "F0uY9vYpDMbLe2P",
+	"json": "{\"id\":\"F0uY9vYpDMbLe2P\",\"url\":\"https://www.vanta.com/company/about\",\"loadedUrl\":\"https://www.vanta.com/company/about\",\"uniqueKey\":\"https://www.vanta.com/company/about\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2025-08-09T10:39:20.078Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://www.vanta.com/company/about",
+	"url": "https://www.vanta.com/company/about"
+}

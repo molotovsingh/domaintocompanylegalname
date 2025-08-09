@@ -1,0 +1,9 @@
+{
+	"id": "tCx8mOD8I4LuZ1d",
+	"json": "{\"id\":\"tCx8mOD8I4LuZ1d\",\"url\":\"https://www.vanta.com/company/careers\",\"loadedUrl\":\"https://www.vanta.com/company/careers\",\"uniqueKey\":\"https://www.vanta.com/company/careers\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2025-08-09T10:39:20.255Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://www.vanta.com/company/careers",
+	"url": "https://www.vanta.com/company/careers"
+}

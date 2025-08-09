@@ -1,0 +1,9 @@
+{
+	"id": "qCbSO2vrr27UnaE",
+	"json": "{\"id\":\"qCbSO2vrr27UnaE\",\"url\":\"https://www.vanta.com/\",\"loadedUrl\":\"https://www.vanta.com/\",\"uniqueKey\":\"https://www.vanta.com\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2025-08-09T10:39:17.701Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://www.vanta.com",
+	"url": "https://www.vanta.com/"
+}
