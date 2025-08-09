@@ -12,6 +12,7 @@ import { betaDb } from '../../betaDb';
 import { gleifEntities, entityRelationships } from '../../../shared/schema';
 import { eq, like, or, and } from 'drizzle-orm';
 import { JURISDICTIONS, getJurisdictionByTLD, getJurisdictionSuffixes } from '../../../shared/jurisdictions';
+import { GLEIFSearchService } from '../gleif-search/gleifSearchService';
 
 interface EntityClaim {
   claimType: 'extracted' | 'gleif_verified' | 'suffix_suggestion' | 'gleif_relationship';
@@ -36,7 +37,11 @@ interface GleifClaimsResult {
 }
 
 export class GleifClaimsService {
-  constructor() {}
+  private gleifSearchService: GLEIFSearchService;
+  
+  constructor() {
+    this.gleifSearchService = new GLEIFSearchService();
+  }
 
   /**
    * Generate entity claims from cleaned dump content
@@ -50,25 +55,49 @@ export class GleifClaimsService {
       // Step 1: Extract entities from cleaned content
       const extractedEntities = this.extractEntities(cleanedContent);
       
-      // Add extracted entity claims
-      extractedEntities.forEach(entity => {
+      // Step 2: Search GLEIF for each extracted entity to get LEI codes
+      const excludedTerms = cleanedContent.excludeTerms || [];
+      const excludeSet = new Set(excludedTerms.map((t: string) => t.toLowerCase()));
+      
+      for (const entity of extractedEntities) {
+        // Check if entity contains excluded terms
+        const nameLower = entity.name.toLowerCase();
+        const shouldSkip = [...excludeSet].some(term => nameLower.includes(term));
+        
+        let leiCode: string | undefined;
+        
+        // Search GLEIF for LEI code if entity is valid
+        if (!shouldSkip) {
+          try {
+            const gleifResult = await this.gleifSearchService.searchGLEIF(entity.name, domain);
+            if (gleifResult.entities && gleifResult.entities.length > 0) {
+              // Take the first match's LEI code
+              leiCode = gleifResult.entities[0].leiCode;
+              console.log(`[GleifClaimsService] Found LEI for ${entity.name}: ${leiCode}`);
+            }
+          } catch (error) {
+            console.log(`[GleifClaimsService] Could not search GLEIF for ${entity.name}:`, error);
+          }
+        }
+        
+        // Add claim with LEI code if found
         claims.push({
           claimType: 'extracted',
           entityName: entity.name,
           confidence: entity.confidence,
-          source: entity.source
+          source: entity.source,
+          leiCode: leiCode
         });
-      });
+      }
 
-      // Step 2: Generate search patterns with wildcards (excluding marketing terms)
-      const excludeTerms = cleanedContent.excludeTerms || [];
-      const patterns = this.generateSearchPatterns(extractedEntities, excludeTerms);
+      // Step 3: Generate search patterns with wildcards (excluding marketing terms)
+      const patterns = this.generateSearchPatterns(extractedEntities, excludedTerms);
       searchPatterns.push(...patterns);
 
-      // Step 3: Query GLEIF database with patterns
+      // Step 4: Query GLEIF database with patterns
       const gleifResults = await this.queryGleifDatabase(patterns);
 
-      // Step 4: Add GLEIF verified claims
+      // Step 5: Add GLEIF verified claims
       for (const gleifEntity of gleifResults) {
         claims.push({
           claimType: 'gleif_verified',

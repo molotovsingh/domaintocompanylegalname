@@ -1,129 +1,9 @@
 {
-  "usableSessionsCount": 12,
+  "usableSessionsCount": 5,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_CCtIxtkAg2",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T11:30:39.912Z",
-      "createdAt": "2025-08-09T10:40:39.912Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_4l7MNtBpJA",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T11:30:41.601Z",
-      "createdAt": "2025-08-09T10:40:41.601Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_OwoTHlXkPG",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T11:30:41.602Z",
-      "createdAt": "2025-08-09T10:40:41.602Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_KGKPYLNexD",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T11:30:42.787Z",
-      "createdAt": "2025-08-09T10:40:42.787Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_me33d7IoT1",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T11:30:42.790Z",
-      "createdAt": "2025-08-09T10:40:42.790Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_DT4lm2qgsj",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T11:32:04.012Z",
-      "createdAt": "2025-08-09T10:42:04.012Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_hrYI05lX0S",
+      "id": "session_BlL0VyhkTn",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -133,28 +13,40 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "_rtra_session",
-            "value": "vSVbBrLZCafZBSUqcxAftmefj%2BMesUaEOWGoC0gJV8USGUmVXM7pBpzwOoIUHiARPevLK3MK4339MkAHouuKcaArdcpUh97GDWkzQpY%2BF%2BmECDxwUtSRhY3yP%2BzKArjCeFPqAytDeq%2BQc1Y%2BO%2B9OW4JC9mNQH%2BqWWIedA9STeAlfarE5cvDMM6RYRDfrX9TiXqVGsh2DE7w7NYXmvOoczmyjjCdS4cYuBowNB6SFR977J5zX%2FDhxfMDnmdGrGEuPcArL1iNfoVzsDIAVBtiO5OeA4mXH--5lVm3epSFnOKiLwl--DlnKEt6dBm0HHjU2x7btgg%3D%3D",
-            "domain": "threadreaderapp.com",
+            "key": "AWSALBTG",
+            "value": "Npx3KM4nh8yoNTsrl8sHQoN+zJPemhOwbFYEFnm6O6CGJWyiC533d4jRnKjzoqXTJiIZ1ZlO0t77TmSZlVacM/BBNmUVFttLfOUr6VE+Pa1EnSnNjPJ83QmDTT/cKwdkVEDtGbCS4cxaftDjozp9t6Ia8JounSYEONKS8hSVSuBM",
+            "expires": "2025-08-16T11:34:29.000Z",
+            "domain": "www.businessinsider.com",
             "path": "/",
-            "httpOnly": true,
             "hostOnly": true,
-            "creation": "2025-08-09T10:42:06.716Z",
-            "lastAccessed": "2025-08-09T10:42:06.716Z"
+            "creation": "2025-08-09T11:36:37.900Z",
+            "lastAccessed": "2025-08-09T11:36:37.900Z"
+          },
+          {
+            "key": "AWSALBTGCORS",
+            "value": "Npx3KM4nh8yoNTsrl8sHQoN+zJPemhOwbFYEFnm6O6CGJWyiC533d4jRnKjzoqXTJiIZ1ZlO0t77TmSZlVacM/BBNmUVFttLfOUr6VE+Pa1EnSnNjPJ83QmDTT/cKwdkVEDtGbCS4cxaftDjozp9t6Ia8JounSYEONKS8hSVSuBM",
+            "expires": "2025-08-16T11:34:29.000Z",
+            "domain": "www.businessinsider.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T11:36:37.900Z",
+            "lastAccessed": "2025-08-09T11:36:37.900Z",
+            "sameSite": "none"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T11:32:05.444Z",
-      "createdAt": "2025-08-09T10:42:05.444Z",
+      "expiresAt": "2025-08-09T12:26:36.168Z",
+      "createdAt": "2025-08-09T11:36:36.168Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_IU7aLRIWQK",
+      "id": "session_GxQfdULV1p",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -164,28 +56,40 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "_rtra_session",
-            "value": "WlwZWsfV%2BZihL3Xa7UaotZKJRwNctRHuT0Dek0bkxkdPKKPjCjaxoOcpA04w7zRYim1wlyoTPCS64B53KNXuMZCFGfKt6AXI3WnIbwtyC6WEk7Ah4xm8AGgKl5uJxMguBeJ7cDEN%2BftKm4ZVGtbJ%2Fw09lwBn0uIJSurBVJTsQ2JL7rD7xmHm8QBJFRFVKO8S2PwEXqARNXTrvlnqFsLausJverCeOT5QhHlr0WIL1ff7wS9tHYzMlj9OR10cjpCJYMO36xbkKvUBVznNU0KpoQvbA4X6--ImcSRT62MfD9RLxS--aHODtjnP4NfisEXkugu0XA%3D%3D",
-            "domain": "threadreaderapp.com",
+            "key": "AWSALBTG",
+            "value": "M/Xt7YRzl15E/8c3ATV01+lg5HX12XkVG2jHFKBDxnMrq8xRz4maAP7fFdHs83TcmF2KW/axAvMMCldefcu5LTbtztDbjSV45cT2ZFLI2j42hIGVlfPAcUNdKN4XooSYOr+FN76ECrmSXc8lTz/lLKyK4wzT6IZaIAmtU75DLvo8",
+            "expires": "2025-08-16T11:19:48.000Z",
+            "domain": "www.businessinsider.com",
             "path": "/",
-            "httpOnly": true,
             "hostOnly": true,
-            "creation": "2025-08-09T10:42:06.731Z",
-            "lastAccessed": "2025-08-09T10:42:06.731Z"
+            "creation": "2025-08-09T11:36:39.182Z",
+            "lastAccessed": "2025-08-09T11:36:39.182Z"
+          },
+          {
+            "key": "AWSALBTGCORS",
+            "value": "M/Xt7YRzl15E/8c3ATV01+lg5HX12XkVG2jHFKBDxnMrq8xRz4maAP7fFdHs83TcmF2KW/axAvMMCldefcu5LTbtztDbjSV45cT2ZFLI2j42hIGVlfPAcUNdKN4XooSYOr+FN76ECrmSXc8lTz/lLKyK4wzT6IZaIAmtU75DLvo8",
+            "expires": "2025-08-16T11:19:48.000Z",
+            "domain": "www.businessinsider.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T11:36:39.183Z",
+            "lastAccessed": "2025-08-09T11:36:39.183Z",
+            "sameSite": "none"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T11:32:05.447Z",
-      "createdAt": "2025-08-09T10:42:05.447Z",
+      "expiresAt": "2025-08-09T12:26:38.069Z",
+      "createdAt": "2025-08-09T11:36:38.069Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_ZEMXrKlqqQ",
+      "id": "session_bbav34rfpU",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -195,28 +99,40 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "_rtra_session",
-            "value": "IJAXTGmxS1WmaJlVO%2BvAR4o%2FLE99ozLRGcVwt4HLO4xoJ9RGfGfGJvU1u3fZwnUNggmlTSzCw2UwnflmmgD07bkFtHjdYGOdhSQJQc505n83WX1WxsWDJDAPdmH94P4PLDClhOQw%2BcUkFXQ7GuG4wDyU2TQgb1H21JC2n3BsLD4HhdnzOFYwobm7vfskWUqXUJt%2BqF%2Bw34CozPbA81sonsgVsqpW%2FsYLlmkTFGgNQPf%2FDUNd2ylEB%2Fe9b2Q%2FpSQz4uHtPGWeYnq8rzJFnEs0OUwDiG7L--ic%2FoFQlwV9mnQMoS--cw4zZwkDd6CRKDsIuLD34A%3D%3D",
-            "domain": "threadreaderapp.com",
+            "key": "AWSALBTG",
+            "value": "MVSRpAdOIAFzNbM3GUW2HIiPPKDgrhj20I98PhBRKHCUUttigKkAlmiewbb2Tj3EoW4/VYfzNITR933umT+msxzNwlnyq/K6ctoJsKM1RCfVIqah0soonG+DcLfFoDARPiA7Hly6kVE7PvgQlLM7gnbQ06/GBy2i1txxG/Ye6g49",
+            "expires": "2025-08-15T19:49:47.000Z",
+            "domain": "www.businessinsider.com",
             "path": "/",
-            "httpOnly": true,
             "hostOnly": true,
-            "creation": "2025-08-09T10:42:07.960Z",
-            "lastAccessed": "2025-08-09T10:42:07.960Z"
+            "creation": "2025-08-09T11:36:39.207Z",
+            "lastAccessed": "2025-08-09T11:36:39.207Z"
+          },
+          {
+            "key": "AWSALBTGCORS",
+            "value": "MVSRpAdOIAFzNbM3GUW2HIiPPKDgrhj20I98PhBRKHCUUttigKkAlmiewbb2Tj3EoW4/VYfzNITR933umT+msxzNwlnyq/K6ctoJsKM1RCfVIqah0soonG+DcLfFoDARPiA7Hly6kVE7PvgQlLM7gnbQ06/GBy2i1txxG/Ye6g49",
+            "expires": "2025-08-15T19:49:47.000Z",
+            "domain": "www.businessinsider.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T11:36:39.207Z",
+            "lastAccessed": "2025-08-09T11:36:39.207Z",
+            "sameSite": "none"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T11:32:06.756Z",
-      "createdAt": "2025-08-09T10:42:06.756Z",
+      "expiresAt": "2025-08-09T12:26:38.072Z",
+      "createdAt": "2025-08-09T11:36:38.072Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_uWahxDMduN",
+      "id": "session_Fz80UzVQvU",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -224,19 +140,42 @@
         "enableLooseMode": false,
         "allowSpecialUseDomain": true,
         "prefixSecurity": "silent",
-        "cookies": []
+        "cookies": [
+          {
+            "key": "AWSALBTG",
+            "value": "1r2FDJ2h71Z9JavELmB1DMdcZO5JIsdrhI2sjlxNcwV5JzMO7FEH9QF59huoZVKprPEFbyToc8FtiyfQZe81WB2iriv5NkjZ82dK89GHd7EB0FkuHhX3mtknzl2J3dJmHHwtBnRplv4+Wsme6adhjIwhLvSPqMe8jKldTB22TYqQ",
+            "expires": "2025-08-15T19:34:22.000Z",
+            "domain": "www.businessinsider.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-09T11:36:40.267Z",
+            "lastAccessed": "2025-08-09T11:36:40.267Z"
+          },
+          {
+            "key": "AWSALBTGCORS",
+            "value": "1r2FDJ2h71Z9JavELmB1DMdcZO5JIsdrhI2sjlxNcwV5JzMO7FEH9QF59huoZVKprPEFbyToc8FtiyfQZe81WB2iriv5NkjZ82dK89GHd7EB0FkuHhX3mtknzl2J3dJmHHwtBnRplv4+Wsme6adhjIwhLvSPqMe8jKldTB22TYqQ",
+            "expires": "2025-08-15T19:34:22.000Z",
+            "domain": "www.businessinsider.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T11:36:40.267Z",
+            "lastAccessed": "2025-08-09T11:36:40.267Z",
+            "sameSite": "none"
+          }
+        ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T11:34:00.590Z",
-      "createdAt": "2025-08-09T10:44:00.590Z",
+      "expiresAt": "2025-08-09T12:26:39.222Z",
+      "createdAt": "2025-08-09T11:36:39.222Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_gpFGBNRKY4",
+      "id": "session_NaufeopQdh",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -244,33 +183,36 @@
         "enableLooseMode": false,
         "allowSpecialUseDomain": true,
         "prefixSecurity": "silent",
-        "cookies": []
+        "cookies": [
+          {
+            "key": "AWSALBTG",
+            "value": "df9DD7X33PH5b7IIJIZKQO0F6eDHm4FdcV4M8xkKr1dR05RX5Zb5bDaIoAMl+WwGsG0vvwm/lxVyytVGpG53pfDDPuzXLA7eVLyVGxqfHaXY78OppAAROb91eC43nQRho7Rg+Fag+wJZ9O+cqSKRtl6n+2GV0ytm1RUFxPkD2tH8",
+            "expires": "2025-08-15T19:37:23.000Z",
+            "domain": "www.businessinsider.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-09T11:36:40.286Z",
+            "lastAccessed": "2025-08-09T11:36:40.286Z"
+          },
+          {
+            "key": "AWSALBTGCORS",
+            "value": "df9DD7X33PH5b7IIJIZKQO0F6eDHm4FdcV4M8xkKr1dR05RX5Zb5bDaIoAMl+WwGsG0vvwm/lxVyytVGpG53pfDDPuzXLA7eVLyVGxqfHaXY78OppAAROb91eC43nQRho7Rg+Fag+wJZ9O+cqSKRtl6n+2GV0ytm1RUFxPkD2tH8",
+            "expires": "2025-08-15T19:37:23.000Z",
+            "domain": "www.businessinsider.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T11:36:40.286Z",
+            "lastAccessed": "2025-08-09T11:36:40.286Z",
+            "sameSite": "none"
+          }
+        ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T11:34:06.052Z",
-      "createdAt": "2025-08-09T10:44:06.052Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_SPnL3vetAI",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T11:34:06.055Z",
-      "createdAt": "2025-08-09T10:44:06.055Z",
+      "expiresAt": "2025-08-09T12:26:39.233Z",
+      "createdAt": "2025-08-09T11:36:39.233Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
