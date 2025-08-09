@@ -739,6 +739,12 @@ export default function BetaV2DataProcessingPage() {
                                     {/* GLEIF Additional Data */}
                                     {claim.gleifData && (
                                       <div className="mt-3 pt-3 border-t space-y-2">
+                                        {claim.gleifData.legalName && (
+                                          <div className="flex gap-2 text-sm">
+                                            <span className="text-muted-foreground">Primary Legal Name:</span>
+                                            <span className="font-medium">{claim.gleifData.legalName}</span>
+                                          </div>
+                                        )}
                                         {claim.gleifData.jurisdiction && (
                                           <div className="flex gap-2 text-sm">
                                             <span className="text-muted-foreground">Jurisdiction:</span>

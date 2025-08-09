@@ -76,6 +76,7 @@ export class GleifClaimsService {
               const gleifEntity = gleifResult.entities[0];
               leiCode = gleifEntity.leiCode;
               gleifData = {
+                legalName: gleifEntity.legalName,  // Add primary legal name from GLEIF
                 legalForm: gleifEntity.legalForm,
                 entityStatus: gleifEntity.entityStatus,
                 jurisdiction: gleifEntity.jurisdiction,
