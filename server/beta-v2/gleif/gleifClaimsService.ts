@@ -157,6 +157,8 @@ export class GleifClaimsService {
     const entities: Array<{name: string; confidence: 'high' | 'medium' | 'low'; source: string}> = [];
     
     console.log('[GleifClaimsService] Starting entity extraction from:', {
+      hasCompanyName: !!cleanedContent.companyName,
+      companyName: cleanedContent.companyName,
       hasStructuredData: !!cleanedContent.structuredData,
       structuredDataKeys: cleanedContent.structuredData ? Object.keys(cleanedContent.structuredData) : [],
       hasMetaTags: !!cleanedContent.metaTags && Object.keys(cleanedContent.metaTags).length > 0,
@@ -166,6 +168,16 @@ export class GleifClaimsService {
       hasExtractedText: !!cleanedContent.extractedText,
       textLength: cleanedContent.extractedText?.length || 0
     });
+    
+    // PRIORITY 1: Extract from LLM-cleaned companyName field (most accurate)
+    if (cleanedContent.companyName) {
+      console.log('[GleifClaimsService] Found entity in LLM-extracted companyName:', cleanedContent.companyName);
+      entities.push({
+        name: cleanedContent.companyName,
+        confidence: 'high',
+        source: 'llm_extracted_company'
+      });
+    }
     
     // Extract from structured data if available
     if (cleanedContent.structuredData?.organization?.name) {

@@ -204,13 +204,26 @@ router.post('/generate-claims', async (req, res) => {
       }
     }
     
-    // For now, use raw data directly (Stage 1 & 2 cleaning can be added later)
+    // Check if we have LLM-cleaned data (contains companyName field)
+    let llmCleanedData = null;
+    if (rawData.content?.cleanedPages && rawData.content.cleanedPages.length > 0) {
+      llmCleanedData = rawData.content.cleanedPages[0];
+      console.log('[Beta] [GleifClaimsRoutes] Found LLM-cleaned data with companyName:', llmCleanedData.companyName);
+    }
+    
+    // Combine raw extracted data with LLM-cleaned data
     const cleanedContent = {
       domain: rawData.domain,
       title: extractTitle(rawData.content),
       metaTags: extractMetaTags(rawData.content),
       structuredData: extractStructuredData(rawData.content),
-      extractedText: extractTextContent(rawData.content)
+      extractedText: extractTextContent(rawData.content),
+      // Add LLM-extracted company name if available
+      companyName: llmCleanedData?.companyName || null,
+      // Include other LLM-extracted fields for future use
+      addresses: llmCleanedData?.addresses || [],
+      emails: llmCleanedData?.emails || [],
+      phones: llmCleanedData?.phones || []
     };
 
     // Debug logging
