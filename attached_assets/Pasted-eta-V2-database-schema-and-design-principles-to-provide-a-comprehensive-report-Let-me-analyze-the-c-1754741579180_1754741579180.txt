@@ -1,0 +1,93 @@
+eta V2 database schema and design principles to provide a comprehensive report. Let me analyze the current state without making any code changes.
+
+Design Principles Analysis
+Based on the documentation and architecture files, Beta V2 follows these key design principles:
+
+1. Federated Microservice Architecture
+Each data collection method operates as an independent vertical slice
+Zero coupling between collection methods
+Complete development isolation
+Shared minimal data for cross-method analysis
+2. Database Federation Model
+Each collection method has its own dedicated database tables
+Independent storage strategies per method
+No shared schemas between collection methods
+Cross-method analysis through minimal shared interfaces
+3. Processing Pipeline Separation
+Multi-stage processing pipeline (4 stages identified)
+Stage isolation with dedicated tables for each processing step
+LLM cleaning as a separate, discrete stage
+GLEIF integration as final verification stage
+Database Schema Investigation Report
+Current Schema Structure
+The Beta V2 database schema consists of several federated table groups:
+
+Collection Method Tables (Independent Silos)
+crawlee_dumps - Advanced web crawling with network capture
+scrapy_crawls - Pattern-based extraction results
+playwright_dumps - Full browser rendering dumps
+axios_cheerio_dumps - Lightweight scraping results (inferred from codebase)
+Processing Pipeline Tables
+beta_v2_processing_results - Multi-stage processing tracker
+cleaned_data - LLM processing results with model comparison
+cleaning_sessions - Multi-model comparison tracking
+model_performance - LLM model performance metrics
+GLEIF Integration Tables
+gleif_search_requests - Entity search requests
+gleif_candidates_v2 - Enriched GLEIF candidate results
+Legacy Beta Tables (Separate isolation)
+beta_smoke_tests - Method comparison testing
+beta_experiments - Testing experiment tracking
+beta_performance_metrics - Performance benchmarking
+Schema Issues Identified
+1. Inconsistent Federation Implementation
+Issue: Not all collection methods have dedicated tables
+Evidence: axios_cheerio_dumps table referenced in code but missing schema
+Impact: Breaks federation principle, potential data loss
+2. Processing Pipeline Schema Gaps
+Issue: Missing intermediate processing stages
+Evidence: beta_v2_processing_results jumps from stage 1 to stage 4
+Expected: Stage 2 (data extraction) and Stage 3 (entity extraction) tables missing
+Impact: Cannot track processing failures at intermediate stages
+3. Cross-Schema Referential Integrity Problems
+Issue: Foreign key relationships span federated boundaries
+Evidence: beta_v2_processing_results.source_id references multiple table types
+Problem: No database-level constraints possible with federation model
+Risk: Data integrity issues, orphaned records
+4. Schema Evolution Inconsistencies
+Issue: Multiple migration files show schema rebuilds
+Evidence: 0004_rebuild_beta_tables.sql indicates previous schema failures
+Problem: No clear migration path, potential data loss during transitions
+5. Mixed Architectural Patterns
+Issue: Legacy centralized tables mixed with federated approach
+Evidence: beta_smoke_tests centralizes data that should be federated
+Impact: Violates design principle of method independence
+Data Flow Architecture Problems
+1. Processing Pipeline Bottlenecks
+All collection methods funnel through single beta_v2_processing_results table
+Creates coupling between independent collection methods
+Violates federation principle
+2. Cleaning Stage Centralization
+LLM cleaning services access all collection method tables
+Creates tight coupling between supposedly independent services
+Single point of failure for entire processing pipeline
+3. GLEIF Integration Coupling
+GLEIF search service must understand all collection method schemas
+Violates encapsulation of federated services
+Recommendations Summary
+Immediate Schema Fixes Needed
+Create missing axios_cheerio_dumps table schema
+Add intermediate processing stage tables (Stage 2, Stage 3)
+Implement proper indexing strategy for performance
+Add data validation constraints within each federated table
+Architectural Alignment Issues
+Processing pipeline violates federation principles
+Cross-service data access creates coupling
+Mixed legacy/modern patterns cause confusion
+No clear service boundaries in database design
+Long-term Architecture Concerns
+Federation model may not be sustainable with current processing pipeline
+Consider event-driven architecture instead of shared database access
+Implement proper service boundaries with API contracts
+Separate read/write concerns for analytics vs operational data
+The current schema attempts to implement federation but creates coupling through the processing pipeline, potentially undermining the core design goals of method independence and isolation.

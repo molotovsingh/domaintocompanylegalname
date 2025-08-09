@@ -1,27 +1,67 @@
 {
-  "requestsFinished": 5,
-  "requestsFailed": 0,
-  "requestsRetries": 0,
-  "requestsFailedPerMinute": 0,
-  "requestsFinishedPerMinute": 43,
-  "requestMinDurationMillis": 2104,
-  "requestMaxDurationMillis": 2377,
-  "requestTotalFailedDurationMillis": 0,
-  "requestTotalFinishedDurationMillis": 11425,
-  "crawlerStartedAt": "2025-08-09T11:54:45.322Z",
-  "crawlerFinishedAt": "2025-08-09T11:54:52.346Z",
-  "statsPersistedAt": "2025-08-09T11:54:52.347Z",
-  "crawlerRuntimeMillis": 7054,
-  "crawlerLastStartTimestamp": 1754740485293,
+  "requestsFinished": 0,
+  "requestsFailed": 1,
+  "requestsRetries": 1,
+  "requestsFailedPerMinute": 18,
+  "requestsFinishedPerMinute": 0,
+  "requestMinDurationMillis": null,
+  "requestMaxDurationMillis": 0,
+  "requestTotalFailedDurationMillis": 1010,
+  "requestTotalFinishedDurationMillis": 0,
+  "crawlerStartedAt": "2025-08-09T12:12:24.494Z",
+  "crawlerFinishedAt": "2025-08-09T12:12:27.643Z",
+  "statsPersistedAt": "2025-08-09T12:12:27.643Z",
+  "crawlerRuntimeMillis": 3188,
+  "crawlerLastStartTimestamp": 1754741544455,
   "requestRetryHistogram": [
-    5
+    null,
+    null,
+    1
   ],
   "statsId": 1,
-  "requestAvgFailedDurationMillis": null,
-  "requestAvgFinishedDurationMillis": 2285,
-  "requestTotalDurationMillis": 11425,
-  "requestsTotal": 5,
+  "requestAvgFailedDurationMillis": 1010,
+  "requestAvgFinishedDurationMillis": null,
+  "requestTotalDurationMillis": 1010,
+  "requestsTotal": 1,
   "requestsWithStatusCode": {},
-  "errors": {},
-  "retryErrors": {}
+  "errors": {
+    "file:///home/runner/workspace/node_modules/got/dist/source/core/index.js:189:21": {
+      "ENOTFOUND": {
+        "RequestError": {
+          "getaddrinfo ENOTFOUND hyundaiassan.com.tr": {
+            "count": 1
+          }
+        }
+      }
+    },
+    "node:dns:120:26": {
+      "ENOTFOUND": {
+        "Error": {
+          "getaddrinfo ENOTFOUND hyundaiassan.com.tr": {
+            "count": 1
+          }
+        }
+      }
+    }
+  },
+  "retryErrors": {
+    "file:///home/runner/workspace/node_modules/got/dist/source/core/index.js:189:21": {
+      "ENOTFOUND": {
+        "RequestError": {
+          "getaddrinfo ENOTFOUND hyundaiassan.com.tr": {
+            "count": 2
+          }
+        }
+      }
+    },
+    "node:dns:120:26": {
+      "ENOTFOUND": {
+        "Error": {
+          "getaddrinfo ENOTFOUND hyundaiassan.com.tr": {
+            "count": 2
+          }
+        }
+      }
+    }
+  }
 }

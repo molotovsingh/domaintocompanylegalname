@@ -3,7 +3,256 @@
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_VKtThtIAQE",
+      "id": "session_vSpboBkWCr",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "ASP.NET_SessionId",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:45.334Z",
+            "lastAccessed": "2025-08-09T12:07:46.591Z"
+          },
+          {
+            "key": "fcookie",
+            "value": "805448970.47873.0000",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:45.334Z",
+            "lastAccessed": "2025-08-09T12:07:45.335Z"
+          },
+          {
+            "key": "TS01a8a704",
+            "value": "01871ecc04f17b32a4a42837e1f43c9b26ebd48042c5cef0761d9cef4b2cdc2f9eff839799ed158c5f1a239ee3cdf2c3149fe528554759cb34ad1008665378ac8b33f44f6a8291a4def018ebe7e7de61aa4eeca383fac0cf6dfd9f01524d7f0c88fcb92b90",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:45.334Z",
+            "lastAccessed": "2025-08-09T12:07:46.591Z"
+          },
+          {
+            "key": "__RequestVerificationToken",
+            "value": "N0hqrpYqnn_vypPGln5xnfOG0WnVrxlDcTQOdWNak8f3DQ6cltd8INLZ6JCcOobJLNc93GAZlVFqFMH8maQqv606Bie8ifc0j_gaC4huYXw1",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:46.591Z",
+            "lastAccessed": "2025-08-09T12:07:46.591Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-09T12:57:41.665Z",
+      "createdAt": "2025-08-09T12:07:41.665Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_JVnYqKeDEm",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "ASP.NET_SessionId",
+            "value": "3qb3ju11x2ma5t2jqvrermk1",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:47.915Z",
+            "lastAccessed": "2025-08-09T12:07:47.915Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "__RequestVerificationToken",
+            "value": "nF1o3MfTob0CDNOzKruCmCezQE_jmehTzf9yHKwckVsmaA_0tCsB7T7mak6TzKpYqC7qdZYQVYgjGat4zb3c7--tbjP3qQPgLDKREL9pMSo1",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:47.915Z",
+            "lastAccessed": "2025-08-09T12:07:47.915Z"
+          },
+          {
+            "key": "fcookie",
+            "value": "805448970.47873.0000",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:47.915Z",
+            "lastAccessed": "2025-08-09T12:07:47.915Z"
+          },
+          {
+            "key": "TS01a8a704",
+            "value": "01871ecc04b6b8a5c8b143fec74081fd47b0c6b9284b009825c6f10f5eff7641aa836671602dcba07f7cd481434731a516623c50d4002c64f7c6aa6b9c612ddaa244026fddefdfffa3353a65e446c5578897160e9f46d6c85df5a3f819885dbb4d59a88526",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:47.915Z",
+            "lastAccessed": "2025-08-09T12:07:47.915Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-09T12:57:46.632Z",
+      "createdAt": "2025-08-09T12:07:46.632Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_WkSDCh0kyO",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "ASP.NET_SessionId",
+            "value": "f0peokdipr5grny0hgdtf4nh",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:49.081Z",
+            "lastAccessed": "2025-08-09T12:07:49.081Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "__RequestVerificationToken",
+            "value": "24WDrO6n8nC22WPZ7cHZCfYAD-GiMwrVnx3OBazkkbirZDfBon7j_R9NR5jD6DcH8c-pzcpgF9tQqYR40XJ0a0mMeBKlZaVgxOnlVg1w-_M1",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:49.081Z",
+            "lastAccessed": "2025-08-09T12:07:49.081Z"
+          },
+          {
+            "key": "fcookie",
+            "value": "805448970.47873.0000",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:49.081Z",
+            "lastAccessed": "2025-08-09T12:07:49.081Z"
+          },
+          {
+            "key": "TS01a8a704",
+            "value": "01871ecc0426bc81cd72923e786b42efca8d8efc26dbc326b39ed6bb4d43884f1c940b010db671334dda73519c50aec78b099c4172af797f93659be55a7d0ad6a4ba50ad6b45ac459af3ca19b0d3058deda65ad2d496a96f9ea80a238552da2d5b3a06737f",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:49.081Z",
+            "lastAccessed": "2025-08-09T12:07:49.081Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-09T12:57:46.634Z",
+      "createdAt": "2025-08-09T12:07:46.634Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_3bK8EN1CEu",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "ASP.NET_SessionId",
+            "value": "eyniosjlwna5cbdml55gkn2p",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:49.210Z",
+            "lastAccessed": "2025-08-09T12:07:49.210Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "__RequestVerificationToken",
+            "value": "bv3W-KW2pQsTbF7D_BXs2jvEsZLA4IfE5tQ69-yBHe23eLS_o7hPzaV6zz45qTNkEbrBn_gpEcL5A3IYfZcIqEtBHjX3LEup0xv4UsGUnyQ1",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:49.210Z",
+            "lastAccessed": "2025-08-09T12:07:49.210Z"
+          },
+          {
+            "key": "fcookie",
+            "value": "805448970.47873.0000",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:49.210Z",
+            "lastAccessed": "2025-08-09T12:07:49.210Z"
+          },
+          {
+            "key": "TS01a8a704",
+            "value": "01871ecc043af96f5e2a516021a3f1f436bc803a63f916cc2d3e576c5ae583e2306a14dc581ae3b9d360125ec44f740f8fab4041d07877c0c45fa2ee5d613fb9abacda0c71b454fa3c0474d7f0bcd8e79aaa6bacbddee74e534e4ea5124c750991a5190e21",
+            "domain": "fordotosan.com.tr",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-09T12:07:49.210Z",
+            "lastAccessed": "2025-08-09T12:07:49.210Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-09T12:57:47.939Z",
+      "createdAt": "2025-08-09T12:07:47.939Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_zLqYy1mAsM",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -16,14 +265,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T12:44:20.657Z",
-      "createdAt": "2025-08-09T11:54:20.657Z",
+      "expiresAt": "2025-08-09T12:57:49.263Z",
+      "createdAt": "2025-08-09T12:07:49.263Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 1
     },
     {
-      "id": "session_wIfakya1OF",
+      "id": "session_sH4a5XDh8C",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -36,14 +285,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T12:44:22.295Z",
-      "createdAt": "2025-08-09T11:54:22.295Z",
+      "expiresAt": "2025-08-09T13:02:24.516Z",
+      "createdAt": "2025-08-09T12:12:24.516Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 1
     },
     {
-      "id": "session_xmY2EActr0",
+      "id": "session_FPfxfMAfOM",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -56,14 +305,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T12:44:23.637Z",
-      "createdAt": "2025-08-09T11:54:23.637Z",
+      "expiresAt": "2025-08-09T13:02:25.588Z",
+      "createdAt": "2025-08-09T12:12:25.588Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 1
     },
     {
-      "id": "session_Ruc2YRbcru",
+      "id": "session_yUy4i2YUYp",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -71,226 +320,16 @@
         "enableLooseMode": false,
         "allowSpecialUseDomain": true,
         "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "__cf_bm",
-            "value": "DJggWlhTbk9tLCDZVG3ruU_APVtTDLBEU4aCvdcgxAA-1754740487-1.0.1.1-oD_5sYHi73xfYtUwik.mNobX_.f4tFipv_hJoi6mS8zURIshwbrU2q7a346AJluTW7W_bARE4hgx60cgw9yduhF48SntpTsDTl4GeRpaL_Q",
-            "expires": "2025-08-09T12:24:47.000Z",
-            "domain": "tofas.com.tr",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T11:54:47.690Z",
-            "lastAccessed": "2025-08-09T11:54:47.690Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "_cfuvid",
-            "value": "aMCW1dfLod4Iz735ouUPTnHuuvKxGmcReHzaP5c3Zmg-1754740487346-0.0.1.1-604800000",
-            "domain": "tofas.com.tr",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T11:54:47.691Z",
-            "lastAccessed": "2025-08-09T11:54:47.691Z",
-            "sameSite": "none"
-          }
-        ]
+        "cookies": []
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T12:44:45.355Z",
-      "createdAt": "2025-08-09T11:54:45.355Z",
+      "expiresAt": "2025-08-09T13:02:26.608Z",
+      "createdAt": "2025-08-09T12:12:26.608Z",
       "usageCount": 1,
       "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_JIBN5LMkzO",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "__cf_bm",
-            "value": "INJTe9Qi0a2ME.fm5M69Q1_2HgBkZQ9ygjTt5TJIUqg-1754740489-1.0.1.1-dMmMdgHk_H8sKgY.LURFV9MmvzK5EJe.ZI1JuwOgotLTVLE4wDbw0_.BGX1viYl8Zn7bU0ELrdCOL6iDkd2rnptN6UaRRz7SGw9JpVpL9cI",
-            "expires": "2025-08-09T12:24:49.000Z",
-            "domain": "tofas.com.tr",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T11:54:49.942Z",
-            "lastAccessed": "2025-08-09T11:54:49.942Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "_cfuvid",
-            "value": "ekYxqP809RszafLSkP6FLOsQa6B__0BLUw3l958bop0-1754740489590-0.0.1.1-604800000",
-            "domain": "tofas.com.tr",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T11:54:49.942Z",
-            "lastAccessed": "2025-08-09T11:54:49.942Z",
-            "sameSite": "none"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T12:44:47.736Z",
-      "createdAt": "2025-08-09T11:54:47.736Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_Ty44sjV0yP",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "__cf_bm",
-            "value": ".piTaRqzEtm04aWB5v6QIRzEvrpSFTmb36joBjAUpLo-1754740489-1.0.1.1-toGo3AY5ARh4lwTUejA8urwVJKOdUCUvt_MrBWCEW78QwojqOfwcytpD.hSxOSLAF2C1w0Zbr.IKD256XqCcJm62zLgKS1Lt0HUb36sjEPA",
-            "expires": "2025-08-09T12:24:49.000Z",
-            "domain": "tofas.com.tr",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T11:54:50.038Z",
-            "lastAccessed": "2025-08-09T11:54:50.038Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "_cfuvid",
-            "value": "MH6rwzPK84w_rKGIH4X4nlVYn8NSuqF03N56riTC7hc-1754740489538-0.0.1.1-604800000",
-            "domain": "tofas.com.tr",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T11:54:50.038Z",
-            "lastAccessed": "2025-08-09T11:54:50.038Z",
-            "sameSite": "none"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T12:44:47.741Z",
-      "createdAt": "2025-08-09T11:54:47.741Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_vf6VWPAKHb",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "__cf_bm",
-            "value": "46ZPRz8IZBCFitGue0yax21tCxTX7UKa.qrUeXaytpg-1754740491-1.0.1.1-hZQv5EUcH5LMAaF3FPQPdaQNIKfEr1um_mJLvZGfDCute0NcdeGju.f2ydNhxWuwUtoeoON3VWEDiySOVrmVtfpU3dlw.ULxB0rIvxGLW74",
-            "expires": "2025-08-09T12:24:51.000Z",
-            "domain": "tofas.com.tr",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T11:54:52.293Z",
-            "lastAccessed": "2025-08-09T11:54:52.293Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "_cfuvid",
-            "value": "OHOxTRFOHYRYfF7cYLTdKsXXo1XXQGNtqBscxkuDO4Q-1754740491974-0.0.1.1-604800000",
-            "domain": "tofas.com.tr",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T11:54:52.293Z",
-            "lastAccessed": "2025-08-09T11:54:52.293Z",
-            "sameSite": "none"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T12:44:50.125Z",
-      "createdAt": "2025-08-09T11:54:50.125Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_lISMlFl1Jj",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "__cf_bm",
-            "value": "tYokiMx_xSyOGIhlas.f57d3hjneJqxiMcH4kQ.O2G4-1754740491-1.0.1.1-ZuvDTvvtYhMYj5LpeZSiw8H5GPQ_dMCLMqzT3v.8RH10ye94sQ4NtLKU5FHdiTl9xPEN3FgdZ0raJglEA1LZdVQHhEc4JF82pil3QoqKPoo",
-            "expires": "2025-08-09T12:24:51.000Z",
-            "domain": "tofas.com.tr",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T11:54:52.220Z",
-            "lastAccessed": "2025-08-09T11:54:52.220Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "_cfuvid",
-            "value": "7EXgNbNgxz0GRVV8TklvjjkaFzy9ELcHVCtfpCDORXU-1754740491912-0.0.1.1-604800000",
-            "domain": "tofas.com.tr",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T11:54:52.220Z",
-            "lastAccessed": "2025-08-09T11:54:52.220Z",
-            "sameSite": "none"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T12:44:50.128Z",
-      "createdAt": "2025-08-09T11:54:50.128Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
+      "errorScore": 1
     }
   ]
 }
