@@ -711,7 +711,7 @@ export default function BetaV2DataProcessingPage() {
                             {result.claims.map((claim, claimIdx) => (
                               <div key={claimIdx} className="border rounded-lg p-4 space-y-2">
                                 <div className="flex items-start justify-between">
-                                  <div>
+                                  <div className="w-full">
                                     <p className="font-medium">{claim.entityName || claim.legalName}</p>
                                     {claim.leiCode && (
                                       <p className="text-sm text-muted-foreground mt-0.5">
@@ -735,6 +735,63 @@ export default function BetaV2DataProcessingPage() {
                                         }
                                       </span>
                                     </div>
+                                    
+                                    {/* GLEIF Additional Data */}
+                                    {claim.gleifData && (
+                                      <div className="mt-3 pt-3 border-t space-y-2">
+                                        {claim.gleifData.jurisdiction && (
+                                          <div className="flex gap-2 text-sm">
+                                            <span className="text-muted-foreground">Jurisdiction:</span>
+                                            <span>{claim.gleifData.jurisdiction}</span>
+                                          </div>
+                                        )}
+                                        {claim.gleifData.legalForm && (
+                                          <div className="flex gap-2 text-sm">
+                                            <span className="text-muted-foreground">Legal Form:</span>
+                                            <span>{claim.gleifData.legalForm}</span>
+                                          </div>
+                                        )}
+                                        {claim.gleifData.entityStatus && (
+                                          <div className="flex gap-2 text-sm">
+                                            <span className="text-muted-foreground">Entity Status:</span>
+                                            <span>{claim.gleifData.entityStatus}</span>
+                                          </div>
+                                        )}
+                                        {claim.gleifData.headquarters && (
+                                          <div className="flex gap-2 text-sm">
+                                            <span className="text-muted-foreground">Headquarters:</span>
+                                            <span>
+                                              {[
+                                                claim.gleifData.headquarters.city,
+                                                claim.gleifData.headquarters.region,
+                                                claim.gleifData.headquarters.country
+                                              ].filter(Boolean).join(', ')}
+                                            </span>
+                                          </div>
+                                        )}
+                                        {claim.gleifData.legalAddress && claim.gleifData.legalAddress.addressLine && (
+                                          <div className="flex gap-2 text-sm">
+                                            <span className="text-muted-foreground">Legal Address:</span>
+                                            <span className="text-xs">
+                                              {claim.gleifData.legalAddress.addressLine}
+                                              {claim.gleifData.legalAddress.postalCode && `, ${claim.gleifData.legalAddress.postalCode}`}
+                                            </span>
+                                          </div>
+                                        )}
+                                        {claim.gleifData.registrationStatus && (
+                                          <div className="flex gap-2 text-sm">
+                                            <span className="text-muted-foreground">Registration Status:</span>
+                                            <span>{claim.gleifData.registrationStatus}</span>
+                                          </div>
+                                        )}
+                                        {claim.gleifData.lastUpdateDate && (
+                                          <div className="flex gap-2 text-sm">
+                                            <span className="text-muted-foreground">Last Updated:</span>
+                                            <span>{new Date(claim.gleifData.lastUpdateDate).toLocaleDateString()}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                                 

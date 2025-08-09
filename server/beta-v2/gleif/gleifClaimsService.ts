@@ -67,12 +67,25 @@ export class GleifClaimsService {
         let leiCode: string | undefined;
         
         // Search GLEIF for LEI code if entity is valid
+        let gleifData: any = undefined;
         if (!shouldSkip) {
           try {
             const gleifResult = await this.gleifSearchService.searchGLEIF(entity.name, domain);
             if (gleifResult.entities && gleifResult.entities.length > 0) {
-              // Take the first match's LEI code
-              leiCode = gleifResult.entities[0].leiCode;
+              // Take the first match and capture all its data
+              const gleifEntity = gleifResult.entities[0];
+              leiCode = gleifEntity.leiCode;
+              gleifData = {
+                legalForm: gleifEntity.legalForm,
+                entityStatus: gleifEntity.entityStatus,
+                jurisdiction: gleifEntity.jurisdiction,
+                entityCategory: gleifEntity.entityCategory,
+                legalAddress: gleifEntity.legalAddress,
+                headquarters: gleifEntity.headquarters,
+                registrationStatus: gleifEntity.registrationStatus,
+                initialRegistrationDate: gleifEntity.initialRegistrationDate,
+                lastUpdateDate: gleifEntity.lastUpdateDate
+              };
               console.log(`[GleifClaimsService] Found LEI for ${entity.name}: ${leiCode}`);
             }
           } catch (error) {
@@ -80,13 +93,14 @@ export class GleifClaimsService {
           }
         }
         
-        // Add claim with LEI code if found
+        // Add claim with LEI code and additional GLEIF data if found
         claims.push({
           claimType: 'extracted',
           entityName: entity.name,
           confidence: entity.confidence,
           source: entity.source,
-          leiCode: leiCode
+          leiCode: leiCode,
+          gleifData: gleifData
         });
       }
 
