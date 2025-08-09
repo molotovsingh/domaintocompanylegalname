@@ -1,9 +1,9 @@
 {
-  "usableSessionsCount": 6,
+  "usableSessionsCount": 8,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_LDc50w1X8X",
+      "id": "session_VKtThtIAQE",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -16,14 +16,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T12:28:07.470Z",
-      "createdAt": "2025-08-09T11:38:07.470Z",
+      "expiresAt": "2025-08-09T12:44:20.657Z",
+      "createdAt": "2025-08-09T11:54:20.657Z",
       "usageCount": 1,
       "maxUsageCount": 50,
-      "errorScore": 0
+      "errorScore": 1
     },
     {
-      "id": "session_exGM49JW0g",
+      "id": "session_wIfakya1OF",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -36,14 +36,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T12:28:09.827Z",
-      "createdAt": "2025-08-09T11:38:09.827Z",
+      "expiresAt": "2025-08-09T12:44:22.295Z",
+      "createdAt": "2025-08-09T11:54:22.295Z",
       "usageCount": 1,
       "maxUsageCount": 50,
-      "errorScore": 0
+      "errorScore": 1
     },
     {
-      "id": "session_apcODBfsfe",
+      "id": "session_xmY2EActr0",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -56,54 +56,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T12:28:58.706Z",
-      "createdAt": "2025-08-09T11:38:58.706Z",
+      "expiresAt": "2025-08-09T12:44:23.637Z",
+      "createdAt": "2025-08-09T11:54:23.637Z",
       "usageCount": 1,
       "maxUsageCount": 50,
-      "errorScore": 0
+      "errorScore": 1
     },
     {
-      "id": "session_wB7Y8d0miF",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T12:29:00.264Z",
-      "createdAt": "2025-08-09T11:39:00.264Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_PvNMdcy1Bh",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T12:29:00.267Z",
-      "createdAt": "2025-08-09T11:39:00.267Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_OPnGlQcwGp",
+      "id": "session_Ruc2YRbcru",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -113,58 +73,221 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "_abck",
-            "value": "48270635313EE4CB56F5560B36282A5A~-1~YAAQChchF+uXOWOYAQAAtQapjg7xF9WlPgbzSDiwzjomLP4bd1meP/RO5PUEMFwmArevePP4DcTC71OuwX18r+FwpXL0k7pINfcJhPEg9+jfaqOfYqAIkwXKOGGMz1/5y3tyNGGNDO+2dhqv/QJF3UTG4M8tjNIRSub3NVuEqDU6IFHDb6+mzmAYFmQTgS3LREjoGGC+IWjl5DJjjIcS6QsA81IfbFNlVP0u4JwkuYgcu7hTK9zpVzn1se5lYh9ArgFytusgPpPkLDaHRi/0Du3PDiApez0V/ZU9j9vKjJmEnoC48ofS5QdxNt4lQio41O6sO5sM/j0LWod6M1/oxHoV68MHQoAxkMDhAYvtenaOZwkJBr08aIwe8YTtzfSO1su6CjzW+a/e8dAs1YTZvQtJLAv2podKKa6Fc9th0Ut4jzAy9/r+NOv19ucv40cl8d92BOtfPyCGMQ==~-1~-1~-1",
-            "expires": "2026-08-09T11:48:18.000Z",
-            "maxAge": 31536000,
-            "domain": "omegawatches.com",
+            "key": "__cf_bm",
+            "value": "DJggWlhTbk9tLCDZVG3ruU_APVtTDLBEU4aCvdcgxAA-1754740487-1.0.1.1-oD_5sYHi73xfYtUwik.mNobX_.f4tFipv_hJoi6mS8zURIshwbrU2q7a346AJluTW7W_bARE4hgx60cgw9yduhF48SntpTsDTl4GeRpaL_Q",
+            "expires": "2025-08-09T12:24:47.000Z",
+            "domain": "tofas.com.tr",
             "path": "/",
             "secure": true,
+            "httpOnly": true,
             "hostOnly": false,
-            "creation": "2025-08-09T11:48:18.834Z",
-            "lastAccessed": "2025-08-09T11:48:18.834Z"
+            "creation": "2025-08-09T11:54:47.690Z",
+            "lastAccessed": "2025-08-09T11:54:47.690Z",
+            "sameSite": "none"
           },
           {
-            "key": "ak_bmsc",
-            "value": "DBB078254D8F7D45D4D1890F207A4491~000000000000000000000000000000~YAAQChchF+yXOWOYAQAAtQapjhylz+IObnUWGxRIxn3lSyInODO2iC/ohzss4TtBGKr+dyyxgDNwHKszNMktT2oBydtIuLRjZc8FEacDBw62mkqiIca2PTrYlKNqw9O1G9mJc9Igla6HTP9lwP1mAW/9Pi6+ps39zC8OQVPLf9THVkNuP0x1j2VK9Jkkf+6FgoY8FLnyT9Gt41Bgntl1txDQzMTc+PWA4Wqj24a4vdsoBa2IlG/JWZrEcJXUQ0k3qUjlhib874JZ6FjFkjDwxjCXgbg/ECmI80zUPItklYBD7sErbSHAO6DmpKWqrOyoz+mAityVMIp/9BcL/HkrvixxtuQurtfPVaa0qqCGNbiK9gfwoLTE28364CAoJTU0x//zPm4QFg==",
-            "expires": "2025-08-09T13:48:18.000Z",
-            "maxAge": 7200,
-            "domain": "omegawatches.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-09T11:48:18.839Z",
-            "lastAccessed": "2025-08-09T11:48:18.839Z"
-          },
-          {
-            "key": "bm_mi",
-            "value": "8D8FE04C944DDFCFA6A4386407C2CA5A~YAAQChchF+2XOWOYAQAAtQapjhxhnY0Xd+JWILprVIP1VsfMpVIiCZjOXQZahiOkg2kqZjXe8NWkuh4rhpmrTGFKBAod1frPtxLF8fv3PjJGPTVWz5/NGJGU89bOAC6TGMc1aa+lQPAQU0EdQp2sJKonSyjhK8jsE4sjY+N0anwV5eJ2kCuQ4nk0vaqqEO9Yhi+QO++f8BQ0k0Od1NqyX35LNAz7T4Q9CxFfvCFA0HE5cwUOvaYIZ20Hzm1HMLY3EuQ8MSTGZT3pKIaGvjimRydiknffI8aVOJPJdQ3DAwIp6tHrapxpciNebIpSc96Bo+RouA==~1",
-            "expires": "2025-08-09T11:48:18.000Z",
-            "maxAge": 0,
-            "domain": "omegawatches.com",
+            "key": "_cfuvid",
+            "value": "aMCW1dfLod4Iz735ouUPTnHuuvKxGmcReHzaP5c3Zmg-1754740487346-0.0.1.1-604800000",
+            "domain": "tofas.com.tr",
             "path": "/",
             "secure": true,
+            "httpOnly": true,
             "hostOnly": false,
-            "creation": "2025-08-09T11:48:18.840Z",
-            "lastAccessed": "2025-08-09T11:48:18.840Z"
-          },
-          {
-            "key": "bm_sz",
-            "value": "F95BE17169B92D356D2E47EF6F7CD86D~YAAQChchF+6XOWOYAQAAtQapjhwRjSMS5fGA3FX92Bpu/LlWbVBHAEDoLhrjc0rbQNJRe9egxDPpaLnf8qobNt+vp3sDSdsCJRI6Vzv5c9p4BhHyOIFxZXF58FjBeCGgE81DwTmXWLN/NuBmzQoFy268Di6Xf7aF9LzEhfdViTlrBoot5mTISaz3akD/IX2qJlgfFLP84EKNlqVdwDx12I+qO8Ad/hmIt3jrhaL60loxuPs/9LzRnMTXcNqmzf4a93sFKtZK2omFkbgx8ULrMjLewX8Fz95v0vO9yFKdRqzrPbvDp839zPa6fPJp0ricqRcOZDFaucb710qDglWRHKdrb0GMs7P0PFH2CY6R4sjWHjrsmrDD5ZvHnhIyXBNRK2w1Y+df9x3PeHVMj30E9tDjdRE=~3753266~3228486",
-            "expires": "2025-08-09T15:48:18.000Z",
-            "maxAge": 14400,
-            "domain": "omegawatches.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-09T11:48:18.840Z",
-            "lastAccessed": "2025-08-09T11:48:18.840Z"
+            "creation": "2025-08-09T11:54:47.691Z",
+            "lastAccessed": "2025-08-09T11:54:47.691Z",
+            "sameSite": "none"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T12:38:16.808Z",
-      "createdAt": "2025-08-09T11:48:16.807Z",
+      "expiresAt": "2025-08-09T12:44:45.355Z",
+      "createdAt": "2025-08-09T11:54:45.355Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_JIBN5LMkzO",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "__cf_bm",
+            "value": "INJTe9Qi0a2ME.fm5M69Q1_2HgBkZQ9ygjTt5TJIUqg-1754740489-1.0.1.1-dMmMdgHk_H8sKgY.LURFV9MmvzK5EJe.ZI1JuwOgotLTVLE4wDbw0_.BGX1viYl8Zn7bU0ELrdCOL6iDkd2rnptN6UaRRz7SGw9JpVpL9cI",
+            "expires": "2025-08-09T12:24:49.000Z",
+            "domain": "tofas.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-08-09T11:54:49.942Z",
+            "lastAccessed": "2025-08-09T11:54:49.942Z",
+            "sameSite": "none"
+          },
+          {
+            "key": "_cfuvid",
+            "value": "ekYxqP809RszafLSkP6FLOsQa6B__0BLUw3l958bop0-1754740489590-0.0.1.1-604800000",
+            "domain": "tofas.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-08-09T11:54:49.942Z",
+            "lastAccessed": "2025-08-09T11:54:49.942Z",
+            "sameSite": "none"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-09T12:44:47.736Z",
+      "createdAt": "2025-08-09T11:54:47.736Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_Ty44sjV0yP",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "__cf_bm",
+            "value": ".piTaRqzEtm04aWB5v6QIRzEvrpSFTmb36joBjAUpLo-1754740489-1.0.1.1-toGo3AY5ARh4lwTUejA8urwVJKOdUCUvt_MrBWCEW78QwojqOfwcytpD.hSxOSLAF2C1w0Zbr.IKD256XqCcJm62zLgKS1Lt0HUb36sjEPA",
+            "expires": "2025-08-09T12:24:49.000Z",
+            "domain": "tofas.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-08-09T11:54:50.038Z",
+            "lastAccessed": "2025-08-09T11:54:50.038Z",
+            "sameSite": "none"
+          },
+          {
+            "key": "_cfuvid",
+            "value": "MH6rwzPK84w_rKGIH4X4nlVYn8NSuqF03N56riTC7hc-1754740489538-0.0.1.1-604800000",
+            "domain": "tofas.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-08-09T11:54:50.038Z",
+            "lastAccessed": "2025-08-09T11:54:50.038Z",
+            "sameSite": "none"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-09T12:44:47.741Z",
+      "createdAt": "2025-08-09T11:54:47.741Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_vf6VWPAKHb",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "__cf_bm",
+            "value": "46ZPRz8IZBCFitGue0yax21tCxTX7UKa.qrUeXaytpg-1754740491-1.0.1.1-hZQv5EUcH5LMAaF3FPQPdaQNIKfEr1um_mJLvZGfDCute0NcdeGju.f2ydNhxWuwUtoeoON3VWEDiySOVrmVtfpU3dlw.ULxB0rIvxGLW74",
+            "expires": "2025-08-09T12:24:51.000Z",
+            "domain": "tofas.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-08-09T11:54:52.293Z",
+            "lastAccessed": "2025-08-09T11:54:52.293Z",
+            "sameSite": "none"
+          },
+          {
+            "key": "_cfuvid",
+            "value": "OHOxTRFOHYRYfF7cYLTdKsXXo1XXQGNtqBscxkuDO4Q-1754740491974-0.0.1.1-604800000",
+            "domain": "tofas.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-08-09T11:54:52.293Z",
+            "lastAccessed": "2025-08-09T11:54:52.293Z",
+            "sameSite": "none"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-09T12:44:50.125Z",
+      "createdAt": "2025-08-09T11:54:50.125Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_lISMlFl1Jj",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "__cf_bm",
+            "value": "tYokiMx_xSyOGIhlas.f57d3hjneJqxiMcH4kQ.O2G4-1754740491-1.0.1.1-ZuvDTvvtYhMYj5LpeZSiw8H5GPQ_dMCLMqzT3v.8RH10ye94sQ4NtLKU5FHdiTl9xPEN3FgdZ0raJglEA1LZdVQHhEc4JF82pil3QoqKPoo",
+            "expires": "2025-08-09T12:24:51.000Z",
+            "domain": "tofas.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-08-09T11:54:52.220Z",
+            "lastAccessed": "2025-08-09T11:54:52.220Z",
+            "sameSite": "none"
+          },
+          {
+            "key": "_cfuvid",
+            "value": "7EXgNbNgxz0GRVV8TklvjjkaFzy9ELcHVCtfpCDORXU-1754740491912-0.0.1.1-604800000",
+            "domain": "tofas.com.tr",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-08-09T11:54:52.220Z",
+            "lastAccessed": "2025-08-09T11:54:52.220Z",
+            "sameSite": "none"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-09T12:44:50.128Z",
+      "createdAt": "2025-08-09T11:54:50.128Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0

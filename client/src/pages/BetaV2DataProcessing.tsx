@@ -713,6 +713,11 @@ export default function BetaV2DataProcessingPage() {
                                 <div className="flex items-start justify-between">
                                   <div>
                                     <p className="font-medium">{claim.entityName || claim.legalName}</p>
+                                    {claim.leiCode && (
+                                      <p className="text-sm text-muted-foreground mt-0.5">
+                                        LEI: <code className="text-xs bg-muted px-1 py-0.5 rounded">{claim.leiCode}</code>
+                                      </p>
+                                    )}
                                     <div className="flex items-center gap-2 mt-1">
                                       <Badge variant={
                                         (claim.claimType || claim.type) === 'gleif_verified' ? 'default' :

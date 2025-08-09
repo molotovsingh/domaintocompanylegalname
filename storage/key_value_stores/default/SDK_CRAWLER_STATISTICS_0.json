@@ -1,27 +1,67 @@
 {
-  "requestsFinished": 2,
-  "requestsFailed": 0,
-  "requestsRetries": 0,
-  "requestsFailedPerMinute": 0,
-  "requestsFinishedPerMinute": 31,
-  "requestMinDurationMillis": 1455,
-  "requestMaxDurationMillis": 2350,
-  "requestTotalFailedDurationMillis": 0,
-  "requestTotalFinishedDurationMillis": 3805,
-  "crawlerStartedAt": "2025-08-09T11:38:07.435Z",
-  "crawlerFinishedAt": "2025-08-09T11:38:11.302Z",
-  "statsPersistedAt": "2025-08-09T11:38:11.302Z",
-  "crawlerRuntimeMillis": 3891,
-  "crawlerLastStartTimestamp": 1754739487411,
+  "requestsFinished": 0,
+  "requestsFailed": 1,
+  "requestsRetries": 1,
+  "requestsFailedPerMinute": 14,
+  "requestsFinishedPerMinute": 0,
+  "requestMinDurationMillis": null,
+  "requestMaxDurationMillis": 0,
+  "requestTotalFailedDurationMillis": 1011,
+  "requestTotalFinishedDurationMillis": 0,
+  "crawlerStartedAt": "2025-08-09T11:54:20.617Z",
+  "crawlerFinishedAt": "2025-08-09T11:54:24.668Z",
+  "statsPersistedAt": "2025-08-09T11:54:24.668Z",
+  "crawlerRuntimeMillis": 4085,
+  "crawlerLastStartTimestamp": 1754740460583,
   "requestRetryHistogram": [
-    2
+    null,
+    null,
+    1
   ],
   "statsId": 0,
-  "requestAvgFailedDurationMillis": null,
-  "requestAvgFinishedDurationMillis": 1903,
-  "requestTotalDurationMillis": 3805,
-  "requestsTotal": 2,
+  "requestAvgFailedDurationMillis": 1011,
+  "requestAvgFinishedDurationMillis": null,
+  "requestTotalDurationMillis": 1011,
+  "requestsTotal": 1,
   "requestsWithStatusCode": {},
-  "errors": {},
-  "retryErrors": {}
+  "errors": {
+    "file:///home/runner/workspace/node_modules/got/dist/source/core/index.js:189:21": {
+      "ENOTFOUND": {
+        "RequestError": {
+          "getaddrinfo ENOTFOUND toyotatr.com": {
+            "count": 1
+          }
+        }
+      }
+    },
+    "node:dns:120:26": {
+      "ENOTFOUND": {
+        "Error": {
+          "getaddrinfo ENOTFOUND toyotatr.com": {
+            "count": 1
+          }
+        }
+      }
+    }
+  },
+  "retryErrors": {
+    "file:///home/runner/workspace/node_modules/got/dist/source/core/index.js:189:21": {
+      "ENOTFOUND": {
+        "RequestError": {
+          "getaddrinfo ENOTFOUND toyotatr.com": {
+            "count": 2
+          }
+        }
+      }
+    },
+    "node:dns:120:26": {
+      "ENOTFOUND": {
+        "Error": {
+          "getaddrinfo ENOTFOUND toyotatr.com": {
+            "count": 2
+          }
+        }
+      }
+    }
+  }
 }
