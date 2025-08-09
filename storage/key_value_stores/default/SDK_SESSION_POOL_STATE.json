@@ -1,5 +1,5 @@
 {
-  "usableSessionsCount": 5,
+  "usableSessionsCount": 10,
   "retiredSessionsCount": 0,
   "sessions": [
     {
@@ -375,6 +375,171 @@
       "errorScoreDecrement": 0.5,
       "expiresAt": "2025-08-09T13:16:25.287Z",
       "createdAt": "2025-08-09T12:26:25.287Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_AidWWkhiVq",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "__Secure-authjs.callback-url",
+            "value": "https%3A%2F%2Fchutes.ai",
+            "domain": "chutes.ai",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:39:47.917Z",
+            "lastAccessed": "2025-08-09T12:39:47.917Z",
+            "sameSite": "lax"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-09T13:29:44.560Z",
+      "createdAt": "2025-08-09T12:39:44.560Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_zeJKMlTMBT",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "__Secure-authjs.callback-url",
+            "value": "https%3A%2F%2Fchutes.ai",
+            "domain": "chutes.ai",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:39:50.087Z",
+            "lastAccessed": "2025-08-09T12:39:50.087Z",
+            "sameSite": "lax"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-09T13:29:47.969Z",
+      "createdAt": "2025-08-09T12:39:47.969Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_dgGeGlCza6",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "__Secure-authjs.callback-url",
+            "value": "https%3A%2F%2Fchutes.ai",
+            "domain": "chutes.ai",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:39:50.128Z",
+            "lastAccessed": "2025-08-09T12:39:50.128Z",
+            "sameSite": "lax"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-09T13:29:47.971Z",
+      "createdAt": "2025-08-09T12:39:47.971Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_rRSyA1uyeX",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "__Secure-authjs.callback-url",
+            "value": "https%3A%2F%2Fchutes.ai",
+            "domain": "chutes.ai",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:48:34.280Z",
+            "lastAccessed": "2025-08-09T12:48:34.280Z",
+            "sameSite": "lax"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-09T13:38:31.383Z",
+      "createdAt": "2025-08-09T12:48:31.383Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_PLj6af9DQy",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "__Secure-authjs.callback-url",
+            "value": "https%3A%2F%2Fchutes.ai",
+            "domain": "chutes.ai",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-09T12:49:53.021Z",
+            "lastAccessed": "2025-08-09T12:49:53.021Z",
+            "sameSite": "lax"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-09T13:39:02.364Z",
+      "createdAt": "2025-08-09T12:49:02.364Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
