@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -32,6 +32,9 @@ function Router() {
       <Route path="/beta-testing" component={BetaTestingPage} />
       <Route path="/beta-testing-v2" component={BetaTestingV2} />
       <Route path="/beta-data-processing" component={BetaDataProcessingPage} />
+      <Route path="/beta-v2">
+        <Redirect to="/beta-v2/data-processing" />
+      </Route>
       <Route path="/beta-v2/gleif-search" component={BetaV2GleifSearch} />
       <Route path="/beta-v2/data-processing" component={BetaV2DataProcessing} />
       <Route path="/recent-changes" component={lazy(() => import("./pages/recent-changes"))} />
