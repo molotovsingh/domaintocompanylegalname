@@ -8,8 +8,27 @@ export interface CleaningRequest {
 }
 
 export interface ExtractedData {
-  companyName?: string;
-  legalEntity?: string;
+  // Primary entity fields for GLEIF search
+  primaryEntityName?: string;
+  baseEntityName?: string;
+  companyName?: string; // Kept for backwards compatibility
+  legalEntity?: string; // Deprecated but kept for compatibility
+  
+  // Entity discovery fields
+  entityCandidates?: string[];
+  nameVariations?: string[];
+  parentOrSubsidiaries?: string[];
+  excludeTerms?: string[];
+  
+  // Confidence indicators
+  confidenceIndicators?: {
+    hasLegalSuffix?: boolean;
+    foundInCopyright?: boolean;
+    foundInLegalText?: boolean;
+    multipleNamesFound?: boolean;
+  };
+  
+  // Supporting information
   addresses?: string[];
   phones?: string[];
   emails?: string[];

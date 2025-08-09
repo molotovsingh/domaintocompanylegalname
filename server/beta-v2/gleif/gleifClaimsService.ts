@@ -60,8 +60,9 @@ export class GleifClaimsService {
         });
       });
 
-      // Step 2: Generate search patterns with wildcards
-      const patterns = this.generateSearchPatterns(extractedEntities);
+      // Step 2: Generate search patterns with wildcards (excluding marketing terms)
+      const excludeTerms = cleanedContent.excludeTerms || [];
+      const patterns = this.generateSearchPatterns(extractedEntities, excludeTerms);
       searchPatterns.push(...patterns);
 
       // Step 3: Query GLEIF database with patterns
@@ -157,21 +158,54 @@ export class GleifClaimsService {
     const entities: Array<{name: string; confidence: 'high' | 'medium' | 'low'; source: string}> = [];
     
     console.log('[GleifClaimsService] Starting entity extraction from:', {
+      hasPrimaryEntityName: !!cleanedContent.primaryEntityName,
+      primaryEntityName: cleanedContent.primaryEntityName,
+      hasBaseEntityName: !!cleanedContent.baseEntityName,
+      baseEntityName: cleanedContent.baseEntityName,
+      entityCandidatesCount: cleanedContent.entityCandidates?.length || 0,
+      nameVariationsCount: cleanedContent.nameVariations?.length || 0,
+      excludeTermsCount: cleanedContent.excludeTerms?.length || 0,
       hasCompanyName: !!cleanedContent.companyName,
-      companyName: cleanedContent.companyName,
-      hasStructuredData: !!cleanedContent.structuredData,
-      structuredDataKeys: cleanedContent.structuredData ? Object.keys(cleanedContent.structuredData) : [],
-      hasMetaTags: !!cleanedContent.metaTags && Object.keys(cleanedContent.metaTags).length > 0,
-      metaTagsSample: cleanedContent.metaTags ? Object.entries(cleanedContent.metaTags).slice(0, 3) : [],
-      hasTitle: !!cleanedContent.title,
-      title: cleanedContent.title,
-      hasExtractedText: !!cleanedContent.extractedText,
-      textLength: cleanedContent.extractedText?.length || 0
+      companyName: cleanedContent.companyName
     });
     
-    // PRIORITY 1: Extract from LLM-cleaned companyName field (most accurate)
-    if (cleanedContent.companyName) {
-      console.log('[GleifClaimsService] Found entity in LLM-extracted companyName:', cleanedContent.companyName);
+    // PRIORITY 1: Use new primaryEntityName field (most accurate)
+    if (cleanedContent.primaryEntityName) {
+      console.log('[GleifClaimsService] Found primary entity name:', cleanedContent.primaryEntityName);
+      entities.push({
+        name: cleanedContent.primaryEntityName,
+        confidence: 'high',
+        source: 'llm_primary_entity'
+      });
+    }
+    
+    // PRIORITY 2: Add all entity candidates
+    if (cleanedContent.entityCandidates && cleanedContent.entityCandidates.length > 0) {
+      console.log('[GleifClaimsService] Found entity candidates:', cleanedContent.entityCandidates);
+      cleanedContent.entityCandidates.forEach((candidate: string) => {
+        entities.push({
+          name: candidate,
+          confidence: 'high',
+          source: 'llm_entity_candidate'
+        });
+      });
+    }
+    
+    // PRIORITY 3: Add name variations for searching
+    if (cleanedContent.nameVariations && cleanedContent.nameVariations.length > 0) {
+      console.log('[GleifClaimsService] Found name variations:', cleanedContent.nameVariations);
+      cleanedContent.nameVariations.forEach((variation: string) => {
+        entities.push({
+          name: variation,
+          confidence: 'medium',
+          source: 'llm_name_variation'
+        });
+      });
+    }
+    
+    // FALLBACK: Use old companyName field for backwards compatibility
+    if (entities.length === 0 && cleanedContent.companyName) {
+      console.log('[GleifClaimsService] Falling back to companyName field:', cleanedContent.companyName);
       entities.push({
         name: cleanedContent.companyName,
         confidence: 'high',
@@ -254,8 +288,9 @@ export class GleifClaimsService {
   /**
    * Generate search patterns with wildcards
    */
-  private generateSearchPatterns(entities: Array<{name: string}>): string[] {
+  private generateSearchPatterns(entities: Array<{name: string}>, excludeTerms?: string[]): string[] {
     const patterns = new Set<string>();
+    const excludeSet = new Set(excludeTerms?.map(t => t.toLowerCase()) || []);
 
     // Common corporate suffixes to strip
     const corpSuffixes = [
@@ -265,14 +300,24 @@ export class GleifClaimsService {
       'Pty', 'Pty Ltd', 'Pte Ltd', 'Pvt Ltd', 'Co', 'Co.'
     ];
 
-    // Common country names for subsidiary patterns
-    const countries = [
-      'Germany', 'USA', 'UK', 'France', 'Japan', 'China', 'India', 
-      'Canada', 'Australia', 'Netherlands', 'Switzerland', 'Singapore'
-    ];
-
     entities.forEach(entity => {
       const baseName = entity.name.trim();
+      
+      // Skip if the name contains excluded terms
+      const nameLower = baseName.toLowerCase();
+      const shouldSkip = Array.from(excludeSet).some(term => nameLower.includes(term));
+      if (shouldSkip) {
+        console.log('[GleifClaimsService] Skipping entity with excluded terms:', baseName);
+        return;
+      }
+      
+      // Filter out generic marketing terms
+      const marketingTerms = ['manufacturers', 'suppliers', 'providers', 'solutions', 'services', 'systems'];
+      const containsMarketingTerm = marketingTerms.some(term => nameLower.includes(term));
+      if (containsMarketingTerm) {
+        console.log('[GleifClaimsService] Skipping entity with marketing terms:', baseName);
+        return;
+      }
       
       // Standard suffix wildcard
       patterns.add(`${baseName}%`);
@@ -284,33 +329,35 @@ export class GleifClaimsService {
         cleanedName = cleanedName.replace(regex, '').trim();
       });
       
-      if (cleanedName !== baseName) {
+      if (cleanedName !== baseName && cleanedName.length > 2) {
         patterns.add(`${cleanedName}%`);
+        
+        // Only add subsidiary patterns for clean base names
+        patterns.add(`${cleanedName} Holdings%`);
+        patterns.add(`${cleanedName} International%`);
+        patterns.add(`${cleanedName} Global%`);
       }
       
-      // Add country-specific patterns for subsidiaries
-      countries.forEach(country => {
-        patterns.add(`${cleanedName} ${country}%`);
-      });
-      
-      // Prefix wildcard for typos/variations
-      if (baseName.length > 5) {
-        patterns.add(`%${baseName.substring(2)}%`);
-      }
-      
-      // Handle multi-word entities
+      // Be more conservative with multi-word patterns
       const words = baseName.split(/\s+/);
-      if (words.length > 1) {
-        // First word only (catches parent company patterns)
-        patterns.add(`${words[0]}%`);
-        // Last word with prefix wildcard
-        patterns.add(`%${words[words.length - 1]}%`);
+      if (words.length > 1 && words[0].length > 3) {
+        // Only use first word if it's a proper noun (starts with capital)
+        if (words[0][0] === words[0][0].toUpperCase()) {
+          patterns.add(`${words[0]}%`);
+        }
       }
-
-      // Add pattern for holdings and subsidiaries
-      patterns.add(`${cleanedName} Holdings%`);
-      patterns.add(`${cleanedName} International%`);
-      patterns.add(`${cleanedName} Global%`);
+      
+      // Only add variations for known entity names (not descriptions)
+      if (!containsMarketingTerm && cleanedName.length > 3 && cleanedName.length < 30) {
+        // Add space variations
+        if (cleanedName.match(/^[A-Z]{2}/)) { // Starts with at least 2 capitals
+          // ELcomponics -> EL componics
+          const spaceVariant = cleanedName.replace(/^([A-Z]+)([a-z])/, '$1 $2');
+          if (spaceVariant !== cleanedName) {
+            patterns.add(`${spaceVariant}%`);
+          }
+        }
+      }
     });
 
     return Array.from(patterns);

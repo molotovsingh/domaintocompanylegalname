@@ -204,11 +204,31 @@ router.post('/generate-claims', async (req, res) => {
       }
     }
     
-    // Check if we have LLM-cleaned data (contains companyName field)
+    // Check if we have LLM-cleaned data from the latest cleaning results
     let llmCleanedData = null;
-    if (rawData.content?.cleanedPages && rawData.content.cleanedPages.length > 0) {
+    
+    // First try to get the latest cleaning results from the processing_results table
+    try {
+      const cleaningResults = await cleaningService.getCleaningResults(collectionType, parseInt(dumpId));
+      if (cleaningResults && cleaningResults.length > 0) {
+        // Get the most recent result
+        const latestResult = cleaningResults[cleaningResults.length - 1];
+        llmCleanedData = latestResult.extractedData;
+        console.log('[Beta] [GleifClaimsRoutes] Found latest cleaning result with entity data:', {
+          primaryEntityName: llmCleanedData?.primaryEntityName,
+          baseEntityName: llmCleanedData?.baseEntityName,
+          entityCandidatesCount: llmCleanedData?.entityCandidates?.length || 0,
+          excludeTermsCount: llmCleanedData?.excludeTerms?.length || 0
+        });
+      }
+    } catch (error) {
+      console.log('[Beta] [GleifClaimsRoutes] Could not fetch latest cleaning results:', error);
+    }
+    
+    // Fallback to old cleanedPages if no new results found
+    if (!llmCleanedData && rawData.content?.cleanedPages && rawData.content.cleanedPages.length > 0) {
       llmCleanedData = rawData.content.cleanedPages[0];
-      console.log('[Beta] [GleifClaimsRoutes] Found LLM-cleaned data with companyName:', llmCleanedData.companyName);
+      console.log('[Beta] [GleifClaimsRoutes] Falling back to old cleanedPages data');
     }
     
     // Combine raw extracted data with LLM-cleaned data
@@ -218,7 +238,13 @@ router.post('/generate-claims', async (req, res) => {
       metaTags: extractMetaTags(rawData.content),
       structuredData: extractStructuredData(rawData.content),
       extractedText: extractTextContent(rawData.content),
-      // Add LLM-extracted company name if available
+      // Add new entity-focused fields if available
+      primaryEntityName: llmCleanedData?.primaryEntityName || null,
+      baseEntityName: llmCleanedData?.baseEntityName || null,
+      entityCandidates: llmCleanedData?.entityCandidates || [],
+      nameVariations: llmCleanedData?.nameVariations || [],
+      excludeTerms: llmCleanedData?.excludeTerms || [],
+      // Legacy company name field for backwards compatibility
       companyName: llmCleanedData?.companyName || null,
       // Include other LLM-extracted fields for future use
       addresses: llmCleanedData?.addresses || [],

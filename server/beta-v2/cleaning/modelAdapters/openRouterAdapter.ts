@@ -17,13 +17,39 @@ export class OpenRouterAdapter extends BaseModelAdapter {
     this.costPer1kTokens = costPer1kTokens;
   }
 
-  async clean(rawData: string, systemPrompt?: string): Promise<CleaningResult> {
+  async clean(rawData: any, systemPrompt?: string): Promise<CleaningResult> {
     const startTime = Date.now();
     const prompt = systemPrompt || this.getDefaultSystemPrompt();
     
+    // Convert object format (crawlee/scrapy dumps) to HTML string
+    let htmlContent: string;
+    if (typeof rawData === 'string') {
+      htmlContent = rawData;
+    } else if (rawData && typeof rawData === 'object') {
+      // Handle crawlee/scrapy dump format
+      if (rawData.pages && Array.isArray(rawData.pages)) {
+        // Extract HTML from pages array
+        htmlContent = rawData.pages.map((page: any) => {
+          if (typeof page === 'string') return page;
+          if (page.html) return page.html;
+          if (page.content) return page.content;
+          return '';
+        }).join('\n\n');
+      } else if (rawData.html) {
+        htmlContent = rawData.html;
+      } else if (rawData.content) {
+        htmlContent = rawData.content;
+      } else {
+        // Fallback: stringify the object
+        htmlContent = JSON.stringify(rawData);
+      }
+    } else {
+      htmlContent = String(rawData);
+    }
+    
     try {
       // Estimate tokens for cost calculation
-      const inputTokens = this.estimateTokens(prompt + rawData);
+      const inputTokens = this.estimateTokens(prompt + htmlContent);
       
       // Make request to OpenRouter
       const response = await axios.post(
@@ -37,7 +63,7 @@ export class OpenRouterAdapter extends BaseModelAdapter {
             },
             {
               role: 'user',
-              content: `Extract company information from the following content:\n\n${rawData.substring(0, 15000)}` // Limit content size
+              content: `Extract company information from the following content:\n\n${htmlContent.substring(0, 15000)}` // Limit content size
             }
           ],
           temperature: 0.3,
@@ -69,7 +95,7 @@ export class OpenRouterAdapter extends BaseModelAdapter {
         extractedData = JSON.parse(content);
       } catch (parseError) {
         console.error('Failed to parse LLM response as JSON:', content);
-        extractedData = this.extractBasicInfo(rawData);
+        extractedData = this.extractBasicInfo(htmlContent);
       }
 
       // Calculate tokens and cost
@@ -97,7 +123,7 @@ export class OpenRouterAdapter extends BaseModelAdapter {
       console.error(`OpenRouter cleaning error with ${this.modelName}:`, error.message);
       
       // Fallback to basic extraction
-      const extractedData = this.extractBasicInfo(rawData);
+      const extractedData = this.extractBasicInfo(htmlContent);
       const processingTime = Date.now() - startTime;
 
       return {
@@ -173,15 +199,18 @@ export class OpenRouterAdapter extends BaseModelAdapter {
     let score = 0;
     let fields = 0;
 
-    // Check each field and add to score
-    if (data.companyName && data.companyName.length > 2) { score += 0.2; fields++; }
-    if (data.legalEntity && data.legalEntity.includes('.')) { score += 0.2; fields++; }
-    if (data.addresses && data.addresses.length > 0) { score += 0.15; fields++; }
-    if (data.phones && data.phones.length > 0) { score += 0.15; fields++; }
-    if (data.emails && data.emails.length > 0) { score += 0.1; fields++; }
-    if (data.countries && data.countries.length > 0) { score += 0.1; fields++; }
-    if (data.currencies && data.currencies.length > 0) { score += 0.05; fields++; }
-    if (data.socialMedia && data.socialMedia.length > 0) { score += 0.05; fields++; }
+    // Check new entity-focused fields first
+    if (data.primaryEntityName && data.primaryEntityName.length > 2) { score += 0.25; fields++; }
+    if (data.baseEntityName && data.baseEntityName.length > 2) { score += 0.2; fields++; }
+    if (data.entityCandidates && data.entityCandidates.length > 0) { score += 0.15; fields++; }
+    if (data.nameVariations && data.nameVariations.length > 0) { score += 0.1; fields++; }
+    if (data.confidenceIndicators?.hasLegalSuffix) { score += 0.1; fields++; }
+    
+    // Legacy fields for backwards compatibility
+    if (!data.primaryEntityName && data.companyName && data.companyName.length > 2) { score += 0.15; fields++; }
+    
+    // Supporting information
+    if (data.addresses && data.addresses.length > 0) { score += 0.05; fields++; }
 
     // Normalize score between 0 and 1
     return Math.min(1, Math.max(0, score));
@@ -190,6 +219,18 @@ export class OpenRouterAdapter extends BaseModelAdapter {
   private extractBasicInfo(rawData: string): ExtractedData {
     // Basic regex-based extraction as fallback
     const text = rawData.toLowerCase();
+    
+    // Try to extract company name from title or copyright
+    let primaryEntityName: string | undefined;
+    let baseEntityName: string | undefined;
+    
+    // Look for copyright notices
+    const copyrightMatch = rawData.match(/(?:©|Copyright)\s+(?:\d{4}\s+)?([A-Z][A-Za-z0-9\s&.,'-]+?)(?:\.|,|\s+All|\s+Rights)/i);
+    if (copyrightMatch) {
+      primaryEntityName = copyrightMatch[1].trim();
+      // Extract base name by removing common suffixes
+      baseEntityName = primaryEntityName.replace(/\s+(?:Inc|Corp|LLC|Ltd|Limited|GmbH|AG|SA)\.?$/i, '').trim();
+    }
     
     // Extract emails
     const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
@@ -204,8 +245,12 @@ export class OpenRouterAdapter extends BaseModelAdapter {
     const currencies = [...new Set(rawData.match(currencyRegex) || [])];
 
     return {
-      companyName: undefined,
-      legalEntity: undefined,
+      primaryEntityName,
+      baseEntityName,
+      companyName: primaryEntityName, // For backwards compatibility
+      entityCandidates: primaryEntityName ? [primaryEntityName] : [],
+      nameVariations: [],
+      excludeTerms: [],
       addresses: [],
       phones,
       emails,

@@ -46,33 +46,57 @@ export abstract class BaseModelAdapter {
    * Default system prompt for entity extraction
    */
   protected getDefaultSystemPrompt(): string {
-    return `You are a data extraction specialist. Extract company and business information from the provided text.
-    
+    return `You are a legal entity name extraction specialist. Your task is to identify potential company names for GLEIF (Global Legal Entity Identifier Foundation) database searches.
+
     IMPORTANT: Always respond in English, regardless of the source language.
     
     Return a JSON object with the following structure:
     {
-      "companyName": "Official company name",
-      "legalEntity": "Full legal entity name with suffix (Inc., LLC, Ltd., etc.)",
-      "addresses": ["Array of physical addresses found"],
-      "phones": ["Array of phone numbers"],
-      "emails": ["Array of email addresses"],
-      "currencies": ["Array of currency codes mentioned (USD, EUR, etc.)"],
-      "countries": ["Array of countries mentioned or detected"],
-      "socialMedia": ["Array of social media URLs or handles"],
-      "businessIdentifiers": {
-        "registrationNumbers": ["Company registration numbers"],
-        "taxIds": ["Tax identification numbers"],
-        "licenses": ["Business licenses mentioned"]
-      }
+      "primaryEntityName": "Most likely legal entity name found (with suffix if present)",
+      "baseEntityName": "Core company name without any suffix or descriptive terms",
+      "companyName": "Primary company name as commonly used (for backwards compatibility)",
+      "entityCandidates": [
+        "Array of potential legal entity names found in the text",
+        "Include variations with different suffixes (Ltd, Inc, LLC, Pvt Ltd, etc.)",
+        "Each should be a complete legal entity name"
+      ],
+      "nameVariations": [
+        "Different spellings or formats of the base name",
+        "Include with/without spaces, capitals, punctuation",
+        "Example: 'ELcomponics', 'Elcomponics', 'EL componics'"
+      ],
+      "parentOrSubsidiaries": [
+        "Any mentioned parent companies or subsidiaries",
+        "Include group company names"
+      ],
+      "excludeTerms": [
+        "Marketing or descriptive terms to NOT use in searches",
+        "Examples: 'manufacturers', 'suppliers', 'solutions', 'provider'"
+      ],
+      "confidenceIndicators": {
+        "hasLegalSuffix": true/false,
+        "foundInCopyright": true/false,
+        "foundInLegalText": true/false,
+        "multipleNamesFound": true/false
+      },
+      "addresses": ["Array of physical addresses for reference"],
+      "emails": ["Array of email addresses for reference"],
+      "phones": ["Array of phone numbers for reference"]
     }
     
-    Guidelines:
-    - Extract only factual information present in the text
-    - For company names, prefer the legal entity name with suffix
-    - Normalize phone numbers to include country code when possible
-    - Extract complete addresses, not partial ones
-    - Return empty arrays for fields with no data
-    - Be conservative - only extract clear, unambiguous information`;
+    Guidelines for Entity Name Extraction:
+    - Focus ONLY on proper nouns that could be company names
+    - Separate the base name from descriptive terms (e.g., "Apple" not "Apple technology leader")
+    - If you see "CompanyName - description", extract only "CompanyName"
+    - Common suffixes to recognize: Inc, Corp, LLC, Ltd, Limited, Pvt Ltd, GmbH, SA, SAS, BV, AG, SpA, s.r.o.
+    - Do NOT include generic business terms as entity names
+    - Look for names in: copyright notices, legal text, about sections, contact info
+    - If multiple related entities exist (parent/subsidiary), list them all
+    - Generate reasonable variations of the base name for search purposes
+    
+    Examples:
+    - From "ELCOMPONICS-wire harness manufacturers" → baseEntityName: "Elcomponics", excludeTerms: ["wire", "harness", "manufacturers"]
+    - From "© 2024 Acme Technologies Inc." → primaryEntityName: "Acme Technologies Inc", baseEntityName: "Acme"
+    - From "Microsoft Corporation" → baseEntityName: "Microsoft", entityCandidates: ["Microsoft Corporation", "Microsoft Corp", "Microsoft Inc"]`;
   }
 }
