@@ -1,37 +1,27 @@
 {
-  "requestsFinished": 4,
-  "requestsFailed": 1,
+  "requestsFinished": 5,
+  "requestsFailed": 0,
   "requestsRetries": 0,
-  "requestsFailedPerMinute": 6,
-  "requestsFinishedPerMinute": 27,
-  "requestMinDurationMillis": 1298,
-  "requestMaxDurationMillis": 4958,
-  "requestTotalFailedDurationMillis": 1222,
-  "requestTotalFinishedDurationMillis": 10031,
-  "crawlerStartedAt": "2025-08-09T12:07:41.623Z",
-  "crawlerFinishedAt": "2025-08-09T12:07:50.507Z",
-  "statsPersistedAt": "2025-08-09T12:07:50.508Z",
-  "crawlerRuntimeMillis": 8914,
-  "crawlerLastStartTimestamp": 1754741261594,
+  "requestsFailedPerMinute": 0,
+  "requestsFinishedPerMinute": 64,
+  "requestMinDurationMillis": 1144,
+  "requestMaxDurationMillis": 2058,
+  "requestTotalFailedDurationMillis": 0,
+  "requestTotalFinishedDurationMillis": 7041,
+  "crawlerStartedAt": "2025-08-09T12:26:21.806Z",
+  "crawlerFinishedAt": "2025-08-09T12:26:26.454Z",
+  "statsPersistedAt": "2025-08-09T12:26:26.454Z",
+  "crawlerRuntimeMillis": 4677,
+  "crawlerLastStartTimestamp": 1754742381777,
   "requestRetryHistogram": [
     5
   ],
   "statsId": 0,
-  "requestAvgFailedDurationMillis": 1222,
-  "requestAvgFinishedDurationMillis": 2508,
-  "requestTotalDurationMillis": 11253,
+  "requestAvgFailedDurationMillis": null,
+  "requestAvgFinishedDurationMillis": 1408,
+  "requestTotalDurationMillis": 7041,
   "requestsTotal": 5,
   "requestsWithStatusCode": {},
-  "errors": {
-    "/home/runner/workspace/node_modules/@crawlee/src/internals/http-crawler.ts:921:19": {
-      "missing error code": {
-        "Error": {
-          "Resource https://fordotosan.com.tr/en/contact/contact-information served Content-Type application/octet-stream, but only text/html, text/xml, application/xhtml+xml, application/xml, application/json are allowed. Skipping resource.": {
-            "count": 1
-          }
-        }
-      }
-    }
-  },
+  "errors": {},
   "retryErrors": {}
 }
