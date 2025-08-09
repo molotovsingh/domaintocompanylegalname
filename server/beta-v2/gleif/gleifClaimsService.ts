@@ -118,6 +118,39 @@ export class GleifClaimsService {
   }
 
   /**
+   * Clean company name by removing marketing text and descriptions
+   */
+  private cleanCompanyName(text: string): string {
+    // Remove common marketing phrases
+    const marketingPhrases = [
+      /\s*-\s*wire harness manufacturers?\s*/gi,
+      /\s*-\s*electric cable assemblies\s*/gi,
+      /\s*-\s*custom\/bulk cable assembly\s*/gi,
+      /\s*is facebook.*ready!?\s*/gi,
+      /\s*is google\+.*ready!?\s*/gi,
+      /\s*manufacturers?\s*/gi,
+      /\s*suppliers?\s*/gi,
+      /\s*providers?\s*/gi,
+      /\s*,\s*electric cable.*$/gi,
+      /\s*,\s*custom\/bulk.*$/gi
+    ];
+    
+    let cleaned = text;
+    marketingPhrases.forEach(pattern => {
+      cleaned = cleaned.replace(pattern, '');
+    });
+    
+    // Extract company name if it's in all caps at the beginning
+    const capsMatch = cleaned.match(/^([A-Z][A-Z0-9]+)/);
+    if (capsMatch) {
+      // Convert to proper case (e.g., ELCOMPONICS -> Elcomponics)
+      cleaned = capsMatch[1].charAt(0) + capsMatch[1].slice(1).toLowerCase();
+    }
+    
+    return cleaned.trim();
+  }
+
+  /**
    * Extract entity mentions from cleaned content
    */
   private extractEntities(cleanedContent: any): Array<{name: string; confidence: 'high' | 'medium' | 'low'; source: string}> {
@@ -146,12 +179,25 @@ export class GleifClaimsService {
 
     // Extract from meta tags
     if (cleanedContent.metaTags?.['og:site_name']) {
-      console.log('[GleifClaimsService] Found entity in og:site_name:', cleanedContent.metaTags['og:site_name']);
+      const rawName = cleanedContent.metaTags['og:site_name'];
+      const cleanedName = this.cleanCompanyName(rawName);
+      
+      console.log('[GleifClaimsService] Found entity in og:site_name:', rawName, '-> cleaned:', cleanedName);
+      
+      // Add both raw and cleaned versions
       entities.push({
-        name: cleanedContent.metaTags['og:site_name'],
-        confidence: 'high',
-        source: 'meta_og_site_name'
+        name: rawName,
+        confidence: 'medium',
+        source: 'meta_og_site_name_raw'
       });
+      
+      if (cleanedName && cleanedName !== rawName) {
+        entities.push({
+          name: cleanedName,
+          confidence: 'high',
+          source: 'meta_og_site_name'
+        });
+      }
     }
 
     // Extract from title
