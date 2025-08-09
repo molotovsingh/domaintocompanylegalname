@@ -1,9 +1,9 @@
 {
-  "usableSessionsCount": 3,
+  "usableSessionsCount": 4,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_uliLAwTnVA",
+      "id": "session_PlGSRyxIbN",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -13,67 +13,43 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "aep_fpid",
-            "value": "d907a41d-99b6-4cc4-94cd-b2bb247945e8",
-            "expires": "2026-08-02T07:22:39.000Z",
-            "domain": "teamviewer.com",
+            "key": "XSRF-TOKEN",
+            "value": "eyJpdiI6IjU4TU1VdVpXbWN6eTJZcURiVTFUWXc9PSIsInZhbHVlIjoiVGd2TnFKcFZ1S25Kc2tJK1FjTHlLOGhpYkpoQnNBbkRqUlZXUlpxeDRxRGkyN3VveERUZHg2YlFsdEsybHRvNXdFd3Z5WU9GUTM3YlZGMjJuU1Y1ODVUS0Rvb0J5VWVQODlKZnRiOU1jSHBsQ29yNzZcL3JwcmdOcXFKcjd5ekRyIiwibWFjIjoiNzYzNGQ0YmM0N2NlNGFjOTkzNDg5Nzg0YzdjMzU0OTljZGUyNzBmMmNjYjQ2YzFkMGNlNzUwMzVlMjBkZjg1OSJ9",
+            "expires": "2025-08-02T12:29:03.000Z",
+            "maxAge": 7200,
+            "domain": "www.allduniv.ac.in",
             "path": "/",
             "secure": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T07:22:39.150Z",
-            "lastAccessed": "2025-08-02T07:22:39.155Z",
-            "sameSite": "lax"
+            "hostOnly": true,
+            "creation": "2025-08-02T10:29:04.194Z",
+            "lastAccessed": "2025-08-02T10:29:04.194Z"
           },
           {
-            "key": "__cf_bm",
-            "value": "7wm96isgr9KbxtLLzhxqJNTJC_EhzkJTvCQVEdkMht4-1754119359-1.0.1.1-jW1vWzaLwJH8XH90cKEJMg2OKZNL7nL_L8P0oS1W3zv8IUrLPBvR7o755i6K60q3mOylZO0EowQP8hM5IRADXk3UYwcrut_l41QP.BLrrks",
-            "expires": "2025-08-02T07:52:39.000Z",
-            "domain": "teamviewer.com",
+            "key": "allahabaduniversity_session",
+            "value": "eyJpdiI6IjJoejA0blRsdUNJYlBVeWVDdng4bGc9PSIsInZhbHVlIjoiSmU5WitOMFUwVnR5VDFTMytxN3p6bUJ4V1B5Y2dXbHFlc2FwWnhCMWdkXC9zWXV0OUhmZ3kyRmd4cWwyTkpKVm9MWG9YS0Z2WkdEUDhzTmN3c3hWWTJuRmVQSytTYzNCRHlnd2xtdlpRY2lvbFh3Z0gyS1FQbU9nbDk5Y2JrRmYxIiwibWFjIjoiYTBlNjVkZmMwMjVjM2M3YmM5NGFiZTFmOGI3ZDIwMDJhOWFhNTAyMTM2MTlhZDYzZjZlOTU2ZWRhNzEzZTMwMSJ9",
+            "expires": "2025-08-02T12:29:03.000Z",
+            "maxAge": 7200,
+            "domain": "www.allduniv.ac.in",
             "path": "/",
             "secure": true,
             "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T07:22:39.154Z",
-            "lastAccessed": "2025-08-02T07:22:39.155Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "_cfuvid",
-            "value": "1bgyiEGnz0ZSmPllke2WM627v7Zv20px9F9Xe3f64Zk-1754119359142-0.0.1.1-604800000",
-            "domain": "teamviewer.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T07:22:39.155Z",
-            "lastAccessed": "2025-08-02T07:22:39.155Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "__bs",
-            "value": "4",
-            "expires": "2026-08-02T07:22:39.000Z",
-            "domain": "teamviewer.com",
-            "path": "/",
-            "secure": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T07:22:39.329Z",
-            "lastAccessed": "2025-08-02T07:22:39.329Z",
-            "sameSite": "lax"
+            "hostOnly": true,
+            "creation": "2025-08-02T10:29:04.194Z",
+            "lastAccessed": "2025-08-02T10:29:04.194Z"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-02T08:12:36.828Z",
-      "createdAt": "2025-08-02T07:22:36.828Z",
+      "expiresAt": "2025-08-02T11:19:01.268Z",
+      "createdAt": "2025-08-02T10:29:01.268Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_hZSXU3NVNf",
+      "id": "session_RTGQdKAJ35",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -83,67 +59,43 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "aep_fpid",
-            "value": "11ba529c-a579-4b47-b579-b7a348a4cd12",
-            "expires": "2026-08-02T07:22:40.000Z",
-            "domain": "teamviewer.com",
+            "key": "XSRF-TOKEN",
+            "value": "eyJpdiI6InNVWjdRRkVINXRUaVJ0M2lsUjI1a1E9PSIsInZhbHVlIjoiQ05sMkRHV0s4YTlqUitcL2FqM0RERFdrNjRvdTFhb2k0aE1SUWszb2hhSXhuMzZQbE1TUjROaDRodHZHRnJ2cVJyOTZUbFUybFMrZFwvTkdsdGdmaTBGZTQ5MmNERGFMckdTY1wvcWVuNEJUZm52Q3ZqOW9icXZiXC8wZHF1WnA5Wml0IiwibWFjIjoiY2ZlNzE0ODE3NWRlYzFlZGIwYWY0NzBjMzk1YjI1ZTdhZjg4NWNhMDZhMjNhMzZiY2RjYmQyM2EzZWQ5MTlmMSJ9",
+            "expires": "2025-08-02T12:29:06.000Z",
+            "maxAge": 7200,
+            "domain": "www.allduniv.ac.in",
             "path": "/",
             "secure": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T07:22:40.687Z",
-            "lastAccessed": "2025-08-02T07:22:40.687Z",
-            "sameSite": "lax"
+            "hostOnly": true,
+            "creation": "2025-08-02T10:29:06.715Z",
+            "lastAccessed": "2025-08-02T10:29:06.715Z"
           },
           {
-            "key": "__bs",
-            "value": "6",
-            "expires": "2026-08-02T07:22:40.000Z",
-            "domain": "teamviewer.com",
-            "path": "/",
-            "secure": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T07:22:40.687Z",
-            "lastAccessed": "2025-08-02T07:22:40.687Z",
-            "sameSite": "lax"
-          },
-          {
-            "key": "__cf_bm",
-            "value": "KYYpsejoVabvK5.t0FAcKDfslkm7NfMTOTkpt8YBwho-1754119360-1.0.1.1-zx.JX_DheVyuxV94DoliK9k_SCUpgrwJFsZlXQlYiCWTkiSOjtyE6KWR.iwJM3aGDzla3BgDRJXqN7CExctWCAc_y3ifhqRcCtx73xF7lf8",
-            "expires": "2025-08-02T07:52:40.000Z",
-            "domain": "teamviewer.com",
+            "key": "allahabaduniversity_session",
+            "value": "eyJpdiI6Ilk5ZnprTXNJcDA3TjhCN1VhVXFKVmc9PSIsInZhbHVlIjoicWdhd0VlZGJcL0VXOVI5bWFvb2FIMGFyVnNXQm5DVXpkRzhYV2JjbnpVWnlUQTk1RjJNMHVRdGloek43dERVNUw2SjVXdlZNSWlXYVV3ZWI5aXE2OUVPczRWd3N4RDByUkwxc3lHd0llb29SV1EyNDFGazlQSURMVHJWa3U1ZzlJIiwibWFjIjoiZDgzYjBmZGNmZTAyMzM2NTllOTkwYTU3YTk4NjYwNDY0NzlhMGI3NTQwMDAxZTY2ZGY2ZjU3NjI4MTM2MTU5NSJ9",
+            "expires": "2025-08-02T12:29:06.000Z",
+            "maxAge": 7200,
+            "domain": "www.allduniv.ac.in",
             "path": "/",
             "secure": true,
             "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T07:22:40.687Z",
-            "lastAccessed": "2025-08-02T07:22:40.687Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "_cfuvid",
-            "value": "fzW3PBdatOpAZkbpcgS6THk9WaklUhDBQkMMyMsftrM-1754119360580-0.0.1.1-604800000",
-            "domain": "teamviewer.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T07:22:40.687Z",
-            "lastAccessed": "2025-08-02T07:22:40.687Z",
-            "sameSite": "none"
+            "hostOnly": true,
+            "creation": "2025-08-02T10:29:06.715Z",
+            "lastAccessed": "2025-08-02T10:29:06.715Z"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-02T08:12:39.389Z",
-      "createdAt": "2025-08-02T07:22:39.389Z",
+      "expiresAt": "2025-08-02T11:19:04.255Z",
+      "createdAt": "2025-08-02T10:29:04.255Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_h3LdQPXYqR",
+      "id": "session_15B45yoJ7Q",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -153,61 +105,83 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "aep_fpid",
-            "value": "4316ec45-d47b-49d2-a758-b12142f7847c",
-            "expires": "2026-08-02T07:22:40.000Z",
-            "domain": "teamviewer.com",
+            "key": "XSRF-TOKEN",
+            "value": "eyJpdiI6IjhkU09SZWtsajZ3UDFteTVackRXaVE9PSIsInZhbHVlIjoiS2k3ZU5VTjllN2RDbEdBcTZRNUxhbHE3ME5JK0VQZ0RJWERRRTVDUnRyVmIxZ1luNFhEd0QxNSs2V2FTMndWVjJ0Rmd1OTUzcVowTEtzdXVCc041SE9OcG5ueUZ4SDMwVVJcL2NBXC9yVVloY3lhQ2hndVhyY3IrZmxqUDExNXlqQSIsIm1hYyI6IjYzMzc0M2QwNTU4ODUyMzAyY2I4MDU4OTI0ZDVhZDgyZTg0OGIzYjkzOWRlYTFkNDJiZjg4ZmZlYjc5NWVmNWMifQ%3D%3D",
+            "expires": "2025-08-02T12:29:06.000Z",
+            "maxAge": 7200,
+            "domain": "www.allduniv.ac.in",
             "path": "/",
             "secure": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T07:22:40.730Z",
-            "lastAccessed": "2025-08-02T07:22:40.730Z",
-            "sameSite": "lax"
+            "hostOnly": true,
+            "creation": "2025-08-02T10:29:06.497Z",
+            "lastAccessed": "2025-08-02T10:29:06.497Z"
           },
           {
-            "key": "__bs",
-            "value": "6",
-            "expires": "2026-08-02T07:22:40.000Z",
-            "domain": "teamviewer.com",
-            "path": "/",
-            "secure": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T07:22:40.730Z",
-            "lastAccessed": "2025-08-02T07:22:40.730Z",
-            "sameSite": "lax"
-          },
-          {
-            "key": "__cf_bm",
-            "value": "yH9YlEVdMQIcrSORQoFqJoHBIBt4itt4p3c4sVnnNr8-1754119360-1.0.1.1-SScpYuBhyZl8wAPDib5nO3ZN7SHZMk27ps7CWTVHv77aEfRLlc8SQDpEGZ69awXb9_72IFNPUbAQthPHWeUQRqm6_xnJHzQW.DtOGHXrJjw",
-            "expires": "2025-08-02T07:52:40.000Z",
-            "domain": "teamviewer.com",
+            "key": "allahabaduniversity_session",
+            "value": "eyJpdiI6IkllOFdxY0FtU2VVSXJwZExZSXN0cnc9PSIsInZhbHVlIjoiam5NVFpTZG9FK1I1T2dneWJmMnk0d1Z1UWhrWGNzMmlqY1doMVlJM3h4M2hHQzI2a1B5MTRQUmNGdkdneFphbXhzTHdGZWM5V2ZSNHN5eWpYb1I0eXJjV3lkTjJaWjNwMkNNZzlTc3dEUHVQNG56N0ZmTGd0R1czOXE1TzZ5STgiLCJtYWMiOiI1ZmU3YzliNTBlOTk4NzZjYTlmYTFmM2NiMjZmZGM0Y2M5N2FjZTEzMWE1NDNhMmVlYWI4MzhhZjEyNmEyMDA4In0%3D",
+            "expires": "2025-08-02T12:29:06.000Z",
+            "maxAge": 7200,
+            "domain": "www.allduniv.ac.in",
             "path": "/",
             "secure": true,
             "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T07:22:40.730Z",
-            "lastAccessed": "2025-08-02T07:22:40.730Z",
-            "sameSite": "none"
-          },
-          {
-            "key": "_cfuvid",
-            "value": "qWC.BCCd53J9pujPVFUHTLqNc_OpYntWy_ez5bilnVE-1754119360595-0.0.1.1-604800000",
-            "domain": "teamviewer.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-02T07:22:40.730Z",
-            "lastAccessed": "2025-08-02T07:22:40.730Z",
-            "sameSite": "none"
+            "hostOnly": true,
+            "creation": "2025-08-02T10:29:06.497Z",
+            "lastAccessed": "2025-08-02T10:29:06.497Z"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-02T08:12:39.392Z",
-      "createdAt": "2025-08-02T07:22:39.392Z",
+      "expiresAt": "2025-08-02T11:19:04.257Z",
+      "createdAt": "2025-08-02T10:29:04.257Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_858FSgGj7c",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "XSRF-TOKEN",
+            "value": "eyJpdiI6IjFzbVB4Z1p0d0huam9mdDNMS015RHc9PSIsInZhbHVlIjoiUjd3TytudDdiUjgwRHBlbG5Lenh4bGt1YVhmeDNFa2VBOFlqS2dZcFd0YVA4YXdhZndwdHZqaHErWnVGV3ZZWlhHYkkyUFRuYVEyeDBRcW5LdTlQb05BXC9ib01adWdhM0JCWXduTkFvYTltUWc3MTRReE5qRHMyaTJBc3VcL3JzVCIsIm1hYyI6IjM2MDRkMThjYjA2YjE4ZTI3NDQ0YjRiZjBjYWY5MzlhNTllNzZlNmMwZGM1NjAwNmUxZjdiYzVkMzQ4Zjg2OTMifQ%3D%3D",
+            "expires": "2025-08-02T12:29:08.000Z",
+            "maxAge": 7200,
+            "domain": "www.allduniv.ac.in",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-08-02T10:29:08.666Z",
+            "lastAccessed": "2025-08-02T10:29:08.666Z"
+          },
+          {
+            "key": "allahabaduniversity_session",
+            "value": "eyJpdiI6IitcL2JtZExpbks1WTlVY1RLb1RBZzB3PT0iLCJ2YWx1ZSI6InYxa2ZEdmFpbnlaVThJd3ZzYlJpcEJzaFFrTTZaZStwcTFYeXJNQTRpUXQwdDdkajNvVGdXeGh6YWxlanRacnZHcXRJOEx4TldlbDE1d1RDenExZmF1RE1WbmFJOGNjbmNFRlBlN2hKblQ0eXRQamRQZnpZMWlhTUZJeDhaVkxQIiwibWFjIjoiYmE2NjJlMzNjYzkyZGU1MTViZGU5MWM1MWI4NDYyYWQxN2RlYjFkMzRjY2IyYzMxODAwNDgwZDdmMTJjMDIzYyJ9",
+            "expires": "2025-08-02T12:29:08.000Z",
+            "maxAge": 7200,
+            "domain": "www.allduniv.ac.in",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-08-02T10:29:08.666Z",
+            "lastAccessed": "2025-08-02T10:29:08.666Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-02T11:19:06.522Z",
+      "createdAt": "2025-08-02T10:29:06.522Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
