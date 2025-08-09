@@ -35,12 +35,33 @@ export async function initBetaV2Database() {
   }
 }
 
-// Helper to execute raw SQL
-export async function executeBetaV2Query(query: string, params: any[]): Promise<any> {
+// Helper to execute raw SQL with improved error logging
+export async function executeBetaV2Query(query: string, params: any[] = []): Promise<any> {
   try {
+    // Log query details for debugging
+    const queryPreview = query.trim().substring(0, 100) + (query.length > 100 ? '...' : '');
+    
     // Replace $1, $2, etc. with actual values for Neon compatibility
     let processedQuery = query;
     if (params && params.length > 0) {
+      // Create a detailed parameter log
+      const paramDetails = params.map((param, index) => {
+        const paramType = param === null ? 'null' :
+                         param === undefined ? 'undefined' :
+                         Array.isArray(param) ? 'array' :
+                         typeof param;
+        const paramPreview = paramType === 'object' || paramType === 'array' 
+          ? JSON.stringify(param).substring(0, 50) + '...'
+          : String(param).substring(0, 50);
+        return `  $${index + 1}: [${paramType}] ${paramPreview}`;
+      }).join('\n');
+      
+      // Log parameter details for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Beta v2] Executing query: ${queryPreview}`);
+        console.log(`[Beta v2] Parameters:\n${paramDetails}`);
+      }
+      
       params.forEach((param, index) => {
         const placeholder = `$${index + 1}`;
         const value = param === null || param === undefined ? 'NULL' : 
@@ -60,7 +81,43 @@ export async function executeBetaV2Query(query: string, params: any[]): Promise<
       rowCount: Array.isArray(result) ? result.length : (result as any).rowCount || 0
     };
   } catch (error: any) {
-    console.error('[Beta v2] Query execution error:', error);
+    // Enhanced error logging with query context
+    console.error('[Beta v2] ========== Query Execution Error ==========');
+    console.error('[Beta v2] Error Message:', error.message);
+    console.error('[Beta v2] Error Code:', error.code);
+    console.error('[Beta v2] Query (first 200 chars):', query.substring(0, 200) + (query.length > 200 ? '...' : ''));
+    
+    if (params && params.length > 0) {
+      console.error('[Beta v2] Parameters provided:');
+      params.forEach((param, index) => {
+        const paramType = param === null ? 'null' :
+                         param === undefined ? 'undefined' :
+                         Array.isArray(param) ? 'array' :
+                         typeof param;
+        const paramSize = paramType === 'string' ? `(${param.length} chars)` :
+                         paramType === 'object' ? `(${JSON.stringify(param).length} chars)` :
+                         '';
+        console.error(`  $${index + 1}: [${paramType}] ${paramSize}`);
+        
+        // Show preview of large parameters
+        if (paramType === 'object' || paramType === 'string') {
+          const preview = paramType === 'object' 
+            ? JSON.stringify(param).substring(0, 100) + '...'
+            : param.substring(0, 100) + '...';
+          console.error(`       Preview: ${preview}`);
+        } else {
+          console.error(`       Value: ${param}`);
+        }
+      });
+    }
+    
+    // Specific error hints
+    if (error.code === '42P18') {
+      console.error('[Beta v2] HINT: PostgreSQL cannot determine parameter type. Consider casting explicitly in the query.');
+      console.error('[Beta v2] HINT: For JSONB parameters, use ::jsonb cast in the query, e.g., $1::jsonb');
+    }
+    
+    console.error('[Beta v2] ============================================');
 
     // Handle specific Neon database errors
     if (error.message?.includes('endpoint has been disabled')) {

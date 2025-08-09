@@ -40,6 +40,7 @@ The platform is built with a React frontend and an Express backend, both utilizi
     - **Machine-Friendly Configuration**: Centralizes extraction methods, confidence modifiers, validation rules, and jurisdiction data in TypeScript configurations for dynamic updates.
     - **Performance Optimization**: Early connectivity triage saves processing time on unreachable domains. Multi-layer timeout systems prevent processing stalls.
     - **Extraction Hierarchy**: Utilizes structured data (JSON-LD), enhanced meta properties, footer copyright, logo alt text, H1 analysis, and page title for extraction, with a focus on legal entity names.
+    - **Enhanced Database Error Logging (Aug 9, 2025)**: Comprehensive error diagnostics for Beta V2 database operations including query previews, parameter type detection, size information, and specific PostgreSQL hints. Explicit JSONB casting prevents type detection errors.
 
 ## External Dependencies
 - **React**: Frontend library.

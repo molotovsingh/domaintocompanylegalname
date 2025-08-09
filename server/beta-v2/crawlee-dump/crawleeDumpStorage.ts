@@ -40,25 +40,36 @@ export class CrawleeDumpStorage {
     dumpData: CrawleeDumpData, 
     processingTimeMs: number
   ): Promise<void> {
-    const query = `
-      UPDATE crawlee_dumps 
-      SET 
-        dump_data = $1,
-        pages_crawled = $2,
-        total_size_bytes = $3,
-        processing_time_ms = $4,
-        status = 'completed',
-        updated_at = NOW()
-      WHERE id = $5
-    `;
-    
-    await executeBetaV2Query(query, [
-      JSON.stringify(dumpData),
-      dumpData.pages.length,
-      dumpData.crawlStats.totalSizeBytes,
-      processingTimeMs,
-      id
-    ]);
+    try {
+      // Explicitly cast JSONB parameter in the query to avoid type detection issues
+      const query = `
+        UPDATE crawlee_dumps 
+        SET 
+          dump_data = $1::jsonb,
+          pages_crawled = $2,
+          total_size_bytes = $3,
+          processing_time_ms = $4,
+          status = 'completed',
+          updated_at = NOW()
+        WHERE id = $5
+      `;
+      
+      // Log the data being updated for debugging
+      console.log(`[CrawleeDumpStorage] Updating dump ${id} with ${dumpData.pages.length} pages`);
+      
+      await executeBetaV2Query(query, [
+        JSON.stringify(dumpData),
+        dumpData.pages.length,
+        dumpData.crawlStats.totalSizeBytes,
+        processingTimeMs,
+        id
+      ]);
+      
+      console.log(`[CrawleeDumpStorage] Successfully updated dump ${id}`);
+    } catch (error: any) {
+      console.error(`[CrawleeDumpStorage] Failed to update dump ${id}:`, error.message);
+      throw error;
+    }
   }
 
   async getDump(id: number): Promise<CrawleeDump | null> {
