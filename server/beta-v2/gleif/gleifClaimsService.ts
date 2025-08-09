@@ -134,9 +134,14 @@ export class GleifClaimsService {
       const suffixSuggestions = this.generateSuffixSuggestions(extractedEntities, cleanedContent);
       claims.push(...suffixSuggestions);
 
+      // Filter to only include claims with LEI codes - claims without LEI are not useful
+      const verifiedClaims = claims.filter(claim => claim.leiCode && claim.leiCode.length > 0);
+      
+      console.log(`[GleifClaimsService] Filtering claims: ${claims.length} total, ${verifiedClaims.length} with LEI codes`);
+
       return {
         domain,
-        entityClaims: claims,
+        entityClaims: verifiedClaims,  // Only return verified claims with LEI codes
         searchPatternsUsed: searchPatterns,
         processingTime: Date.now() - startTime
       };
