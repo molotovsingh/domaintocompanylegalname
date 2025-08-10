@@ -74,25 +74,48 @@ interface GLEIFCandidate {
 }
 
 interface EntityClaim {
-  claimType: 'extracted' | 'gleif_verified' | 'gleif_relationship' | 'generated' | 'suspect';
+  claimType: 'extracted' | 'gleif_verified' | 'gleif_relationship' | 'generated' | 'suspect' | 'suffix_suggestion';
   entityName: string;
-  confidence?: 'high' | 'medium' | 'low';
+  legalName?: string;
+  confidence?: 'high' | 'medium' | 'low' | string | number;
   source?: string;
   leiCode?: string;
+  type?: string; // Compatibility with older responses
   evidence?: {
-    type: string;
-    jurisdiction?: string;
-    [key: string]: any;
-  };
-  evidence?: {
+    type?: string;
     leiCode?: string;
     jurisdiction?: string;
     status?: string;
     city?: string;
     country?: string;
     relationshipType?: string;
+    [key: string]: any;
   };
   reasoning?: string;
+  gleifData?: {
+    legalName?: string;
+    legalForm?: string;
+    entityStatus?: string;
+    jurisdiction?: string;
+    entityCategory?: string;
+    legalAddress?: {
+      country?: string;
+      city?: string;
+      region?: string;
+      postalCode?: string;
+      addressLine?: string;
+    };
+    headquarters?: {
+      country?: string;
+      city?: string;
+      region?: string;
+      postalCode?: string;
+      addressLine?: string;
+    };
+    registrationStatus?: string;
+    initialRegistrationDate?: string;
+    lastUpdateDate?: string;
+  };
 }
 
 interface ClaimsResult {
@@ -869,19 +892,21 @@ export default function BetaV2DataProcessingPage() {
                     <Button
                       onClick={async () => {
                         try {
-                          const response = await apiRequest('/api/beta/arbitration/test-sample', 'POST', {
+                          const response = await apiRequest('POST', '/api/beta/arbitration/test-sample', {
                             domain: 'apple.com',
                             entityName: 'Apple'
                           });
                           
+                          const data = await response.json();
+                          
                           toast({
-                            title: "Arbitration Started",
-                            description: "Processing Apple Inc. with multiple claims..."
+                            title: "Arbitration Complete",
+                            description: `Generated ${data.data.totalClaims} claims and ranked entities for Apple Inc.`
                           });
                         } catch (error) {
                           toast({
                             title: "Error",
-                            description: "Failed to start arbitration test",
+                            description: error instanceof Error ? error.message : "Failed to start arbitration test",
                             variant: "destructive"
                           });
                         }
@@ -893,19 +918,21 @@ export default function BetaV2DataProcessingPage() {
                       variant="outline"
                       onClick={async () => {
                         try {
-                          const response = await apiRequest('/api/beta/arbitration/test-sample', 'POST', {
+                          const response = await apiRequest('POST', '/api/beta/arbitration/test-sample', {
                             domain: 'microsoft.com',
                             entityName: 'Microsoft'
                           });
                           
+                          const data = await response.json();
+                          
                           toast({
-                            title: "Arbitration Started",
-                            description: "Processing Microsoft Corp. with multiple claims..."
+                            title: "Arbitration Complete",
+                            description: `Generated ${data.data.totalClaims} claims and ranked entities for Microsoft Corp.`
                           });
                         } catch (error) {
                           toast({
                             title: "Error",
-                            description: "Failed to start arbitration test",
+                            description: error instanceof Error ? error.message : "Failed to start arbitration test",
                             variant: "destructive"
                           });
                         }

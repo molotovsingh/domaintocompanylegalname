@@ -297,7 +297,7 @@ async function processArbitrationAsync(
            error_message = $2,
            updated_at = NOW()
        WHERE id = $1`,
-      [requestId, error.message || 'Unknown error']
+      [requestId, error instanceof Error ? error.message : 'Unknown error']
     );
   }
 }
@@ -417,7 +417,7 @@ router.post('/test-sample', async (req, res) => {
     console.error('[Arbitration] Test sample failed:', error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Test arbitration failed'
+      error: error instanceof Error ? error.message : 'Test arbitration failed'
     });
   }
 });
