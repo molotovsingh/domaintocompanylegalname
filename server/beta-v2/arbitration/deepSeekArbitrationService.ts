@@ -88,24 +88,62 @@ export class DeepSeekArbitrationService {
   private async callDeepSeekReasoning(prompt: string): Promise<any> {
     console.log('[DeepSeek Arbitration] Calling DeepSeek R1 reasoning model');
     
-    const request = {
-      domain: 'arbitration',
-      rawContent: prompt,
-      useCase: 'arbitration',
-      strategy: 'reasoning',
-      model: 'deepseek/deepseek-r1:free',
-      temperature: 0,
-      maxTokens: 8000,
-      systemPrompt: `You are a corporate acquisition arbitrator with expertise in entity resolution and GLEIF data analysis. 
-                     Your role is to rank entities based on their suitability for acquisition, providing detailed reasoning for each decision.
-                     Think step-by-step through the corporate hierarchy, jurisdiction preferences, and acquisition factors.
-                     Always provide transparent reasoning that would hold up in a board room presentation.`
-    };
-
+    // Call OpenRouter directly with DeepSeek R1 free model
     try {
-      const response = await this.openRouterService.extractEntity(request);
-      console.log('[DeepSeek Arbitration] Response received:', response.success ? 'Success' : 'Failed');
-      return response;
+      const apiKey = process.env.openrouter;
+      if (!apiKey) {
+        console.error('[DeepSeek Arbitration] OpenRouter API key not found');
+        return null;
+      }
+
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+          'X-Title': 'Domain Intelligence Platform'
+        },
+        body: JSON.stringify({
+          model: 'deepseek/deepseek-r1:free',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a corporate acquisition arbitrator with expertise in entity resolution and GLEIF data analysis. 
+                       Your role is to rank entities based on their suitability for acquisition, providing detailed reasoning for each decision.
+                       Think step-by-step through the corporate hierarchy, jurisdiction preferences, and acquisition factors.
+                       Always provide transparent reasoning that would hold up in a board room presentation.`
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0,
+          max_tokens: 8000
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[DeepSeek Arbitration] API error:', response.status, errorText);
+        return null;
+      }
+
+      const data = await response.json();
+      console.log('[DeepSeek Arbitration] Response received: Success');
+      
+      // Extract the content from the response
+      const content = data.choices?.[0]?.message?.content;
+      if (!content) {
+        console.error('[DeepSeek Arbitration] No content in response');
+        return null;
+      }
+
+      return {
+        success: true,
+        entityName: content,
+        modelUsed: 'deepseek/deepseek-r1:free'
+      };
     } catch (error) {
       console.error('[DeepSeek Arbitration] API call failed:', error);
       return null;
