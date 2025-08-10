@@ -364,15 +364,15 @@ async function processArbitrationAsync(
  */
 async function getCleanedData(dumpId: number, collectionType: string): Promise<any> {
   try {
-    // Try to get from processing results first
+    // Try to get from beta_v2_processing_results first
     const result = await db.query(
-      `SELECT cleaned_data FROM processing_results 
-       WHERE collection_id = $1 AND collection_type = $2`,
+      `SELECT stage2_extracted_data FROM beta_v2_processing_results 
+       WHERE source_id = $1 AND source_type = $2`,
       [dumpId, collectionType]
     );
 
-    if (result.rows.length > 0 && result.rows[0].cleaned_data) {
-      return result.rows[0].cleaned_data;
+    if (result.rows.length > 0 && result.rows[0].stage2_extracted_data) {
+      return result.rows[0].stage2_extracted_data;
     }
 
     // Fallback to raw dump data
