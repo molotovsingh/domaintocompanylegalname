@@ -5,7 +5,7 @@ import { queryClient } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, RefreshCw, PlayCircle, CheckCircle, Clock, AlertCircle, Database, Brain, Search, ChevronDown, ChevronUp, FileSearch } from 'lucide-react';
+import { ArrowLeft, RefreshCw, PlayCircle, CheckCircle, Clock, AlertCircle, Database, Brain, Search, ChevronDown, ChevronUp, FileSearch, Award, Settings } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import {
@@ -23,6 +23,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { ArbitrationResults } from '@/components/ArbitrationResults';
+import { UserBiasConfig } from '@/components/UserBiasConfig';
 
 // Types
 interface AvailableDump {
@@ -279,7 +281,7 @@ export default function BetaV2DataProcessingPage() {
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="dumps">
             <Database className="mr-2 h-4 w-4" />
             Available Dumps
@@ -290,7 +292,15 @@ export default function BetaV2DataProcessingPage() {
           </TabsTrigger>
           <TabsTrigger value="claims">
             <Brain className="mr-2 h-4 w-4" />
-            Entity Claims Discovery
+            Entity Claims
+          </TabsTrigger>
+          <TabsTrigger value="arbitration">
+            <Award className="mr-2 h-4 w-4" />
+            Arbitration
+          </TabsTrigger>
+          <TabsTrigger value="preferences">
+            <Settings className="mr-2 h-4 w-4" />
+            Preferences
           </TabsTrigger>
         </TabsList>
 
@@ -838,6 +848,92 @@ export default function BetaV2DataProcessingPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Arbitration Tab */}
+        <TabsContent value="arbitration" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Entity Arbitration System</CardTitle>
+              <CardDescription>
+                Uses Perplexity Sonar to intelligently rank and select the best legal entity from multiple claims. 
+                The system applies jurisdiction bias, parent entity preference, and multi-tier ranking for acquisition research.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* Test Arbitration Section */}
+                <div className="border rounded-lg p-4">
+                  <h3 className="text-sm font-semibold mb-3">Test Arbitration with Sample Data</h3>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={async () => {
+                        try {
+                          const response = await apiRequest('/api/beta/arbitration/test-sample', 'POST', {
+                            domain: 'apple.com',
+                            entityName: 'Apple'
+                          });
+                          
+                          toast({
+                            title: "Arbitration Started",
+                            description: "Processing Apple Inc. with multiple claims..."
+                          });
+                        } catch (error) {
+                          toast({
+                            title: "Error",
+                            description: "Failed to start arbitration test",
+                            variant: "destructive"
+                          });
+                        }
+                      }}
+                    >
+                      Test with Apple Inc.
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={async () => {
+                        try {
+                          const response = await apiRequest('/api/beta/arbitration/test-sample', 'POST', {
+                            domain: 'microsoft.com',
+                            entityName: 'Microsoft'
+                          });
+                          
+                          toast({
+                            title: "Arbitration Started",
+                            description: "Processing Microsoft Corp. with multiple claims..."
+                          });
+                        } catch (error) {
+                          toast({
+                            title: "Error",
+                            description: "Failed to start arbitration test",
+                            variant: "destructive"
+                          });
+                        }
+                      }}
+                    >
+                      Test with Microsoft Corp.
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Arbitration Results Component */}
+                <ArbitrationResults 
+                  domain={selectedDump?.domain}
+                  onProcessDomain={(domain) => {
+                    toast({
+                      title: "Arbitration Process",
+                      description: `Starting arbitration for ${domain}`
+                    });
+                  }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Preferences Tab */}
+        <TabsContent value="preferences" className="space-y-4">
+          <UserBiasConfig />
         </TabsContent>
       </Tabs>
     </div>
