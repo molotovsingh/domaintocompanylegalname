@@ -987,32 +987,54 @@ export default function BetaV2DataProcessingPage() {
                         {arbitrationResults.rankedEntities?.map((entity: any, index: number) => (
                           <div key={index} className="bg-gray-50 p-3 rounded-lg">
                             <div className="flex justify-between items-start">
-                              <div>
+                              <div className="flex-1">
                                 <p className="font-medium">
                                   #{index + 1}: {entity.legalName || entity.entityName}
                                 </p>
                                 {entity.leiCode && (
                                   <p className="text-sm text-gray-600">LEI: {entity.leiCode}</p>
                                 )}
-                                <p className="text-sm text-gray-600">Rank Score: {entity.rankScore}</p>
+                                <p className="text-sm text-gray-600">
+                                  Confidence: {typeof entity.confidence === 'number' 
+                                    ? (entity.confidence * 100).toFixed(1) + '%' 
+                                    : entity.confidence}
+                                </p>
+                                {entity.acquisitionGrade && (
+                                  <p className="text-sm font-medium text-blue-600">
+                                    Acquisition Grade: {entity.acquisitionGrade}
+                                  </p>
+                                )}
                               </div>
                               <div className="text-right">
                                 <span className={`text-xs px-2 py-1 rounded ${
-                                  entity.confidenceLevel === 'high' ? 'bg-green-100 text-green-800' :
-                                  entity.confidenceLevel === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                                  entity.acquisitionGrade === 'A+' ? 'bg-green-100 text-green-800' :
+                                  entity.acquisitionGrade === 'A' ? 'bg-green-50 text-green-700' :
+                                  entity.acquisitionGrade === 'B+' ? 'bg-yellow-100 text-yellow-800' :
+                                  entity.acquisitionGrade === 'B' ? 'bg-yellow-50 text-yellow-700' :
                                   'bg-gray-100 text-gray-800'
                                 }`}>
-                                  {entity.confidenceLevel}
+                                  {entity.acquisitionGrade || 'C'}
                                 </span>
                               </div>
                             </div>
                             {entity.reasoning && (
-                              <p className="text-sm text-gray-700 mt-2">{entity.reasoning}</p>
+                              <div className="mt-2 p-2 bg-blue-50 rounded">
+                                <p className="text-xs font-medium text-blue-900 mb-1">Arbitrator's Reasoning:</p>
+                                <p className="text-sm text-blue-800">{entity.reasoning}</p>
+                              </div>
                             )}
                           </div>
                         ))}
                       </div>
                     </div>
+
+                    {/* Overall Reasoning */}
+                    {arbitrationResults.overallReasoning && (
+                      <div className="p-3 bg-indigo-50 rounded-lg">
+                        <p className="text-sm font-medium text-indigo-900 mb-1">Overall Arbitration Logic:</p>
+                        <p className="text-sm text-indigo-800">{arbitrationResults.overallReasoning}</p>
+                      </div>
+                    )}
 
                     {/* Raw Claims - By Claim Number */}
                     <details className="text-sm">
