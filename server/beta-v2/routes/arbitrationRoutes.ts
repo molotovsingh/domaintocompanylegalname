@@ -8,6 +8,52 @@ const router = Router();
 const deepSeekArbitrationService = new DeepSeekArbitrationService();
 
 /**
+ * Create arbitration request for a domain
+ */
+router.post('/request', async (req, res) => {
+  try {
+    const { domain, dumpId, collectionType } = req.body;
+
+    if (!domain || !dumpId || !collectionType) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: domain, dumpId, collectionType'
+      });
+    }
+
+    console.log(`[Arbitration] Starting arbitration request for domain: ${domain}`);
+
+    // Create arbitration request in database
+    const requestResult = await db.query(
+      `INSERT INTO arbitration_requests (domain, dump_id, collection_type, status)
+       VALUES ($1, $2, $3, 'processing')
+       RETURNING id`,
+      [domain, dumpId, collectionType]
+    );
+
+    const requestId = requestResult.rows[0].id;
+    console.log(`[Arbitration] Created request ${requestId} for ${domain}`);
+
+    // Process asynchronously
+    processArbitrationAsync(requestId, domain, dumpId, collectionType);
+
+    res.json({
+      success: true,
+      requestId,
+      status: 'processing',
+      message: `Arbitration started for ${domain}. Processing will take about 2 minutes.`
+    });
+
+  } catch (error) {
+    console.error('[Arbitration] Request creation error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create arbitration request'
+    });
+  }
+});
+
+/**
  * Process arbitration for a domain
  */
 router.post('/process', async (req, res) => {

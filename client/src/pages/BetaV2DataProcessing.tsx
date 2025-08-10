@@ -135,11 +135,25 @@ export default function BetaV2DataProcessingPage() {
   const [claimsResults, setClaimsResults] = useState<ClaimsResult[]>([]);
   const [arbitrationResults, setArbitrationResults] = useState<any>(null);
   const [arbitrationLoading, setArbitrationLoading] = useState(false);
+  const [selectedArbitrationRequest, setSelectedArbitrationRequest] = useState<number | null>(null);
 
   // Check beta server status
   const { data: serverStatus } = useQuery<BetaServerStatus>({
     queryKey: ['/api/beta/status'],
     refetchInterval: 2000
+  });
+
+  // Poll for arbitration results when request is created
+  const { data: arbitrationResultsData } = useQuery({
+    queryKey: [`/api/beta/arbitration/results/${selectedArbitrationRequest}`],
+    enabled: !!selectedArbitrationRequest,
+    refetchInterval: (data) => {
+      // Stop polling once completed or failed
+      if (data?.status === 'completed' || data?.status === 'failed') {
+        return false;
+      }
+      return 3000; // Poll every 3 seconds while processing
+    }
   });
 
   // Fetch available dumps
@@ -736,13 +750,97 @@ export default function BetaV2DataProcessingPage() {
                                 {result.claims.length} claims • Generated {formatTimestamp(result.processedAt)}
                               </CardDescription>
                             </div>
-                            <Badge variant="outline">
-                              {result.collectionType.replace('_', ' ')}
-                            </Badge>
+                            <div className="flex gap-2">
+                              <Badge variant="outline">
+                                {result.collectionType.replace('_', ' ')}
+                              </Badge>
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={async () => {
+                                  try {
+                                    setArbitrationLoading(true);
+                                    
+                                    // Start arbitration request
+                                    const response = await apiRequest('POST', '/api/beta/arbitration/request', {
+                                      domain: result.domain,
+                                      dumpId: result.dumpId,
+                                      collectionType: result.collectionType
+                                    });
+                                    
+                                    const data = await response.json();
+                                    
+                                    if (data.success) {
+                                      toast({
+                                        title: "Arbitration Started",
+                                        description: `Processing ${result.claims.length} claims for ${result.domain}. This will take about 2 minutes.`
+                                      });
+                                      
+                                      // Set the request ID to track results and associate with dump
+                                      setSelectedArbitrationRequest(data.requestId);
+                                      // Store mapping of dumpId to requestId
+                                      result.arbitrationRequestId = data.requestId;
+                                    } else {
+                                      throw new Error(data.error || 'Failed to start arbitration');
+                                    }
+                                  } catch (error) {
+                                    toast({
+                                      title: "Error",
+                                      description: error instanceof Error ? error.message : "Failed to start arbitration",
+                                      variant: "destructive"
+                                    });
+                                  } finally {
+                                    setArbitrationLoading(false);
+                                  }
+                                }}
+                                disabled={arbitrationLoading}
+                              >
+                                <Award className="mr-2 h-4 w-4" />
+                                Run Arbitration
+                              </Button>
+                            </div>
                           </div>
                         </CardHeader>
                         <CardContent>
                           <div className="space-y-3">
+                            {/* Display arbitration results if available */}
+                            {arbitrationResultsData?.status === 'completed' && 
+                             arbitrationResultsData?.rankedEntities && 
+                             (result as any).arbitrationRequestId === selectedArbitrationRequest && (
+                              <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                                <h4 className="text-sm font-semibold mb-2">Arbitration Results (DeepSeek R1 Reasoning)</h4>
+                                <div className="space-y-2">
+                                  {arbitrationResultsData.rankedEntities.slice(0, 5).map((entity: any, idx: number) => (
+                                    <div key={idx} className="bg-white p-2 rounded">
+                                      <div className="flex justify-between items-center">
+                                        <div>
+                                          <span className="font-medium">#{idx + 1}: {entity.legalName}</span>
+                                          {entity.leiCode && (
+                                            <span className="text-xs ml-2 text-gray-600">LEI: {entity.leiCode}</span>
+                                          )}
+                                        </div>
+                                        <Badge variant="outline" className="text-xs">
+                                          Score: {entity.confidence || entity.score}
+                                        </Badge>
+                                      </div>
+                                      {entity.reasoning && (
+                                        <p className="text-xs text-gray-600 mt-1">{entity.reasoning}</p>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                                {arbitrationResultsData.reasoning && (
+                                  <div className="mt-3 p-3 bg-gray-100 rounded">
+                                    <p className="text-xs font-medium mb-1">Overall Reasoning:</p>
+                                    <p className="text-xs">{arbitrationResultsData.reasoning.slice(0, 500)}...</p>
+                                  </div>
+                                )}
+                                <div className="mt-2 text-xs text-gray-500">
+                                  Processing time: {arbitrationResultsData.processingTimeMs}ms • Model: {arbitrationResultsData.arbitratorModel}
+                                </div>
+                              </div>
+                            )}
+                            
                             {result.claims.map((claim, claimIdx) => (
                               <div key={claimIdx} className="border rounded-lg p-4 space-y-2">
                                 <div className="flex items-start justify-between">
