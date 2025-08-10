@@ -1014,9 +1014,9 @@ export default function BetaV2DataProcessingPage() {
                       </div>
                     </div>
 
-                    {/* Raw Claims */}
+                    {/* Raw Claims - By Claim Number */}
                     <details className="text-sm">
-                      <summary className="cursor-pointer font-medium">View All Claims ({arbitrationResults.claims?.length || 0})</summary>
+                      <summary className="cursor-pointer font-medium">View All Claims by Number ({arbitrationResults.claims?.length || 0})</summary>
                       <div className="mt-2 space-y-2">
                         {arbitrationResults.claims?.map((claim: any, index: number) => (
                           <div key={index} className="bg-gray-50 p-2 rounded">
@@ -1025,6 +1025,51 @@ export default function BetaV2DataProcessingPage() {
                             {claim.leiCode && <p className="text-xs">LEI: {claim.leiCode}</p>}
                           </div>
                         ))}
+                      </div>
+                    </details>
+
+                    {/* Raw Claims - By Confidence Level */}
+                    <details className="text-sm">
+                      <summary className="cursor-pointer font-medium">View Claims by Confidence (Highest First)</summary>
+                      <div className="mt-2 space-y-2">
+                        {arbitrationResults.claims
+                          ?.slice()
+                          .sort((a: any, b: any) => {
+                            // Convert confidence to numeric for sorting
+                            const getConfidenceValue = (conf: any) => {
+                              if (typeof conf === 'number') return conf;
+                              if (conf === 'high') return 0.9;
+                              if (conf === 'medium') return 0.5;
+                              if (conf === 'low') return 0.3;
+                              return parseFloat(conf) || 0;
+                            };
+                            return getConfidenceValue(b.confidence) - getConfidenceValue(a.confidence);
+                          })
+                          .map((claim: any, index: number) => (
+                            <div key={index} className={`p-2 rounded ${
+                              index === 0 ? 'bg-green-50 border border-green-200' : 'bg-gray-50'
+                            }`}>
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <p className="font-medium">
+                                    {claim.entityName}
+                                    {index === 0 && <span className="ml-2 text-xs text-green-600">Highest Confidence</span>}
+                                  </p>
+                                  <p className="text-xs text-gray-600">
+                                    Claim #{claim.claimNumber} | Type: {claim.claimType}
+                                  </p>
+                                  {claim.leiCode && <p className="text-xs">LEI: {claim.leiCode}</p>}
+                                </div>
+                                <span className={`text-xs px-2 py-1 rounded font-medium ${
+                                  claim.confidence === 'high' || claim.confidence >= 0.8 ? 'bg-green-100 text-green-800' :
+                                  claim.confidence === 'medium' || claim.confidence >= 0.5 ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {claim.confidence}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
                       </div>
                     </details>
 
