@@ -321,7 +321,7 @@ async function processArbitrationAsync(
         ) VALUES ($1, $2::jsonb, $3, $4, $5, $6::jsonb)`,
         [
           requestId,
-          JSON.stringify(arbitrationResult.rankedEntities),
+          JSON.stringify(arbitrationResult.rankedEntities || []),
           'deepseek-r1-free',
           arbitrationResult.overallReasoning || '',
           arbitrationResult.processingTimeMs,
