@@ -263,20 +263,30 @@ async function processArbitrationAsync(
     const arbitrationResult = await deepSeekArbitrationService.arbitrate(claims, userBias);
 
     // Store results
-    await db.query(
-      `INSERT INTO arbitration_results (
-        request_id, ranked_entities, arbitrator_model,
-        arbitration_reasoning, processing_time_ms, perplexity_citations
-      ) VALUES ($1, $2::jsonb[], $3, $4, $5, $6::jsonb)`,
-      [
-        requestId,
-        JSON.stringify(arbitrationResult.rankedEntities),
-        'deepseek-r1-free',
-        arbitrationResult.overallReasoning,
-        arbitrationResult.processingTimeMs,
-        JSON.stringify(arbitrationResult.citations)
-      ]
-    );
+    console.log(`[Arbitration] Storing results for request ${requestId}`);
+    console.log(`[Arbitration] Reasoning length: ${arbitrationResult.overallReasoning?.length || 0}`);
+    console.log(`[Arbitration] Ranked entities: ${arbitrationResult.rankedEntities?.length || 0}`);
+    
+    try {
+      await db.query(
+        `INSERT INTO arbitration_results (
+          request_id, ranked_entities, arbitrator_model,
+          arbitration_reasoning, processing_time_ms, perplexity_citations
+        ) VALUES ($1, $2::jsonb[], $3, $4, $5, $6::jsonb)`,
+        [
+          requestId,
+          JSON.stringify(arbitrationResult.rankedEntities),
+          'deepseek-r1-free',
+          arbitrationResult.overallReasoning || '',
+          arbitrationResult.processingTimeMs,
+          JSON.stringify(arbitrationResult.citations || [])
+        ]
+      );
+      console.log(`[Arbitration] Results stored successfully`);
+    } catch (saveError) {
+      console.error(`[Arbitration] Failed to save results:`, saveError);
+      throw saveError;
+    }
 
     // Update request status
     await db.query(
