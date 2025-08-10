@@ -12,6 +12,7 @@ import { betaDb } from '../betaDb';
 import gleifSearchRouter from './gleif-search/gleifSearchIndex';
 import processingRouter from './processing/processingIndex';
 import gleifClaimsRouter from './gleif/gleifClaimsRoutes';
+import arbitrationRouter from './routes/arbitrationRoutes';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
@@ -29,7 +30,7 @@ router.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     platform: 'beta-v2',
-    methods: ['playwright-dump', 'scrapy-crawl', 'crawlee-dump', 'axios-cheerio', 'gleif-search', 'processing', 'gleif-claims']
+    methods: ['playwright-dump', 'scrapy-crawl', 'crawlee-dump', 'axios-cheerio', 'gleif-search', 'processing', 'gleif-claims', 'arbitration']
   });
 });
 
@@ -54,6 +55,9 @@ router.use('/processing', processingRouter);
 
 // Mount GLEIF claims router
 router.use('/gleif-claims', gleifClaimsRouter);
+
+// Mount arbitration router
+router.use('/arbitration', arbitrationRouter);
 
 // Dump a domain
 router.post('/dump', async (req, res) => {
