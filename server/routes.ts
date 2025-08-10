@@ -1299,6 +1299,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const fullPath = req.path.replace('/api/beta/', '');
+      // Use longer timeout for arbitration routes that use DeepSeek R1 reasoning
+      const isArbitration = fullPath.includes('arbitration');
+      const timeout = isArbitration ? 150000 : 30000; // 150 seconds for arbitration, 30 seconds for others
+      
       const response = await axios({
         method: req.method,
         url: `http://localhost:3001/api/beta/${fullPath}`,
@@ -1306,14 +1310,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         headers: {
           'Content-Type': 'application/json'
         },
-        timeout: 30000
+        timeout: timeout
       });
       res.json(response.data);
     } catch (error: any) {
       console.error('Beta API proxy error:', error.message);
-      res.status(error.response?.status || 500).json({ 
-        error: error.message || 'Proxy error' 
-      });
+      if (error.code === 'ECONNABORTED') {
+        res.status(504).json({ 
+          error: `timeout of ${error.config?.timeout || 30000}ms exceeded` 
+        });
+      } else {
+        res.status(error.response?.status || 500).json({ 
+          error: error.message || 'Proxy error' 
+        });
+      }
     }
   });
 
