@@ -48,41 +48,12 @@ export class PerplexityArbitrationService {
     const startTime = Date.now();
     console.log(`[Arbitration] Starting arbitration for ${claims.length} claims`);
 
-    // Build the arbitration prompt
-    const prompt = await this.buildArbitrationPrompt(claims, userBias);
-
-    // Call Perplexity API
-    const response = await perplexityAdapter.callPerplexity(
-      prompt,
-      'sonar',
-      0.2
-    );
-
-    // If Perplexity fails, use fallback algorithmic ranking
-    if (!response) {
-      console.log('[Arbitration] Perplexity unavailable, using fallback ranking');
-      return this.fallbackArbitration(claims, userBias, Date.now() - startTime);
-    }
-
-    // Parse the response
-    const parsedResponse = perplexityAdapter.parseArbitrationResponse(response);
+    // IMPORTANT: Skip Perplexity Sonar since it's not a reasoning model
+    // Use our enhanced algorithmic ranking with transparent reasoning instead
+    console.log('[Arbitration] Using algorithmic ranking with transparent reasoning (Perplexity Sonar is not a reasoning model)');
     
-    // Format the result
-    const result: ArbitrationResult = {
-      rankedEntities: parsedResponse?.rankedEntities || [],
-      overallReasoning: parsedResponse?.overallReasoning || parsedResponse?.rawResponse || '',
-      citations: response.citations || [],
-      processingTimeMs: Date.now() - startTime
-    };
-
-    // If parsing failed, use fallback
-    if (!result.rankedEntities || result.rankedEntities.length === 0) {
-      console.log('[Arbitration] Could not parse Perplexity response, using fallback');
-      return this.fallbackArbitration(claims, userBias, Date.now() - startTime);
-    }
-
-    console.log(`[Arbitration] Completed in ${result.processingTimeMs}ms with ${result.rankedEntities.length} ranked entities`);
-    return result;
+    // Always use the enhanced algorithmic approach for clear, judge-like reasoning
+    return this.algorithmicArbitration(claims, userBias, Date.now() - startTime);
   }
 
   /**
@@ -267,9 +238,39 @@ Focus on identifying the ultimate decision-making entity for acquisition purpose
       metadata: item.claim.metadata
     }));
 
+    // Detailed overall reasoning explaining the ranking logic
+    const overallReasoning = `
+ARBITRATION DECISION SUMMARY:
+${rankedEntities.length} entities ranked based on acquisition suitability using the following weighted criteria:
+
+1. PARENT HIERARCHY (${(userBias.parentWeight * 100).toFixed(0)}% weight):
+   - Ultimate parents ranked highest for acquisition control
+   - Subsidiaries demoted as they require parent approval
+   
+2. JURISDICTION BIAS (${(userBias.jurisdictionWeight * 100).toFixed(0)}% weight):
+   - Primary: ${userBias.jurisdictionPrimary} (+30% boost)
+   - Secondary: ${userBias.jurisdictionSecondary.join(', ')} (+15% boost)
+   - Other jurisdictions receive no boost
+   
+3. ENTITY STATUS (${(userBias.entityStatusWeight * 100).toFixed(0)}% weight):
+   - Only ACTIVE entities considered viable for acquisition
+   
+4. LEGAL FORM (${(userBias.legalFormWeight * 100).toFixed(0)}% weight):
+   - Corporate structures (Inc, Corp, Ltd) preferred
+   
+5. DATA RECENCY (${(userBias.recencyWeight * 100).toFixed(0)}% weight):
+   - Recent updates indicate active regulatory compliance
+
+Top ranked entity: ${rankedEntities[0]?.entityName || 'None'} 
+Acquisition Grade: ${rankedEntities[0]?.acquisitionGrade || 'N/A'}
+Key Factor: ${rankedEntities[0]?.metadata?.hierarchyLevel === 'ultimate_parent' ? 'Ultimate parent with full control' : 
+              rankedEntities[0]?.metadata?.hierarchyLevel === 'parent' ? 'Parent entity with subsidiaries' : 
+              'Entity prioritized based on jurisdiction and status'}
+    `.trim();
+
     return {
       rankedEntities,
-      overallReasoning: 'Entities ranked using algorithmic scoring based on parent hierarchy, jurisdiction, and entity status.',
+      overallReasoning,
       citations: [],
       processingTimeMs: elapsedMs
     };
@@ -277,22 +278,78 @@ Focus on identifying the ultimate decision-making entity for acquisition purpose
 
   private generateFallbackReasoning(claim: any, userBias: UserBias): string {
     const reasons = [];
+    const scoreBreakdown = [];
     
+    // Hierarchy Analysis
     if (claim.metadata?.hierarchyLevel === 'ultimate_parent') {
-      reasons.push('Ultimate parent entity');
+      reasons.push('ULTIMATE PARENT - This is the top-level decision-making entity');
+      scoreBreakdown.push(`+${(userBias.parentWeight * 100).toFixed(0)}% for ultimate parent status`);
     } else if (claim.metadata?.hierarchyLevel === 'parent') {
-      reasons.push('Parent entity');
+      reasons.push('PARENT ENTITY - Has subsidiaries but may itself be owned');
+      scoreBreakdown.push(`+${(userBias.parentWeight * 0.7 * 100).toFixed(0)}% for parent status`);
+    } else if (claim.metadata?.hasParent) {
+      reasons.push('SUBSIDIARY - Owned by another entity, not ideal for acquisition');
+      scoreBreakdown.push('No bonus for subsidiary status');
+    } else {
+      reasons.push('INDEPENDENT ENTITY - No parent/subsidiary relationships found');
     }
     
+    // Jurisdiction Analysis
     if (claim.metadata?.jurisdiction === userBias.jurisdictionPrimary) {
-      reasons.push(`${userBias.jurisdictionPrimary} jurisdiction`);
+      reasons.push(`PRIMARY JURISDICTION (${userBias.jurisdictionPrimary}) - Matches preferred acquisition market`);
+      scoreBreakdown.push(`+${(userBias.jurisdictionWeight * 100).toFixed(0)}% for primary jurisdiction`);
+    } else if (userBias.jurisdictionSecondary?.includes(claim.metadata?.jurisdiction)) {
+      reasons.push(`SECONDARY JURISDICTION (${claim.metadata?.jurisdiction}) - Acceptable but not primary target`);
+      scoreBreakdown.push(`+${(userBias.jurisdictionWeight * 0.5 * 100).toFixed(0)}% for secondary jurisdiction`);
+    } else if (claim.metadata?.jurisdiction) {
+      reasons.push(`OTHER JURISDICTION (${claim.metadata?.jurisdiction}) - Outside preferred markets`);
+      scoreBreakdown.push('No jurisdiction bonus');
     }
     
+    // Entity Status
     if (claim.metadata?.entityStatus === 'ACTIVE') {
-      reasons.push('Active status');
+      reasons.push('ACTIVE STATUS - Entity is currently operational');
+      scoreBreakdown.push(`+${(userBias.entityStatusWeight * 100).toFixed(0)}% for active status`);
+    } else if (claim.metadata?.entityStatus) {
+      reasons.push(`${claim.metadata.entityStatus} STATUS - May indicate merger, dissolution, or inactivity`);
+      scoreBreakdown.push('No bonus for inactive status');
     }
     
-    return reasons.join(', ') || 'Standard entity';
+    // Legal Form Analysis
+    const legalForm = claim.metadata?.legalForm || '';
+    const corporateForms = ['XTIQ', 'XDLC', '8888', 'CORP', 'INC'];
+    if (corporateForms.some(form => legalForm.includes(form))) {
+      reasons.push(`CORPORATION (${legalForm}) - Standard corporate structure suitable for acquisition`);
+      scoreBreakdown.push(`+${(userBias.legalFormWeight * 100).toFixed(0)}% for corporate form`);
+    } else if (legalForm) {
+      reasons.push(`LEGAL FORM: ${legalForm}`);
+    }
+    
+    // Data Recency
+    if (claim.metadata?.lastUpdateDate) {
+      const monthsAgo = (Date.now() - new Date(claim.metadata.lastUpdateDate).getTime()) / (1000 * 60 * 60 * 24 * 30);
+      if (monthsAgo < 12) {
+        reasons.push('RECENTLY UPDATED - Data verified within last year');
+        scoreBreakdown.push(`+${(userBias.recencyWeight * 100).toFixed(0)}% for recent data`);
+      } else if (monthsAgo < 36) {
+        reasons.push('MODERATELY RECENT - Data from last 3 years');
+        scoreBreakdown.push(`+${(userBias.recencyWeight * 0.5 * 100).toFixed(0)}% for moderate recency`);
+      } else {
+        reasons.push(`OUTDATED - Last updated ${Math.floor(monthsAgo / 12)} years ago`);
+        scoreBreakdown.push('No recency bonus');
+      }
+    }
+    
+    // Headquarters Location
+    if (claim.metadata?.headquarters?.city) {
+      reasons.push(`HEADQUARTERS: ${claim.metadata.headquarters.city}, ${claim.metadata.headquarters.country || ''}`);
+    }
+    
+    // Combine reasoning with score breakdown
+    const fullReasoning = reasons.join(' | ');
+    const scoreExplanation = scoreBreakdown.length > 0 ? ` [Score factors: ${scoreBreakdown.join(', ')}]` : '';
+    
+    return fullReasoning + scoreExplanation;
   }
 
   private calculateGrade(score: number): string {
