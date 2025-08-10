@@ -114,12 +114,12 @@ export const openRouterModels: ModelConfig[] = [
     id: 'deepseek/deepseek-r1:free',
     name: 'DeepSeek R1 Free',
     provider: 'DeepSeek',
-    useCase: ['complex-extraction', 'reasoning', 'verification'],
-    priority: 4,
-    maxTokens: 200,
+    useCase: ['complex-extraction', 'reasoning', 'verification', 'arbitration'],
+    priority: 1,  // High priority for arbitration
+    maxTokens: 8000,  // Increased for detailed reasoning
     temperature: 0,
     costLimit: 0,
-    enabled: false  // Free reasoning model
+    enabled: true  // ENABLED - Free reasoning model for arbitration
   },
   {
     id: 'deepseek/deepseek-r1-distill-llama-70b',
