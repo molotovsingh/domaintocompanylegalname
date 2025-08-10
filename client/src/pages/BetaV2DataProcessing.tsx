@@ -133,6 +133,8 @@ export default function BetaV2DataProcessingPage() {
   const [candidatesData, setCandidatesData] = useState<Record<number, GLEIFCandidate[]>>({});
   const [selectedDumpForClaims, setSelectedDumpForClaims] = useState<AvailableDump | null>(null);
   const [claimsResults, setClaimsResults] = useState<ClaimsResult[]>([]);
+  const [arbitrationResults, setArbitrationResults] = useState<any>(null);
+  const [arbitrationLoading, setArbitrationLoading] = useState(false);
 
   // Check beta server status
   const { data: serverStatus } = useQuery<BetaServerStatus>({
@@ -892,12 +894,16 @@ export default function BetaV2DataProcessingPage() {
                     <Button
                       onClick={async () => {
                         try {
+                          setArbitrationLoading(true);
+                          setArbitrationResults(null);
+                          
                           const response = await apiRequest('POST', '/api/beta/arbitration/test-sample', {
                             domain: 'apple.com',
                             entityName: 'Apple'
                           });
                           
                           const data = await response.json();
+                          setArbitrationResults(data.data);
                           
                           toast({
                             title: "Arbitration Complete",
@@ -909,21 +915,28 @@ export default function BetaV2DataProcessingPage() {
                             description: error instanceof Error ? error.message : "Failed to start arbitration test",
                             variant: "destructive"
                           });
+                        } finally {
+                          setArbitrationLoading(false);
                         }
                       }}
+                      disabled={arbitrationLoading}
                     >
-                      Test with Apple Inc.
+                      {arbitrationLoading ? "Processing..." : "Test with Apple Inc."}
                     </Button>
                     <Button
                       variant="outline"
                       onClick={async () => {
                         try {
+                          setArbitrationLoading(true);
+                          setArbitrationResults(null);
+                          
                           const response = await apiRequest('POST', '/api/beta/arbitration/test-sample', {
                             domain: 'microsoft.com',
                             entityName: 'Microsoft'
                           });
                           
                           const data = await response.json();
+                          setArbitrationResults(data.data);
                           
                           toast({
                             title: "Arbitration Complete",
@@ -935,13 +948,97 @@ export default function BetaV2DataProcessingPage() {
                             description: error instanceof Error ? error.message : "Failed to start arbitration test",
                             variant: "destructive"
                           });
+                        } finally {
+                          setArbitrationLoading(false);
                         }
                       }}
+                      disabled={arbitrationLoading}
                     >
-                      Test with Microsoft Corp.
+                      {arbitrationLoading ? "Processing..." : "Test with Microsoft Corp."}
                     </Button>
                   </div>
                 </div>
+
+                {/* Display Arbitration Results */}
+                {arbitrationResults && (
+                  <div className="border rounded-lg p-4 space-y-4">
+                    <h3 className="text-sm font-semibold">Arbitration Results</h3>
+                    
+                    {/* Summary */}
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">Domain:</span>
+                        <p className="font-medium">{arbitrationResults.domain}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Total Claims:</span>
+                        <p className="font-medium">{arbitrationResults.totalClaims}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Processing Time:</span>
+                        <p className="font-medium">{arbitrationResults.processingTime}</p>
+                      </div>
+                    </div>
+
+                    {/* Ranked Entities */}
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">Ranked Entities (Best Match First)</h4>
+                      <div className="space-y-2">
+                        {arbitrationResults.rankedEntities?.map((entity: any, index: number) => (
+                          <div key={index} className="bg-gray-50 p-3 rounded-lg">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-medium">
+                                  #{index + 1}: {entity.legalName || entity.entityName}
+                                </p>
+                                {entity.leiCode && (
+                                  <p className="text-sm text-gray-600">LEI: {entity.leiCode}</p>
+                                )}
+                                <p className="text-sm text-gray-600">Rank Score: {entity.rankScore}</p>
+                              </div>
+                              <div className="text-right">
+                                <span className={`text-xs px-2 py-1 rounded ${
+                                  entity.confidenceLevel === 'high' ? 'bg-green-100 text-green-800' :
+                                  entity.confidenceLevel === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {entity.confidenceLevel}
+                                </span>
+                              </div>
+                            </div>
+                            {entity.reasoning && (
+                              <p className="text-sm text-gray-700 mt-2">{entity.reasoning}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Raw Claims */}
+                    <details className="text-sm">
+                      <summary className="cursor-pointer font-medium">View All Claims ({arbitrationResults.claims?.length || 0})</summary>
+                      <div className="mt-2 space-y-2">
+                        {arbitrationResults.claims?.map((claim: any, index: number) => (
+                          <div key={index} className="bg-gray-50 p-2 rounded">
+                            <p className="font-medium">Claim {claim.claimNumber}: {claim.entityName}</p>
+                            <p className="text-xs text-gray-600">Type: {claim.claimType} | Confidence: {claim.confidence}</p>
+                            {claim.leiCode && <p className="text-xs">LEI: {claim.leiCode}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+
+                    {/* Perplexity Response */}
+                    {arbitrationResults.perplexityResponse && (
+                      <details className="text-sm">
+                        <summary className="cursor-pointer font-medium">Perplexity Analysis</summary>
+                        <div className="mt-2 p-3 bg-gray-50 rounded">
+                          <p className="whitespace-pre-wrap">{arbitrationResults.perplexityResponse}</p>
+                        </div>
+                      </details>
+                    )}
+                  </div>
+                )}
 
                 {/* Arbitration Results Component */}
                 <ArbitrationResults 
