@@ -154,4 +154,4 @@ task = "shell.exec"
 args = "cd server && npx tsx betaIndex.ts"
 
 [agent]
-integrations = ["javascript_openai==1.0.0"]
+integrations = ["perplexity_v0==1.0.0", "javascript_openai==1.0.0"]
