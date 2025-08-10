@@ -318,7 +318,7 @@ async function processArbitrationAsync(
         `INSERT INTO arbitration_results (
           request_id, ranked_entities, arbitrator_model,
           arbitration_reasoning, processing_time_ms, perplexity_citations
-        ) VALUES ($1, $2::jsonb[], $3, $4, $5, $6::jsonb)`,
+        ) VALUES ($1, $2::jsonb, $3, $4, $5, $6::jsonb)`,
         [
           requestId,
           JSON.stringify(arbitrationResult.rankedEntities),

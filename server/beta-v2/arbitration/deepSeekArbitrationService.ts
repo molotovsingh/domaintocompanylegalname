@@ -94,9 +94,9 @@ export class DeepSeekArbitrationService {
     
     // Call OpenRouter directly with DeepSeek R1 free model
     try {
-      const apiKey = process.env.openrouter;
+      const apiKey = process.env.OPENROUTER_API_KEY;
       if (!apiKey) {
-        console.error('[DeepSeek Arbitration] OpenRouter API key not found');
+        console.error('[DeepSeek Arbitration] OpenRouter API key not found (OPENROUTER_API_KEY)');
         return null;
       }
 
@@ -135,11 +135,22 @@ export class DeepSeekArbitrationService {
 
       const data = await response.json();
       console.log('[DeepSeek Arbitration] Response received: Success');
+      console.log('[DeepSeek Arbitration] Response structure:', JSON.stringify({
+        hasChoices: !!data.choices,
+        choicesLength: data.choices?.length,
+        hasFirstChoice: !!data.choices?.[0],
+        hasMessage: !!data.choices?.[0]?.message,
+        hasContent: !!data.choices?.[0]?.message?.content,
+        contentPreview: data.choices?.[0]?.message?.content?.substring(0, 100)
+      }, null, 2));
       
       // Extract the content from the response
       const content = data.choices?.[0]?.message?.content;
       if (!content) {
-        console.error('[DeepSeek Arbitration] No content in response');
+        console.error('[DeepSeek Arbitration] No content in response. Full data structure:', Object.keys(data));
+        if (data.error) {
+          console.error('[DeepSeek Arbitration] API returned error:', data.error);
+        }
         return null;
       }
 
