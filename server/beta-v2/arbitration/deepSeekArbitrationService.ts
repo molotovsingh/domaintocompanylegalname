@@ -276,19 +276,30 @@ Now, analyze the claims and provide your ranking with detailed reasoning:
    */
   private parseDeepSeekResponse(response: any): ArbitrationResult {
     try {
+      console.log('[DeepSeek Arbitration] Raw response type:', typeof response);
+      console.log('[DeepSeek Arbitration] Response keys:', Object.keys(response));
+      
       // Extract the actual response content
       const content = response.entityName || response.response || response.text || '';
+      console.log('[DeepSeek Arbitration] Content length:', content.length);
+      console.log('[DeepSeek Arbitration] Content preview:', content.substring(0, 200));
       
       // Look for JSON in the response
       const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/);
       let parsed: any;
       
       if (jsonMatch) {
+        console.log('[DeepSeek Arbitration] Found JSON block, parsing...');
         parsed = JSON.parse(jsonMatch[1]);
       } else {
+        console.log('[DeepSeek Arbitration] No JSON block found, trying direct parse...');
         // Try parsing the entire content as JSON
         parsed = JSON.parse(content);
       }
+
+      console.log('[DeepSeek Arbitration] Parsed result has rankedEntities:', parsed.rankedEntities?.length || 0);
+      console.log('[DeepSeek Arbitration] Parsed result has overallReasoning:', !!parsed.overallReasoning);
+      console.log('[DeepSeek Arbitration] Reasoning preview:', parsed.overallReasoning?.substring(0, 100));
 
       return {
         rankedEntities: parsed.rankedEntities || [],
@@ -299,6 +310,7 @@ Now, analyze the claims and provide your ranking with detailed reasoning:
       };
     } catch (error) {
       console.error('[DeepSeek Arbitration] Failed to parse response:', error);
+      console.log('[DeepSeek Arbitration] Falling back with raw content as reasoning');
       return {
         rankedEntities: [],
         overallReasoning: response.response || response.text || 'Failed to parse reasoning',
