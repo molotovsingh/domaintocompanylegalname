@@ -139,9 +139,10 @@ export class DeepSeekArbitrationService {
         return null;
       }
 
+      // Return the raw content to be parsed later
       return {
         success: true,
-        entityName: content,
+        entityName: content, // Contains the full JSON response
         modelUsed: 'deepseek/deepseek-r1:free'
       };
     } catch (error) {
@@ -316,7 +317,7 @@ Now, analyze the claims and provide your ranking with detailed reasoning:
           const relationships = await this.relationshipsService.getRelationships(claim.leiCode);
           claim.metadata = claim.metadata || {};
           claim.metadata.hierarchyLevel = await this.relationshipsService.getHierarchyLevel(claim.leiCode);
-          claim.metadata.hasParent = relationships?.parents?.length > 0;
+          claim.metadata.hasParent = (relationships?.parents?.length || 0) > 0;
           claim.metadata.ultimateParentLei = relationships?.ultimateParent?.lei;
         } catch (error) {
           console.log(`[DeepSeek Arbitration] Could not fetch relationships for ${claim.leiCode}`);
