@@ -63,14 +63,18 @@ export class DeepSeekArbitrationService {
       }
 
       // Parse the response
+      console.log('[DeepSeek Arbitration] Parsing DeepSeek response...');
       const result = this.parseDeepSeekResponse(response);
       
       if (!result.rankedEntities || result.rankedEntities.length === 0) {
         console.log('[DeepSeek Arbitration] Could not parse response, using fallback');
+        console.log('[DeepSeek Arbitration] Raw response:', response.entityName?.substring(0, 500));
         return this.algorithmicArbitration(claims, userBias, Date.now() - startTime);
       }
 
+      console.log(`[DeepSeek Arbitration] Successfully parsed ${result.rankedEntities.length} ranked entities`);
       console.log(`[DeepSeek Arbitration] Completed in ${Date.now() - startTime}ms`);
+      
       return {
         ...result,
         processingTimeMs: Date.now() - startTime
