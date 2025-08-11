@@ -41,11 +41,22 @@ export class CrawleeDumpStorage {
     processingTimeMs: number
   ): Promise<void> {
     try {
-      // Explicitly cast JSONB parameter in the query to avoid type detection issues
+      // For very large JSON data, we need to use a different approach
+      // Convert to JSON string first and explicitly cast
+      const jsonString = JSON.stringify(dumpData);
+      
+      // Check if data is very large (> 500KB)
+      const isLargeData = jsonString.length > 500000;
+      
+      if (isLargeData) {
+        console.log(`[CrawleeDumpStorage] Large data detected (${jsonString.length} chars), using explicit type handling`);
+      }
+      
+      // Use explicit text-to-jsonb cast for large data
       const query = `
         UPDATE crawlee_dumps 
         SET 
-          dump_data = $1::jsonb,
+          dump_data = $1::text::jsonb,
           pages_crawled = $2,
           total_size_bytes = $3,
           processing_time_ms = $4,
@@ -58,7 +69,7 @@ export class CrawleeDumpStorage {
       console.log(`[CrawleeDumpStorage] Updating dump ${id} with ${dumpData.pages.length} pages`);
       
       await executeBetaV2Query(query, [
-        JSON.stringify(dumpData),
+        jsonString,
         dumpData.pages.length,
         dumpData.crawlStats.totalSizeBytes,
         processingTimeMs,

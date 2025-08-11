@@ -1,9 +1,9 @@
 {
-  "usableSessionsCount": 15,
+  "usableSessionsCount": 4,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_pPURMSdnje",
+      "id": "session_THAhw2oew9",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -13,392 +13,16 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "nfvdid",
-            "value": "BQFmAAEBELR8W-ELilGTUr-oQvKKSORA7Ve4Lx1Y3QkPTljVyTSiNYmeneoVFq0qk0YLOOdjI3tSBsHkGf2_MReomfG5_2ZmPQpxXA6AdBx8lCZGhsLUdA%3D%3D",
+            "key": "aid",
+            "value": "3e489c85-5f09-4880-9c18-eda37af12990",
             "maxAge": 31536000,
-            "domain": "netflix.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:23.367Z",
-            "lastAccessed": "2025-08-09T12:26:23.373Z"
-          },
-          {
-            "key": "SecureNetflixId",
-            "value": "v%3D3%26mac%3DAQEAEQABABR4Tsj3cXj49p1kGMph5Vzdi8QUD9HxERs.%26dt%3D1754742383349",
-            "expires": "2026-08-09T12:26:23.000Z",
-            "domain": "netflix.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:23.368Z",
-            "lastAccessed": "2025-08-09T12:26:23.373Z",
-            "sameSite": "strict"
-          },
-          {
-            "key": "NetflixId",
-            "value": "v%3D3%26ct%3DBgjHlOvcAxLAAWH1VcbQn8hHCVWCgAbQVxpncWv285e7cHVq91VyjsZT4tdtEk57C2Bv5-DTxdrvz8R4GwHIuKYut7uYhT3sHJ8u0isbQUYeE-GMpjPCLLeWmRHHiB4i84LAtZua21GnUfIn_g9CstkzmFXkvTM-QLU9lydhobX-CUAfZs5rXVIr7nZpgnnyHhUXbm8FAzNOwWIp5HCbegD3Z_xT0Vc1hCkcsuMyEnFcjph-VILOHoAENnlgPqlXn_MG93lQPYhZExgGIg4KDJTFjuAr0AFGqc4DAA..",
-            "expires": "2026-08-09T12:26:23.000Z",
-            "domain": "netflix.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:23.368Z",
-            "lastAccessed": "2025-08-09T12:26:23.373Z",
-            "sameSite": "lax"
-          },
-          {
-            "key": "flwssn",
-            "value": "24d3759e-3363-4563-bf73-88dd1d8e91b8",
-            "maxAge": 10800,
-            "domain": "netflix.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:23.851Z",
-            "lastAccessed": "2025-08-09T12:26:23.851Z"
-          },
-          {
-            "key": "gsid",
-            "value": "fcbdb0c5-d09f-400d-a25b-90fc0a344512",
-            "expires": "2025-08-10T12:26:23.000Z",
-            "maxAge": 86400,
-            "domain": "netflix.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:23.851Z",
-            "lastAccessed": "2025-08-09T12:26:23.851Z",
-            "sameSite": "none"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:16:21.849Z",
-      "createdAt": "2025-08-09T12:26:21.849Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_gBfDES96Vu",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "nfvdid",
-            "value": "BQFmAAEBENqC3EUAif2bBX_6CzS_1OxAwu3QtSy1E3R1uivN30cb2Dks4NSJanQP0yMFojZbltFV0TMf-k8W2lYGTrd6DlOiIz6p-2C_Yr6dq4X0o7WMwQ%3D%3D",
-            "maxAge": 31536000,
-            "domain": "netflix.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:24.968Z",
-            "lastAccessed": "2025-08-09T12:26:24.969Z"
-          },
-          {
-            "key": "SecureNetflixId",
-            "value": "v%3D3%26mac%3DAQEAEQABABTqDHiRkZBgG8gD0SiK8G1QbjDdam2XVMk.%26dt%3D1754742384952",
-            "expires": "2026-08-09T12:26:24.000Z",
-            "domain": "netflix.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:24.968Z",
-            "lastAccessed": "2025-08-09T12:26:24.969Z",
-            "sameSite": "strict"
-          },
-          {
-            "key": "NetflixId",
-            "value": "v%3D3%26ct%3DBgjHlOvcAxLAAeC3ryeg1ZgSyOgdPIccThS1KOcskm9mT4jr-U64k4x9YkNKZ_FPcEil1bg8ncJhkCZLOGEPucRUiMtCI-neoJbIT3HlEJdzn5s6Yc9yeag_K3BLuefpVBmZPs3GKDsX_NKQCfHjpvLpJvFVyNvEAAHD-5ld5kZEwaf-8z_GT9ln8USAe5GIQ1nvkrqDaUuMkjm18IJ7_Z9X9qIDnMqYfgGklAz2aifJ84iE2FiM_Anm-ymEcUaYIJvhryiFD2OIMhgGIg4KDELmyi--WeRU7cRDIQ..",
-            "expires": "2026-08-09T12:26:24.000Z",
-            "domain": "netflix.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:24.968Z",
-            "lastAccessed": "2025-08-09T12:26:24.969Z",
-            "sameSite": "lax"
-          },
-          {
-            "key": "flwssn",
-            "value": "9313396e-5438-4192-9fa9-d1b676b6887e",
-            "maxAge": 10800,
-            "domain": "netflix.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:25.235Z",
-            "lastAccessed": "2025-08-09T12:26:25.235Z"
-          },
-          {
-            "key": "gsid",
-            "value": "40cf0b44-1c3b-4bd9-aae9-60036ba15f08",
-            "expires": "2025-08-10T12:26:25.000Z",
-            "maxAge": 86400,
-            "domain": "netflix.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:25.235Z",
-            "lastAccessed": "2025-08-09T12:26:25.235Z",
-            "sameSite": "none"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:16:23.923Z",
-      "createdAt": "2025-08-09T12:26:23.923Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_9daMRhbHjs",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "nfvdid",
-            "value": "BQFmAAEBEFlos7ye77g6DNibPeh7bIdAF2M9PYnjDomeffl3xGAW9Bc4r6r4VrFdAzKHEWtPPWGR9yC2tFsZTDqnL-1C8GFn_azNPoXc0i5A_oIpY19EfA%3D%3D",
-            "maxAge": 31536000,
-            "domain": "netflix.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:24.973Z",
-            "lastAccessed": "2025-08-09T12:26:25.007Z"
-          },
-          {
-            "key": "SecureNetflixId",
-            "value": "v%3D3%26mac%3DAQEAEQABABSinvsaRF3zOdFvNV1lbfYvPImLBaJc53E.%26dt%3D1754742384958",
-            "expires": "2026-08-09T12:26:24.000Z",
-            "domain": "netflix.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:24.973Z",
-            "lastAccessed": "2025-08-09T12:26:25.007Z",
-            "sameSite": "strict"
-          },
-          {
-            "key": "NetflixId",
-            "value": "v%3D3%26ct%3DBgjHlOvcAxLAAUjmtBXLDiwT72w9j28Y_PqomnEy2dX7iuuMdC5AtlZICz2Lr1ZjjgNOlZYRYysTW3cXqbhOHSp5WQoP1r1n6ZYXN4d6JwoVKpMCEb44OTETphUebgqwdvnba2SodD3d6okZ9_FMay4x7557KAQWhy6VwECKskGzkZQkLQMrF0oz7TNDIL5SV4WBIQ9kUZBpOZqFnPbixNwMZhQxBOayFnI_cC6Fo_hj8DhDA5ovWUvn1OeBTiql0aoTVP-g9f1BGxgGIg4KDBGmQVv2TnPL2FCSMA..",
-            "expires": "2026-08-09T12:26:24.000Z",
-            "domain": "netflix.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:24.973Z",
-            "lastAccessed": "2025-08-09T12:26:25.007Z",
-            "sameSite": "lax"
-          },
-          {
-            "key": "flwssn",
-            "value": "3e923b0b-2f84-4eed-82c0-8318cba2916e",
-            "maxAge": 10800,
-            "domain": "netflix.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:25.279Z",
-            "lastAccessed": "2025-08-09T12:26:25.279Z"
-          },
-          {
-            "key": "gsid",
-            "value": "e0f80e77-746b-4468-b6ff-5e9e0dbb5c74",
-            "expires": "2025-08-10T12:26:25.000Z",
-            "maxAge": 86400,
-            "domain": "netflix.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:25.280Z",
-            "lastAccessed": "2025-08-09T12:26:25.280Z",
-            "sameSite": "none"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:16:23.925Z",
-      "createdAt": "2025-08-09T12:26:23.925Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_bzbfiCTaju",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "nfvdid",
-            "value": "BQFmAAEBEGfJB6JDA9wjoW8i9io6YK9AxSx0xN1Ea_cyIgqwhTsCPyEuByco0Q7cpZ70YgYVB_UkX7t86-9KSopZ4niNYCkpbqAkIRebSb-CzEIEcJDhzw%3D%3D",
-            "maxAge": 31536000,
-            "domain": "netflix.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:26.300Z",
-            "lastAccessed": "2025-08-09T12:26:26.301Z"
-          },
-          {
-            "key": "SecureNetflixId",
-            "value": "v%3D3%26mac%3DAQEAEQABABTE-fZizkWhKJpW5T5c19s41VrkAUt7xpA.%26dt%3D1754742386285",
-            "expires": "2026-08-09T12:26:26.000Z",
-            "domain": "netflix.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:26.300Z",
-            "lastAccessed": "2025-08-09T12:26:26.301Z",
-            "sameSite": "strict"
-          },
-          {
-            "key": "NetflixId",
-            "value": "v%3D3%26ct%3DBgjHlOvcAxLAAZVWI1l-GTi6GB5V2fmLaPFWiPFDVDvETlpLqRPPjfFr739dM2fnYnoriZH3TpYQ67pi8-PYrjGmpXy_apqHpBZ3TYV5RyfwY8atOmzfkPUd8ldQbB9-5A3QvEWI47F6oxji-VnqT-QeuHQxEYDw8RlhgDJ5A--HUcITznajgcwxxMstjjzgbiC3HgLCCnCMxdEGil_g8CtMeyaG4B5q01Ie8qwI7YydiJYfr3dqAoX3TXtbdnWcsdEr8KS6uzUjHhgGIg4KDKTcMKZkbl2q7kcK2Q..",
-            "expires": "2026-08-09T12:26:26.000Z",
-            "domain": "netflix.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:26.300Z",
-            "lastAccessed": "2025-08-09T12:26:26.301Z",
-            "sameSite": "lax"
-          },
-          {
-            "key": "flwssn",
-            "value": "f3fe0a4c-1907-49cf-980e-8ca3f79c8650",
-            "maxAge": 10800,
-            "domain": "netflix.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:26.411Z",
-            "lastAccessed": "2025-08-09T12:26:26.411Z"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:16:25.254Z",
-      "createdAt": "2025-08-09T12:26:25.254Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_L7Vzwov73l",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "nfvdid",
-            "value": "BQFmAAEBEHYztImCj_JxhRm2E8uY0FlAEHSdMGnsNpUG6CeLJ2uKTLT0SIGyFcnKJoLFbGWs2STtMv5CodTnXxMycyWYCJjnSFj2gArQFIXGXCOgjdI79g%3D%3D",
-            "maxAge": 31536000,
-            "domain": "netflix.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:26.329Z",
-            "lastAccessed": "2025-08-09T12:26:26.330Z"
-          },
-          {
-            "key": "SecureNetflixId",
-            "value": "v%3D3%26mac%3DAQEAEQABABSyHgNg09PbPQC-SFEr07ozHNP4EYZfiyA.%26dt%3D1754742386314",
-            "expires": "2026-08-09T12:26:26.000Z",
-            "domain": "netflix.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:26.330Z",
-            "lastAccessed": "2025-08-09T12:26:26.330Z",
-            "sameSite": "strict"
-          },
-          {
-            "key": "NetflixId",
-            "value": "v%3D3%26ct%3DBgjHlOvcAxLAAeZ23V6_IXHLAcLeHJM8BcbTFpMZfjrt_Fe2pQalCWNyN8ERy6g35plPuzqX42O_D0YbjYS8t0C56Uso0dFqTP4fj1jP9sLniRS-mspyB-lfd1nCzxnt9VwWG1Sht5TXANgzh1ay0GGoeKbCwR9UifWmKZscPOQWCEbpevbP53dsTR27V4Bevz3NrBLASDCwyEjMmz_prSAeNICjyI_82EtT-uU1ctdLzVG6Qm1bnUp9JIG2j8V6Z-RrrTOOGnQYChgGIg4KDJoZ0aZndlOgl5Qeog..",
-            "expires": "2026-08-09T12:26:26.000Z",
-            "domain": "netflix.com",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:26.330Z",
-            "lastAccessed": "2025-08-09T12:26:26.330Z",
-            "sameSite": "lax"
-          },
-          {
-            "key": "flwssn",
-            "value": "9ae3143d-927c-428f-a24f-c6b05243b77d",
-            "maxAge": 10800,
-            "domain": "netflix.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-09T12:26:26.429Z",
-            "lastAccessed": "2025-08-09T12:26:26.429Z"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:16:25.287Z",
-      "createdAt": "2025-08-09T12:26:25.287Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_AidWWkhiVq",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "__Secure-authjs.callback-url",
-            "value": "https%3A%2F%2Fchutes.ai",
-            "domain": "chutes.ai",
+            "domain": "ollama.com",
             "path": "/",
             "secure": true,
             "httpOnly": true,
             "hostOnly": true,
-            "creation": "2025-08-09T12:39:47.917Z",
-            "lastAccessed": "2025-08-09T12:39:47.917Z",
+            "creation": "2025-08-11T01:58:58.416Z",
+            "lastAccessed": "2025-08-11T01:58:58.416Z",
             "sameSite": "lax"
           }
         ]
@@ -406,14 +30,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:29:44.560Z",
-      "createdAt": "2025-08-09T12:39:44.560Z",
+      "expiresAt": "2025-08-11T02:48:57.061Z",
+      "createdAt": "2025-08-11T01:58:57.061Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_zeJKMlTMBT",
+      "id": "session_jJ2jBHFmic",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -423,15 +47,16 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "__Secure-authjs.callback-url",
-            "value": "https%3A%2F%2Fchutes.ai",
-            "domain": "chutes.ai",
+            "key": "aid",
+            "value": "27d220e4-499b-4b4e-938c-623e105d2b5b",
+            "maxAge": 31536000,
+            "domain": "ollama.com",
             "path": "/",
             "secure": true,
             "httpOnly": true,
             "hostOnly": true,
-            "creation": "2025-08-09T12:39:50.087Z",
-            "lastAccessed": "2025-08-09T12:39:50.087Z",
+            "creation": "2025-08-11T01:58:59.533Z",
+            "lastAccessed": "2025-08-11T01:58:59.533Z",
             "sameSite": "lax"
           }
         ]
@@ -439,14 +64,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:29:47.969Z",
-      "createdAt": "2025-08-09T12:39:47.969Z",
+      "expiresAt": "2025-08-11T02:48:58.489Z",
+      "createdAt": "2025-08-11T01:58:58.489Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_dgGeGlCza6",
+      "id": "session_IgMRabgUUW",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -456,15 +81,16 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "__Secure-authjs.callback-url",
-            "value": "https%3A%2F%2Fchutes.ai",
-            "domain": "chutes.ai",
+            "key": "aid",
+            "value": "b7384a17-3aa4-4f35-9b53-f5d0b228ef4d",
+            "maxAge": 31536000,
+            "domain": "ollama.com",
             "path": "/",
             "secure": true,
             "httpOnly": true,
             "hostOnly": true,
-            "creation": "2025-08-09T12:39:50.128Z",
-            "lastAccessed": "2025-08-09T12:39:50.128Z",
+            "creation": "2025-08-11T01:58:59.560Z",
+            "lastAccessed": "2025-08-11T01:58:59.560Z",
             "sameSite": "lax"
           }
         ]
@@ -472,14 +98,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:29:47.971Z",
-      "createdAt": "2025-08-09T12:39:47.971Z",
+      "expiresAt": "2025-08-11T02:48:58.491Z",
+      "createdAt": "2025-08-11T01:58:58.491Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_rRSyA1uyeX",
+      "id": "session_2SuY4xBvhx",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -489,15 +115,16 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "__Secure-authjs.callback-url",
-            "value": "https%3A%2F%2Fchutes.ai",
-            "domain": "chutes.ai",
+            "key": "aid",
+            "value": "51bc847b-65b3-4494-a81a-d73cdf735c5c",
+            "maxAge": 31536000,
+            "domain": "ollama.com",
             "path": "/",
             "secure": true,
             "httpOnly": true,
             "hostOnly": true,
-            "creation": "2025-08-09T12:48:34.280Z",
-            "lastAccessed": "2025-08-09T12:48:34.280Z",
+            "creation": "2025-08-11T01:59:00.651Z",
+            "lastAccessed": "2025-08-11T01:59:00.651Z",
             "sameSite": "lax"
           }
         ]
@@ -505,141 +132,8 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:38:31.383Z",
-      "createdAt": "2025-08-09T12:48:31.383Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_PLj6af9DQy",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "__Secure-authjs.callback-url",
-            "value": "https%3A%2F%2Fchutes.ai",
-            "domain": "chutes.ai",
-            "path": "/",
-            "secure": true,
-            "httpOnly": true,
-            "hostOnly": true,
-            "creation": "2025-08-09T12:49:53.021Z",
-            "lastAccessed": "2025-08-09T12:49:53.021Z",
-            "sameSite": "lax"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:39:02.364Z",
-      "createdAt": "2025-08-09T12:49:02.364Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_svcyYdeLTS",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:48:50.969Z",
-      "createdAt": "2025-08-09T12:58:50.969Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_RaIHmRIPEu",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:48:54.728Z",
-      "createdAt": "2025-08-09T12:58:54.728Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_ZKS6UwS2Gl",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:48:54.730Z",
-      "createdAt": "2025-08-09T12:58:54.730Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_igf73ifLt5",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:48:56.071Z",
-      "createdAt": "2025-08-09T12:58:56.071Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_Wax3eCote0",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-09T13:48:56.151Z",
-      "createdAt": "2025-08-09T12:58:56.151Z",
+      "expiresAt": "2025-08-11T02:48:59.597Z",
+      "createdAt": "2025-08-11T01:58:59.597Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
