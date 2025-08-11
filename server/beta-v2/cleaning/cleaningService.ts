@@ -245,23 +245,14 @@ export class CleaningService {
         }
       }
       
-      // Extract text content and enhanced metadata based on source type
-      let textContent = '';
+      // Extract enhanced metadata based on source type
       let enhancedMetadata: any = {};
       
+      // For cleaning, we want to preserve the original structure
+      // The adapters will handle extraction properly
+      let contentForCleaning = row.content;
+      
       if (sourceType === 'crawlee_dump' && row.content?.pages) {
-        // For crawlee dumps, extract text from each page
-        textContent = row.content.pages.map((page: any) => {
-          // Use cleaned text if available, otherwise extract from HTML
-          if (page.text) {
-            return page.text;
-          } else if (page.html) {
-            // Simple HTML text extraction - remove tags
-            return page.html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-          }
-          return '';
-        }).filter((text: string) => text.length > 0).join('\n\n');
-        
         // Extract enhanced metadata from pages (aggregate from all pages)
         if (row.content.pages.length > 0) {
           const firstPage = row.content.pages[0];
@@ -274,40 +265,17 @@ export class CleaningService {
             };
           }
         }
+        // Keep the full structure for the adapter to process
+        contentForCleaning = row.content;
       } else if (sourceType === 'scrapy_crawl') {
-        // Handle both old and new scrapy data formats
-        if (row.content?.pages) {
-          // New format with pages array
-          textContent = row.content.pages.map((page: any) => {
-            // Check for text in various locations
-            if (page.text) return page.text;
-            if (page.extracted_data?.text) return page.extracted_data.text;
-            if (page.html) {
-              // Extract text from HTML
-              return page.html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-            }
-            return '';
-          }).filter((text: string) => text.length > 0).join('\n\n');
-        } else if (row.content?.siteMap) {
-          // Old format - extract what we can
-          textContent = JSON.stringify({
-            domain: row.domain,
-            siteMap: row.content.siteMap,
-            entities: row.content.entities || [],
-            geographicPresence: row.content.geographicPresence || []
-          }, null, 2);
-        }
-      } else if (sourceType === 'playwright_dump' && row.content?.textContent) {
-        // Use text content from playwright
-        textContent = row.content.textContent;
+        // Keep the full structure for scrapy data
+        contentForCleaning = row.content;
+      } else if (sourceType === 'playwright_dump') {
+        // Keep the full structure for playwright dumps
+        contentForCleaning = row.content;
       } else if (sourceType === 'axios_cheerio_dump') {
-        // For axios+cheerio, keep the raw HTML for processing
-        textContent = row.content; // Keep as HTML, not text
-      }
-      
-      // If no text content extracted, provide structured data as fallback
-      if (!textContent || textContent.length < 100) {
-        textContent = JSON.stringify(row.content, null, 2);
+        // For axios+cheerio, the content is already HTML
+        contentForCleaning = row.content;
       }
 
       // Build proper metadata object for axios_cheerio dumps
@@ -323,7 +291,7 @@ export class CleaningService {
       return {
         id: row.id,
         domain: row.domain,
-        content: textContent || row.content,  // Use extracted text or raw content
+        content: contentForCleaning,  // Pass the full structure to adapters
         metadata: metadata,
         enhancedMetadata: Object.keys(enhancedMetadata).length > 0 ? enhancedMetadata : undefined,
         collectedAt: row.created_at
