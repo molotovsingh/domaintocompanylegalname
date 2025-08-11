@@ -34,6 +34,7 @@ interface AvailableDump {
   createdAt: string;
   status: string;
   hasData: boolean;
+  cleanedModels?: string[]; // Models that have already cleaned this dump
 }
 
 interface ProcessingResult {
@@ -605,6 +606,12 @@ export default function BetaV2DataProcessingPage() {
                                 <Badge variant="outline" className="text-xs">
                                   {dump.sourceType.replace('_', ' ')}
                                 </Badge>
+                                {dump.cleanedModels && dump.cleanedModels.length > 0 && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    <Brain className="h-3 w-3 mr-1" />
+                                    Cleaned
+                                  </Badge>
+                                )}
                                 <span className="text-xs text-muted-foreground">
                                   {formatTimestamp(dump.createdAt)}
                                 </span>
@@ -666,6 +673,52 @@ export default function BetaV2DataProcessingPage() {
                       >
                         <FileSearch className="mr-2 h-4 w-4" />
                         Pre-Check Data
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        className="flex-1"
+                        onClick={async () => {
+                          try {
+                            toast({
+                              title: "Starting LLM Cleaning",
+                              description: `Processing ${selectedDumpForClaims.domain} with DeepSeek Chat...`,
+                            });
+                            
+                            const response = await apiRequest('POST', '/api/beta/cleaning/process', {
+                              sourceType: selectedDumpForClaims.sourceType,
+                              sourceId: selectedDumpForClaims.id.toString(),
+                              models: ['deepseek-chat'] // Default to DeepSeek for now
+                            });
+                            
+                            const rawResponse = await response.text();
+                            const data = JSON.parse(rawResponse);
+                            
+                            if (data.success) {
+                              toast({
+                                title: "Cleaning Complete",
+                                description: `Successfully cleaned ${selectedDumpForClaims.domain}. Now you can generate claims.`,
+                              });
+                              
+                              // Refresh the dumps list to show updated status
+                              queryClient.invalidateQueries({ queryKey: ['/api/beta/gleif-claims/available-dumps'] });
+                            } else {
+                              toast({
+                                title: "Cleaning Failed",
+                                description: data.error || "Failed to clean data",
+                                variant: "destructive"
+                              });
+                            }
+                          } catch (error) {
+                            toast({
+                              title: "Error",
+                              description: error instanceof Error ? error.message : "Failed to clean data",
+                              variant: "destructive"
+                            });
+                          }
+                        }}
+                      >
+                        <Brain className="mr-2 h-4 w-4" />
+                        Clean with Model
                       </Button>
                       <Button
                         className="flex-1"
