@@ -76,6 +76,12 @@ export interface RawDumpData {
   domain: string;
   content: string | any; // Can be HTML string or structured data
   metadata?: any;
+  enhancedMetadata?: { // Preserved from crawling phase
+    language?: any;
+    location?: any;
+    currency?: any;
+    contentPatterns?: any;
+  };
   collectedAt: Date;
 }
 

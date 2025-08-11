@@ -245,8 +245,9 @@ export class CleaningService {
         }
       }
       
-      // Extract text content based on source type
+      // Extract text content and enhanced metadata based on source type
       let textContent = '';
+      let enhancedMetadata: any = {};
       
       if (sourceType === 'crawlee_dump' && row.content?.pages) {
         // For crawlee dumps, extract text from each page
@@ -260,6 +261,19 @@ export class CleaningService {
           }
           return '';
         }).filter((text: string) => text.length > 0).join('\n\n');
+        
+        // Extract enhanced metadata from pages (aggregate from all pages)
+        if (row.content.pages.length > 0) {
+          const firstPage = row.content.pages[0];
+          if (firstPage.metadata) {
+            enhancedMetadata = {
+              language: firstPage.metadata.language,
+              location: firstPage.metadata.location,
+              currency: firstPage.metadata.currency,
+              contentPatterns: firstPage.metadata.contentPatterns
+            };
+          }
+        }
       } else if (sourceType === 'scrapy_crawl') {
         // Handle both old and new scrapy data formats
         if (row.content?.pages) {
@@ -309,9 +323,9 @@ export class CleaningService {
       return {
         id: row.id,
         domain: row.domain,
-        content: row.content,  // Return raw content with HTML
-        textContent: textContent,  // Include extracted text separately
+        content: textContent || row.content,  // Use extracted text or raw content
         metadata: metadata,
+        enhancedMetadata: Object.keys(enhancedMetadata).length > 0 ? enhancedMetadata : undefined,
         collectedAt: row.created_at
       };
     } catch (error) {
@@ -362,8 +376,14 @@ export class CleaningService {
       try {
         console.log(`[CleaningService] Processing ${rawData.domain} with ${model}`);
         
-        // Clean the data
-        const result = await adapter.clean(rawData.content);
+        // Create enhanced system prompt if metadata is available
+        let systemPrompt: string | undefined;
+        if (rawData.enhancedMetadata) {
+          systemPrompt = this.createEnhancedSystemPrompt(rawData.enhancedMetadata);
+        }
+        
+        // Clean the data with optional enhanced metadata context
+        const result = await adapter.clean(rawData.content, systemPrompt);
         
         // Save the result
         const savedResult = await this.saveCleaningResult(
@@ -396,6 +416,89 @@ export class CleaningService {
     }
 
     return results;
+  }
+
+  /**
+   * Create enhanced system prompt with metadata context for bias-aware extraction
+   */
+  private createEnhancedSystemPrompt(metadata: any): string {
+    let contextParts: string[] = [];
+    
+    // Add language context
+    if (metadata.language) {
+      const lang = metadata.language;
+      if (lang.primaryLanguage) {
+        contextParts.push(`Primary language: ${lang.primaryLanguage} (confidence: ${Math.round(lang.confidence * 100)}%)`);
+      }
+      if (lang.detectedLanguages?.length > 1) {
+        contextParts.push(`Multiple languages detected: ${lang.detectedLanguages.join(', ')}`);
+      }
+    }
+    
+    // Add location context
+    if (metadata.location) {
+      const loc = metadata.location;
+      if (loc.consolidatedCountry) {
+        contextParts.push(`Operating country: ${loc.consolidatedCountry}`);
+      }
+      if (loc.legalJurisdiction) {
+        contextParts.push(`Legal jurisdiction: ${loc.legalJurisdiction}`);
+      }
+    }
+    
+    // Add currency context
+    if (metadata.currency) {
+      const curr = metadata.currency;
+      if (curr.primaryCurrency) {
+        contextParts.push(`Primary currency: ${curr.primaryCurrency}`);
+      }
+      if (curr.allCurrencies?.length > 1) {
+        contextParts.push(`Multiple currencies: ${curr.allCurrencies.join(', ')}`);
+      }
+    }
+    
+    // Add content pattern context
+    if (metadata.contentPatterns) {
+      const patterns = metadata.contentPatterns;
+      if (patterns.formalityLevel) {
+        contextParts.push(`Content formality: ${patterns.formalityLevel}`);
+      }
+      if (patterns.privacyFocused) {
+        contextParts.push(`Privacy-focused content detected (GDPR region likely)`);
+      }
+      if (patterns.industrySector) {
+        contextParts.push(`Industry: ${patterns.industrySector}`);
+      }
+    }
+    
+    // Build enhanced prompt
+    let prompt = `Extract legal entity information from the following content.
+
+IMPORTANT CONTEXT FOR BIAS ADJUSTMENT:
+${contextParts.join('\n')}
+
+EXTRACTION GUIDELINES:
+1. Be aware that entity disclosure varies by region:
+   - Japanese/Asian sites may have less prominent legal entity display
+   - EU sites may obscure ownership due to GDPR
+   - US sites typically have clearer entity disclosure
+   
+2. Consider multi-language scenarios:
+   - Entity names may appear in different languages
+   - Look for transliterations and romanized versions
+   
+3. Currency/location mismatches may indicate:
+   - International subsidiaries
+   - Regional branches
+   - Parent/subsidiary relationships
+
+4. Adjust confidence based on regional norms:
+   - High formality + low transparency = possible regulatory compliance (not hiding)
+   - Multiple currencies = likely international operation
+
+Extract the following information, adjusting for the regional and language context provided above:`;
+
+    return prompt;
   }
 
   /**

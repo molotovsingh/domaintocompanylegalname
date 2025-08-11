@@ -3,6 +3,7 @@ import type { CrawlConfig, CrawleeDumpData, PageData, NetworkRequest, CleanedPag
 import { CrawleeDumpStorage } from './crawleeDumpStorage';
 import { randomUUID } from 'crypto';
 import { LLMCleaningService } from '../../services/llmCleaningService';
+import { MetadataExtractor } from '../utils/metadataExtractor';
 
 export class CrawleeDumpService {
   private storage: CrawleeDumpStorage;
@@ -114,6 +115,13 @@ export class CrawleeDumpService {
             }
           });
           
+          // Extract comprehensive metadata for bias detection
+          const metadata = MetadataExtractor.extractPageMetadata(
+            html,
+            response.headers as Record<string, string>,
+            request.url
+          );
+
           // Collect page data
           const pageData: PageData = {
             url: request.url,
@@ -127,7 +135,8 @@ export class CrawleeDumpService {
             headers: response.headers as Record<string, string>,
             cookies: [], // Crawlee doesn't expose cookies easily
             timestamp: Date.now(),
-            depth: currentDepth // Add depth to page data
+            depth: currentDepth, // Add depth to page data
+            metadata // Enhanced metadata for bias detection
           };
           
           // Collect all links
@@ -408,6 +417,14 @@ export class CrawleeDumpService {
           // Collect cookies
           const cookies = await page.context().cookies();
           
+          // Extract comprehensive metadata for bias detection
+          const headers = response?.headers() || {};
+          const enhancedMetadata = MetadataExtractor.extractPageMetadata(
+            html,
+            headers,
+            request.url
+          );
+          
           const pageData: PageData = {
             url: request.url,
             html: html,
@@ -417,7 +434,7 @@ export class CrawleeDumpService {
             links: [], // Will be filled below
             structuredData: metadata.structuredData,
             statusCode: response?.status() || 200,
-            headers: response?.headers() || {},
+            headers: headers,
             cookies: cookies.map(c => ({
               name: c.name,
               value: c.value,
@@ -425,7 +442,8 @@ export class CrawleeDumpService {
               path: c.path || '/'
             })),
             timestamp: Date.now(),
-            depth: currentDepth
+            depth: currentDepth,
+            metadata: enhancedMetadata // Enhanced metadata for bias detection
           };
           
           // Collect links

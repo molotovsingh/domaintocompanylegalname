@@ -9,6 +9,52 @@ export interface CrawlConfig {
   captureNetworkRequests?: boolean; // Enable network request capture (requires Playwright)
 }
 
+export interface PageMetadata {
+  // Language metadata
+  language: {
+    htmlLang?: string;              // From <html lang="...">
+    contentLanguage?: string;       // From HTTP Content-Language header
+    metaLanguage?: string;          // From <meta http-equiv="content-language">
+    detectedLanguages?: string[];   // All languages detected in content
+    primaryLanguage?: string;       // Best guess primary language
+    confidence: number;             // 0-1 confidence score
+  };
+  
+  // Location metadata
+  location: {
+    serverCountry?: string;         // From IP geolocation
+    serverRegion?: string;          // Server region/state
+    businessCountry?: string;       // From address parsing
+    businessCity?: string;          // From address parsing
+    legalJurisdiction?: string;    // From legal text (Terms, Privacy)
+    tldHint?: string;              // Country hint from TLD (.uk, .de, etc)
+    schemaOrgLocation?: any;       // Location from schema.org markup
+    consolidatedCountry?: string;  // Best guess country
+    confidence: number;            // 0-1 confidence score
+  };
+  
+  // Currency metadata
+  currency: {
+    primaryCurrency?: string;      // Most frequently detected currency
+    allCurrencies?: string[];      // All detected currencies
+    symbolFrequency?: Record<string, number>; // Count of each currency symbol
+    paymentProcessors?: string[];  // Detected payment processors (Stripe, PayPal)
+    openGraphPrices?: any[];       // Price data from OpenGraph tags
+    confidence: number;            // 0-1 confidence score
+    source?: string;               // Where currency was primarily found
+  };
+  
+  // Industry/Content patterns for bias detection
+  contentPatterns: {
+    formalityLevel?: 'high' | 'medium' | 'low';  // Content formality
+    transparencyScore?: number;    // 0-1 score for entity transparency
+    privacyFocused?: boolean;     // GDPR/privacy-heavy content detected
+    industrySector?: string;      // Detected industry
+    regulatoryRegion?: string;    // EU_MiFID, US_SEC, etc.
+    disclosureRequirements?: 'high' | 'medium' | 'low';
+  };
+}
+
 export interface PageData {
   url: string;
   html: string;
@@ -31,6 +77,7 @@ export interface PageData {
   }>;
   timestamp: number;
   depth?: number;  // Distance from the starting URL
+  metadata?: PageMetadata;  // Enhanced metadata for bias detection
 }
 
 export interface NetworkRequest {
