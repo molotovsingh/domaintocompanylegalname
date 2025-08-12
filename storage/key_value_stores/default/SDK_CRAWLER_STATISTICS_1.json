@@ -1,27 +1,67 @@
 {
-  "requestsFinished": 1,
-  "requestsFailed": 0,
-  "requestsRetries": 0,
-  "requestsFailedPerMinute": 0,
-  "requestsFinishedPerMinute": 51,
-  "requestMinDurationMillis": 1095,
-  "requestMaxDurationMillis": 1095,
-  "requestTotalFailedDurationMillis": 0,
-  "requestTotalFinishedDurationMillis": 1095,
-  "crawlerStartedAt": "2025-08-11T02:01:55.403Z",
-  "crawlerFinishedAt": "2025-08-11T02:01:56.538Z",
-  "statsPersistedAt": "2025-08-11T02:01:56.538Z",
-  "crawlerRuntimeMillis": 1183,
-  "crawlerLastStartTimestamp": 1754877715355,
+  "requestsFinished": 0,
+  "requestsFailed": 1,
+  "requestsRetries": 1,
+  "requestsFailedPerMinute": 18,
+  "requestsFinishedPerMinute": 0,
+  "requestMinDurationMillis": null,
+  "requestMaxDurationMillis": 0,
+  "requestTotalFailedDurationMillis": 1021,
+  "requestTotalFinishedDurationMillis": 0,
+  "crawlerStartedAt": "2025-08-11T10:13:58.657Z",
+  "crawlerFinishedAt": "2025-08-11T10:14:01.823Z",
+  "statsPersistedAt": "2025-08-11T10:14:01.823Z",
+  "crawlerRuntimeMillis": 3220,
+  "crawlerLastStartTimestamp": 1754907238603,
   "requestRetryHistogram": [
+    null,
+    null,
     1
   ],
   "statsId": 1,
-  "requestAvgFailedDurationMillis": null,
-  "requestAvgFinishedDurationMillis": 1095,
-  "requestTotalDurationMillis": 1095,
+  "requestAvgFailedDurationMillis": 1021,
+  "requestAvgFinishedDurationMillis": null,
+  "requestTotalDurationMillis": 1021,
   "requestsTotal": 1,
   "requestsWithStatusCode": {},
-  "errors": {},
-  "retryErrors": {}
+  "errors": {
+    "file:///home/runner/workspace/node_modules/got/dist/source/core/index.js:189:21": {
+      "ENOTFOUND": {
+        "RequestError": {
+          "getaddrinfo ENOTFOUND 1800heaaters.com": {
+            "count": 1
+          }
+        }
+      }
+    },
+    "node:dns:120:26": {
+      "ENOTFOUND": {
+        "Error": {
+          "getaddrinfo ENOTFOUND 1800heaaters.com": {
+            "count": 1
+          }
+        }
+      }
+    }
+  },
+  "retryErrors": {
+    "file:///home/runner/workspace/node_modules/got/dist/source/core/index.js:189:21": {
+      "ENOTFOUND": {
+        "RequestError": {
+          "getaddrinfo ENOTFOUND 1800heaaters.com": {
+            "count": 2
+          }
+        }
+      }
+    },
+    "node:dns:120:26": {
+      "ENOTFOUND": {
+        "Error": {
+          "getaddrinfo ENOTFOUND 1800heaaters.com": {
+            "count": 2
+          }
+        }
+      }
+    }
+  }
 }
