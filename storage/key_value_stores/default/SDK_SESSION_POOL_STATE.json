@@ -1,9 +1,9 @@
 {
-  "usableSessionsCount": 4,
+  "usableSessionsCount": 1,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_STvctOln7p",
+      "id": "session_FGdzmVccd6",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -16,87 +16,8 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-11T11:03:58.687Z",
-      "createdAt": "2025-08-11T10:13:58.687Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 1
-    },
-    {
-      "id": "session_h8n8Rjjxw6",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-11T11:03:59.729Z",
-      "createdAt": "2025-08-11T10:13:59.729Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 1
-    },
-    {
-      "id": "session_qvxfHGL5xS",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-11T11:04:00.779Z",
-      "createdAt": "2025-08-11T10:14:00.779Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 1
-    },
-    {
-      "id": "session_oYxc4JDrSb",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "NO_CACHE",
-            "value": "1",
-            "domain": "1800heaters.com",
-            "path": "/",
-            "hostOnly": true,
-            "creation": "2025-08-11T10:14:13.372Z",
-            "lastAccessed": "2025-08-11T10:14:13.372Z"
-          },
-          {
-            "key": "NO_CACHE",
-            "value": "1",
-            "domain": "www.1800heaters.com",
-            "path": "/",
-            "hostOnly": true,
-            "creation": "2025-08-11T10:14:14.042Z",
-            "lastAccessed": "2025-08-11T10:14:14.042Z"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-11T11:04:11.557Z",
-      "createdAt": "2025-08-11T10:14:11.557Z",
+      "expiresAt": "2025-08-12T05:30:26.776Z",
+      "createdAt": "2025-08-12T04:40:26.776Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
