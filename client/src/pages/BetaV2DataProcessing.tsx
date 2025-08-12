@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
@@ -137,6 +137,7 @@ export default function BetaV2DataProcessingPage() {
   const [arbitrationResults, setArbitrationResults] = useState<any>(null);
   const [arbitrationLoading, setArbitrationLoading] = useState(false);
   const [selectedArbitrationRequest, setSelectedArbitrationRequest] = useState<number | null>(null);
+  const [processingStates, setProcessingStates] = useState<Record<string, boolean>>({});
 
   // Check beta server status
   const { data: serverStatus } = useQuery<BetaServerStatus>({
@@ -156,6 +157,25 @@ export default function BetaV2DataProcessingPage() {
       return 3000; // Poll every 3 seconds while processing
     }
   });
+
+  // Clear processing states when results are updated
+  useEffect(() => {
+    if (results) {
+      const completedResults = results.filter(r => r.status === 'completed' || r.status === 'failed');
+      if (completedResults.length > 0) {
+        setProcessingStates(prev => {
+          const updated = { ...prev };
+          completedResults.forEach(result => {
+            const key = `${result.sourceType}-${result.sourceId}`;
+            if (updated[key]) {
+              updated[key] = false;
+            }
+          });
+          return updated;
+        });
+      }
+    }
+  }, [results]);
 
   // Fetch available dumps
   const { data: dumpsData, isLoading: dumpsLoading, refetch: refetchDumps } = useQuery<{ data: AvailableDump[] }>({
@@ -182,6 +202,9 @@ export default function BetaV2DataProcessingPage() {
   // Process dump mutation
   const processDumpMutation = useMutation({
     mutationFn: async (dump: AvailableDump) => {
+      const dumpKey = `${dump.sourceType}-${dump.id}`;
+      setProcessingStates(prev => ({ ...prev, [dumpKey]: true }));
+      
       const response = await apiRequest('POST', '/api/beta/processing/process', {
         sourceType: dump.sourceType,
         sourceId: dump.id
@@ -189,6 +212,11 @@ export default function BetaV2DataProcessingPage() {
       return response.json();
     },
     onSuccess: (data) => {
+      if (selectedDump) {
+        const dumpKey = `${selectedDump.sourceType}-${selectedDump.id}`;
+        setProcessingStates(prev => ({ ...prev, [dumpKey]: false }));
+      }
+      
       if (data.success) {
         toast({
           title: "Processing Started",
@@ -205,6 +233,11 @@ export default function BetaV2DataProcessingPage() {
       }
     },
     onError: (error: Error) => {
+      if (selectedDump) {
+        const dumpKey = `${selectedDump.sourceType}-${selectedDump.id}`;
+        setProcessingStates(prev => ({ ...prev, [dumpKey]: false }));
+      }
+      
       toast({
         title: "Error",
         description: error.message,
@@ -227,6 +260,7 @@ export default function BetaV2DataProcessingPage() {
     switch (status) {
       case 'completed':
         return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'processing':
       case 'stage1':
       case 'stage2':
       case 'stage3':
@@ -405,14 +439,23 @@ export default function BetaV2DataProcessingPage() {
                         <TableCell>
                           <Button
                             size="sm"
-                            disabled={!dump.hasData || processDumpMutation.isPending}
+                            disabled={!dump.hasData || processingStates[`${dump.sourceType}-${dump.id}`]}
                             onClick={() => {
                               setSelectedDump(dump);
                               processDumpMutation.mutate(dump);
                             }}
                           >
-                            <PlayCircle className="mr-2 h-4 w-4" />
-                            Process
+                            {processingStates[`${dump.sourceType}-${dump.id}`] ? (
+                              <>
+                                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                                Processing...
+                              </>
+                            ) : (
+                              <>
+                                <PlayCircle className="mr-2 h-4 w-4" />
+                                Process
+                              </>
+                            )}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -471,7 +514,7 @@ export default function BetaV2DataProcessingPage() {
                   </TableHeader>
                   <TableBody>
                     {results.map((result) => (
-                      <Fragment key={result.id}>
+                      <React.Fragment key={result.id}>
                         <TableRow>
                           <TableCell className="font-medium">{result.domain}</TableCell>
                           <TableCell>
@@ -557,7 +600,7 @@ export default function BetaV2DataProcessingPage() {
                             </TableCell>
                           </TableRow>
                         )}
-                      </Fragment>
+                      </React.Fragment>
                     ))}
                   </TableBody>
                 </Table>
