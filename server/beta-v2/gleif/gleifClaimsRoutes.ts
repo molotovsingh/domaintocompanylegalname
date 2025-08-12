@@ -4,6 +4,9 @@ import { CleaningService } from '../cleaning/cleaningService';
 import { ProcessingPipelineService } from '../processing/processingPipelineService';
 import { executeBetaV2Query } from '../database';
 
+// Module-level log to verify if file is being reloaded
+console.log('[Beta] [GleifClaimsRoutes] Module loaded at:', new Date().toISOString());
+
 const router = Router();
 const gleifClaimsService = new GleifClaimsService();
 const processingPipelineService = new ProcessingPipelineService();
@@ -217,10 +220,12 @@ router.post('/generate-claims', async (req, res) => {
         dumpId: parseInt(dumpId)
       });
       
-      // Query the processing_results table directly for this dump
+      // Query the beta_v2_processing_results table directly for this dump
+      // Skip results with empty entity names to get the most recent successful extraction
       const processingResult = await executeBetaV2Query(
-        `SELECT * FROM processing_results 
+        `SELECT * FROM beta_v2_processing_results 
          WHERE source_type = $1 AND source_id = $2 
+         AND (stage3_entity_name IS NOT NULL AND stage3_entity_name != '')
          ORDER BY created_at DESC 
          LIMIT 1`,
         [collectionType, parseInt(dumpId)]
@@ -228,17 +233,18 @@ router.post('/generate-claims', async (req, res) => {
       
       console.log('[Beta] [GleifClaimsRoutes] Query result:', {
         hasResult: !!processingResult,
-        length: processingResult?.length,
-        firstResult: processingResult?.[0] ? {
-          id: processingResult[0].id,
-          stage3_entity_name: processingResult[0].stage3_entity_name,
-          stage3EntityName: processingResult[0].stage3EntityName
+        rowCount: processingResult?.rowCount,
+        rowsLength: processingResult?.rows?.length,
+        firstResult: processingResult?.rows?.[0] ? {
+          id: processingResult.rows[0].id,
+          stage3_entity_name: processingResult.rows[0].stage3_entity_name,
+          stage3EntityName: processingResult.rows[0].stage3EntityName
         } : null
       });
       
-      // executeBetaV2Query returns an array directly
-      if (processingResult && processingResult.length > 0) {
-        const result = processingResult[0];
+      // executeBetaV2Query returns an object with rows property
+      if (processingResult && processingResult.rows && processingResult.rows.length > 0) {
+        const result = processingResult.rows[0];
         
         // Extract entity data from the processing pipeline results
         llmCleanedData = {

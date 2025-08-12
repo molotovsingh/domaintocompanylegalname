@@ -76,10 +76,15 @@ async function startBetaServer() {
     
     log('🧪 Starting beta server...');
     
-    betaServerProcess = spawn('npx', ['tsx', 'server/betaIndex.ts'], {
+    // Add --no-cache flag to tsx to prevent module caching
+    betaServerProcess = spawn('npx', ['tsx', '--no-cache', 'server/betaIndex.ts'], {
       stdio: 'pipe',
       cwd: process.cwd(),
-      detached: false
+      detached: false,
+      env: {
+        ...process.env,
+        TSX_DISABLE_CACHE: 'true'  // Also try environment variable
+      }
     });
     
     betaServerProcess.stdout.on('data', (data: Buffer) => {
