@@ -158,6 +158,15 @@ export default function BetaV2DataProcessingPage() {
     }
   });
 
+  // Fetch processing results
+  const { data: resultsData, isLoading: resultsLoading, refetch: refetchResults } = useQuery<{ data: ProcessingResult[] }>({
+    queryKey: ['/api/beta/processing/results'],
+    enabled: serverStatus?.status === 'ready',
+    refetchInterval: 5000
+  });
+
+  const results = resultsData?.data || [];
+
   // Clear processing states when results are updated
   useEffect(() => {
     if (results) {
@@ -189,15 +198,7 @@ export default function BetaV2DataProcessingPage() {
     enabled: serverStatus?.status === 'ready' && activeTab === 'claims'
   });
 
-  // Fetch processing results
-  const { data: resultsData, isLoading: resultsLoading, refetch: refetchResults } = useQuery<{ data: ProcessingResult[] }>({
-    queryKey: ['/api/beta/processing/results'],
-    enabled: serverStatus?.status === 'ready',
-    refetchInterval: 5000
-  });
-
   const dumps = dumpsData?.data || [];
-  const results = resultsData?.data || [];
 
   // Process dump mutation
   const processDumpMutation = useMutation({
