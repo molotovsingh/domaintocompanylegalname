@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { GleifClaimsService } from './gleifClaimsService';
 import { CleaningService } from '../cleaning/cleaningService';
 import { ProcessingPipelineService } from '../processing/processingPipelineService';
+import { executeBetaV2Query } from '../database';
 
 const router = Router();
 const gleifClaimsService = new GleifClaimsService();
@@ -207,22 +208,83 @@ router.post('/generate-claims', async (req, res) => {
     // Check if we have LLM-cleaned data from the latest cleaning results
     let llmCleanedData = null;
     
-    // First try to get the latest cleaning results from the processing_results table
+    console.log('[Beta] [GleifClaimsRoutes] About to query processing_results table');
+    
+    // First try to get processing results from the processing_results table
     try {
-      const cleaningResults = await cleaningService.getCleaningResults(collectionType, parseInt(dumpId));
-      if (cleaningResults && cleaningResults.length > 0) {
-        // Get the most recent result
-        const latestResult = cleaningResults[cleaningResults.length - 1];
-        llmCleanedData = latestResult.extractedData;
-        console.log('[Beta] [GleifClaimsRoutes] Found latest cleaning result with entity data:', {
-          primaryEntityName: llmCleanedData?.primaryEntityName,
-          baseEntityName: llmCleanedData?.baseEntityName,
-          entityCandidatesCount: llmCleanedData?.entityCandidates?.length || 0,
-          excludeTermsCount: llmCleanedData?.excludeTerms?.length || 0
+      console.log('[Beta] [GleifClaimsRoutes] Querying processing_results for:', {
+        collectionType,
+        dumpId: parseInt(dumpId)
+      });
+      
+      // Query the processing_results table directly for this dump
+      const processingResult = await executeBetaV2Query(
+        `SELECT * FROM processing_results 
+         WHERE source_type = $1 AND source_id = $2 
+         ORDER BY created_at DESC 
+         LIMIT 1`,
+        [collectionType, parseInt(dumpId)]
+      );
+      
+      console.log('[Beta] [GleifClaimsRoutes] Query result:', {
+        hasResult: !!processingResult,
+        length: processingResult?.length,
+        firstResult: processingResult?.[0] ? {
+          id: processingResult[0].id,
+          stage3_entity_name: processingResult[0].stage3_entity_name,
+          stage3EntityName: processingResult[0].stage3EntityName
+        } : null
+      });
+      
+      // executeBetaV2Query returns an array directly
+      if (processingResult && processingResult.length > 0) {
+        const result = processingResult[0];
+        
+        // Extract entity data from the processing pipeline results
+        llmCleanedData = {
+          primaryEntityName: result.stage3_entity_name || null,
+          baseEntityName: result.stage3_entity_name || null,
+          companyName: result.stage2_extracted_data?.companyName || null,
+          entityCandidates: result.stage3_alternative_names || [],
+          addresses: result.stage2_extracted_data?.addresses || [],
+          emails: result.stage2_extracted_data?.emails || [],
+          phones: result.stage2_extracted_data?.phones || [],
+          excludeTerms: []
+        };
+        
+        console.log('[Beta] [GleifClaimsRoutes] Found processing result with entity:', {
+          primaryEntityName: llmCleanedData.primaryEntityName,
+          companyName: llmCleanedData.companyName,
+          confidence: result.stage3_entity_confidence
         });
       }
     } catch (error) {
-      console.log('[Beta] [GleifClaimsRoutes] Could not fetch latest cleaning results:', error);
+      console.error('[Beta] [GleifClaimsRoutes] ERROR fetching processing results:', {
+        error: error.message,
+        stack: error.stack,
+        collectionType,
+        dumpId
+      });
+    }
+    
+    // Fallback to cleaning service results if no processing results found
+    if (!llmCleanedData) {
+      try {
+        const cleaningResults = await cleaningService.getCleaningResults(collectionType, parseInt(dumpId));
+        if (cleaningResults && cleaningResults.length > 0) {
+          // Get the most recent result
+          const latestResult = cleaningResults[cleaningResults.length - 1];
+          llmCleanedData = latestResult.extractedData;
+          console.log('[Beta] [GleifClaimsRoutes] Found latest cleaning result with entity data:', {
+            primaryEntityName: llmCleanedData?.primaryEntityName,
+            baseEntityName: llmCleanedData?.baseEntityName,
+            entityCandidatesCount: llmCleanedData?.entityCandidates?.length || 0,
+            excludeTermsCount: llmCleanedData?.excludeTerms?.length || 0
+          });
+        }
+      } catch (error) {
+        console.log('[Beta] [GleifClaimsRoutes] Could not fetch latest cleaning results:', error);
+      }
     }
     
     // Fallback to old cleanedPages if no new results found
