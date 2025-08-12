@@ -169,7 +169,8 @@ export default function BetaV2DataProcessingPage() {
     enabled: !!selectedArbitrationRequest,
     refetchInterval: (query) => {
       // Stop polling once completed or failed
-      if (query?.dataUpdatedAt && (arbitrationResultsData?.status === 'completed' || arbitrationResultsData?.status === 'failed')) {
+      const currentData = query.state.data;
+      if (currentData?.status === 'completed' || currentData?.status === 'failed') {
         return false;
       }
       return 3000; // Poll every 3 seconds while processing
@@ -533,8 +534,8 @@ export default function BetaV2DataProcessingPage() {
                   </TableHeader>
                   <TableBody>
                     {results.map((result) => (
-                      <React.Fragment key={result.id}>
-                        <TableRow>
+                      <>
+                        <TableRow key={`main-${result.id}`}>
                           <TableCell className="font-medium">{result.domain}</TableCell>
                           <TableCell>
                             <Badge className={getSourceTypeColor(result.sourceType)}>
@@ -588,7 +589,7 @@ export default function BetaV2DataProcessingPage() {
                           </TableCell>
                         </TableRow>
                         {expandedRows.has(result.id) && candidatesData[result.id] && (
-                          <TableRow>
+                          <TableRow key={`expanded-${result.id}`}>
                             <TableCell colSpan={8} className="p-0">
                               <div className="bg-muted/50 p-4">
                                 <h4 className="text-sm font-semibold mb-3">All GLEIF Candidates ({candidatesData[result.id].length})</h4>
@@ -619,7 +620,7 @@ export default function BetaV2DataProcessingPage() {
                             </TableCell>
                           </TableRow>
                         )}
-                      </React.Fragment>
+                      </>
                     ))}
                   </TableBody>
                 </Table>
