@@ -125,6 +125,24 @@ interface ClaimsResult {
   collectionType: string;
   claims: EntityClaim[];
   processedAt: string;
+  arbitrationRequestId?: number; // For linking to arbitration results
+}
+
+interface ArbitrationEntity {
+  legalName: string;
+  leiCode?: string;
+  confidence?: number;
+  score?: number;
+  reasoning?: string;
+}
+
+interface ArbitrationResult {
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  rankedEntities?: ArbitrationEntity[];
+  reasoning?: string;
+  processingTimeMs?: number;
+  arbitratorModel?: string;
+  error?: string;
 }
 
 export default function BetaV2DataProcessingPage() {
@@ -139,30 +157,30 @@ export default function BetaV2DataProcessingPage() {
   const [selectedArbitrationRequest, setSelectedArbitrationRequest] = useState<number | null>(null);
   const [processingStates, setProcessingStates] = useState<Record<string, boolean>>({});
 
-  // Check beta server status
+  // Check beta server status - reduce polling frequency
   const { data: serverStatus } = useQuery<BetaServerStatus>({
     queryKey: ['/api/beta/status'],
-    refetchInterval: 2000
+    refetchInterval: 10000 // Check every 10 seconds instead of 2
   });
 
   // Poll for arbitration results when request is created
-  const { data: arbitrationResultsData } = useQuery({
+  const { data: arbitrationResultsData } = useQuery<ArbitrationResult>({
     queryKey: [`/api/beta/arbitration/results/${selectedArbitrationRequest}`],
     enabled: !!selectedArbitrationRequest,
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
       // Stop polling once completed or failed
-      if (data?.status === 'completed' || data?.status === 'failed') {
+      if (query?.dataUpdatedAt && (arbitrationResultsData?.status === 'completed' || arbitrationResultsData?.status === 'failed')) {
         return false;
       }
       return 3000; // Poll every 3 seconds while processing
     }
   });
 
-  // Fetch processing results
+  // Fetch processing results - reduce polling frequency
   const { data: resultsData, isLoading: resultsLoading, refetch: refetchResults } = useQuery<{ data: ProcessingResult[] }>({
     queryKey: ['/api/beta/processing/results'],
     enabled: serverStatus?.status === 'ready',
-    refetchInterval: 5000
+    refetchInterval: 15000 // Poll every 15 seconds instead of 5
   });
 
   const results = resultsData?.data || [];
@@ -903,7 +921,7 @@ export default function BetaV2DataProcessingPage() {
                             {/* Display arbitration results if available */}
                             {arbitrationResultsData?.status === 'completed' && 
                              arbitrationResultsData?.rankedEntities && 
-                             (result as any).arbitrationRequestId === selectedArbitrationRequest && (
+                             result.arbitrationRequestId === selectedArbitrationRequest && (
                               <div className="mb-4 p-4 bg-blue-50 rounded-lg">
                                 <h4 className="text-sm font-semibold mb-2">Arbitration Results (DeepSeek R1 Reasoning)</h4>
                                 <div className="space-y-2">
