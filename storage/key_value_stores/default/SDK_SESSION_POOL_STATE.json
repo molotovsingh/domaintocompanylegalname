@@ -3,7 +3,7 @@
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_xSMdbeAq8f",
+      "id": "session_fYZAjB4PDQ",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -18,16 +18,16 @@
             "domain": "www.fnp.com",
             "path": "/",
             "hostOnly": true,
-            "creation": "2025-08-13T13:47:40.865Z",
-            "lastAccessed": "2025-08-13T13:47:40.865Z"
+            "creation": "2025-08-13T14:16:46.778Z",
+            "lastAccessed": "2025-08-13T14:16:46.778Z"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-13T14:37:37.940Z",
-      "createdAt": "2025-08-13T13:47:37.940Z",
+      "expiresAt": "2025-08-13T15:06:44.618Z",
+      "createdAt": "2025-08-13T14:16:44.618Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0

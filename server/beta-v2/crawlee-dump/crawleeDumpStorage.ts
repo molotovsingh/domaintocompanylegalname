@@ -1,4 +1,5 @@
-import { executeBetaV2Query } from '../database';
+import { executeBetaV2Query, betaV2Db } from '../database';
+import { sql } from 'drizzle-orm';
 import type { CrawleeDump, CrawlConfig, CrawleeDumpData, CrawleeDumpSummary } from './crawleeDumpTypes';
 
 export class CrawleeDumpStorage {
@@ -41,40 +42,29 @@ export class CrawleeDumpStorage {
     processingTimeMs: number
   ): Promise<void> {
     try {
-      // For very large JSON data, we need to use a different approach
-      // Convert to JSON string first and explicitly cast
+      // Check data size for logging
       const jsonString = JSON.stringify(dumpData);
-      
-      // Check if data is very large (> 500KB)
-      const isLargeData = jsonString.length > 500000;
+      const isLargeData = jsonString.length > 500000; // 500KB threshold
       
       if (isLargeData) {
-        console.log(`[CrawleeDumpStorage] Large data detected (${jsonString.length} chars), using explicit type handling`);
+        console.log(`[CrawleeDumpStorage] Large data detected (${jsonString.length} chars), using direct driver`);
       }
-      
-      // Use JSON.stringify and explicit cast like axios-cheerio module does
-      const query = `
-        UPDATE crawlee_dumps 
-        SET 
-          dump_data = $1::jsonb,
-          pages_crawled = $2,
-          total_size_bytes = $3,
-          processing_time_ms = $4,
-          status = 'completed',
-          updated_at = NOW()
-        WHERE id = $5
-      `;
       
       // Log the data being updated for debugging
       console.log(`[CrawleeDumpStorage] Updating dump ${id} with ${dumpData.pages.length} pages`);
       
-      await executeBetaV2Query(query, [
-        jsonString,  // Use the stringified JSON with explicit ::jsonb cast
-        dumpData.pages.length,
-        dumpData.crawlStats.totalSizeBytes,
-        processingTimeMs,
-        id
-      ]);
+      // Use direct Neon driver for large JSONB to avoid parameter type issues
+      await betaV2Db.execute(sql`
+        UPDATE crawlee_dumps 
+        SET 
+          dump_data = ${JSON.stringify(dumpData)}::jsonb,
+          pages_crawled = ${dumpData.pages.length},
+          total_size_bytes = ${dumpData.crawlStats.totalSizeBytes},
+          processing_time_ms = ${processingTimeMs},
+          status = 'completed',
+          updated_at = NOW()
+        WHERE id = ${id}
+      `);
       
       console.log(`[CrawleeDumpStorage] Successfully updated dump ${id}`);
     } catch (error: any) {

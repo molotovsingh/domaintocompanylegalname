@@ -57,14 +57,19 @@ Return as JSON in this exact format:
 }`;
 
     try {
-      // Use the 'cleaning' use case to get Llama 3.1 8B free model
-      const cleaningModels = getModelsForUseCase('cleaning' as any);
-      if (cleaningModels.length === 0) {
-        console.error('No cleaning models available');
-        return null;
-      }
-
-      const model = cleaningModels[0]; // Llama 3.1 8B should be first (priority 1)
+      // TEST: Try different models to see if it's model-specific or OpenRouter issue
+      // const cleaningModels = getModelsForUseCase('cleaning' as any);
+      
+      // Try Mixtral instead of DeepSeek to test if it's model-specific
+      const testModel = {
+        id: 'mistralai/mixtral-8x7b-instruct',
+        name: 'Mixtral 8x7B (Testing)',
+        maxTokens: 2000,
+        temperature: 0.1
+      };
+      
+      console.log('[LLM Test] Switching to Mixtral model for testing:', testModel.id);
+      const model = testModel;
       
       // Make the request through OpenRouter service
       const response = await this.openRouterService.makeRequest({
