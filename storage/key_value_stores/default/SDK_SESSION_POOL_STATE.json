@@ -1,9 +1,9 @@
 {
-  "usableSessionsCount": 1,
+  "usableSessionsCount": 9,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_FGdzmVccd6",
+      "id": "session_DJKQELSqrl",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -11,13 +11,263 @@
         "enableLooseMode": false,
         "allowSpecialUseDomain": true,
         "prefixSecurity": "silent",
-        "cookies": []
+        "cookies": [
+          {
+            "key": "fnp_aton",
+            "value": "Y",
+            "domain": "www.fnp.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-13T13:11:15.785Z",
+            "lastAccessed": "2025-08-13T13:11:15.785Z"
+          }
+        ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-12T05:30:26.776Z",
-      "createdAt": "2025-08-12T04:40:26.776Z",
+      "expiresAt": "2025-08-13T14:01:13.490Z",
+      "createdAt": "2025-08-13T13:11:13.490Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_GN6GSIbdJv",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "fnp_aton",
+            "value": "Y",
+            "domain": "www.fnp.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-13T13:11:18.933Z",
+            "lastAccessed": "2025-08-13T13:11:18.933Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-13T14:01:16.699Z",
+      "createdAt": "2025-08-13T13:11:16.699Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_l9UxifgI6R",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "fnp_aton",
+            "value": "N",
+            "domain": "www.fnp.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-13T13:11:18.329Z",
+            "lastAccessed": "2025-08-13T13:11:18.329Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-13T14:01:16.700Z",
+      "createdAt": "2025-08-13T13:11:16.700Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_1krqeq5JKo",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "fnp_aton",
+            "value": "N",
+            "domain": "www.fnp.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-13T13:11:19.745Z",
+            "lastAccessed": "2025-08-13T13:11:19.745Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-13T14:01:18.332Z",
+      "createdAt": "2025-08-13T13:11:18.332Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_PUyMyaiqpN",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "fnp_aton",
+            "value": "N",
+            "domain": "www.fnp.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-13T13:11:20.312Z",
+            "lastAccessed": "2025-08-13T13:11:20.312Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-13T14:01:18.936Z",
+      "createdAt": "2025-08-13T13:11:18.936Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_mdmQEkTtl3",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "fnp_aton",
+            "value": "N",
+            "domain": "www.fnp.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-13T13:11:22.771Z",
+            "lastAccessed": "2025-08-13T13:11:22.771Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-13T14:01:19.767Z",
+      "createdAt": "2025-08-13T13:11:19.767Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_wgWLyjL4bq",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "fnp_aton",
+            "value": "N",
+            "domain": "www.fnp.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-13T13:11:21.818Z",
+            "lastAccessed": "2025-08-13T13:11:21.818Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-13T14:01:20.320Z",
+      "createdAt": "2025-08-13T13:11:20.320Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_payeJFr20u",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "fnp_aton",
+            "value": "N",
+            "domain": "www.fnp.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-13T13:11:23.475Z",
+            "lastAccessed": "2025-08-13T13:11:23.475Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-13T14:01:21.845Z",
+      "createdAt": "2025-08-13T13:11:21.845Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_2Bved6LN4l",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "fnp_aton",
+            "value": "N",
+            "domain": "www.fnp.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-08-13T13:11:25.285Z",
+            "lastAccessed": "2025-08-13T13:11:25.285Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-13T14:01:22.784Z",
+      "createdAt": "2025-08-13T13:11:22.784Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
