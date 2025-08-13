@@ -156,6 +156,14 @@ export class FastEntityExtractor {
     const structuredArray = Array.isArray(structured) ? structured : [structured];
     
     structuredArray.forEach((item: any) => {
+      // Handle nested arrays (common in Crawlee dumps)
+      if (Array.isArray(item) && !item['@type']) {
+        item.forEach((subItem: any) => {
+          this.extractFromStructuredData(subItem, entities, metadata);
+        });
+        return;
+      }
+      
       // Handle nested @graph structures
       if (item['@graph']) {
         this.extractFromStructuredData(item['@graph'], entities, metadata);
@@ -163,7 +171,9 @@ export class FastEntityExtractor {
       }
       
       // Extract from LocalBusiness type (common for business websites)
-      if ((item['@type'] === 'LocalBusiness' || (Array.isArray(item['@type']) && item['@type'].includes('LocalBusiness'))) && item.name) {
+      const itemTypes = Array.isArray(item['@type']) ? item['@type'] : [item['@type']];
+      
+      if (itemTypes.includes('LocalBusiness') && item.name) {
         let entity = this.cleanEntityName(item.name);
         if (entity) {
           // Add common suffixes for businesses if not present
@@ -173,11 +183,12 @@ export class FastEntityExtractor {
           }
           entities.push(entity);
           metadata.sources.push('json_ld_local_business');
+          console.log('[FastExtractor] Found LocalBusiness:', entity);
         }
       }
       
       // Extract from Organization type
-      if (item['@type'] === 'Organization' && item.name) {
+      if (itemTypes.includes('Organization') && item.name) {
         let entity = this.cleanEntityName(item.name);
         if (entity) {
           // Add Inc. suffix if it looks like a company name without suffix
@@ -186,11 +197,12 @@ export class FastEntityExtractor {
           }
           entities.push(entity);
           metadata.sources.push('json_ld_organization');
+          console.log('[FastExtractor] Found Organization:', entity);
         }
       }
       
       // Extract from WebSite type
-      if (item['@type'] === 'WebSite' && item.name) {
+      if (itemTypes.includes('WebSite') && item.name) {
         const entity = this.cleanEntityName(item.name);
         if (entity) {
           entities.push(entity);
@@ -216,6 +228,7 @@ export class FastEntityExtractor {
           }
           entities.push(entity);
           metadata.sources.push('json_ld_brand');
+          console.log('[FastExtractor] Found brand:', entity);
         }
       }
     });
