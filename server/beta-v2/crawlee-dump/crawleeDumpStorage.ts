@@ -52,11 +52,11 @@ export class CrawleeDumpStorage {
         console.log(`[CrawleeDumpStorage] Large data detected (${jsonString.length} chars), using explicit type handling`);
       }
       
-      // Use explicit text-to-jsonb cast for large data
+      // Pass parsed JSON object for proper JSONB handling
       const query = `
         UPDATE crawlee_dumps 
         SET 
-          dump_data = $1::text::jsonb,
+          dump_data = $1,
           pages_crawled = $2,
           total_size_bytes = $3,
           processing_time_ms = $4,
@@ -69,7 +69,7 @@ export class CrawleeDumpStorage {
       console.log(`[CrawleeDumpStorage] Updating dump ${id} with ${dumpData.pages.length} pages`);
       
       await executeBetaV2Query(query, [
-        jsonString,
+        dumpData,  // Pass object directly, driver will handle JSONB conversion
         dumpData.pages.length,
         dumpData.crawlStats.totalSizeBytes,
         processingTimeMs,

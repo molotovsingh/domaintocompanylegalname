@@ -1,0 +1,9 @@
+{
+	"id": "rf51PIQZTmje7or",
+	"json": "{\"id\":\"rf51PIQZTmje7or\",\"url\":\"https://fnp.com\",\"loadedUrl\":\"https://www.fnp.com/\",\"uniqueKey\":\"https://fnp.com\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2025-08-13T13:25:15.769Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://fnp.com",
+	"url": "https://fnp.com"
+}
