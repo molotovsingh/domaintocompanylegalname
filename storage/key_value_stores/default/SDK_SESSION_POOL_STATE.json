@@ -1,9 +1,9 @@
 {
-  "usableSessionsCount": 3,
+  "usableSessionsCount": 1,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_vaUaQu7Mvk",
+      "id": "session_xSMdbeAq8f",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -18,66 +18,16 @@
             "domain": "www.fnp.com",
             "path": "/",
             "hostOnly": true,
-            "creation": "2025-08-13T13:25:15.071Z",
-            "lastAccessed": "2025-08-13T13:25:15.071Z"
+            "creation": "2025-08-13T13:47:40.865Z",
+            "lastAccessed": "2025-08-13T13:47:40.865Z"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-13T14:15:12.278Z",
-      "createdAt": "2025-08-13T13:25:12.278Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_NqUOJ49d6V",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "fnp_aton",
-            "value": "N",
-            "domain": "www.fnp.com",
-            "path": "/",
-            "hostOnly": true,
-            "creation": "2025-08-13T13:25:17.340Z",
-            "lastAccessed": "2025-08-13T13:25:17.340Z"
-          }
-        ]
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-13T14:15:15.783Z",
-      "createdAt": "2025-08-13T13:25:15.783Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_frR0ehcyTJ",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-13T14:17:14.626Z",
-      "createdAt": "2025-08-13T13:27:14.626Z",
+      "expiresAt": "2025-08-13T14:37:37.940Z",
+      "createdAt": "2025-08-13T13:47:37.940Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
