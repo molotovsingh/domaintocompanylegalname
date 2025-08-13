@@ -42,18 +42,107 @@ export class PerplexityArbitrationService {
   }
 
   /**
-   * Main arbitration method using Perplexity Sonar
+   * Main arbitration method using Perplexity
    */
   async arbitrate(claims: any[], userBias: UserBias): Promise<ArbitrationResult> {
     const startTime = Date.now();
-    console.log(`[Arbitration] Starting arbitration for ${claims.length} claims`);
+    console.log(`[Perplexity Arbitration] Starting arbitration for ${claims.length} claims with Perplexity API`);
 
-    // IMPORTANT: Skip Perplexity Sonar since it's not a reasoning model
-    // Use our enhanced algorithmic ranking with transparent reasoning instead
-    console.log('[Arbitration] Using algorithmic ranking with transparent reasoning (Perplexity Sonar is not a reasoning model)');
-    
-    // Always use the enhanced algorithmic approach for clear, judge-like reasoning
-    return this.algorithmicArbitration(claims, userBias, Date.now() - startTime);
+    try {
+      // Build the arbitration prompt
+      const prompt = await this.buildArbitrationPrompt(claims, userBias);
+      
+      // Call Perplexity API with the pro model for better reasoning
+      console.log('[Perplexity Arbitration] Calling Perplexity API with sonar-pro model');
+      const response = await perplexityAdapter.callPerplexity(
+        prompt,
+        'sonar-pro',
+        0.2
+      );
+
+      if (!response || !response.choices?.[0]?.message?.content) {
+        console.warn('[Perplexity Arbitration] No response from Perplexity, falling back to algorithmic ranking');
+        return this.fallbackArbitration(claims, userBias, Date.now() - startTime);
+      }
+
+      const content = response.choices[0].message.content;
+      console.log('[Perplexity Arbitration] Received response from Perplexity');
+
+      // Try to parse the JSON response
+      try {
+        // Extract JSON from the response (it might be wrapped in markdown code blocks)
+        let jsonStr = content;
+        
+        // Try to find JSON in code blocks first
+        const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (jsonMatch) {
+          jsonStr = jsonMatch[1].trim();
+        } else {
+          // Try to find JSON object directly
+          const jsonObjectMatch = content.match(/\{[\s\S]*\}/);
+          if (jsonObjectMatch) {
+            jsonStr = jsonObjectMatch[0];
+          }
+        }
+
+        // Log for debugging
+        console.log('[Perplexity Arbitration] Extracted JSON length:', jsonStr.length);
+
+        const result = JSON.parse(jsonStr);
+        
+        // Add citations from Perplexity response
+        const citations = response.citations || [];
+        
+        return {
+          rankedEntities: result.rankedEntities || [],
+          overallReasoning: result.overallReasoning || 'Perplexity analysis completed',
+          citations,
+          processingTimeMs: Date.now() - startTime
+        };
+      } catch (parseError) {
+        console.error('[Perplexity Arbitration] Failed to parse JSON response:', parseError);
+        console.log('[Perplexity Arbitration] Raw response length:', content.length);
+        
+        // Only log first 500 chars to avoid flooding logs
+        console.log('[Perplexity Arbitration] Raw response:', content.substring(0, 500));
+        
+        // Try to fix common JSON issues
+        try {
+          // Remove any trailing commas or incomplete JSON
+          let fixedJson = jsonStr;
+          
+          // If the JSON seems truncated, try to close it properly
+          if (jsonStr.includes('"rankedEntities"') && !jsonStr.includes('"overallReasoning"')) {
+            // Close the rankedEntities array and add a dummy overallReasoning
+            const lastBrace = jsonStr.lastIndexOf('}');
+            if (lastBrace > 0) {
+              fixedJson = jsonStr.substring(0, lastBrace + 1) + '], "overallReasoning": "Analysis completed" }';
+            }
+          }
+          
+          // Try parsing the fixed JSON
+          const result = JSON.parse(fixedJson);
+          console.log('[Perplexity Arbitration] Successfully parsed after fixing JSON');
+          
+          return {
+            rankedEntities: result.rankedEntities || [],
+            overallReasoning: result.overallReasoning || 'Perplexity analysis completed',
+            citations: response.citations || [],
+            processingTimeMs: Date.now() - startTime
+          };
+        } catch (fixError) {
+          console.error('[Perplexity Arbitration] JSON fix attempt failed:', fixError);
+        }
+        
+        // Fall back to algorithmic ranking if parsing fails
+        console.log('[Arbitration] Using fallback algorithmic ranking');
+        return this.fallbackArbitration(claims, userBias, Date.now() - startTime);
+      }
+    } catch (error) {
+      console.error('[Perplexity Arbitration] Error during arbitration:', error);
+      // Fall back to algorithmic ranking on error
+      return this.fallbackArbitration(claims, userBias, Date.now() - startTime);
+    }
   }
 
   /**
@@ -70,7 +159,7 @@ export class PerplexityArbitrationService {
         const relationships = await this.relationshipsService.getRelationships(claim.leiCode);
         claim.metadata = claim.metadata || {};
         claim.metadata.hierarchyLevel = await this.relationshipsService.getHierarchyLevel(claim.leiCode);
-        claim.metadata.hasParent = relationships?.parents?.length > 0;
+        claim.metadata.hasParent = relationships?.parents && relationships.parents.length > 0;
         claim.metadata.ultimateParentLei = relationships?.ultimateParent?.lei;
       }
     }

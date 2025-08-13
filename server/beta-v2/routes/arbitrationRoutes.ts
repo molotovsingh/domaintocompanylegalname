@@ -1,11 +1,10 @@
 import { Router } from 'express';
 import { db } from '../arbitration/database-wrapper';
 import { claimsGenerationService } from '../arbitration/claimsGenerationService';
-import { DeepSeekArbitrationService } from '../arbitration/deepSeekArbitrationService';
+import { perplexityArbitrationService } from '../arbitration/perplexityArbitrationService';
 import { perplexityAdapter } from '../arbitration/perplexityAdapter';
 
 const router = Router();
-const deepSeekArbitrationService = new DeepSeekArbitrationService();
 
 /**
  * Create arbitration request for a domain
@@ -303,10 +302,10 @@ async function processArbitrationAsync(
     await claimsGenerationService.storeClaims(requestId, claims);
 
     // Get user bias
-    const userBias = await deepSeekArbitrationService.getDefaultUserBias();
+    const userBias = await perplexityArbitrationService.getDefaultUserBias();
 
-    // Perform arbitration using DeepSeek R1 reasoning
-    const arbitrationResult = await deepSeekArbitrationService.arbitrate(claims, userBias);
+    // Perform arbitration using Perplexity
+    const arbitrationResult = await perplexityArbitrationService.arbitrate(claims, userBias);
 
     // Store results
     console.log(`[Arbitration] Storing results for request ${requestId}`);
@@ -322,7 +321,7 @@ async function processArbitrationAsync(
         [
           requestId,
           JSON.stringify(arbitrationResult.rankedEntities || []),
-          'deepseek-r1-free',
+          'perplexity-sonar-pro',
           arbitrationResult.overallReasoning || '',
           arbitrationResult.processingTimeMs,
           JSON.stringify(arbitrationResult.citations || [])
@@ -441,12 +440,12 @@ router.post('/test-sample', async (req, res) => {
     console.log(`[Arbitration] Generated ${claims.length} claims`);
     
     // Get default user bias
-    const userBias = await deepSeekArbitrationService.getDefaultUserBias();
+    const userBias = await perplexityArbitrationService.getDefaultUserBias();
     
     // Perform arbitration
-    console.log('[Arbitration] Starting DeepSeek R1 reasoning arbitration...');
-    const arbitrationResult = await deepSeekArbitrationService.arbitrate(claims, userBias);
-    console.log('[Arbitration] DeepSeek arbitration complete');
+    console.log('[Arbitration] Starting Perplexity arbitration...');
+    const arbitrationResult = await perplexityArbitrationService.arbitrate(claims, userBias);
+    console.log('[Arbitration] Perplexity arbitration complete');
 
     res.json({
       success: true,

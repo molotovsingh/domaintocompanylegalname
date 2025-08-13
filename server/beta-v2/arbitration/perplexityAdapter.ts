@@ -7,9 +7,13 @@ interface PerplexityRequest {
   temperature?: number;
   max_tokens?: number;
   search_domain_filter?: string[];
-  return_citations?: boolean;
+  return_images?: boolean;
+  return_related_questions?: boolean;
   search_recency_filter?: 'month' | 'year';
   stream?: boolean;
+  presence_penalty?: number;
+  frequency_penalty?: number;
+  top_k?: number;
 }
 
 interface PerplexityResponse {
@@ -46,7 +50,7 @@ export class PerplexityAdapter {
 
   async callPerplexity(
     prompt: string,
-    model: 'sonar' | 'sonar-pro' = 'sonar',
+    model: 'sonar' | 'sonar-pro' | 'sonar-reasoning' | 'sonar-reasoning-pro' = 'sonar-pro',
     temperature: number = 0.2
   ): Promise<PerplexityResponse | null> {
     if (!this.apiKey) {
@@ -59,7 +63,7 @@ export class PerplexityAdapter {
       messages: [
         {
           role: 'system',
-          content: 'You are an expert in corporate entity resolution and acquisition research. Focus on identifying parent companies, understanding corporate hierarchies, and applying jurisdiction-based ranking.'
+          content: 'You are an expert in corporate entity resolution and acquisition research. Focus on identifying parent companies, understanding corporate hierarchies, and applying jurisdiction-based ranking. Provide step-by-step reasoning for your analysis.'
         },
         {
           role: 'user',
@@ -69,9 +73,12 @@ export class PerplexityAdapter {
       temperature,
       max_tokens: 4000,
       search_domain_filter: ['gleif.org', 'sec.gov', 'companieshouse.gov.uk'],
-      return_citations: true,
+      return_images: false,
+      return_related_questions: false,
       search_recency_filter: 'year',
-      stream: false
+      stream: false,
+      presence_penalty: 0,
+      frequency_penalty: 1
     };
 
     try {
