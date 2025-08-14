@@ -16,7 +16,8 @@ import {
   Target,
   Eye,
   Download,
-  RefreshCw
+  RefreshCw,
+  Sparkles
 } from 'lucide-react';
 import { Link } from 'wouter';
 
@@ -397,7 +398,14 @@ export default function LangExtractDemo() {
 
                       {test.result && (
                         <div className="space-y-4">
-                          <div className="grid grid-cols-3 gap-4 text-sm">
+                          <div className="grid grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <span className="font-medium flex items-center gap-1">
+                                <Sparkles className="h-3 w-3 text-purple-600" />
+                                Model:
+                              </span>
+                              <div className="text-xs font-mono text-purple-600">{test.result.metadata?.model || 'unknown'}</div>
+                            </div>
                             <div>
                               <span className="font-medium">Processing Time:</span>
                               <div>{test.result.processingTime || 0}ms</div>
