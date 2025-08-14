@@ -400,19 +400,19 @@ export default function LangExtractDemo() {
                           <div className="grid grid-cols-3 gap-4 text-sm">
                             <div>
                               <span className="font-medium">Processing Time:</span>
-                              <div>{test.result.processingTime}ms</div>
+                              <div>{test.result.processingTime || 0}ms</div>
                             </div>
                             <div>
                               <span className="font-medium">Entities Found:</span>
-                              <div>{test.result.entities.length}</div>
+                              <div>{test.result.entities?.length || 0}</div>
                             </div>
                             <div>
                               <span className="font-medium">Tokens Processed:</span>
-                              <div>{test.result.tokensProcessed.toLocaleString()}</div>
+                              <div>{test.result.tokensProcessed?.toLocaleString() || '0'}</div>
                             </div>
                           </div>
 
-                          {test.result.entities.length > 0 && (
+                          {test.result.entities && test.result.entities.length > 0 && (
                             <div>
                               <h4 className="font-medium mb-2">Extracted Entities:</h4>
                               <div className="space-y-2">
@@ -439,10 +439,10 @@ export default function LangExtractDemo() {
                           <div className="pt-3 border-t">
                             <h4 className="font-medium mb-2">Source Mapping:</h4>
                             <div className="text-sm text-gray-600">
-                              {test.result.sourceMapping.length} source mappings • 
-                              Document length: {test.result.metadata.documentLength.toLocaleString()} chars • 
-                              Language: {test.result.metadata.language} • 
-                              Chunks: {test.result.metadata.chunkCount}
+                              {test.result.sourceMapping?.length || 0} source mappings • 
+                              Document length: {test.result.metadata?.documentLength?.toLocaleString() || '0'} chars • 
+                              Language: {test.result.metadata?.language || 'unknown'} • 
+                              Chunks: {test.result.metadata?.chunkCount || 0}
                             </div>
                           </div>
                         </div>
