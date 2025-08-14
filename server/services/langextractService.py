@@ -12,10 +12,17 @@ class LangExtractService:
     def __init__(self):
         # Initialize Gemini with API key
         api_key = os.environ.get('GEMINI_API_KEY')
-        if api_key:
+        if not api_key:
+            print("Warning: GEMINI_API_KEY environment variable not found", file=sys.stderr)
+            self.model = None
+            return
+        
+        try:
             genai.configure(api_key=api_key)
             self.model = genai.GenerativeModel('gemini-1.5-flash')
-        else:
+            print("Gemini API initialized successfully", file=sys.stderr)
+        except Exception as e:
+            print(f"Error initializing Gemini API: {e}", file=sys.stderr)
             self.model = None
     
     def extract_entities(self, html_content: str, schema: Dict[str, str]) -> Dict[str, Any]:

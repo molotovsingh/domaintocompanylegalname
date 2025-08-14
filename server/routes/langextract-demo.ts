@@ -8,6 +8,11 @@ const router = express.Router();
 
 import { spawn } from 'child_process';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Real LangExtract integration using Python subprocess
 class RealLangExtract {
@@ -59,6 +64,32 @@ class RealLangExtract {
     });
   }
 }
+
+// Test API key status
+router.get('/test-api', async (req, res) => {
+  try {
+    const result = await RealLangExtract.extract("Test content", { "test": "string" });
+    if (result.error && result.error.includes("API key")) {
+      res.json({ 
+        status: 'error', 
+        message: 'Gemini API key not configured or invalid',
+        details: result.error
+      });
+    } else {
+      res.json({ 
+        status: 'success', 
+        message: 'API key is working',
+        hasModel: !result.error
+      });
+    }
+  } catch (error) {
+    res.json({ 
+      status: 'error', 
+      message: 'API test failed',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
 
 // Get available dumps for testing
 router.get('/dumps', async (req, res) => {
