@@ -74,7 +74,7 @@ Schema to extract:
 {schema_description}
 
 CRITICAL Instructions:
-1. For company_name field: Look for the LEGAL ENTITY NAME with suffixes like:
+1. For company_name or legal_entity_name fields: Look for the LEGAL ENTITY NAME with suffixes like:
    - Limited, Ltd., Inc., Incorporated, LLC, Corp., Corporation
    - Private Limited, Pvt. Ltd., Public Limited Company, PLC
    - GmbH, S.A., B.V., AG, AB, AS
@@ -86,9 +86,11 @@ CRITICAL Instructions:
    - About us sections
    - Terms of service mentions
 3. If both a brand name and legal entity exist, ALWAYS prefer the legal entity
-4. Extract ONLY exact text from the document
-5. Include confidence score (0-100) for each extraction
-6. Return null if field is not found
+4. For corporate_suffix field: Extract ONLY the suffix part (e.g., "Limited", "Inc.", "LLC")
+5. For brand_name field: Extract the common/marketing name WITHOUT legal suffixes
+6. Extract ONLY exact text from the document
+7. Include confidence score (0-100) for each extraction
+8. Return null if field is not found
 
 Text to analyze:
 {text_content[:5000]}

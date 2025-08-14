@@ -76,6 +76,12 @@ export default function LangExtractDemo() {
 
   // Predefined extraction schemas
   const predefinedSchemas = {
+    'Legal Entity (Recommended)': `{
+  "legal_entity_name": "string",
+  "brand_name": "string",
+  "registration_number": "string",
+  "corporate_suffix": "string"
+}`,
     'Company Information': `{
   "company_name": "string",
   "legal_entity_type": "string", 
