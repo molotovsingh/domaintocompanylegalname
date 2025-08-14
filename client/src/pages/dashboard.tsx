@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Globe, User, BarChart3, Trash2, Settings, ChevronDown, Clock } from "lucide-react";
+import { Globe, User, BarChart3, Trash2, Settings, ChevronDown, Clock, Zap } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -115,6 +115,12 @@ export default function Dashboard() {
                   <DropdownMenuItem asChild>
                     <Link href="/beta-testing-v2" className="w-full">
                       Beta Testing v2
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/langextract-demo" className="w-full flex items-center gap-2">
+                      <Zap className="h-3 w-3" />
+                      LangExtract Demo
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
