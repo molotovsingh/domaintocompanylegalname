@@ -1,0 +1,22 @@
+{
+  "companyName": "string - Full legal name with suffix (Inc., Ltd., LLC, etc.)",
+  "legalEntityName": "string - Official registered business name",
+  "tradingAs": "string - DBA or trading name if different from legal name",
+  "registrationNumber": "string - Company registration or incorporation number",
+  "taxId": "string - Tax identification number (EIN, VAT, etc.)",
+  "foundedYear": "string - Year the company was established",
+  "headquarters": "string - Main office location/address",
+  "industryType": "string - Primary industry or business sector",
+  "businessDescription": "string - Brief description of what the company does",
+  "ceoName": "string - Name of CEO or Managing Director",
+  "employeeCount": "string - Number of employees or employee range",
+  "annualRevenue": "string - Annual revenue or revenue range",
+  "stockSymbol": "string - Stock ticker symbol if publicly traded",
+  "website": "string - Official company website URL",
+  "contactEmail": "string - Primary business contact email",
+  "contactPhone": "string - Main business phone number",
+  "socialMediaLinks": "string - LinkedIn, Twitter, or other social profiles",
+  "parentCompany": "string - Parent company name if subsidiary",
+  "subsidiaries": "string - List of subsidiary companies",
+  "certifications": "string - ISO, SOC2, or other business certifications"
+}
