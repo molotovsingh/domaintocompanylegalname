@@ -20,6 +20,7 @@ import { BetaV2GleifSearch } from './pages/BetaV2GleifSearch';
 import BetaV2DataProcessing from './pages/BetaV2DataProcessing';
 import NotFound from "@/pages/not-found";
 import { lazy, Suspense } from "react";
+import LangExtractDemo from './pages/langextract-demo';
 
 function Router() {
   return (
@@ -41,6 +42,7 @@ function Router() {
       <Route path="/settings" component={lazy(() => import("./pages/settings"))} />
       <Route path="/openrouter-settings" component={lazy(() => import("./pages/openrouter-settings"))} />
       <Route path="/openrouter-models" component={lazy(() => import("./pages/openrouter-models"))} />
+      <Route path="/langextract-demo" component={LangExtractDemo} />
       <Route component={NotFound} />
     </Switch>
   );

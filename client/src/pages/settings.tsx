@@ -106,6 +106,32 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
+          {/* LangExtract Demo */}
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="flex items-center space-x-2">
+                <Zap className="h-5 w-5 text-orange-600" />
+                <CardTitle>LangExtract Demo</CardTitle>
+              </div>
+              <CardDescription>
+                Test Google's LangExtract library performance
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  Interactive demo using existing dumps to showcase LangExtract capabilities.
+                </p>
+                <Link href="/langextract-demo">
+                  <Button size="sm">
+                    <Zap className="w-4 h-4 mr-1" />
+                    Demo Library
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
         </div>
       </main>
     </div>
