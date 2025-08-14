@@ -1,4 +1,3 @@
-
 import { pgTable, serial, text, timestamp, integer, boolean, real, jsonb } from 'drizzle-orm/pg-core';
 
 export const betaExperiments = pgTable('beta_experiments', {
