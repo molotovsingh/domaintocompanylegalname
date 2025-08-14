@@ -27,6 +27,7 @@ interface DumpSample {
   method: string;
   size: number;
   preview: string;
+  createdAt?: string;
 }
 
 interface ExtractionResult {
@@ -274,7 +275,8 @@ export default function LangExtractDemo() {
                       <option value="">Select a dump...</option>
                       {availableDumps.map(dump => (
                         <option key={dump.id} value={dump.id}>
-                          {dump.domain} ({dump.method}) - {Math.round(dump.size / 1024)}KB
+                          {dump.domain} ({dump.method}) - {Math.round(dump.size / 1024)}KB 
+                          {dump.createdAt && ` - ${new Date(dump.createdAt).toLocaleDateString()}`}
                         </option>
                       ))}
                     </select>
@@ -282,7 +284,14 @@ export default function LangExtractDemo() {
 
                   {selectedDump && (
                     <div className="p-3 bg-gray-50 rounded-md">
-                      <h4 className="font-medium text-sm mb-2">Preview:</h4>
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium text-sm">Preview:</h4>
+                        {availableDumps.find(d => d.id === selectedDump)?.createdAt && (
+                          <span className="text-xs text-gray-500">
+                            Captured: {new Date(availableDumps.find(d => d.id === selectedDump)!.createdAt!).toLocaleString()}
+                          </span>
+                        )}
+                      </div>
                       <pre className="text-xs text-gray-600 whitespace-pre-wrap">
                         {availableDumps.find(d => d.id === selectedDump)?.preview}
                       </pre>

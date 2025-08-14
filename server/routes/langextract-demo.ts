@@ -103,7 +103,7 @@ router.get('/dumps', async (req, res) => {
     })
     .from(axiosCheerioV2Dumps)
     .orderBy(desc(axiosCheerioV2Dumps.createdAt))
-    .limit(10);
+    .limit(20);
 
     const crawleeDumpsData = await betaDb.select({
       id: crawleeDumps.id,
@@ -113,7 +113,7 @@ router.get('/dumps', async (req, res) => {
     })
     .from(crawleeDumps)
     .orderBy(desc(crawleeDumps.createdAt))
-    .limit(10);
+    .limit(20);
 
     const scrapyData = await betaDb.select({
       id: scrapyCrawls.id,
@@ -123,7 +123,7 @@ router.get('/dumps', async (req, res) => {
     })
     .from(scrapyCrawls)
     .orderBy(desc(scrapyCrawls.createdAt))
-    .limit(10);
+    .limit(20);
 
     // Format response
     const allDumps = [
@@ -134,7 +134,8 @@ router.get('/dumps', async (req, res) => {
           domain: dump.domain,
           method: 'Axios+Cheerio',
           size: typeof htmlContent === 'string' ? htmlContent.length : 0,
-          preview: typeof htmlContent === 'string' && htmlContent ? htmlContent.slice(0, 300) + '...' : 'No content'
+          preview: typeof htmlContent === 'string' && htmlContent ? htmlContent.slice(0, 300) + '...' : 'No content',
+          createdAt: dump.createdAt
         };
       }),
       ...crawleeDumpsData.map(dump => {
@@ -145,7 +146,8 @@ router.get('/dumps', async (req, res) => {
           domain: dump.domain,
           method: 'Crawlee',
           size: typeof htmlContent === 'string' ? htmlContent.length : 0,
-          preview: typeof htmlContent === 'string' && htmlContent ? htmlContent.slice(0, 300) + '...' : 'No content'
+          preview: typeof htmlContent === 'string' && htmlContent ? htmlContent.slice(0, 300) + '...' : 'No content',
+          createdAt: dump.createdAt
         };
       }),
       ...scrapyData.map(dump => {
@@ -156,10 +158,19 @@ router.get('/dumps', async (req, res) => {
           domain: dump.domain,
           method: 'Scrapy',
           size: typeof htmlContent === 'string' ? htmlContent.length : 0,
-          preview: typeof htmlContent === 'string' && htmlContent ? htmlContent.slice(0, 300) + '...' : 'No content'
+          preview: typeof htmlContent === 'string' && htmlContent ? htmlContent.slice(0, 300) + '...' : 'No content',
+          createdAt: dump.createdAt
         };
       })
-    ].filter(dump => dump.size > 1000); // Only include substantial dumps
+    ]
+      .filter(dump => dump.size > 1000) // Only include substantial dumps
+      .sort((a, b) => {
+        // Sort by most recent first
+        const dateA = new Date(a.createdAt || 0).getTime();
+        const dateB = new Date(b.createdAt || 0).getTime();
+        return dateB - dateA;
+      })
+      .slice(0, 30); // Limit total to 30 most recent dumps
 
     res.json(allDumps);
   } catch (error) {
