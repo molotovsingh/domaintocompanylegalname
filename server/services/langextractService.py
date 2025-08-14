@@ -3,75 +3,112 @@
 import json
 import sys
 import os
+import re
+import time
 from typing import Dict, List, Any
-import langextract as lx
+import google.generativeai as genai
 
 class LangExtractService:
     def __init__(self):
-        # Initialize LangExtract with appropriate model
-        # You'll need to set LANGEXTRACT_API_KEY in your environment
-        pass
+        # Initialize Gemini with API key
+        api_key = os.environ.get('GEMINI_API_KEY')
+        if api_key:
+            genai.configure(api_key=api_key)
+            self.model = genai.GenerativeModel('gemini-1.5-flash')
+        else:
+            self.model = None
     
     def extract_entities(self, html_content: str, schema: Dict[str, str]) -> Dict[str, Any]:
-        """Extract entities using the real LangExtract library"""
+        """Extract entities using Gemini API"""
         try:
+            start_time = time.time()
+            
             # Strip HTML tags to get clean text
-            import re
             text_content = re.sub(r'<[^>]*>', ' ', html_content)
             text_content = re.sub(r'\s+', ' ', text_content).strip()
             
-            # Create LangExtract prompt based on schema
+            # Limit text length for demo
+            if len(text_content) > 10000:
+                text_content = text_content[:10000]
+            
+            if not self.model:
+                return {
+                    "error": "Gemini API key not configured",
+                    "entities": [],
+                    "processingTime": 0,
+                    "tokensProcessed": 0,
+                    "sourceMapping": [],
+                    "metadata": {}
+                }
+            
+            # Create extraction prompt based on schema
             schema_description = "\n".join([f"- {field}: {field_type}" for field, field_type in schema.items()])
             
-            prompt = f"""
-            Extract structured information from the following text based on this schema:
-            {schema_description}
+            prompt = f"""Extract structured information from the following text.
+
+Schema to extract:
+{schema_description}
+
+Instructions:
+1. Extract ONLY the exact text from the document for each field
+2. Return JSON format with field names as keys
+3. If a field is not found, use null
+4. Include confidence score (0-100) for each extraction
+5. For company names, include legal suffixes (Inc., Ltd., LLC, etc.)
+
+Text to analyze:
+{text_content[:5000]}
+
+Return ONLY valid JSON in this format:
+{{
+  "extractions": {{
+    "field_name": {{
+      "value": "extracted text",
+      "confidence": 85,
+      "context": "surrounding text where found"
+    }}
+  }}
+}}"""
             
-            Use exact text for extractions. Do not paraphrase or infer information not present in the text.
-            """
+            # Call Gemini API
+            response = self.model.generate_content(prompt)
             
-            # Create few-shot examples based on schema
-            examples = []
-            for field_name, field_type in schema.items():
-                if 'company' in field_name.lower() or 'name' in field_name.lower():
-                    examples.append({
-                        "text": "Apple Inc. is a technology company",
-                        field_name: "Apple Inc."
-                    })
-                elif 'email' in field_name.lower():
-                    examples.append({
-                        "text": "Contact us at info@example.com",
-                        field_name: "info@example.com"
-                    })
-                break  # Just one example for demo
-            
-            # Use LangExtract to perform extraction
-            extractor = lx.LangExtract()
-            
-            # Run extraction
-            results = extractor.extract(
-                text=text_content,
-                prompt=prompt,
-                examples=examples
-            )
+            # Parse the response
+            response_text = response.text
+            # Try to extract JSON from response
+            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            if json_match:
+                result_json = json.loads(json_match.group())
+            else:
+                result_json = {"extractions": {}}
             
             # Process results into our expected format
             entities = []
-            for result in results.entities:
-                entities.append({
-                    "text": result.text,
-                    "type": result.entity_type,
-                    "confidence": result.confidence,
-                    "sourceLocation": {
-                        "start": result.start_pos,
-                        "end": result.end_pos,
-                        "context": text_content[max(0, result.start_pos-50):result.end_pos+50]
-                    }
-                })
+            extractions = result_json.get("extractions", {})
+            
+            for field_name, extraction_data in extractions.items():
+                if extraction_data and extraction_data.get("value"):
+                    # Try to find the position in original text
+                    value = extraction_data["value"]
+                    start_pos = text_content.find(value)
+                    end_pos = start_pos + len(value) if start_pos != -1 else -1
+                    
+                    entities.append({
+                        "text": value,
+                        "type": field_name,
+                        "confidence": extraction_data.get("confidence", 50) / 100.0,
+                        "sourceLocation": {
+                            "start": start_pos if start_pos != -1 else 0,
+                            "end": end_pos if end_pos != -1 else len(value),
+                            "context": extraction_data.get("context", "")
+                        }
+                    })
+            
+            processing_time = int((time.time() - start_time) * 1000)
             
             return {
                 "entities": entities,
-                "processingTime": results.processing_time_ms,
+                "processingTime": processing_time,
                 "tokensProcessed": len(text_content.split()),
                 "sourceMapping": [
                     {
@@ -83,7 +120,8 @@ class LangExtractService:
                 "metadata": {
                     "language": "en",
                     "documentLength": len(text_content),
-                    "chunkCount": 1
+                    "chunkCount": 1,
+                    "model": "gemini-1.5-flash"
                 }
             }
             

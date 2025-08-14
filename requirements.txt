@@ -13,3 +13,4 @@ asyncpg
 fastapi
 lxml
 uvicorn
+google-generativeai
