@@ -25,7 +25,7 @@ class LangExtractService:
             print(f"Error initializing Gemini API: {e}", file=sys.stderr)
             self.model = None
     
-    def extract_entities(self, html_content: str, schema: Dict[str, str]) -> Dict[str, Any]:
+    def extract_entities(self, html_content: str, schema: Dict[str, str], domain: str = None) -> Dict[str, Any]:
         """Extract entities using Gemini API"""
         try:
             start_time = time.time()
@@ -50,12 +50,19 @@ class LangExtractService:
             if found_entities:
                 # Remove duplicates and limit to first 10 entities
                 unique_entities = list(set(found_entities))[:10]
-                entity_hint = f"[LEGAL ENTITIES FOUND: {', '.join(unique_entities)}] "
+                
+                # Extract domain name for prioritization hint
+                domain_hint = ""
+                if domain:
+                    domain_name = domain.replace('.com', '').replace('.in', '').replace('.org', '').replace('.net', '')
+                    domain_hint = f"[DOMAIN: {domain_name}] "
+                
+                entity_hint = f"{domain_hint}[LEGAL ENTITIES FOUND: {', '.join(unique_entities)}] "
                 text_content = entity_hint + text_content
                 
                 # Add count if many entities found
                 if len(unique_entities) > 5:
-                    entity_hint = f"[{len(unique_entities)} LEGAL ENTITIES FOUND: {', '.join(unique_entities)}] "
+                    entity_hint = f"{domain_hint}[{len(unique_entities)} LEGAL ENTITIES FOUND: {', '.join(unique_entities)}] "
                     text_content = entity_hint + text_content
             
             # Limit text length for demo
@@ -88,8 +95,11 @@ CRITICAL Instructions:
    Examples: "Living Media India Limited" NOT just "India Today"
              "Apple Inc." NOT just "Apple"
 2. For arrays (subsidiaries, brand_names): Extract ALL occurrences, not just the first one
-3. For primary_entity: Choose the most prominent or parent company
-4. For subsidiaries: Include ALL related companies, joint ventures, divisions
+3. For primary_entity or legal_entity_name: 
+   - PRIORITIZE the entity that matches the domain name (e.g., for elcomponics.com, prefer "ELcomponics Sales Private Limited")
+   - Look for the company that OWNS the website, not subsidiaries or partners
+   - The entity should match the domain prefix when possible
+4. For subsidiaries: Include ALL related companies, joint ventures, divisions BUT not as the primary entity
 5. Search for these patterns:
    - Copyright notices (© or "Copyright")
    - Legal disclaimers
@@ -190,17 +200,18 @@ def main():
             print(json.dumps({"error": "No input data received"}))
             sys.exit(1)
         
-        # Parse the input JSON containing content and schema
+        # Parse the input JSON containing content, schema, and domain
         data = json.loads(input_data)
         html_content = data.get('content', '')
         schema = data.get('schema', {})
+        domain = data.get('domain', '')
         
         if not html_content or not schema:
             print(json.dumps({"error": "Missing content or schema in input"}))
             sys.exit(1)
         
         service = LangExtractService()
-        result = service.extract_entities(html_content, schema)
+        result = service.extract_entities(html_content, schema, domain)
         print(json.dumps(result))
     except json.JSONDecodeError as e:
         print(json.dumps({"error": f"Invalid JSON input: {str(e)}"}))

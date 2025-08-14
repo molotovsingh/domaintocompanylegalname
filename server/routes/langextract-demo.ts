@@ -16,14 +16,15 @@ const __dirname = dirname(__filename);
 
 // Real LangExtract integration using Python subprocess
 class RealLangExtract {
-  static async extract(htmlContent: string, schema: any): Promise<any> {
+  static async extract(htmlContent: string, schema: any, domain?: string): Promise<any> {
     return new Promise((resolve, reject) => {
       const pythonScript = path.join(__dirname, '../services/langextractService.py');
       
       // Pass data through stdin to avoid E2BIG error with large content
       const inputData = JSON.stringify({
         content: htmlContent,
-        schema: schema
+        schema: schema,
+        domain: domain || ''
       });
       
       const pythonProcess = spawn('python3', [
@@ -196,8 +197,9 @@ router.post('/extract', async (req, res) => {
     const [source, id] = dumpId.split('_');
     
     let htmlContent = '';
+    let domain = '';
     
-    // Fetch HTML content based on source
+    // Fetch HTML content and domain based on source
     switch (source) {
       case 'axios':
         const axisDump = await betaDb.select()
@@ -205,6 +207,7 @@ router.post('/extract', async (req, res) => {
           .where(sql`${axiosCheerioV2Dumps.id} = ${parseInt(id)}`)
           .limit(1);
         htmlContent = axisDump[0]?.rawHtml || '';
+        domain = axisDump[0]?.domain || '';
         break;
         
       case 'crawlee':
@@ -215,6 +218,7 @@ router.post('/extract', async (req, res) => {
         // For crawlee dumps, we need to extract HTML from the JSONB dumpData
         const dumpData = crawleeDump[0]?.dumpData as any;
         htmlContent = dumpData?.pages?.[0]?.html || JSON.stringify(dumpData || {});
+        domain = crawleeDump[0]?.domain || '';
         break;
         
       case 'scrapy':
@@ -225,6 +229,7 @@ router.post('/extract', async (req, res) => {
         // For scrapy crawls, we need to extract HTML from the JSONB rawData
         const rawData = scrapyDump[0]?.rawData as any;
         htmlContent = rawData?.html || JSON.stringify(rawData || {});
+        domain = scrapyDump[0]?.domain || '';
         break;
         
       default:
@@ -238,14 +243,15 @@ router.post('/extract', async (req, res) => {
     // Strip HTML tags for text extraction
     const textContent = htmlContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
-    // Run real LangExtract extraction
-    const extraction = await RealLangExtract.extract(textContent, schema);
+    // Run real LangExtract extraction with domain
+    const extraction = await RealLangExtract.extract(textContent, schema, domain);
 
     res.json({
       success: true,
       extraction,
       metadata: {
         dumpId,
+        domain,
         schemaName,
         originalSize: htmlContent.length,
         textSize: textContent.length,
