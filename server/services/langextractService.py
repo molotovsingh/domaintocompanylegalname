@@ -143,18 +143,29 @@ Return ONLY valid JSON in this format:
             }
 
 def main():
-    if len(sys.argv) < 3:
-        print(json.dumps({"error": "Usage: python langextractService.py <html_content> <schema_json>"}))
-        sys.exit(1)
-    
-    html_content = sys.argv[1]
-    schema_json = sys.argv[2]
-    
     try:
-        schema = json.loads(schema_json)
+        # Read input data from stdin to handle large content
+        input_data = sys.stdin.read()
+        
+        if not input_data:
+            print(json.dumps({"error": "No input data received"}))
+            sys.exit(1)
+        
+        # Parse the input JSON containing content and schema
+        data = json.loads(input_data)
+        html_content = data.get('content', '')
+        schema = data.get('schema', {})
+        
+        if not html_content or not schema:
+            print(json.dumps({"error": "Missing content or schema in input"}))
+            sys.exit(1)
+        
         service = LangExtractService()
         result = service.extract_entities(html_content, schema)
         print(json.dumps(result))
+    except json.JSONDecodeError as e:
+        print(json.dumps({"error": f"Invalid JSON input: {str(e)}"}))
+        sys.exit(1)
     except Exception as e:
         print(json.dumps({"error": str(e)}))
         sys.exit(1)

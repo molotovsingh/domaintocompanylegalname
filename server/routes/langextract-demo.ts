@@ -19,15 +19,15 @@ class RealLangExtract {
   static async extract(htmlContent: string, schema: any): Promise<any> {
     return new Promise((resolve, reject) => {
       const pythonScript = path.join(__dirname, '../services/langextractService.py');
-      const schemaJson = JSON.stringify(schema);
       
-      // Escape HTML content for shell argument
-      const escapedContent = htmlContent.replace(/"/g, '\\"');
+      // Pass data through stdin to avoid E2BIG error with large content
+      const inputData = JSON.stringify({
+        content: htmlContent,
+        schema: schema
+      });
       
       const pythonProcess = spawn('python3', [
-        pythonScript,
-        escapedContent,
-        schemaJson
+        pythonScript
       ], {
         stdio: ['pipe', 'pipe', 'pipe'],
         cwd: process.cwd()
@@ -35,6 +35,10 @@ class RealLangExtract {
 
       let output = '';
       let errorOutput = '';
+
+      // Write input data to stdin
+      pythonProcess.stdin.write(inputData);
+      pythonProcess.stdin.end();
 
       pythonProcess.stdout.on('data', (data) => {
         output += data.toString();
