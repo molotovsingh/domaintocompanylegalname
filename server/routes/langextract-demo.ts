@@ -6,135 +6,57 @@ import { desc, sql } from 'drizzle-orm';
 
 const router = express.Router();
 
-// Mock LangExtract functionality for demo purposes
-// In real implementation, this would interface with the actual Python library
-class MockLangExtract {
+import { spawn } from 'child_process';
+import path from 'path';
+
+// Real LangExtract integration using Python subprocess
+class RealLangExtract {
   static async extract(htmlContent: string, schema: any): Promise<any> {
-    // Simulate processing time
-    const startTime = Date.now();
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 2000 + 500));
-    const processingTime = Date.now() - startTime;
-
-    // Mock entity extraction based on schema fields
-    const entities = [];
-    const tokensProcessed = Math.floor(htmlContent.length / 4); // Rough token estimate
-    
-    // Extract based on schema
-    for (const [fieldName, fieldType] of Object.entries(schema)) {
-      const mockEntities = this.extractEntitiesForField(htmlContent, fieldName, fieldType as string);
-      entities.push(...mockEntities);
-    }
-
-    // Mock source mapping
-    const sourceMapping = entities.map((entity, index) => ({
-      text: entity.text,
-      originalPosition: Math.floor(Math.random() * htmlContent.length),
-      extractedPosition: index
-    }));
-
-    return {
-      entities,
-      processingTime,
-      tokensProcessed,
-      sourceMapping,
-      metadata: {
-        language: 'en',
-        documentLength: htmlContent.length,
-        chunkCount: Math.ceil(htmlContent.length / 2000)
-      }
-    };
-  }
-
-  private static extractEntitiesForField(content: string, fieldName: string, fieldType: string): any[] {
-    const entities = [];
-    
-    // Mock extraction logic based on field name
-    if (fieldName.toLowerCase().includes('company') || fieldName.toLowerCase().includes('name')) {
-      const companyPatterns = [
-        /([A-Z][a-zA-Z\s&]+(?:Inc\.?|Corp\.?|LLC|Ltd\.?|Company|Co\.?))/g,
-        /©\s*\d{4}[^A-Za-z]*([A-Z][a-zA-Z\s&]+)/g
-      ];
+    return new Promise((resolve, reject) => {
+      const pythonScript = path.join(__dirname, '../services/langextractService.py');
+      const schemaJson = JSON.stringify(schema);
       
-      for (const pattern of companyPatterns) {
-        const matches = content.match(pattern);
-        if (matches) {
-          matches.slice(0, 3).forEach(match => {
-            const cleanMatch = match.replace(/©\s*\d{4}[^A-Za-z]*/, '').trim();
-            if (cleanMatch.length > 2) {
-              entities.push({
-                text: cleanMatch,
-                type: fieldName,
-                confidence: Math.random() * 0.3 + 0.7, // 70-100% confidence
-                sourceLocation: {
-                  start: content.indexOf(match),
-                  end: content.indexOf(match) + match.length,
-                  context: this.getContext(content, content.indexOf(match), 100)
-                }
-              });
-            }
-          });
+      // Escape HTML content for shell argument
+      const escapedContent = htmlContent.replace(/"/g, '\\"');
+      
+      const pythonProcess = spawn('python3', [
+        pythonScript,
+        escapedContent,
+        schemaJson
+      ], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        cwd: process.cwd()
+      });
+
+      let output = '';
+      let errorOutput = '';
+
+      pythonProcess.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      pythonProcess.stderr.on('data', (data) => {
+        errorOutput += data.toString();
+      });
+
+      pythonProcess.on('close', (code) => {
+        if (code !== 0) {
+          reject(new Error(`LangExtract process failed: ${errorOutput}`));
+          return;
         }
-      }
-    }
-    
-    if (fieldName.toLowerCase().includes('email')) {
-      const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-      const matches = content.match(emailPattern) || [];
-      matches.slice(0, 5).forEach(email => {
-        entities.push({
-          text: email,
-          type: fieldName,
-          confidence: Math.random() * 0.2 + 0.8,
-          sourceLocation: {
-            start: content.indexOf(email),
-            end: content.indexOf(email) + email.length,
-            context: this.getContext(content, content.indexOf(email), 50)
-          }
-        });
+
+        try {
+          const result = JSON.parse(output);
+          resolve(result);
+        } catch (parseError) {
+          reject(new Error(`Failed to parse LangExtract output: ${output}`));
+        }
       });
-    }
-    
-    if (fieldName.toLowerCase().includes('phone')) {
-      const phonePattern = /(\+?1[-.\s]?)?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}/g;
-      const matches = content.match(phonePattern) || [];
-      matches.slice(0, 3).forEach(phone => {
-        entities.push({
-          text: phone,
-          type: fieldName,
-          confidence: Math.random() * 0.2 + 0.75,
-          sourceLocation: {
-            start: content.indexOf(phone),
-            end: content.indexOf(phone) + phone.length,
-            context: this.getContext(content, content.indexOf(phone), 50)
-          }
-        });
+
+      pythonProcess.on('error', (error) => {
+        reject(new Error(`Failed to start LangExtract process: ${error.message}`));
       });
-    }
-    
-    if (fieldName.toLowerCase().includes('address')) {
-      const addressPattern = /\d+\s+[A-Za-z\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln)/gi;
-      const matches = content.match(addressPattern) || [];
-      matches.slice(0, 2).forEach(address => {
-        entities.push({
-          text: address,
-          type: fieldName,
-          confidence: Math.random() * 0.25 + 0.65,
-          sourceLocation: {
-            start: content.indexOf(address),
-            end: content.indexOf(address) + address.length,
-            context: this.getContext(content, content.indexOf(address), 80)
-          }
-        });
-      });
-    }
-    
-    return entities;
-  }
-  
-  private static getContext(content: string, position: number, contextLength: number): string {
-    const start = Math.max(0, position - contextLength / 2);
-    const end = Math.min(content.length, position + contextLength / 2);
-    return content.slice(start, end);
+    });
   }
 }
 
@@ -255,8 +177,8 @@ router.post('/extract', async (req, res) => {
     // Strip HTML tags for text extraction
     const textContent = htmlContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
-    // Run mock extraction
-    const extraction = await MockLangExtract.extract(textContent, schema);
+    // Run real LangExtract extraction
+    const extraction = await RealLangExtract.extract(textContent, schema);
 
     res.json({
       success: true,
