@@ -1,4 +1,58 @@
-import { pgTable, serial, text, timestamp, integer, boolean, real, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, timestamp, integer, boolean, real, jsonb, varchar } from 'drizzle-orm/pg-core';
+
+// Axios Cheerio V2 Dumps Table
+export const axiosCheerioV2Dumps = pgTable('axios_cheerio_dumps', {
+  id: serial('id').primaryKey(),
+  domain: varchar('domain', { length: 255 }).notNull(),
+  status: varchar('status', { length: 50 }).notNull().default('pending'),
+  companyName: text('company_name'),
+  extractionMethod: varchar('extraction_method', { length: 100 }),
+  confidenceScore: integer('confidence_score'),
+  httpStatus: integer('http_status'),
+  responseTimeMs: integer('response_time_ms'),
+  htmlSizeBytes: integer('html_size_bytes'),
+  rawHtml: text('raw_html'),
+  headers: jsonb('headers'),
+  metaTags: jsonb('meta_tags'),
+  extractionStrategies: jsonb('extraction_strategies'),
+  pageMetadata: jsonb('page_metadata'),
+  errorMessage: text('error_message'),
+  errorDetails: jsonb('error_details'),
+  createdAt: timestamp('created_at').defaultNow(),
+  completedAt: timestamp('completed_at'),
+  processingTimeMs: integer('processing_time_ms')
+});
+
+// Crawlee Dumps Table
+export const crawleeDumps = pgTable('crawlee_dumps', {
+  id: serial('id').primaryKey(),
+  domain: text('domain').notNull(),
+  status: text('status').notNull().default('pending'),
+  maxPages: integer('max_pages').default(10),
+  maxDepth: integer('max_depth').default(2),
+  waitTime: integer('wait_time').default(1000),
+  includePaths: jsonb('include_paths'),
+  excludePaths: jsonb('exclude_paths'),
+  dumpData: jsonb('dump_data'),
+  pagesCrawled: integer('pages_crawled').default(0),
+  totalSizeBytes: integer('total_size_bytes').default(0),
+  processingTimeMs: integer('processing_time_ms'),
+  errorMessage: text('error_message'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+  captureNetworkRequests: boolean('capture_network_requests')
+});
+
+// Scrapy Crawls Table
+export const scrapyCrawls = pgTable('scrapy_crawls', {
+  id: serial('id').primaryKey(),
+  domain: varchar('domain', { length: 255 }).notNull(),
+  rawData: jsonb('raw_data'),
+  status: varchar('status', { length: 50 }).notNull().default('pending'),
+  errorMessage: text('error_message'),
+  processingTimeMs: integer('processing_time_ms'),
+  createdAt: timestamp('created_at').defaultNow()
+});
 
 export const betaExperiments = pgTable('beta_experiments', {
   id: serial('id').primaryKey(),
@@ -84,3 +138,11 @@ export type BetaExperiment = typeof betaExperiments.$inferSelect;
 export type BetaSmokeTest = typeof betaSmokeTests.$inferSelect;
 export type NewBetaExperiment = typeof betaExperiments.$inferInsert;
 export type NewBetaSmokeTest = typeof betaSmokeTests.$inferInsert;
+
+// New table types
+export type AxiosCheerioV2Dump = typeof axiosCheerioV2Dumps.$inferSelect;
+export type NewAxiosCheerioV2Dump = typeof axiosCheerioV2Dumps.$inferInsert;
+export type CrawleeDump = typeof crawleeDumps.$inferSelect;
+export type NewCrawleeDump = typeof crawleeDumps.$inferInsert;
+export type ScrapyCrawl = typeof scrapyCrawls.$inferSelect;
+export type NewScrapyCrawl = typeof scrapyCrawls.$inferInsert;

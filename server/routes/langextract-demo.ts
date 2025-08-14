@@ -67,7 +67,7 @@ router.get('/dumps', async (req, res) => {
     const axiosDumps = await betaDb.select({
       id: axiosCheerioV2Dumps.id,
       domain: axiosCheerioV2Dumps.domain,
-      html: axiosCheerioV2Dumps.html,
+      html: axiosCheerioV2Dumps.rawHtml,
       createdAt: axiosCheerioV2Dumps.createdAt
     })
     .from(axiosCheerioV2Dumps)
@@ -77,7 +77,7 @@ router.get('/dumps', async (req, res) => {
     const crawleeDumpsData = await betaDb.select({
       id: crawleeDumps.id,
       domain: crawleeDumps.domain,
-      html: crawleeDumps.html,
+      html: crawleeDumps.dumpData,
       createdAt: crawleeDumps.createdAt
     })
     .from(crawleeDumps)
@@ -87,7 +87,7 @@ router.get('/dumps', async (req, res) => {
     const scrapyData = await betaDb.select({
       id: scrapyCrawls.id,
       domain: scrapyCrawls.domain,
-      html: scrapyCrawls.html,
+      html: scrapyCrawls.rawData,
       createdAt: scrapyCrawls.createdAt
     })
     .from(scrapyCrawls)
@@ -96,27 +96,38 @@ router.get('/dumps', async (req, res) => {
 
     // Format response
     const allDumps = [
-      ...axiosDumps.map(dump => ({
-        id: `axios_${dump.id}`,
-        domain: dump.domain,
-        method: 'Axios+Cheerio',
-        size: dump.html?.length || 0,
-        preview: dump.html ? dump.html.slice(0, 300) + '...' : 'No content'
-      })),
-      ...crawleeDumpsData.map(dump => ({
-        id: `crawlee_${dump.id}`,
-        domain: dump.domain,
-        method: 'Crawlee',
-        size: dump.html?.length || 0,
-        preview: dump.html ? dump.html.slice(0, 300) + '...' : 'No content'
-      })),
-      ...scrapyData.map(dump => ({
-        id: `scrapy_${dump.id}`,
-        domain: dump.domain,
-        method: 'Scrapy',
-        size: dump.html?.length || 0,
-        preview: dump.html ? dump.html.slice(0, 300) + '...' : 'No content'
-      }))
+      ...axiosDumps.map(dump => {
+        const htmlContent = dump.html || '';
+        return {
+          id: `axios_${dump.id}`,
+          domain: dump.domain,
+          method: 'Axios+Cheerio',
+          size: typeof htmlContent === 'string' ? htmlContent.length : 0,
+          preview: typeof htmlContent === 'string' && htmlContent ? htmlContent.slice(0, 300) + '...' : 'No content'
+        };
+      }),
+      ...crawleeDumpsData.map(dump => {
+        const dumpData = dump.html as any;
+        const htmlContent = dumpData?.pages?.[0]?.html || JSON.stringify(dumpData || {});
+        return {
+          id: `crawlee_${dump.id}`,
+          domain: dump.domain,
+          method: 'Crawlee',
+          size: typeof htmlContent === 'string' ? htmlContent.length : 0,
+          preview: typeof htmlContent === 'string' && htmlContent ? htmlContent.slice(0, 300) + '...' : 'No content'
+        };
+      }),
+      ...scrapyData.map(dump => {
+        const rawData = dump.html as any;
+        const htmlContent = rawData?.html || JSON.stringify(rawData || {});
+        return {
+          id: `scrapy_${dump.id}`,
+          domain: dump.domain,
+          method: 'Scrapy',
+          size: typeof htmlContent === 'string' ? htmlContent.length : 0,
+          preview: typeof htmlContent === 'string' && htmlContent ? htmlContent.slice(0, 300) + '...' : 'No content'
+        };
+      })
     ].filter(dump => dump.size > 1000); // Only include substantial dumps
 
     res.json(allDumps);
@@ -147,7 +158,7 @@ router.post('/extract', async (req, res) => {
           .from(axiosCheerioV2Dumps)
           .where(sql`${axiosCheerioV2Dumps.id} = ${parseInt(id)}`)
           .limit(1);
-        htmlContent = axisDump[0]?.html || '';
+        htmlContent = axisDump[0]?.rawHtml || '';
         break;
         
       case 'crawlee':
@@ -155,7 +166,9 @@ router.post('/extract', async (req, res) => {
           .from(crawleeDumps)
           .where(sql`${crawleeDumps.id} = ${parseInt(id)}`)
           .limit(1);
-        htmlContent = crawleeDump[0]?.html || '';
+        // For crawlee dumps, we need to extract HTML from the JSONB dumpData
+        const dumpData = crawleeDump[0]?.dumpData as any;
+        htmlContent = dumpData?.pages?.[0]?.html || JSON.stringify(dumpData || {});
         break;
         
       case 'scrapy':
@@ -163,7 +176,9 @@ router.post('/extract', async (req, res) => {
           .from(scrapyCrawls)
           .where(sql`${scrapyCrawls.id} = ${parseInt(id)}`)
           .limit(1);
-        htmlContent = scrapyDump[0]?.html || '';
+        // For scrapy crawls, we need to extract HTML from the JSONB rawData
+        const rawData = scrapyDump[0]?.rawData as any;
+        htmlContent = rawData?.html || JSON.stringify(rawData || {});
         break;
         
       default:
