@@ -1,6 +1,7 @@
 {
   "companyName": "string - Full legal name with suffix (Inc., Ltd., LLC, etc.)",
   "legalEntityName": "string - Official registered business name",
+  "principalDomicile": "string - Principal place of business or legal domicile",
   "tradingAs": "string - DBA or trading name if different from legal name",
   "registrationNumber": "string - Company registration or incorporation number",
   "taxId": "string - Tax identification number (EIN, VAT, etc.)",
