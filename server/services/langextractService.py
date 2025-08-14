@@ -48,8 +48,15 @@ class LangExtractService:
             
             # Add hint about found entities to the beginning of text
             if found_entities:
-                entity_hint = f"[LEGAL ENTITIES FOUND: {', '.join(set(found_entities[:5]))}] "
+                # Remove duplicates and limit to first 10 entities
+                unique_entities = list(set(found_entities))[:10]
+                entity_hint = f"[LEGAL ENTITIES FOUND: {', '.join(unique_entities)}] "
                 text_content = entity_hint + text_content
+                
+                # Add count if many entities found
+                if len(unique_entities) > 5:
+                    entity_hint = f"[{len(unique_entities)} LEGAL ENTITIES FOUND: {', '.join(unique_entities)}] "
+                    text_content = entity_hint + text_content
             
             # Limit text length for demo
             if len(text_content) > 10000:
@@ -80,17 +87,20 @@ CRITICAL Instructions:
    - GmbH, S.A., B.V., AG, AB, AS
    Examples: "Living Media India Limited" NOT just "India Today"
              "Apple Inc." NOT just "Apple"
-2. Search for these patterns:
+2. For arrays (subsidiaries, brand_names): Extract ALL occurrences, not just the first one
+3. For primary_entity: Choose the most prominent or parent company
+4. For subsidiaries: Include ALL related companies, joint ventures, divisions
+5. Search for these patterns:
    - Copyright notices (© or "Copyright")
    - Legal disclaimers
    - About us sections
    - Terms of service mentions
-3. If both a brand name and legal entity exist, ALWAYS prefer the legal entity
-4. For corporate_suffix field: Extract ONLY the suffix part (e.g., "Limited", "Inc.", "LLC")
-5. For brand_name field: Extract the common/marketing name WITHOUT legal suffixes
-6. Extract ONLY exact text from the document
-7. Include confidence score (0-100) for each extraction
-8. Return null if field is not found
+6. If both a brand name and legal entity exist, ALWAYS prefer the legal entity
+7. For corporate_suffix field: Extract ONLY the suffix part (e.g., "Limited", "Inc.", "LLC")
+8. For brand_name/brand_names fields: Extract the common/marketing name WITHOUT legal suffixes
+9. Extract ONLY exact text from the document
+10. Include confidence score (0-100) for each extraction
+11. Return null if field is not found
 
 Text to analyze:
 {text_content[:5000]}

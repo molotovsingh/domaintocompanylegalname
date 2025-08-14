@@ -82,6 +82,25 @@ export default function LangExtractDemo() {
   "registration_number": "string",
   "corporate_suffix": "string"
 }`,
+    'Multiple Entities (Subsidiaries)': `{
+  "primary_entity": {
+    "legal_name": "string",
+    "corporate_suffix": "string",
+    "registration_number": "string"
+  },
+  "subsidiaries": [{
+    "legal_name": "string",
+    "corporate_suffix": "string",
+    "relationship": "string"
+  }],
+  "brand_names": ["string"],
+  "total_entities_found": "number"
+}`,
+    'All Entities (Simple Array)': `{
+  "legal_entities": ["string"],
+  "brand_names": ["string"],
+  "total_count": "number"
+}`,
     'Company Information': `{
   "company_name": "string",
   "legal_entity_type": "string", 
