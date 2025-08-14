@@ -19,8 +19,8 @@ class LangExtractService:
         
         try:
             genai.configure(api_key=api_key)
-            self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
-            print("Gemini 2.0 Flash API initialized successfully", file=sys.stderr)
+            self.model = genai.GenerativeModel('gemini-2.5-flash-lite')
+            print("Gemini 2.5 Flash-Lite API initialized successfully", file=sys.stderr)
         except Exception as e:
             print(f"Error initializing Gemini API: {e}", file=sys.stderr)
             self.model = None
@@ -128,7 +128,7 @@ Return ONLY valid JSON in this format:
                     "language": "en",
                     "documentLength": len(text_content),
                     "chunkCount": 1,
-                    "model": "gemini-2.0-flash-exp"
+                    "model": "gemini-2.5-flash-lite"
                 }
             }
             
