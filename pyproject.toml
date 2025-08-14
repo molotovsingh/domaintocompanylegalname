@@ -12,4 +12,5 @@ dependencies = [
     "uvicorn>=0.35.0",
     "requests>=2.32.4",
     "beautifulsoup4>=4.13.4",
+    "langextract>=1.0.7",
 ]
