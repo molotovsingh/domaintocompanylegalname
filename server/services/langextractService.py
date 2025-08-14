@@ -34,6 +34,23 @@ class LangExtractService:
             text_content = re.sub(r'<[^>]*>', ' ', html_content)
             text_content = re.sub(r'\s+', ' ', text_content).strip()
             
+            # Pre-process to find legal entities with suffixes (capture full name)
+            legal_suffixes = [
+                r'\b([A-Z][A-Za-z0-9\s&\.\-]+\s+(?:Limited|Ltd\.?|Inc\.?|Incorporated|LLC|L\.L\.C\.|Corp\.?|Corporation))\b',
+                r'\b([A-Z][A-Za-z0-9\s&\.\-]+\s+(?:Private\s+Limited|Pvt\.?\s+Ltd\.?|Public\s+Limited\s+Company|PLC))\b',
+                r'\b([A-Z][A-Za-z0-9\s&\.\-]+\s+(?:GmbH|S\.A\.|B\.V\.|AG|AB|AS|S\.p\.A\.))\b'
+            ]
+            
+            found_entities = []
+            for pattern in legal_suffixes:
+                matches = re.findall(pattern, text_content, re.IGNORECASE)
+                found_entities.extend(matches)
+            
+            # Add hint about found entities to the beginning of text
+            if found_entities:
+                entity_hint = f"[LEGAL ENTITIES FOUND: {', '.join(set(found_entities[:5]))}] "
+                text_content = entity_hint + text_content
+            
             # Limit text length for demo
             if len(text_content) > 10000:
                 text_content = text_content[:10000]
@@ -56,12 +73,22 @@ class LangExtractService:
 Schema to extract:
 {schema_description}
 
-Instructions:
-1. Extract ONLY the exact text from the document for each field
-2. Return JSON format with field names as keys
-3. If a field is not found, use null
-4. Include confidence score (0-100) for each extraction
-5. For company names, include legal suffixes (Inc., Ltd., LLC, etc.)
+CRITICAL Instructions:
+1. For company_name field: Look for the LEGAL ENTITY NAME with suffixes like:
+   - Limited, Ltd., Inc., Incorporated, LLC, Corp., Corporation
+   - Private Limited, Pvt. Ltd., Public Limited Company, PLC
+   - GmbH, S.A., B.V., AG, AB, AS
+   Examples: "Living Media India Limited" NOT just "India Today"
+             "Apple Inc." NOT just "Apple"
+2. Search for these patterns:
+   - Copyright notices (© or "Copyright")
+   - Legal disclaimers
+   - About us sections
+   - Terms of service mentions
+3. If both a brand name and legal entity exist, ALWAYS prefer the legal entity
+4. Extract ONLY exact text from the document
+5. Include confidence score (0-100) for each extraction
+6. Return null if field is not found
 
 Text to analyze:
 {text_content[:5000]}
