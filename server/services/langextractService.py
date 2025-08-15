@@ -82,49 +82,79 @@ class LangExtractService:
                     "metadata": {}
                 }
             
-            # Create extraction prompt based on schema
-            schema_description = "\n".join([f"- {field}: {field_type}" for field, field_type in schema.items()])
+            # Create LangExtract-style prompt description
+            prompt_description = f"""Extract structured legal entity information from the following text.
+Use exact text for extractions. Do not paraphrase or overlap entities.
+Focus on complete legal entity names with their proper suffixes.
+For domain {domain or 'unknown'}, prioritize entities that match the domain ownership."""
+
+            # Create schema-based examples (simplified for demonstration)
+            schema_fields = list(schema.keys())
             
-            prompt = f"""Extract structured information from the following text.
+            # Generate examples based on schema type
+            if 'legal_entity_name' in schema_fields:
+                example_text = "Copyright © 2024 Apple Inc. All rights reserved. Apple Inc. is a multinational technology company."
+                example_extractions = [
+                    {
+                        "extraction_class": "legal_entity_name",
+                        "extraction_text": "Apple Inc.",
+                        "attributes": {"confidence": 95, "source": "copyright_notice"}
+                    }
+                ]
+            elif 'company_name' in schema_fields:
+                example_text = "Welcome to Microsoft Corporation. Microsoft Corporation provides cloud services."
+                example_extractions = [
+                    {
+                        "extraction_class": "company_name", 
+                        "extraction_text": "Microsoft Corporation",
+                        "attributes": {"confidence": 90, "legal_suffix": "Corporation"}
+                    }
+                ]
+            else:
+                # Generic example for other schemas
+                example_text = "Contact Meta Platforms, Inc. for more information about our services."
+                example_extractions = []
+                for field in schema_fields[:2]:  # Limit to first 2 fields for example
+                    if 'name' in field.lower() or 'entity' in field.lower():
+                        example_extractions.append({
+                            "extraction_class": field,
+                            "extraction_text": "Meta Platforms, Inc.",
+                            "attributes": {"confidence": 85}
+                        })
 
-Schema to extract:
-{schema_description}
+            # Build the structured prompt following LangExtract patterns
+            prompt = f"""Extract structured information using the following schema and examples as guidance.
 
-CRITICAL Instructions:
-1. For company_name or legal_entity_name fields: Look for the LEGAL ENTITY NAME with suffixes like:
-   - Limited, Ltd., Inc., Incorporated, LLC, Corp., Corporation
-   - Private Limited, Pvt. Ltd., Public Limited Company, PLC
-   - GmbH, S.A., B.V., AG, AB, AS
-   Examples: "Living Media India Limited" NOT just "India Today"
-             "Apple Inc." NOT just "Apple"
-2. For arrays (subsidiaries, brand_names): Extract ALL occurrences, not just the first one
-3. For primary_entity or legal_entity_name: 
-   - PRIORITIZE the entity that matches the domain name (e.g., for elcomponics.com, prefer "ELcomponics Sales Private Limited")
-   - Look for the company that OWNS the website, not subsidiaries or partners
-   - The entity should match the domain prefix when possible
-4. For subsidiaries: Include ALL related companies, joint ventures, divisions BUT not as the primary entity
-5. Search for these patterns:
-   - Copyright notices (© or "Copyright")
-   - Legal disclaimers
-   - About us sections
-   - Terms of service mentions
-6. If both a brand name and legal entity exist, ALWAYS prefer the legal entity
-7. For corporate_suffix field: Extract ONLY the suffix part (e.g., "Limited", "Inc.", "LLC")
-8. For brand_name/brand_names fields: Extract the common/marketing name WITHOUT legal suffixes
-9. Extract ONLY exact text from the document
-10. Include confidence score (0-100) for each extraction
-11. Return null if field is not found
+EXTRACTION TASK:
+{prompt_description}
 
-Text to analyze:
+SCHEMA FIELDS TO EXTRACT:
+{chr(10).join([f"- {field}: {field_type}" for field, field_type in schema.items()])}
+
+HIGH-QUALITY EXAMPLE:
+Text: "{example_text}"
+Expected Extractions:
+{chr(10).join([f"  - {ex['extraction_class']}: '{ex['extraction_text']}' (confidence: {ex['attributes'].get('confidence', 80)})" for ex in example_extractions])}
+
+CRITICAL EXTRACTION RULES:
+1. Extract COMPLETE legal entity names with suffixes (Inc., Ltd., LLC, Corp., etc.)
+2. For domain {domain or 'any domain'}: prioritize entities matching domain ownership
+3. Search in: copyright notices, legal disclaimers, about sections, footer information
+4. Use exact text from document - do not paraphrase
+5. For arrays: extract ALL relevant instances, not just the first
+6. Include confidence score (0-100) for each extraction
+
+TEXT TO ANALYZE:
 {text_content[:5000]}
 
-Return ONLY valid JSON in this format:
+RESPONSE FORMAT (JSON only):
 {{
   "extractions": {{
     "field_name": {{
       "value": "extracted text",
       "confidence": 85,
-      "context": "surrounding text where found"
+      "context": "surrounding text where found",
+      "extraction_method": "copyright_notice|footer|about_section|general"
     }}
   }}
 }}"""
