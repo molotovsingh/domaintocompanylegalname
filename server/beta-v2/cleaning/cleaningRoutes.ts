@@ -84,6 +84,20 @@ export function createCleaningRoutes(): Router {
   });
 
   /**
+   * GET /api/beta/cleaning/results
+   * Get all cleaning results
+   */
+  router.get('/results', async (req: Request, res: Response) => {
+    try {
+      // For now, return empty array since we're not storing cleaning results persistently
+      res.json([]);
+    } catch (error) {
+      console.error('[CleaningRoutes] Error fetching all results:', error);
+      res.status(500).json({ error: 'Failed to fetch cleaning results' });
+    }
+  });
+
+  /**
    * GET /api/beta/cleaning/results/:sourceType/:sourceId
    * Get all cleaning results for a specific dump
    */

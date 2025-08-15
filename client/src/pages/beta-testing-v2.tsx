@@ -77,28 +77,14 @@ export default function BetaTestingV2() {
       const response = await fetch('/api/beta/dumps');
       if (response.ok) {
         const data = await response.json();
-        // API returns { dumps: [...] }, organize by type
-        const organized = {
+        // API returns { dumps: [...] } with playwright dumps only currently
+        // For now, all dumps are playwright dumps
+        const organized: any = {
           crawlee: [],
           scrapy: [],
-          playwright: [],
+          playwright: data.dumps || [],
           axiosCheerio: []
         };
-        
-        if (data.dumps && Array.isArray(data.dumps)) {
-          data.dumps.forEach((dump: any) => {
-            // Organize dumps by their source type
-            if (dump.source === 'crawlee') {
-              organized.crawlee.push(dump);
-            } else if (dump.source === 'scrapy') {
-              organized.scrapy.push(dump);
-            } else if (dump.source === 'playwright') {
-              organized.playwright.push(dump);
-            } else if (dump.source === 'axios-cheerio') {
-              organized.axiosCheerio.push(dump);
-            }
-          });
-        }
         
         setDumps(organized);
       }
@@ -182,7 +168,7 @@ export default function BetaTestingV2() {
   };
 
   const getModelDisplayName = (modelId: string) => {
-    const names = {
+    const names: { [key: string]: string } = {
       'deepseek-chat': 'DeepSeek Chat',
       'deepseek-v3': 'DeepSeek V3',
       'deepseek-r1': 'DeepSeek R1 Reasoning',
@@ -352,13 +338,13 @@ export default function BetaTestingV2() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {dumps.crawlee && dumps.crawlee.slice(0, 6).map((dump: any) => (
-                  <div key={`crawlee-${dump.id}`} className="border rounded-lg p-4">
+                {dumps.playwright && dumps.playwright.slice(0, 6).map((dump: any) => (
+                  <div key={`playwright-${dump.id}`} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <h4 className="font-medium truncate">{dump.domain}</h4>
                         <p className="text-xs text-gray-500">
-                          ID: {dump.id} • {new Date(dump.created_at).toLocaleDateString()}
+                          ID: {dump.id} • {new Date(dump.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -368,10 +354,10 @@ export default function BetaTestingV2() {
                         size="sm"
                         variant="outline"
                         className="w-full"
-                        onClick={() => startCleaning('crawlee_dump', dump.id)}
-                        disabled={cleaningInProgress.has(`crawlee_dump:${dump.id}`)}
+                        onClick={() => startCleaning('playwright_dump', dump.id)}
+                        disabled={cleaningInProgress.has(`playwright_dump:${dump.id}`)}
                       >
-                        {cleaningInProgress.has(`crawlee_dump:${dump.id}`) ? (
+                        {cleaningInProgress.has(`playwright_dump:${dump.id}`) ? (
                           <>
                             <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                             Cleaning...

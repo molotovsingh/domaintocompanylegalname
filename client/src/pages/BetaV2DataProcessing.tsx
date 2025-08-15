@@ -984,7 +984,7 @@ export default function BetaV2DataProcessingPage() {
                                 <h4 className="text-sm font-semibold mb-2">Arbitration Results (DeepSeek R1 Reasoning)</h4>
                                 <div className="space-y-2">
                                   {arbitrationResultsData.rankedEntities.slice(0, 5).map((entity: any, idx: number) => (
-                                    <div key={idx} className="bg-white p-2 rounded">
+                                    <div key={`entity-${idx}-${entity.leiCode || entity.legalName}`} className="bg-white p-2 rounded">
                                       <div className="flex justify-between items-center">
                                         <div>
                                           <span className="font-medium">#{idx + 1}: {entity.legalName}</span>
@@ -1015,7 +1015,7 @@ export default function BetaV2DataProcessingPage() {
                             )}
                             
                             {result.claims.map((claim, claimIdx) => (
-                              <div key={claimIdx} className="border rounded-lg p-4 space-y-2">
+                              <div key={`claim-${result.dumpId}-${claimIdx}`} className="border rounded-lg p-4 space-y-2">
                                 <div className="flex items-start justify-between">
                                   <div className="w-full">
                                     <p className="font-medium">{claim.entityName || claim.legalName}</p>
