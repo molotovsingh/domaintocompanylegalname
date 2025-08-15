@@ -15,6 +15,7 @@ interface UserBias {
     target: string[];
     exclude: string[];
   };
+  muteRankingRules?: boolean; // For testing - bypasses all ranking logic
 }
 
 interface RankedEntity {
@@ -164,6 +165,57 @@ export class PerplexityArbitrationService {
       }
     }
 
+    // Check if ranking rules are muted for testing
+    if (userBias.muteRankingRules) {
+      console.log('[Perplexity Arbitration] Ranking rules MUTED for testing');
+      const prompt = `
+You are an entity arbitrator. For TESTING PURPOSES, ranking rules are DISABLED.
+
+Domain being analyzed: ${domain}
+
+## Claims to Evaluate
+
+Claim 0 (Website claims to be): 
+- Entity: ${claim0?.entityName || 'Unknown'}
+- Source: ${claim0?.source || 'website extraction'}
+- Confidence: ${claim0?.confidence || 0}
+
+GLEIF Claims (${gleifClaims.length} verified entities):
+${gleifClaims.map(c => `
+Claim ${c.claimNumber}:
+- Legal Name: ${c.entityName}
+- LEI Code: ${c.leiCode}
+- Jurisdiction: ${c.metadata?.jurisdiction || 'Unknown'}
+- Entity Status: ${c.metadata?.entityStatus || 'Unknown'}
+- Legal Form: ${c.metadata?.legalForm || 'Unknown'}
+- Hierarchy: ${c.metadata?.hierarchyLevel || 'Unknown'}
+- Headquarters: ${c.metadata?.headquarters?.city || 'Unknown'}, ${c.metadata?.headquarters?.country || 'Unknown'}
+`).join('\n')}
+
+## TESTING MODE - NO RANKING RULES
+
+Since ranking rules are muted, evaluate all entities EQUALLY without applying any preferences for:
+- Parent/subsidiary relationships
+- Jurisdiction preferences
+- Entity status
+- Legal form
+- Data recency
+
+Simply list all entities with equal consideration, focusing only on:
+1. Whether the entity has a valid LEI code
+2. Basic entity information accuracy
+3. Relationship to the domain
+
+Return a JSON object with:
+{
+  "rankedEntities": [array of all entities with equal treatment],
+  "overallReasoning": "Testing mode - all entities evaluated equally without ranking bias",
+  "citations": [any relevant sources you find]
+}
+`;
+      return prompt;
+    }
+
     const prompt = `
 You are an entity arbitrator for acquisition research. Your task is to rank corporate entities based on their relevance for acquisition targeting.
 
@@ -267,6 +319,30 @@ Focus on identifying the ultimate decision-making entity for acquisition purpose
     elapsedMs: number
   ): Promise<ArbitrationResult> {
     console.log('[Arbitration] Using fallback algorithmic ranking');
+
+    // Check if ranking rules are muted
+    if (userBias.muteRankingRules) {
+      console.log('[Arbitration] Ranking rules MUTED - returning entities with equal scores');
+      
+      // Return all GLEIF claims with equal scores
+      const gleifClaims = claims.filter(c => c.claimNumber > 0);
+      const rankedEntities: RankedEntity[] = gleifClaims.map((claim, index) => ({
+        rank: index + 1,
+        entityName: claim.entityName,
+        leiCode: claim.leiCode,
+        confidence: 0.5, // Equal confidence for all
+        reasoning: `Testing mode - Entity evaluated without ranking bias. LEI: ${claim.leiCode || 'N/A'}, Status: ${claim.metadata?.entityStatus || 'Unknown'}`,
+        acquisitionGrade: 'N/A (Testing)',
+        metadata: claim.metadata
+      }));
+
+      return {
+        rankedEntities: rankedEntities.slice(0, 5), // Still limit to top 5 for display
+        overallReasoning: 'TESTING MODE: All entities evaluated equally without ranking rules. No preferences applied for parent/subsidiary relationships, jurisdictions, entity status, or other factors.',
+        citations: [],
+        processingTimeMs: elapsedMs
+      };
+    }
 
     const scoredClaims = await Promise.all(
       claims

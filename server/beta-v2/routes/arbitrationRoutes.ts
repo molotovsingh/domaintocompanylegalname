@@ -11,7 +11,7 @@ const router = Router();
  */
 router.post('/request', async (req, res) => {
   try {
-    const { domain, dumpId, collectionType, existingClaims } = req.body;
+    const { domain, dumpId, collectionType, existingClaims, muteRankingRules } = req.body;
 
     if (!domain || !dumpId || !collectionType) {
       return res.status(400).json({
@@ -34,7 +34,7 @@ router.post('/request', async (req, res) => {
     console.log(`[Arbitration] Created request ${requestId} for ${domain}`);
 
     // Process asynchronously with existing claims if provided
-    processArbitrationAsync(requestId, domain, dumpId, collectionType, undefined, existingClaims);
+    processArbitrationAsync(requestId, domain, dumpId, collectionType, undefined, existingClaims, muteRankingRules);
 
     res.json({
       success: true,
@@ -283,7 +283,8 @@ async function processArbitrationAsync(
   dumpId: number,
   collectionType: string,
   userBiasProfileId?: number,
-  providedClaims?: any[]
+  providedClaims?: any[],
+  muteRankingRules?: boolean
 ) {
   try {
     console.log(`[Arbitration] Processing request ${requestId}`);
@@ -345,6 +346,12 @@ async function processArbitrationAsync(
 
     // Get user bias
     const userBias = await perplexityArbitrationService.getDefaultUserBias();
+    
+    // Apply mute ranking rules if specified
+    if (muteRankingRules !== undefined) {
+      userBias.muteRankingRules = muteRankingRules;
+      console.log(`[Arbitration] Ranking rules ${muteRankingRules ? 'MUTED' : 'ACTIVE'} for testing`);
+    }
 
     // Perform arbitration using Perplexity
     const arbitrationResult = await perplexityArbitrationService.arbitrate(claims, userBias);

@@ -159,6 +159,7 @@ export default function BetaV2DataProcessingPage() {
   const [processingStates, setProcessingStates] = useState<Record<string, boolean>>({});
   const [selectedCleaningModel, setSelectedCleaningModel] = useState('deepseek-chat');
   const [availableModels, setAvailableModels] = useState<any[]>([]);
+  const [muteRankingRules, setMuteRankingRules] = useState(false); // For testing - bypasses ranking logic
 
   // Check beta server status - reduce polling frequency
   const { data: serverStatus } = useQuery<BetaServerStatus>({
@@ -923,10 +924,28 @@ export default function BetaV2DataProcessingPage() {
                                 {result.claims.length} claims • Generated {formatTimestamp(result.processedAt)}
                               </CardDescription>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex items-center gap-2">
                               <Badge variant="outline">
                                 {result.collectionType.replace('_', ' ')}
                               </Badge>
+                              
+                              {/* Mute Ranking Rules Toggle for Testing */}
+                              <div className="flex items-center gap-1 px-2 py-1 bg-amber-50 border border-amber-200 rounded">
+                                <input
+                                  type="checkbox"
+                                  id={`mute-ranking-${result.dumpId}`}
+                                  checked={muteRankingRules}
+                                  onChange={(e) => setMuteRankingRules(e.target.checked)}
+                                  className="h-3 w-3"
+                                />
+                                <label 
+                                  htmlFor={`mute-ranking-${result.dumpId}`} 
+                                  className="text-xs font-medium text-amber-700 cursor-pointer"
+                                >
+                                  Mute Rules (Test)
+                                </label>
+                              </div>
+                              
                               <Button
                                 size="sm"
                                 variant="default"
@@ -939,7 +958,8 @@ export default function BetaV2DataProcessingPage() {
                                       domain: result.domain,
                                       dumpId: result.dumpId,
                                       collectionType: result.collectionType,
-                                      existingClaims: result.claims // Pass the already generated claims
+                                      existingClaims: result.claims, // Pass the already generated claims
+                                      muteRankingRules: muteRankingRules // Pass the mute flag
                                     });
                                     
                                     const data = await response.json();
