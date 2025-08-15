@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, RefreshCw, PlayCircle, CheckCircle, Clock, AlertCircle, Database, Brain, Search, ChevronDown, ChevronUp, FileSearch, Award, Settings } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -156,6 +157,8 @@ export default function BetaV2DataProcessingPage() {
   const [arbitrationLoading, setArbitrationLoading] = useState(false);
   const [selectedArbitrationRequest, setSelectedArbitrationRequest] = useState<number | null>(null);
   const [processingStates, setProcessingStates] = useState<Record<string, boolean>>({});
+  const [selectedCleaningModel, setSelectedCleaningModel] = useState('deepseek-chat');
+  const [availableModels, setAvailableModels] = useState<any[]>([]);
 
   // Check beta server status - reduce polling frequency
   const { data: serverStatus } = useQuery<BetaServerStatus>({
@@ -204,6 +207,22 @@ export default function BetaV2DataProcessingPage() {
       }
     }
   }, [results]);
+
+  // Fetch available models for cleaning
+  useEffect(() => {
+    const fetchModels = async () => {
+      try {
+        const response = await fetch('/api/beta/cleaning/models');
+        if (response.ok) {
+          const data = await response.json();
+          setAvailableModels(data.models || []);
+        }
+      } catch (error) {
+        console.error('Error fetching models:', error);
+      }
+    };
+    fetchModels();
+  }, []);
 
   // Fetch available dumps
   const { data: dumpsData, isLoading: dumpsLoading, refetch: refetchDumps } = useQuery<{ data: AvailableDump[] }>({
@@ -690,10 +709,47 @@ export default function BetaV2DataProcessingPage() {
                   )}
                   
                   {selectedDumpForClaims && (
-                    <div className="flex gap-2 mt-4">
-                      <Button
-                        variant="outline"
-                        className="flex-1"
+                    <div className="space-y-4 mt-4">
+                      {/* Model Selection */}
+                      <div className="border rounded-lg p-3 bg-muted/30">
+                        <label className="block text-sm font-medium mb-2">
+                          Select LLM Cleaning Model
+                        </label>
+                        <Select value={selectedCleaningModel} onValueChange={setSelectedCleaningModel}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select cleaning model..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableModels.length > 0 ? (
+                              availableModels.map((model: any) => (
+                                <SelectItem key={model.id || model.name} value={model.id || model.name}>
+                                  {model.name} {model.isFree ? '(Free)' : ''}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <>
+                                <SelectItem value="deepseek-chat">DeepSeek Chat (Free)</SelectItem>
+                                <SelectItem value="deepseek-v3">DeepSeek V3 (Free)</SelectItem>
+                                <SelectItem value="deepseek-r1">DeepSeek R1 Reasoning (Free)</SelectItem>
+                                <SelectItem value="qwen-2.5">Qwen 2.5 72B (Free)</SelectItem>
+                                <SelectItem value="qwen3-coder">Qwen3 Coder (Free)</SelectItem>
+                                <SelectItem value="llama-3-8b">Llama 3 8B (Free)</SelectItem>
+                                <SelectItem value="mistral-7b">Mistral 7B (Free)</SelectItem>
+                                <SelectItem value="gemma-7b">Gemma 7B (Free)</SelectItem>
+                              </>
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Selected: <span className="font-mono">{selectedCleaningModel}</span>
+                        </p>
+                      </div>
+                      
+                      {/* Action Buttons */}
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          className="flex-1"
                         onClick={async () => {
                           try {
                             const response = await apiRequest('POST', '/api/beta/gleif-claims/pre-check', {
@@ -744,13 +800,13 @@ export default function BetaV2DataProcessingPage() {
                           try {
                             toast({
                               title: "Starting LLM Cleaning",
-                              description: `Processing ${selectedDumpForClaims.domain} with DeepSeek Chat...`,
+                              description: `Processing ${selectedDumpForClaims.domain} with ${selectedCleaningModel}...`,
                             });
                             
                             const response = await apiRequest('POST', '/api/beta/cleaning/process', {
                               sourceType: selectedDumpForClaims.sourceType,
                               sourceId: selectedDumpForClaims.id.toString(),
-                              models: ['deepseek-chat'] // Default to DeepSeek for now
+                              models: [selectedCleaningModel] // Use selected model
                             });
                             
                             const rawResponse = await response.text();
@@ -848,6 +904,7 @@ export default function BetaV2DataProcessingPage() {
                         <Brain className="mr-2 h-4 w-4" />
                         Generate Claims
                       </Button>
+                      </div>
                     </div>
                   )}
                 </div>
