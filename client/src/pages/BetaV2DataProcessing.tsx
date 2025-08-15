@@ -553,8 +553,8 @@ export default function BetaV2DataProcessingPage() {
                   </TableHeader>
                   <TableBody>
                     {results.map((result) => (
-                      <>
-                        <TableRow key={`main-${result.id}`}>
+                      <React.Fragment key={result.id}>
+                        <TableRow>
                           <TableCell className="font-medium">{result.domain}</TableCell>
                           <TableCell>
                             <Badge className={getSourceTypeColor(result.sourceType)}>
@@ -639,7 +639,7 @@ export default function BetaV2DataProcessingPage() {
                             </TableCell>
                           </TableRow>
                         )}
-                      </>
+                      </React.Fragment>
                     ))}
                   </TableBody>
                 </Table>
