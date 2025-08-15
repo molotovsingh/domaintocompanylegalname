@@ -9,21 +9,24 @@ from typing import Dict, List, Any
 import google.generativeai as genai
 
 class LangExtractService:
-    def __init__(self):
+    def __init__(self, model_name='gemini-2.5-flash'):
         # Initialize Gemini with API key
         api_key = os.environ.get('GEMINI_API_KEY')
         if not api_key:
             print("Warning: GEMINI_API_KEY environment variable not found", file=sys.stderr)
             self.model = None
+            self.model_name = model_name
             return
         
         try:
             genai.configure(api_key=api_key)
-            self.model = genai.GenerativeModel('gemini-2.5-flash')
-            print("Gemini 2.5 Flash API initialized successfully", file=sys.stderr)
+            self.model = genai.GenerativeModel(model_name)
+            self.model_name = model_name
+            print(f"{model_name} API initialized successfully", file=sys.stderr)
         except Exception as e:
-            print(f"Error initializing Gemini API: {e}", file=sys.stderr)
+            print(f"Error initializing {model_name} API: {e}", file=sys.stderr)
             self.model = None
+            self.model_name = model_name
     
     def extract_entities(self, html_content: str, schema: Dict[str, str], domain: str = None) -> Dict[str, Any]:
         """Extract entities using Gemini API"""
@@ -177,7 +180,7 @@ Return ONLY valid JSON in this format:
                     "language": "en",
                     "documentLength": len(text_content),
                     "chunkCount": 1,
-                    "model": "gemini-2.5-flash"
+                    "model": self.model_name
                 }
             }
             
@@ -200,17 +203,18 @@ def main():
             print(json.dumps({"error": "No input data received"}))
             sys.exit(1)
         
-        # Parse the input JSON containing content, schema, and domain
+        # Parse the input JSON containing content, schema, domain, and model
         data = json.loads(input_data)
         html_content = data.get('content', '')
         schema = data.get('schema', {})
         domain = data.get('domain', '')
+        model_name = data.get('model_name', 'gemini-2.5-flash')
         
         if not html_content or not schema:
             print(json.dumps({"error": "Missing content or schema in input"}))
             sys.exit(1)
         
-        service = LangExtractService()
+        service = LangExtractService(model_name)
         result = service.extract_entities(html_content, schema, domain)
         print(json.dumps(result))
     except json.JSONDecodeError as e:

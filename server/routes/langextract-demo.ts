@@ -16,7 +16,7 @@ const __dirname = dirname(__filename);
 
 // Real LangExtract integration using Python subprocess
 class RealLangExtract {
-  static async extract(htmlContent: string, schema: any, domain?: string): Promise<any> {
+  static async extract(htmlContent: string, schema: any, domain?: string, modelName?: string): Promise<any> {
     return new Promise((resolve, reject) => {
       const pythonScript = path.join(__dirname, '../services/langextractService.py');
       
@@ -24,7 +24,8 @@ class RealLangExtract {
       const inputData = JSON.stringify({
         content: htmlContent,
         schema: schema,
-        domain: domain || ''
+        domain: domain || '',
+        model_name: modelName || 'gemini-2.5-flash'
       });
       
       const pythonProcess = spawn('python3', [
@@ -73,7 +74,8 @@ class RealLangExtract {
 // Test API key status
 router.get('/test-api', async (req, res) => {
   try {
-    const result = await RealLangExtract.extract("Test content", { "test": "string" });
+    const modelName = req.query.model as string || 'gemini-2.5-flash';
+    const result = await RealLangExtract.extract("Test content", { "test": "string" }, undefined, modelName);
     if (result.error && result.error.includes("API key")) {
       res.json({ 
         status: 'error', 
@@ -84,7 +86,8 @@ router.get('/test-api', async (req, res) => {
       res.json({ 
         status: 'success', 
         message: 'API key is working',
-        hasModel: !result.error
+        hasModel: !result.error,
+        modelUsed: modelName
       });
     }
   } catch (error) {
@@ -187,7 +190,7 @@ router.get('/dumps', async (req, res) => {
 // Run extraction on selected dump
 router.post('/extract', async (req, res) => {
   try {
-    const { dumpId, schema, schemaName } = req.body;
+    const { dumpId, schema, schemaName, modelName } = req.body;
 
     if (!dumpId || !schema) {
       return res.status(400).json({ error: 'Missing dumpId or schema' });
@@ -243,8 +246,8 @@ router.post('/extract', async (req, res) => {
     // Strip HTML tags for text extraction
     const textContent = htmlContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
-    // Run real LangExtract extraction with domain
-    const extraction = await RealLangExtract.extract(textContent, schema, domain);
+    // Run real LangExtract extraction with domain and model
+    const extraction = await RealLangExtract.extract(textContent, schema, domain, modelName);
 
     res.json({
       success: true,
@@ -253,6 +256,7 @@ router.post('/extract', async (req, res) => {
         dumpId,
         domain,
         schemaName,
+        modelName: modelName || 'gemini-2.5-flash',
         originalSize: htmlContent.length,
         textSize: textContent.length,
         timestamp: new Date().toISOString()

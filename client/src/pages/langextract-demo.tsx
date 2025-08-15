@@ -72,7 +72,16 @@ export default function LangExtractDemo() {
   const [activeTests, setActiveTests] = useState<LangExtractTest[]>([]);
   const [selectedDump, setSelectedDump] = useState<string>('');
   const [customSchema, setCustomSchema] = useState('');
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-2.5-flash');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Available Gemini models
+  const availableModels = [
+    { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', description: 'Fast and efficient' },
+    { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', description: 'High quality reasoning' },
+    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', description: 'Balanced speed and quality' },
+    { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash (Experimental)', description: 'Latest experimental model' }
+  ];
 
   // Predefined extraction schemas
   const predefinedSchemas = {
@@ -177,7 +186,8 @@ export default function LangExtractDemo() {
         body: JSON.stringify({
           dumpId: selectedDump,
           schema: JSON.parse(schema),
-          schemaName
+          schemaName,
+          modelName: selectedModel
         })
       });
 
@@ -280,7 +290,7 @@ export default function LangExtractDemo() {
           </TabsList>
 
           <TabsContent value="demo" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Input Section */}
               <Card>
                 <CardHeader>
@@ -322,6 +332,32 @@ export default function LangExtractDemo() {
                       </pre>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+
+              {/* Model Selection */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Model Selection</CardTitle>
+                  <CardDescription>
+                    Choose the Gemini model for extraction
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div>
+                    <label className="text-sm font-medium">Available Models:</label>
+                    <select 
+                      className="w-full mt-1 p-2 border rounded-md"
+                      value={selectedModel}
+                      onChange={(e) => setSelectedModel(e.target.value)}
+                    >
+                      {availableModels.map(model => (
+                        <option key={model.id} value={model.id}>
+                          {model.name} - {model.description}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </CardContent>
               </Card>
 
