@@ -68,6 +68,35 @@ const jurisdictions = [
   { value: 'CH', label: 'Switzerland' }
 ];
 
+// Ranking criteria descriptions for each weight
+const rankingCriteria = {
+  parentWeight: {
+    title: 'Parent Entity Priority',
+    description: 'Prioritizes parent companies and holding entities over subsidiaries. Higher weight means stronger preference for ultimate parent entities.',
+    examples: ['QIAGEN N.V. (parent) ranked above QIAGEN GmbH (subsidiary)', 'Alphabet Inc. ranked above Google LLC']
+  },
+  jurisdictionWeight: {
+    title: 'Jurisdiction Matching',
+    description: 'Favors entities registered in your preferred jurisdictions. Matches are scored based on primary and secondary jurisdiction preferences.',
+    examples: ['US entities prioritized for US-focused research', 'EU entities for GDPR-compliant operations']
+  },
+  entityStatusWeight: {
+    title: 'Entity Status',
+    description: 'Prefers active operational entities over inactive or dissolved ones. Ensures you target currently functioning businesses.',
+    examples: ['Active entities ranked above inactive', 'Operational status verification']
+  },
+  legalFormWeight: {
+    title: 'Legal Form Preference',
+    description: 'Weights certain corporate structures (Inc., LLC, GmbH) based on acquisition suitability and business type.',
+    examples: ['Corporation (Inc.) for public companies', 'LLC for smaller acquisitions']
+  },
+  recencyWeight: {
+    title: 'Registration Recency',
+    description: 'Favors recently registered or updated entities, indicating current business activity and maintained records.',
+    examples: ['Recent LEI updates indicate active maintenance', 'Fresh registrations suggest new ventures']
+  }
+};
+
 export function UserBiasConfig() {
   const [bias, setBias] = useState<UserBias>(defaultBias);
   const [selectedProfile, setSelectedProfile] = useState<number | null>(null);
@@ -255,91 +284,154 @@ export function UserBiasConfig() {
 
         {/* Ranking Weights Tab */}
         <TabsContent value="weights" className="space-y-4">
+          {/* Weight Balance Indicator */}
+          {Math.abs(totalWeight - 1.0) > 0.01 && (
+            <Card className="border-yellow-200 bg-yellow-50">
+              <CardContent className="pt-4">
+                <p className="text-sm text-yellow-800">
+                  ⚠️ Total weight: {(totalWeight * 100).toFixed(0)}% (should equal 100% for proper ranking)
+                </p>
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Parent Weight */}
           <Card>
-            <CardContent className="pt-6 space-y-6">
-              {/* Weight Balance Indicator */}
-              {Math.abs(totalWeight - 1.0) > 0.01 && (
-                <div className="p-3 bg-yellow-50 rounded-lg">
-                  <p className="text-sm text-yellow-800">
-                    Total weight: {(totalWeight * 100).toFixed(0)}% (should be 100%)
-                  </p>
-                </div>
-              )}
-
-              {/* Parent Weight */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>Parent Entity Weight</Label>
-                  <span className="text-sm font-medium">{(bias.parentWeight * 100).toFixed(0)}%</span>
-                </div>
-                <Slider
-                  value={[bias.parentWeight * 100]}
-                  onValueChange={([value]) => setBias({ ...bias, parentWeight: value / 100 })}
-                  max={100}
-                  step={5}
-                  className="w-full"
-                />
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-lg">{rankingCriteria.parentWeight.title}</h3>
+                <Badge variant="secondary">{(bias.parentWeight * 100).toFixed(0)}%</Badge>
               </div>
-
-              {/* Jurisdiction Weight */}
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">{rankingCriteria.parentWeight.description}</p>
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>Jurisdiction Alignment Weight</Label>
-                  <span className="text-sm font-medium">{(bias.jurisdictionWeight * 100).toFixed(0)}%</span>
-                </div>
-                <Slider
-                  value={[bias.jurisdictionWeight * 100]}
-                  onValueChange={([value]) => setBias({ ...bias, jurisdictionWeight: value / 100 })}
-                  max={100}
-                  step={5}
-                  className="w-full"
-                />
+                <p className="text-xs font-medium text-muted-foreground">Examples:</p>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  {rankingCriteria.parentWeight.examples.map((ex, i) => (
+                    <li key={i} className="ml-4">• {ex}</li>
+                  ))}
+                </ul>
               </div>
+              <Slider
+                value={[bias.parentWeight * 100]}
+                onValueChange={([value]) => setBias({ ...bias, parentWeight: value / 100 })}
+                max={100}
+                step={5}
+                className="w-full"
+              />
+            </CardContent>
+          </Card>
 
-              {/* Entity Status Weight */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>Entity Status Weight</Label>
-                  <span className="text-sm font-medium">{(bias.entityStatusWeight * 100).toFixed(0)}%</span>
-                </div>
-                <Slider
-                  value={[bias.entityStatusWeight * 100]}
-                  onValueChange={([value]) => setBias({ ...bias, entityStatusWeight: value / 100 })}
-                  max={100}
-                  step={5}
-                  className="w-full"
-                />
+          {/* Jurisdiction Weight */}
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-lg">{rankingCriteria.jurisdictionWeight.title}</h3>
+                <Badge variant="secondary">{(bias.jurisdictionWeight * 100).toFixed(0)}%</Badge>
               </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">{rankingCriteria.jurisdictionWeight.description}</p>
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">Examples:</p>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  {rankingCriteria.jurisdictionWeight.examples.map((ex, i) => (
+                    <li key={i} className="ml-4">• {ex}</li>
+                  ))}
+                </ul>
+              </div>
+              <Slider
+                value={[bias.jurisdictionWeight * 100]}
+                onValueChange={([value]) => setBias({ ...bias, jurisdictionWeight: value / 100 })}
+                max={100}
+                step={5}
+                className="w-full"
+              />
+            </CardContent>
+          </Card>
 
-              {/* Legal Form Weight */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>Legal Form Weight</Label>
-                  <span className="text-sm font-medium">{(bias.legalFormWeight * 100).toFixed(0)}%</span>
-                </div>
-                <Slider
-                  value={[bias.legalFormWeight * 100]}
-                  onValueChange={([value]) => setBias({ ...bias, legalFormWeight: value / 100 })}
-                  max={100}
-                  step={5}
-                  className="w-full"
-                />
+          {/* Entity Status Weight */}
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-lg">{rankingCriteria.entityStatusWeight.title}</h3>
+                <Badge variant="secondary">{(bias.entityStatusWeight * 100).toFixed(0)}%</Badge>
               </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">{rankingCriteria.entityStatusWeight.description}</p>
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">Examples:</p>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  {rankingCriteria.entityStatusWeight.examples.map((ex, i) => (
+                    <li key={i} className="ml-4">• {ex}</li>
+                  ))}
+                </ul>
+              </div>
+              <Slider
+                value={[bias.entityStatusWeight * 100]}
+                onValueChange={([value]) => setBias({ ...bias, entityStatusWeight: value / 100 })}
+                max={100}
+                step={5}
+                className="w-full"
+              />
+            </CardContent>
+          </Card>
 
-              {/* Recency Weight */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>Registration Recency Weight</Label>
-                  <span className="text-sm font-medium">{(bias.recencyWeight * 100).toFixed(0)}%</span>
-                </div>
-                <Slider
-                  value={[bias.recencyWeight * 100]}
-                  onValueChange={([value]) => setBias({ ...bias, recencyWeight: value / 100 })}
-                  max={100}
-                  step={5}
-                  className="w-full"
-                />
+          {/* Legal Form Weight */}
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-lg">{rankingCriteria.legalFormWeight.title}</h3>
+                <Badge variant="secondary">{(bias.legalFormWeight * 100).toFixed(0)}%</Badge>
               </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">{rankingCriteria.legalFormWeight.description}</p>
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">Examples:</p>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  {rankingCriteria.legalFormWeight.examples.map((ex, i) => (
+                    <li key={i} className="ml-4">• {ex}</li>
+                  ))}
+                </ul>
+              </div>
+              <Slider
+                value={[bias.legalFormWeight * 100]}
+                onValueChange={([value]) => setBias({ ...bias, legalFormWeight: value / 100 })}
+                max={100}
+                step={5}
+                className="w-full"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Recency Weight */}
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-lg">{rankingCriteria.recencyWeight.title}</h3>
+                <Badge variant="secondary">{(bias.recencyWeight * 100).toFixed(0)}%</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">{rankingCriteria.recencyWeight.description}</p>
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">Examples:</p>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  {rankingCriteria.recencyWeight.examples.map((ex, i) => (
+                    <li key={i} className="ml-4">• {ex}</li>
+                  ))}
+                </ul>
+              </div>
+              <Slider
+                value={[bias.recencyWeight * 100]}
+                onValueChange={([value]) => setBias({ ...bias, recencyWeight: value / 100 })}
+                max={100}
+                step={5}
+                className="w-full"
+              />
             </CardContent>
           </Card>
         </TabsContent>
