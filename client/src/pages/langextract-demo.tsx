@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -193,23 +192,30 @@ export default function LangExtractDemo() {
 
       const result = await response.json();
 
-      if (response.ok) {
+      if (result.success) {
         setActiveTests(prev => prev.map(test => 
           test.id === testId ? { 
             ...test, 
-            status: 'completed' as const,
+            status: 'completed' as const, 
             result: result.extraction,
             endTime: new Date()
           } : test
         ));
       } else {
-        throw new Error(result.error || 'Extraction failed');
+        setActiveTests(prev => prev.map(test => 
+          test.id === testId ? { 
+            ...test, 
+            status: 'failed' as const, 
+            error: result.error || 'Unknown error',
+            endTime: new Date()
+          } : test
+        ));
       }
     } catch (error) {
       setActiveTests(prev => prev.map(test => 
         test.id === testId ? { 
           ...test, 
-          status: 'failed' as const,
+          status: 'failed' as const, 
           error: error instanceof Error ? error.message : 'Unknown error',
           endTime: new Date()
         } : test
@@ -447,9 +453,12 @@ export default function LangExtractDemo() {
                             {test.schema}
                           </Badge>
                         </div>
-                        <div className="text-sm text-muted-foreground">
-                          {test.startTime.toLocaleTimeString()}
-                        </div>
+                        <div className="text-xs text-muted-foreground">
+                              Started: {test.startTime ? new Date(test.startTime).toLocaleString() : 'Unknown'}
+                              {test.endTime && (
+                                <> • Completed: {new Date(test.endTime).toLocaleString()}</>
+                              )}
+                            </div>
                       </div>
                     </CardHeader>
                     <CardContent>

@@ -159,17 +159,47 @@ RESPONSE FORMAT (JSON only):
   }}
 }}"""
             
-            # Call Gemini API
-            response = self.model.generate_content(prompt)
-            
-            # Parse the response
-            response_text = response.text
-            # Try to extract JSON from response
-            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-            if json_match:
-                result_json = json.loads(json_match.group())
-            else:
-                result_json = {"extractions": {}}
+            # Call Gemini API with timeout protection
+            try:
+                response = self.model.generate_content(prompt)
+                
+                if not response or not hasattr(response, 'text'):
+                    print(f"Error: Invalid response from {self.model_name}", file=sys.stderr)
+                    return {
+                        "error": f"Invalid response from {self.model_name}",
+                        "entities": [],
+                        "processingTime": int((time.time() - start_time) * 1000),
+                        "tokensProcessed": 0,
+                        "sourceMapping": [],
+                        "metadata": {"model": self.model_name}
+                    }
+                
+                # Parse the response
+                response_text = response.text
+                print(f"[LangExtract] Response length: {len(response_text)}", file=sys.stderr)
+                
+                # Try to extract JSON from response
+                json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+                if json_match:
+                    result_json = json.loads(json_match.group())
+                else:
+                    # If no JSON found, try to parse the entire response
+                    try:
+                        result_json = json.loads(response_text)
+                    except json.JSONDecodeError:
+                        print(f"[LangExtract] No valid JSON found in response", file=sys.stderr)
+                        result_json = {"extractions": {}}
+                        
+            except Exception as api_error:
+                print(f"Error calling {self.model_name} API: {api_error}", file=sys.stderr)
+                return {
+                    "error": f"{self.model_name} API error: {str(api_error)}",
+                    "entities": [],
+                    "processingTime": int((time.time() - start_time) * 1000),
+                    "tokensProcessed": 0,
+                    "sourceMapping": [],
+                    "metadata": {"model": self.model_name}
+                }
             
             # Process results into our expected format
             entities = []
