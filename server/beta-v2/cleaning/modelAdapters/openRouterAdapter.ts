@@ -19,9 +19,40 @@ export class OpenRouterAdapter extends BaseModelAdapter {
 
   async clean(rawData: any, systemPrompt?: string): Promise<CleaningResult> {
     const startTime = Date.now();
-    const prompt = systemPrompt || this.getDefaultSystemPrompt();
-    
-    // Convert object format (crawlee/scrapy dumps) to HTML string
+    // Refined system prompt for better JSON output consistency
+    const prompt = systemPrompt || `Extract legal entity information and return ONLY valid JSON.
+
+CRITICAL RULES:
+1. Respond with ONLY valid JSON - no explanations, markdown, or additional text
+2. Start response with { and end with }
+3. Use double quotes for all strings
+4. If no data found, use empty strings or empty arrays
+
+Required JSON format:
+{
+  "primaryEntityName": "complete legal name with suffix (Inc., Corp., Ltd.)",
+  "baseEntityName": "business name without legal suffix",
+  "entityCandidates": ["array of potential entity names"],
+  "nameVariations": ["alternative names/spellings"],
+  "addresses": ["physical addresses"],
+  "phones": ["phone numbers"],
+  "emails": ["email addresses"],
+  "businessIdentifiers": {
+    "registrationNumbers": ["registration numbers"],
+    "taxIds": ["tax identification numbers"],
+    "licenses": ["license numbers"]
+  }
+}
+
+EXTRACTION PRIORITIES:
+1. Legal entity names from copyright notices, legal pages, footers
+2. Names with legal suffixes (Inc., Corp., Ltd., LLC, etc.)
+3. Structured data (JSON-LD, microdata)
+4. Meta tags (og:site_name, application-name)
+
+Return ONLY the JSON object.`;
+
+    // Convert object format (crawlee/ scrapy dumps) to HTML string
     let htmlContent: string;
     if (typeof rawData === 'string') {
       htmlContent = rawData;
@@ -46,11 +77,11 @@ export class OpenRouterAdapter extends BaseModelAdapter {
     } else {
       htmlContent = String(rawData);
     }
-    
+
     try {
       // Estimate tokens for cost calculation
       const inputTokens = this.estimateTokens(prompt + htmlContent);
-      
+
       // Make request to OpenRouter
       const response = await axios.post(
         this.baseUrl,
@@ -84,18 +115,28 @@ export class OpenRouterAdapter extends BaseModelAdapter {
       // Parse the response
       let content = response.data.choices[0].message.content;
       let extractedData: ExtractedData;
-      
+
+      // Add helper methods for response cleaning and validation
+      let responseText = content.trim();
+
+      // Clean up common formatting issues
+      responseText = this.cleanResponseText(responseText);
+
+      // Try to parse as JSON
       try {
-        // Strip markdown code blocks if present
-        const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-        if (jsonMatch) {
-          content = jsonMatch[1].trim();
+        extractedData = JSON.parse(responseText);
+
+        // Validate required structure
+        if (!this.isValidExtractedData(extractedData)) {
+          console.warn(`[OpenRouterAdapter] Invalid structure from ${this.modelName}, creating fallback`);
+          extractedData = this.createFallbackExtraction(responseText);
         }
-        
-        extractedData = JSON.parse(content);
       } catch (parseError) {
-        console.error('Failed to parse LLM response as JSON:', content);
-        extractedData = this.extractBasicInfo(htmlContent);
+        console.error(`[OpenRouterAdapter] JSON parse error for ${this.modelName}:`, parseError);
+        console.error(`[OpenRouterAdapter] Raw response:`, responseText.substring(0, 500));
+
+        // Create fallback extraction from raw text
+        extractedData = this.createFallbackExtraction(responseText);
       }
 
       // Calculate tokens and cost
@@ -121,7 +162,7 @@ export class OpenRouterAdapter extends BaseModelAdapter {
       };
     } catch (error: any) {
       console.error(`OpenRouter cleaning error with ${this.modelName}:`, error.message);
-      
+
       // Fallback to basic extraction
       const extractedData = this.extractBasicInfo(htmlContent);
       const processingTime = Date.now() - startTime;
@@ -205,10 +246,10 @@ export class OpenRouterAdapter extends BaseModelAdapter {
     if (data.entityCandidates && data.entityCandidates.length > 0) { score += 0.15; fields++; }
     if (data.nameVariations && data.nameVariations.length > 0) { score += 0.1; fields++; }
     if (data.confidenceIndicators?.hasLegalSuffix) { score += 0.1; fields++; }
-    
+
     // Legacy fields for backwards compatibility
     if (!data.primaryEntityName && data.companyName && data.companyName.length > 2) { score += 0.15; fields++; }
-    
+
     // Supporting information
     if (data.addresses && data.addresses.length > 0) { score += 0.05; fields++; }
 
@@ -219,11 +260,11 @@ export class OpenRouterAdapter extends BaseModelAdapter {
   private extractBasicInfo(rawData: string): ExtractedData {
     // Basic regex-based extraction as fallback
     const text = rawData.toLowerCase();
-    
+
     // Try to extract company name from title or copyright
     let primaryEntityName: string | undefined;
     let baseEntityName: string | undefined;
-    
+
     // Look for copyright notices
     const copyrightMatch = rawData.match(/(?:©|Copyright)\s+(?:\d{4}\s+)?([A-Z][A-Za-z0-9\s&.,'-]+?)(?:\.|,|\s+All|\s+Rights)/i);
     if (copyrightMatch) {
@@ -231,7 +272,7 @@ export class OpenRouterAdapter extends BaseModelAdapter {
       // Extract base name by removing common suffixes
       baseEntityName = primaryEntityName.replace(/\s+(?:Inc|Corp|LLC|Ltd|Limited|GmbH|AG|SA)\.?$/i, '').trim();
     }
-    
+
     // Extract emails
     const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
     const emails = [...new Set(rawData.match(emailRegex) || [])];
@@ -257,6 +298,85 @@ export class OpenRouterAdapter extends BaseModelAdapter {
       currencies,
       countries: [],
       socialMedia: [],
+      businessIdentifiers: {
+        registrationNumbers: [],
+        taxIds: [],
+        licenses: []
+      }
+    };
+  }
+
+  private cleanResponseText(text: string): string {
+    // Remove markdown code blocks
+    text = text.replace(/```(?:json)?\s*([\s\S]*?)\s*```/g, '$1');
+
+    // Remove leading/trailing non-JSON content
+    const jsonStart = text.indexOf('{');
+    const jsonEnd = text.lastIndexOf('}');
+
+    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+      text = text.substring(jsonStart, jsonEnd + 1);
+    }
+
+    // Fix common JSON issues
+    text = text.replace(/'/g, '"'); // Replace single quotes with double quotes
+    text = text.replace(/,\s*}/g, '}'); // Remove trailing commas before }
+    text = text.replace(/,\s*]/g, ']'); // Remove trailing commas before ]
+
+    return text.trim();
+  }
+
+  private isValidExtractedData(data: any): boolean {
+    if (!data || typeof data !== 'object') return false;
+
+    // Check for required fields
+    const requiredFields = ['primaryEntityName', 'baseEntityName', 'entityCandidates'];
+    for (const field of requiredFields) {
+      if (!(field in data)) return false;
+    }
+
+    // Validate arrays
+    if (!Array.isArray(data.entityCandidates)) return false;
+
+    return true;
+  }
+
+  private createFallbackExtraction(rawResponse: string): ExtractedData {
+    console.log(`[OpenRouterAdapter] Creating fallback extraction for ${this.modelName}`);
+
+    // Extract any company-like names from the response
+    const companyPatterns = [
+      /(?:Company Name|Entity Name|Legal Name):\s*([^\n\r]+)/i,
+      /(?:Primary Entity):\s*([^\n\r]+)/i,
+      /\*\*([^*]+(?:Inc\.|Corp\.|Ltd\.|LLC|Corporation|Limited)[^*]*)\*\*/gi,
+      /([A-Z][A-Za-z\s&]+(?:Inc\.|Corp\.|Ltd\.|LLC|Corporation|Limited))/g
+    ];
+
+    const entityCandidates: string[] = [];
+
+    for (const pattern of companyPatterns) {
+      const matches = rawResponse.match(pattern);
+      if (matches) {
+        matches.forEach(match => {
+          const cleaned = match.replace(/^[^:]*:\s*/, '').replace(/^\*\*|\*\*$/g, '').trim();
+          if (cleaned && cleaned.length > 2) {
+            entityCandidates.push(cleaned);
+          }
+        });
+      }
+    }
+
+    // Remove duplicates
+    const uniqueCandidates = [...new Set(entityCandidates)];
+
+    return {
+      primaryEntityName: uniqueCandidates[0] || '',
+      baseEntityName: uniqueCandidates[0]?.replace(/\s+(Inc\.|Corp\.|Ltd\.|LLC|Corporation|Limited).*$/i, '') || '',
+      entityCandidates: uniqueCandidates,
+      nameVariations: [],
+      addresses: [],
+      phones: [],
+      emails: [],
       businessIdentifiers: {
         registrationNumbers: [],
         taxIds: [],

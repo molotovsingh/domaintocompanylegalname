@@ -107,9 +107,16 @@ export class OpenRouterService {
     const messages = [
       {
         role: 'system',
-        content: `Extract the legal entity name from the provided website data. 
-                 Include the full legal name with suffix (Inc., Corp., Ltd., etc.).
-                 Respond with ONLY the company name, nothing else.`
+        content: `You are a legal entity extraction specialist. Extract the primary legal entity name from website data.
+
+RULES:
+1. Return ONLY the complete legal entity name
+2. Include proper legal suffix (Inc., Corp., Ltd., LLC, etc.)
+3. Prefer names from copyright notices, legal pages, or structured data
+4. If multiple entities found, return the primary operating entity
+5. No explanations, just the entity name
+
+Response format: Return only the entity name as plain text.`
       },
       {
         role: 'user',
