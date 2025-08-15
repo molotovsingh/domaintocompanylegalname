@@ -92,6 +92,18 @@ export class OpenRouterService {
     request: OpenRouterRequest, 
     model: ModelConfig
   ): Promise<OpenRouterResponse> {
+    const requestId = Math.random().toString(36).substring(2, 15);
+    const startTime = Date.now();
+    
+    console.log(`[OpenRouter API] Request ${requestId} starting:`, {
+      model: model.id,
+      domain: request.domain,
+      useCase: request.useCase,
+      strategy: request.strategy,
+      promptLength: this.buildPrompt(request).length,
+      timestamp: new Date().toISOString()
+    });
+
     const messages = [
       {
         role: 'system',
@@ -123,41 +135,111 @@ export class OpenRouterService {
     // Add include_reasoning for models that support it
     if (isReasoningModel) {
       requestBody.include_reasoning = true;
+      console.log(`[OpenRouter API] Request ${requestId}: Reasoning model detected, adding include_reasoning=true`);
     }
 
-    const response = await axios.post(
-      `${this.baseUrl}/chat/completions`,
-      requestBody,
-      {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
+    console.log(`[OpenRouter API] Request ${requestId} payload:`, {
+      model: requestBody.model,
+      messageCount: requestBody.messages.length,
+      maxTokens: requestBody.max_tokens,
+      temperature: requestBody.temperature,
+      includeReasoning: requestBody.include_reasoning || false,
+      systemPromptLength: requestBody.messages[0].content.length,
+      userPromptLength: requestBody.messages[1].content.length
+    });
+
+    try {
+      const response = await axios.post(
+        `${this.baseUrl}/chat/completions`,
+        requestBody,
+        {
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json'
+          }
         }
-      }
-    );
+      );
 
-    const result = response.data.choices[0].message.content.trim();
-    const usage = response.data.usage;
+      const processingTime = Date.now() - startTime;
+      const result = response.data.choices[0].message.content.trim();
+      const usage = response.data.usage;
 
-    // Calculate cost
-    const cost = this.calculateCost(model.id, usage);
+      console.log(`[OpenRouter API] Request ${requestId} successful:`, {
+        statusCode: response.status,
+        processingTime: `${processingTime}ms`,
+        resultLength: result.length,
+        usage: {
+          promptTokens: usage?.prompt_tokens,
+          completionTokens: usage?.completion_tokens,
+          totalTokens: usage?.total_tokens
+        },
+        responseHeaders: {
+          'x-ratelimit-remaining': response.headers['x-ratelimit-remaining'],
+          'x-ratelimit-limit': response.headers['x-ratelimit-limit'],
+          'x-ratelimit-reset': response.headers['x-ratelimit-reset']
+        }
+      });
 
-    // Simple confidence calculation based on result quality
-    const confidence = this.calculateConfidence(result, request.domain);
+      // Calculate cost
+      const cost = this.calculateCost(model.id, usage);
 
-    return {
-      success: true,
-      entityName: result,
-      confidence,
-      modelUsed: model.id,
-      cost
-    };
+      // Simple confidence calculation based on result quality
+      const confidence = this.calculateConfidence(result, request.domain);
+
+      console.log(`[OpenRouter API] Request ${requestId} completed:`, {
+        entityName: result,
+        confidence,
+        cost: `$${cost.toFixed(6)}`,
+        processingTime: `${processingTime}ms`
+      });
+
+      return {
+        success: true,
+        entityName: result,
+        confidence,
+        modelUsed: model.id,
+        cost
+      };
+    } catch (error: any) {
+      const processingTime = Date.now() - startTime;
+      
+      console.error(`[OpenRouter API] Request ${requestId} failed:`, {
+        model: model.id,
+        domain: request.domain,
+        processingTime: `${processingTime}ms`,
+        error: {
+          message: error.message,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          headers: error.response?.headers
+        },
+        requestBody: {
+          model: requestBody.model,
+          maxTokens: requestBody.max_tokens,
+          temperature: requestBody.temperature,
+          includeReasoning: requestBody.include_reasoning
+        }
+      });
+      
+      throw error;
+    }
   }
 
   private async consensusExtraction(
     request: OpenRouterRequest,
     models: ModelConfig[]
   ): Promise<OpenRouterResponse> {
+    const consensusId = Math.random().toString(36).substring(2, 15);
+    const startTime = Date.now();
+
+    console.log(`[OpenRouter Consensus] ${consensusId} starting:`, {
+      domain: request.domain,
+      modelCount: models.length,
+      models: models.map(m => m.id),
+      timestamp: new Date().toISOString()
+    });
+
     const results = await Promise.allSettled(
       models.map(model => this.extractWithModel(request, model))
     );
@@ -168,7 +250,25 @@ export class OpenRouterService {
       )
       .map(r => r.value);
 
+    const failedResults = results
+      .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+      .map(r => r.reason);
+
+    console.log(`[OpenRouter Consensus] ${consensusId} model results:`, {
+      totalModels: models.length,
+      successfulCount: successfulResults.length,
+      failedCount: failedResults.length,
+      successfulModels: successfulResults.map(r => r.modelUsed),
+      failedReasons: failedResults.map(r => r.message || 'Unknown error')
+    });
+
     if (successfulResults.length === 0) {
+      console.error(`[OpenRouter Consensus] ${consensusId} failed: All models failed`, {
+        domain: request.domain,
+        models: models.map(m => m.id),
+        failedReasons: failedResults.map(r => r.message || 'Unknown error')
+      });
+      
       return {
         success: false,
         error: 'All models failed in consensus extraction'
@@ -187,6 +287,23 @@ export class OpenRouterService {
       .sort((a, b) => b[1] - a[1])[0];
 
     const consensusConfidence = (count / successfulResults.length) * 100;
+    const totalCost = successfulResults.reduce((sum, r) => sum + (r.cost || 0), 0);
+    const processingTime = Date.now() - startTime;
+
+    console.log(`[OpenRouter Consensus] ${consensusId} completed:`, {
+      domain: request.domain,
+      consensusResult,
+      agreementCount: count,
+      totalSuccessful: successfulResults.length,
+      consensusConfidence: `${consensusConfidence.toFixed(1)}%`,
+      totalCost: `$${totalCost.toFixed(6)}`,
+      processingTime: `${processingTime}ms`,
+      resultBreakdown: Array.from(resultCounts.entries()).map(([result, count]) => ({
+        result,
+        count,
+        percentage: `${((count / successfulResults.length) * 100).toFixed(1)}%`
+      }))
+    });
 
     return {
       success: true,
@@ -198,7 +315,7 @@ export class OpenRouterService {
         result: r.entityName || '',
         confidence: r.confidence || 0
       })),
-      cost: successfulResults.reduce((sum, r) => sum + (r.cost || 0), 0)
+      cost: totalCost
     };
   }
 
@@ -287,23 +404,47 @@ export class OpenRouterService {
     temperature?: number;
     include_reasoning?: boolean;
   }): Promise<{ success: boolean; content?: string; error?: string; usage?: any }> {
+    const requestId = Math.random().toString(36).substring(2, 15);
+    const startTime = Date.now();
+
+    console.log(`[OpenRouter Generic] Request ${requestId} starting:`, {
+      model: params.model,
+      messageCount: params.messages.length,
+      maxTokens: params.max_tokens || 1000,
+      temperature: params.temperature || 0,
+      includeReasoning: params.include_reasoning || false,
+      timestamp: new Date().toISOString()
+    });
+
     if (!this.apiKey) {
+      console.error(`[OpenRouter Generic] Request ${requestId} failed: No API key configured`);
       return {
         success: false,
         error: 'OpenRouter API key not configured'
       };
     }
 
+    const requestBody = {
+      model: params.model,
+      messages: params.messages,
+      max_tokens: params.max_tokens || 1000,
+      temperature: params.temperature || 0,
+      ...(params.include_reasoning && { include_reasoning: true })
+    };
+
+    console.log(`[OpenRouter Generic] Request ${requestId} payload:`, {
+      model: requestBody.model,
+      messageCount: requestBody.messages.length,
+      maxTokens: requestBody.max_tokens,
+      temperature: requestBody.temperature,
+      includeReasoning: requestBody.include_reasoning || false,
+      totalPromptLength: requestBody.messages.reduce((sum, msg) => sum + msg.content.length, 0)
+    });
+
     try {
       const response = await axios.post(
         `${this.baseUrl}/chat/completions`,
-        {
-          model: params.model,
-          messages: params.messages,
-          max_tokens: params.max_tokens || 1000,
-          temperature: params.temperature || 0,
-          ...(params.include_reasoning && { include_reasoning: true })
-        },
+        requestBody,
         {
           headers: {
             'Authorization': `Bearer ${this.apiKey}`,
@@ -312,13 +453,56 @@ export class OpenRouterService {
         }
       );
 
+      const processingTime = Date.now() - startTime;
+      const content = response.data.choices[0].message.content.trim();
+      const usage = response.data.usage;
+
+      console.log(`[OpenRouter Generic] Request ${requestId} successful:`, {
+        statusCode: response.status,
+        processingTime: `${processingTime}ms`,
+        contentLength: content.length,
+        usage: {
+          promptTokens: usage?.prompt_tokens,
+          completionTokens: usage?.completion_tokens,
+          totalTokens: usage?.total_tokens
+        },
+        rateLimit: {
+          remaining: response.headers['x-ratelimit-remaining'],
+          limit: response.headers['x-ratelimit-limit'],
+          reset: response.headers['x-ratelimit-reset']
+        }
+      });
+
       return {
         success: true,
-        content: response.data.choices[0].message.content.trim(),
-        usage: response.data.usage
+        content,
+        usage
       };
     } catch (error: any) {
-      console.error('OpenRouter request failed:', error.response?.data || error.message);
+      const processingTime = Date.now() - startTime;
+      
+      console.error(`[OpenRouter Generic] Request ${requestId} failed:`, {
+        model: params.model,
+        processingTime: `${processingTime}ms`,
+        error: {
+          message: error.message,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          headers: {
+            'x-ratelimit-remaining': error.response?.headers?.['x-ratelimit-remaining'],
+            'x-ratelimit-limit': error.response?.headers?.['x-ratelimit-limit'],
+            'content-type': error.response?.headers?.['content-type']
+          }
+        },
+        requestDetails: {
+          model: requestBody.model,
+          messageCount: requestBody.messages.length,
+          maxTokens: requestBody.max_tokens,
+          includeReasoning: requestBody.include_reasoning
+        }
+      });
+      
       return {
         success: false,
         error: error.response?.data?.error?.message || error.message
