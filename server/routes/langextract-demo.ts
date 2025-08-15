@@ -1,4 +1,3 @@
-
 import express from 'express';
 import { betaDb } from '../betaDb';
 import { axiosCheerioV2Dumps, crawleeDumps, scrapyCrawls } from '../../shared/betaSchema';
@@ -19,7 +18,7 @@ class RealLangExtract {
   static async extract(htmlContent: string, schema: any, domain?: string, modelName?: string): Promise<any> {
     return new Promise((resolve, reject) => {
       const pythonScript = path.join(__dirname, '../services/langextractService.py');
-      
+
       // Pass data through stdin to avoid E2BIG error with large content
       const inputData = JSON.stringify({
         content: htmlContent,
@@ -27,7 +26,7 @@ class RealLangExtract {
         domain: domain || '',
         model_name: modelName || 'gemini-2.5-flash'
       });
-      
+
       const pythonProcess = spawn('python3', [
         pythonScript
       ], {
@@ -187,89 +186,149 @@ router.get('/dumps', async (req, res) => {
   }
 });
 
-// Run extraction on selected dump
+// Extract entities from the dump
 router.post('/extract', async (req, res) => {
+  const extractionId = `extract_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
   try {
-    const { dumpId, schema, schemaName, modelName } = req.body;
+    const { dumpId, schema, model } = req.body;
+
+    console.log(`[LangExtract] [${extractionId}] Starting extraction request:`, {
+      dumpId,
+      schemaKeys: Object.keys(schema || {}),
+      model: model || 'gemini-2.5-flash',
+      timestamp: new Date().toISOString()
+    });
 
     if (!dumpId || !schema) {
-      return res.status(400).json({ error: 'Missing dumpId or schema' });
+      console.log(`[LangExtract] [${extractionId}] ERROR: Missing required parameters`, { dumpId: !!dumpId, schema: !!schema });
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Missing dumpId or schema' 
+      });
     }
 
-    // Parse dump ID to determine source
-    const [source, id] = dumpId.split('_');
-    
-    let htmlContent = '';
-    let domain = '';
-    
-    // Fetch HTML content and domain based on source
+    // Get the dump content
+    console.log(`[LangExtract] [${extractionId}] Retrieving dump content for: ${dumpId}`);
+    const dump = await getDumpContent(dumpId);
+    if (!dump) {
+      console.log(`[LangExtract] [${extractionId}] ERROR: Dump not found: ${dumpId}`);
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Dump not found' 
+      });
+    }
+
+    console.log(`[LangExtract] [${extractionId}] Dump retrieved:`, {
+      domain: dump.domain,
+      contentLength: dump.html?.length || 0,
+      hasContent: !!dump.html
+    });
+
+    // Call LangExtract service
+    const modelName = model || 'gemini-2.5-flash';
+    const serviceCallStart = Date.now();
+
+    console.log(`[LangExtract] [${extractionId}] Calling LangExtract service:`, {
+      model: modelName,
+      domain: dump.domain,
+      htmlLength: dump.html.length,
+      schemaFields: Object.keys(schema)
+    });
+
+    const result = await RealLangExtract.extract(dump.html, schema, dump.domain, modelName);
+    const serviceCallDuration = Date.now() - serviceCallStart;
+
+    console.log(`[LangExtract] [${extractionId}] Service call completed in ${serviceCallDuration}ms:`, {
+      success: !result.error,
+      error: result.error || null,
+      entitiesFound: result.entities?.length || 0,
+      processingTime: result.processingTime || 0,
+      tokensProcessed: result.tokensProcessed || 0
+    });
+
+    if (result.error) {
+      console.log(`[LangExtract] [${extractionId}] ERROR in service response:`, result.error);
+    }
+
+    res.json({
+      success: true,
+      extraction: result
+    });
+
+  } catch (error) {
+    console.error(`[LangExtract] [${extractionId}] ROUTE ERROR:`, {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : null,
+      timestamp: new Date().toISOString()
+    });
+
+    res.status(500).json({ 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    });
+  }
+});
+
+// Helper function to get dump content
+async function getDumpContent(dumpId: string): Promise<{ html: string | null; domain: string | null } | null> {
+  const [source, id] = dumpId.split('_');
+  let htmlContent: string | null = null;
+  let domain: string | null = null;
+
+  try {
     switch (source) {
       case 'axios':
-        const axisDump = await betaDb.select()
+        const axiosDump = await betaDb.select()
           .from(axiosCheerioV2Dumps)
           .where(sql`${axiosCheerioV2Dumps.id} = ${parseInt(id)}`)
           .limit(1);
-        htmlContent = axisDump[0]?.rawHtml || '';
-        domain = axisDump[0]?.domain || '';
+        if (axiosDump.length > 0) {
+          htmlContent = axiosDump[0]?.rawHtml || null;
+          domain = axiosDump[0]?.domain || null;
+        }
         break;
-        
+
       case 'crawlee':
         const crawleeDump = await betaDb.select()
           .from(crawleeDumps)
           .where(sql`${crawleeDumps.id} = ${parseInt(id)}`)
           .limit(1);
-        // For crawlee dumps, we need to extract HTML from the JSONB dumpData
-        const dumpData = crawleeDump[0]?.dumpData as any;
-        htmlContent = dumpData?.pages?.[0]?.html || JSON.stringify(dumpData || {});
-        domain = crawleeDump[0]?.domain || '';
+        if (crawleeDump.length > 0) {
+          const dumpData = crawleeDump[0]?.dumpData as any;
+          htmlContent = dumpData?.pages?.[0]?.html || JSON.stringify(dumpData || {});
+          domain = crawleeDump[0]?.domain || null;
+        }
         break;
-        
+
       case 'scrapy':
         const scrapyDump = await betaDb.select()
           .from(scrapyCrawls)
           .where(sql`${scrapyCrawls.id} = ${parseInt(id)}`)
           .limit(1);
-        // For scrapy crawls, we need to extract HTML from the JSONB rawData
-        const rawData = scrapyDump[0]?.rawData as any;
-        htmlContent = rawData?.html || JSON.stringify(rawData || {});
-        domain = scrapyDump[0]?.domain || '';
+        if (scrapyDump.length > 0) {
+          const rawData = scrapyDump[0]?.rawData as any;
+          htmlContent = rawData?.html || JSON.stringify(rawData || {});
+          domain = scrapyDump[0]?.domain || null;
+        }
         break;
-        
+
       default:
-        return res.status(400).json({ error: 'Invalid dump source' });
+        console.error(`[LangExtract] Invalid dump source: ${source}`);
+        return null;
     }
 
-    if (!htmlContent) {
-      return res.status(404).json({ error: 'Dump not found or has no content' });
+    if (htmlContent) {
+      // Basic cleanup: remove HTML tags and normalize whitespace for text extraction
+      const textContent = htmlContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+      return { html: textContent, domain };
+    } else {
+      return null;
     }
-
-    // Strip HTML tags for text extraction
-    const textContent = htmlContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-
-    // Run real LangExtract extraction with domain and model
-    const extraction = await RealLangExtract.extract(textContent, schema, domain, modelName);
-
-    res.json({
-      success: true,
-      extraction,
-      metadata: {
-        dumpId,
-        domain,
-        schemaName,
-        modelName: modelName || 'gemini-2.5-flash',
-        originalSize: htmlContent.length,
-        textSize: textContent.length,
-        timestamp: new Date().toISOString()
-      }
-    });
-
   } catch (error) {
-    console.error('Error running extraction:', error);
-    res.status(500).json({ 
-      error: 'Extraction failed',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
+    console.error(`[LangExtract] Error fetching dump ${dumpId}:`, error);
+    return null;
   }
-});
+}
 
 export default router;

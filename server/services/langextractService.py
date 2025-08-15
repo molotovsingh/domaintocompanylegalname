@@ -160,45 +160,93 @@ RESPONSE FORMAT (JSON only):
 }}"""
             
             # Call Gemini API with timeout protection
+            api_call_start = time.time()
+            print(f"[LangExtract] Starting API call to {self.model_name}", file=sys.stderr)
+            print(f"[LangExtract] Prompt length: {len(prompt)} characters", file=sys.stderr)
+            print(f"[LangExtract] Text content length: {len(text_content)} characters", file=sys.stderr)
+            
             try:
                 response = self.model.generate_content(prompt)
+                api_call_duration = int((time.time() - api_call_start) * 1000)
                 
-                if not response or not hasattr(response, 'text'):
-                    print(f"Error: Invalid response from {self.model_name}", file=sys.stderr)
+                print(f"[LangExtract] API call completed in {api_call_duration}ms", file=sys.stderr)
+                
+                if not response:
+                    print(f"[LangExtract] ERROR: Null response from {self.model_name}", file=sys.stderr)
                     return {
-                        "error": f"Invalid response from {self.model_name}",
+                        "error": f"Null response from {self.model_name}",
                         "entities": [],
                         "processingTime": int((time.time() - start_time) * 1000),
                         "tokensProcessed": 0,
                         "sourceMapping": [],
-                        "metadata": {"model": self.model_name}
+                        "metadata": {"model": self.model_name, "apiCallDuration": api_call_duration}
+                    }
+                
+                if not hasattr(response, 'text'):
+                    print(f"[LangExtract] ERROR: Response missing text attribute from {self.model_name}", file=sys.stderr)
+                    print(f"[LangExtract] Response type: {type(response)}", file=sys.stderr)
+                    print(f"[LangExtract] Response attributes: {dir(response)}", file=sys.stderr)
+                    return {
+                        "error": f"Invalid response structure from {self.model_name}",
+                        "entities": [],
+                        "processingTime": int((time.time() - start_time) * 1000),
+                        "tokensProcessed": 0,
+                        "sourceMapping": [],
+                        "metadata": {"model": self.model_name, "apiCallDuration": api_call_duration}
                     }
                 
                 # Parse the response
                 response_text = response.text
-                print(f"[LangExtract] Response length: {len(response_text)}", file=sys.stderr)
+                print(f"[LangExtract] Response received: {len(response_text)} characters", file=sys.stderr)
+                print(f"[LangExtract] Response preview: {response_text[:200]}{'...' if len(response_text) > 200 else ''}", file=sys.stderr)
                 
                 # Try to extract JSON from response
+                print(f"[LangExtract] Attempting JSON parsing from response", file=sys.stderr)
                 json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
                 if json_match:
-                    result_json = json.loads(json_match.group())
+                    json_content = json_match.group()
+                    print(f"[LangExtract] Found JSON match: {len(json_content)} characters", file=sys.stderr)
+                    try:
+                        result_json = json.loads(json_content)
+                        print(f"[LangExtract] Successfully parsed JSON with keys: {list(result_json.keys())}", file=sys.stderr)
+                    except json.JSONDecodeError as je:
+                        print(f"[LangExtract] JSON decode error in matched content: {je}", file=sys.stderr)
+                        print(f"[LangExtract] Failed JSON content: {json_content[:500]}{'...' if len(json_content) > 500 else ''}", file=sys.stderr)
+                        result_json = {"extractions": {}}
                 else:
                     # If no JSON found, try to parse the entire response
+                    print(f"[LangExtract] No JSON pattern match, trying full response parse", file=sys.stderr)
                     try:
                         result_json = json.loads(response_text)
-                    except json.JSONDecodeError:
-                        print(f"[LangExtract] No valid JSON found in response", file=sys.stderr)
+                        print(f"[LangExtract] Successfully parsed full response as JSON", file=sys.stderr)
+                    except json.JSONDecodeError as je:
+                        print(f"[LangExtract] Full response JSON decode error: {je}", file=sys.stderr)
+                        print(f"[LangExtract] Raw response causing error: {response_text[:500]}{'...' if len(response_text) > 500 else ''}", file=sys.stderr)
                         result_json = {"extractions": {}}
                         
             except Exception as api_error:
-                print(f"Error calling {self.model_name} API: {api_error}", file=sys.stderr)
+                api_call_duration = int((time.time() - api_call_start) * 1000)
+                print(f"[LangExtract] CRITICAL ERROR: {self.model_name} API call failed after {api_call_duration}ms", file=sys.stderr)
+                print(f"[LangExtract] Error type: {type(api_error).__name__}", file=sys.stderr)
+                print(f"[LangExtract] Error message: {str(api_error)}", file=sys.stderr)
+                print(f"[LangExtract] Error details: {repr(api_error)}", file=sys.stderr)
+                
+                # Try to get more error context
+                if hasattr(api_error, 'response'):
+                    print(f"[LangExtract] API response status: {getattr(api_error.response, 'status_code', 'unknown')}", file=sys.stderr)
+                    print(f"[LangExtract] API response headers: {getattr(api_error.response, 'headers', 'unknown')}", file=sys.stderr)
+                
                 return {
                     "error": f"{self.model_name} API error: {str(api_error)}",
                     "entities": [],
                     "processingTime": int((time.time() - start_time) * 1000),
                     "tokensProcessed": 0,
                     "sourceMapping": [],
-                    "metadata": {"model": self.model_name}
+                    "metadata": {
+                        "model": self.model_name,
+                        "apiCallDuration": api_call_duration,
+                        "errorType": type(api_error).__name__
+                    }
                 }
             
             # Process results into our expected format
