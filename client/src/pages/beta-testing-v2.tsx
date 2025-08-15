@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'wouter';
-import { ArrowLeft, Database, Cpu, Shield, Loader2, Sparkles, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'lucide-react';
+import { ArrowLeft, Database, Cpu, Shield, Loader2, Sparkles } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,17 +13,17 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 export default function BetaTestingV2() {
   const [, setLocation] = useLocation();
 
-  const [dumps, setDumps] = useState({
+  const [dumps, setDumps] = useState<any>({
     crawlee: [],
     scrapy: [],
     playwright: [],
     axiosCheerio: []
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [cleaningResults, setCleaningResults] = useState([]);
-  const [cleaningInProgress, setCleaningInProgress] = useState(new Set());
+  const [cleaningResults, setCleaningResults] = useState<any[]>([]);
+  const [cleaningInProgress, setCleaningInProgress] = useState<Set<string>>(new Set());
   const [selectedCleaningModel, setSelectedCleaningModel] = useState('deepseek-chat');
-  const [availableModels, setAvailableModels] = useState([]);
+  const [availableModels, setAvailableModels] = useState<any[]>([]);
 
   const methods = [
     {
@@ -97,7 +98,7 @@ export default function BetaTestingV2() {
     }
   };
 
-  const startCleaning = async (sourceType, sourceId) => {
+  const startCleaning = async (sourceType: string, sourceId: string) => {
     const key = `${sourceType}:${sourceId}`;
     setCleaningInProgress(prev => new Set([...prev, key]));
 
@@ -118,7 +119,7 @@ export default function BetaTestingV2() {
 
       if (response.ok) {
         const result = await response.json();
-        setCleaningResults(prev => [...prev, { sourceType, sourceId, ...result }]);
+        setCleaningResults((prev: any[]) => [...prev, { sourceType, sourceId, ...result }]);
         console.log(`[Cleaning] Cleaning successful for ${sourceType} ID ${sourceId}:`, result);
       } else {
         console.error(`[Cleaning] Cleaning failed for ${sourceType} ID ${sourceId}:`, response.statusText);
