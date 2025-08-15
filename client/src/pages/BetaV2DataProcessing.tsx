@@ -982,7 +982,7 @@ export default function BetaV2DataProcessingPage() {
                              arbitrationResultsData?.rankedEntities && 
                              result.arbitrationRequestId === selectedArbitrationRequest && (
                               <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-                                <h4 className="text-sm font-semibold mb-2">Arbitration Results (DeepSeek R1 Reasoning)</h4>
+                                <h4 className="text-sm font-semibold mb-2">Arbitration Results ({arbitrationResultsData.arbitratorModel || 'Perplexity Sonar Pro'})</h4>
                                 <div className="space-y-2">
                                   {arbitrationResultsData.rankedEntities.slice(0, 5).map((entity: any, idx: number) => (
                                     <div key={`entity-${idx}-${entity.leiCode || entity.legalName}`} className="bg-white p-2 rounded">
