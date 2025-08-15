@@ -11,7 +11,7 @@ const router = Router();
  */
 router.post('/request', async (req, res) => {
   try {
-    const { domain, dumpId, collectionType } = req.body;
+    const { domain, dumpId, collectionType, existingClaims } = req.body;
 
     if (!domain || !dumpId || !collectionType) {
       return res.status(400).json({
@@ -33,8 +33,8 @@ router.post('/request', async (req, res) => {
     const requestId = requestResult.rows[0].id;
     console.log(`[Arbitration] Created request ${requestId} for ${domain}`);
 
-    // Process asynchronously
-    processArbitrationAsync(requestId, domain, dumpId, collectionType);
+    // Process asynchronously with existing claims if provided
+    processArbitrationAsync(requestId, domain, dumpId, collectionType, undefined, existingClaims);
 
     res.json({
       success: true,
@@ -282,7 +282,8 @@ async function processArbitrationAsync(
   domain: string,
   dumpId: number,
   collectionType: string,
-  userBiasProfileId?: number
+  userBiasProfileId?: number,
+  providedClaims?: any[]
 ) {
   try {
     console.log(`[Arbitration] Processing request ${requestId}`);
@@ -295,11 +296,52 @@ async function processArbitrationAsync(
       cleanedData: await getCleanedData(dumpId, collectionType)
     };
 
-    // Generate claims
-    const claims = await claimsGenerationService.assembleClaims(dump);
-    
-    // Store claims
-    await claimsGenerationService.storeClaims(requestId, claims);
+    // Check if claims were provided from frontend
+    let claims;
+    if (providedClaims && providedClaims.length > 0) {
+      // Use claims provided from GLEIF generation
+      console.log(`[Arbitration] Using ${providedClaims.length} provided claims from frontend`);
+      
+      // Transform frontend claims to internal format and store them
+      claims = providedClaims.map((claim, index) => ({
+        claimNumber: index,
+        claimType: claim.claimType || claim.type || (index === 0 ? 'extracted' : 'gleif_verified'),
+        entityName: claim.entityName || claim.legalName,
+        leiCode: claim.leiCode || claim.leiCode,
+        confidence: typeof claim.confidence === 'string' ? parseFloat(claim.confidence) : claim.confidence,
+        source: claim.source || 'gleif_claims',
+        metadata: claim.gleifData || claim.metadata || {}
+      }));
+      
+      // Store provided claims
+      await claimsGenerationService.storeClaims(requestId, claims);
+    } else {
+      // Check if claims already exist in database
+      const existingClaimsResult = await db.query(
+        `SELECT * FROM arbitration_claims WHERE request_id = $1`,
+        [requestId]
+      );
+      
+      if (existingClaimsResult.rows.length > 0) {
+        // Use existing claims
+        console.log(`[Arbitration] Using ${existingClaimsResult.rows.length} existing claims from database`);
+        claims = existingClaimsResult.rows.map(row => ({
+          claimNumber: row.claim_number,
+          claimType: row.claim_type,
+          entityName: row.entity_name,
+          leiCode: row.lei_code,
+          confidence: row.confidence_score,
+          source: row.source,
+          metadata: row.metadata
+        }));
+      } else {
+        // Generate new claims if none exist
+        console.log(`[Arbitration] Generating new claims`);
+        claims = await claimsGenerationService.assembleClaims(dump);
+        // Store claims
+        await claimsGenerationService.storeClaims(requestId, claims);
+      }
+    }
 
     // Get user bias
     const userBias = await perplexityArbitrationService.getDefaultUserBias();

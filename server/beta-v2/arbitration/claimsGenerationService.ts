@@ -201,9 +201,11 @@ export class ClaimsGenerationService {
           [dump.id]
         );
         if (result.rows[0]?.dump_data?.pages?.[0]) {
-          rawContent = result.rows[0].dump_data.pages[0].title || '';
+          // Prioritize og:site_name over title for entity extraction
           if (result.rows[0].dump_data.pages[0].metaTags?.['og:site_name']) {
             rawContent = result.rows[0].dump_data.pages[0].metaTags['og:site_name'];
+          } else {
+            rawContent = result.rows[0].dump_data.pages[0].title || '';
           }
         }
       } else if (dump.collectionType === 'crawlee_dump') {
@@ -212,7 +214,12 @@ export class ClaimsGenerationService {
           [dump.id]
         );
         if (result.rows[0]?.dump_data?.pages?.[0]) {
-          rawContent = result.rows[0].dump_data.pages[0].title || '';
+          // Prioritize og:site_name over title for entity extraction
+          if (result.rows[0].dump_data.pages[0].metaTags?.['og:site_name']) {
+            rawContent = result.rows[0].dump_data.pages[0].metaTags['og:site_name'];
+          } else {
+            rawContent = result.rows[0].dump_data.pages[0].title || '';
+          }
         }
       }
 

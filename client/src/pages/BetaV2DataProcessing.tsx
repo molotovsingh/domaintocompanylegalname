@@ -934,11 +934,12 @@ export default function BetaV2DataProcessingPage() {
                                   try {
                                     setArbitrationLoading(true);
                                     
-                                    // Start arbitration request
+                                    // Start arbitration request with existing claims
                                     const response = await apiRequest('POST', '/api/beta/arbitration/request', {
                                       domain: result.domain,
                                       dumpId: result.dumpId,
-                                      collectionType: result.collectionType
+                                      collectionType: result.collectionType,
+                                      existingClaims: result.claims // Pass the already generated claims
                                     });
                                     
                                     const data = await response.json();
