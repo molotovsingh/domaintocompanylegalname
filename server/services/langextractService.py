@@ -253,7 +253,41 @@ RESPONSE FORMAT (JSON only):
             entities = []
             extractions = result_json.get("extractions", {})
             
+            print(f"[LangExtract] Processing extractions of type: {type(extractions)}", file=sys.stderr)
+            print(f"[LangExtract] Extractions content: {extractions}", file=sys.stderr)
+            
+            # Handle case where extractions might be a list instead of dict
+            if isinstance(extractions, list):
+                print(f"[LangExtract] WARNING: extractions is a list, converting to dict", file=sys.stderr)
+                # Convert list to dict if possible
+                if extractions and isinstance(extractions[0], dict):
+                    # Try to convert list of dicts to single dict
+                    new_extractions = {}
+                    for i, item in enumerate(extractions):
+                        if isinstance(item, dict):
+                            for key, value in item.items():
+                                new_extractions[f"{key}_{i}" if key in new_extractions else key] = value
+                    extractions = new_extractions
+                else:
+                    extractions = {}
+            
+            # Ensure extractions is a dict
+            if not isinstance(extractions, dict):
+                print(f"[LangExtract] ERROR: extractions is not a dict after conversion: {type(extractions)}", file=sys.stderr)
+                extractions = {}
+            
             for field_name, extraction_data in extractions.items():
+                print(f"[LangExtract] Processing field '{field_name}' with data type: {type(extraction_data)}", file=sys.stderr)
+                
+                # Handle case where extraction_data might not be a dict
+                if not isinstance(extraction_data, dict):
+                    print(f"[LangExtract] WARNING: extraction_data is not a dict: {type(extraction_data)}", file=sys.stderr)
+                    # Try to convert string to simple dict
+                    if isinstance(extraction_data, str):
+                        extraction_data = {"value": extraction_data, "confidence": 50}
+                    else:
+                        continue
+                
                 if extraction_data and extraction_data.get("value"):
                     # Try to find the position in original text
                     value = extraction_data["value"]
