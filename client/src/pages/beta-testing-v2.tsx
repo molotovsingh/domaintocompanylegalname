@@ -1,9 +1,29 @@
 import { Link, useLocation } from 'wouter';
-import { ArrowLeft, Database, Cpu, Shield } from 'lucide-react';
+import { ArrowLeft, Database, Cpu, Shield, Loader2, Sparkles, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertCircle, CheckCircle, Clock, Brain, Search, FileText } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function BetaTestingV2() {
   const [, setLocation] = useLocation();
-  
+
+  const [dumps, setDumps] = useState({
+    crawlee: [],
+    scrapy: [],
+    playwright: [],
+    axiosCheerio: []
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [cleaningResults, setCleaningResults] = useState([]);
+  const [cleaningInProgress, setCleaningInProgress] = useState(new Set());
+  const [selectedCleaningModel, setSelectedCleaningModel] = useState('deepseek-chat');
+  const [availableModels, setAvailableModels] = useState([]);
+
   const methods = [
     {
       id: 'playwright-dump',
@@ -50,6 +70,116 @@ export default function BetaTestingV2() {
     }
   };
 
+  const fetchDumps = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/beta/dumps');
+      if (response.ok) {
+        const data = await response.json();
+        setDumps(data);
+      }
+    } catch (error) {
+      console.error('Error fetching dumps:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchCleaningResults = async () => {
+    try {
+      const response = await fetch('/api/beta/cleaning/results');
+      if (response.ok) {
+        const data = await response.json();
+        setCleaningResults(data);
+      }
+    } catch (error) {
+      console.error('Error fetching cleaning results:', error);
+    }
+  };
+
+  const startCleaning = async (sourceType, sourceId) => {
+    const key = `${sourceType}:${sourceId}`;
+    setCleaningInProgress(prev => new Set([...prev, key]));
+
+    try {
+      console.log(`[Cleaning] Starting cleaning for ${sourceType} ID ${sourceId} with model ${selectedCleaningModel}`);
+
+      const response = await fetch('/api/beta/cleaning/clean', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sourceType,
+          sourceId: parseInt(sourceId),
+          model: selectedCleaningModel
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setCleaningResults(prev => [...prev, { sourceType, sourceId, ...result }]);
+        console.log(`[Cleaning] Cleaning successful for ${sourceType} ID ${sourceId}:`, result);
+      } else {
+        console.error(`[Cleaning] Cleaning failed for ${sourceType} ID ${sourceId}:`, response.statusText);
+      }
+    } catch (error) {
+      console.error(`[Cleaning] Error during cleaning for ${sourceType} ID ${sourceId}:`, error);
+    } finally {
+      setCleaningInProgress(prev => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+    }
+  };
+
+  const fetchAvailableModels = async () => {
+    try {
+      const response = await fetch('/api/beta/cleaning/models');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setAvailableModels(data.models);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching available models:', error);
+    }
+  };
+
+  const getModelIcon = (modelId) => {
+    if (modelId.includes('deepseek')) return '🔥';
+    if (modelId.includes('qwen')) return '🎯';
+    if (modelId.includes('llama')) return '🦙';
+    if (modelId.includes('mistral')) return '🌟';
+    if (modelId.includes('gemma')) return '🔷';
+    return '🤖';
+  };
+
+  const getModelDisplayName = (modelId) => {
+    const names = {
+      'deepseek-chat': 'DeepSeek Chat',
+      'deepseek-v3': 'DeepSeek V3',
+      'deepseek-r1': 'DeepSeek R1 Reasoning',
+      'qwen-2.5': 'Qwen 2.5 72B',
+      'qwen3-coder': 'Qwen3 Coder',
+      'qwen3-14b': 'Qwen3 14B',
+      'llama-3-8b': 'Llama 3 8B',
+      'mistral-7b': 'Mistral 7B',
+      'gemma-7b': 'Gemma 7B'
+    };
+    return names[modelId] || modelId.charAt(0).toUpperCase() + modelId.slice(1);
+  };
+
+
+  useEffect(() => {
+    fetchDumps();
+    fetchCleaningResults();
+    fetchAvailableModels();
+  }, []);
+
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -74,8 +204,8 @@ export default function BetaTestingV2() {
                   disabled={method.status === 'coming-soon'}
                   className={`
                     p-4 rounded-lg border text-left transition-all
-                    ${method.status === 'available' 
-                      ? 'hover:border-primary hover:shadow-md cursor-pointer' 
+                    ${method.status === 'available'
+                      ? 'hover:border-primary hover:shadow-md cursor-pointer'
                       : 'opacity-50 cursor-not-allowed'
                     }
                   `}
@@ -110,9 +240,9 @@ export default function BetaTestingV2() {
           {/* Data Processing Section */}
           <div className="mt-8 space-y-4">
             <h2 className="text-lg font-medium">Data Processing</h2>
-            
+
             {/* Data Processing Stage 1 */}
-            <div 
+            <div
               onClick={() => setLocation('/beta-data-processing')}
               className="p-4 rounded-lg border hover:border-primary hover:shadow-md cursor-pointer transition-all"
             >
@@ -131,9 +261,9 @@ export default function BetaTestingV2() {
                 <span className="text-sm text-green-600 font-medium">Available</span>
               </div>
             </div>
-            
+
             {/* Data Processing Stage 2 */}
-            <div 
+            <div
               onClick={() => setLocation('/beta-v2/data-processing')}
               className="p-4 rounded-lg border hover:border-primary hover:shadow-md cursor-pointer transition-all"
             >
@@ -150,6 +280,88 @@ export default function BetaTestingV2() {
                   </div>
                 </div>
                 <span className="text-sm text-green-600 font-medium">Available</span>
+              </div>
+            </div>
+          </div>
+
+          {/* LLM Cleaning Section */}
+          <div className="mt-8 space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold mb-3">🧹 LLM Cleaning</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Clean raw HTML data using Large Language Models to extract structured business information.
+              </p>
+
+              {/* Model Selection */}
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  LLM Cleaning Model
+                </label>
+                <Select value={selectedCleaningModel} onValueChange={setSelectedCleaningModel}>
+                  <SelectTrigger className="w-full max-w-md">
+                    <SelectValue placeholder="Select cleaning model..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableModels.length > 0 ? (
+                      availableModels.map((model) => (
+                        <SelectItem key={model.id} value={model.id}>
+                          {getModelIcon(model.id)} {getModelDisplayName(model.id)} {model.isFree ? '(Free)' : ''}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <>
+                        <SelectItem value="deepseek-chat">🔥 DeepSeek Chat (Free)</SelectItem>
+                        <SelectItem value="deepseek-v3">⚡ DeepSeek V3 (Free)</SelectItem>
+                        <SelectItem value="deepseek-r1">🧠 DeepSeek R1 Reasoning (Free)</SelectItem>
+                        <SelectItem value="qwen-2.5">🎯 Qwen 2.5 72B (Free)</SelectItem>
+                        <SelectItem value="qwen3-coder">💻 Qwen3 Coder (Free)</SelectItem>
+                        <SelectItem value="llama-3-8b">🦙 Llama 3 8B (Free)</SelectItem>
+                        <SelectItem value="mistral-7b">🌟 Mistral 7B (Free)</SelectItem>
+                        <SelectItem value="gemma-7b">🔷 Gemma 7B (Free)</SelectItem>
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Selected model: <span className="font-mono">{selectedCleaningModel || 'deepseek-chat'}</span>
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {dumps.crawlee.slice(0, 6).map((dump) => (
+                  <div key={`crawlee-${dump.id}`} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h4 className="font-medium truncate">{dump.domain}</h4>
+                        <p className="text-xs text-gray-500">
+                          ID: {dump.id} • {new Date(dump.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => startCleaning('crawlee_dump', dump.id)}
+                        disabled={cleaningInProgress.has(`crawlee_dump:${dump.id}`)}
+                      >
+                        {cleaningInProgress.has(`crawlee_dump:${dump.id}`) ? (
+                          <>
+                            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                            Cleaning...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-3 w-3 mr-1" />
+                            Clean with LLM
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

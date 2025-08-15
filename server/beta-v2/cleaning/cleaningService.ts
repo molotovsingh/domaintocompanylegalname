@@ -27,7 +27,7 @@ export class CleaningService {
 
   private initializeAdapters(): void {
     const apiKey = CLEANING_SERVICE_CONFIG.openRouterApiKey;
-    
+
     if (!apiKey) {
       console.warn('[CleaningService] No OpenRouter API key found. Service will be limited.');
       return;
@@ -35,7 +35,7 @@ export class CleaningService {
 
     // Initialize adapters for enabled models
     const enabledModels = getEnabledModels();
-    
+
     for (const modelName of enabledModels) {
       const config = getModelConfig(modelName);
       if (config && config.provider === 'openrouter') {
@@ -61,7 +61,7 @@ export class CleaningService {
 
     try {
       console.log('[CleaningService] Fetching available dumps from all collection methods...');
-      
+
       // Get Crawlee dumps
       const crawleeResult = await executeBetaV2Query(`
         SELECT id, domain, created_at, 
@@ -176,7 +176,7 @@ export class CleaningService {
       }
 
       console.log(`[CleaningService] Total dumps found: ${dumps.length} (Crawlee: ${dumps.filter(d => d.type === 'crawlee_dump').length}, Scrapy: ${dumps.filter(d => d.type === 'scrapy_crawl').length}, Playwright: ${dumps.filter(d => d.type === 'playwright_dump').length}, Axios+Cheerio: ${dumps.filter(d => d.type === 'axios_cheerio_dump').length})`);
-      
+
       return dumps;
     } catch (error) {
       console.error('[CleaningService] Error getting available dumps:', error);
@@ -190,7 +190,7 @@ export class CleaningService {
   async getRawData(sourceType: string, sourceId: number): Promise<RawDumpData | null> {
     try {
       let query: string;
-      
+
       switch (sourceType) {
         case 'crawlee_dump':
           query = `
@@ -199,7 +199,7 @@ export class CleaningService {
             WHERE id = $1 AND status = 'completed'
           `;
           break;
-          
+
         case 'scrapy_crawl':
           query = `
             SELECT id, domain, raw_data as content, created_at
@@ -207,7 +207,7 @@ export class CleaningService {
             WHERE id = $1 AND status IN ('completed', 'success')
           `;
           break;
-          
+
         case 'playwright_dump':
           query = `
             SELECT id, domain, raw_data as content, created_at
@@ -215,7 +215,7 @@ export class CleaningService {
             WHERE id = $1 AND status IN ('completed', 'success')
           `;
           break;
-          
+
         case 'axios_cheerio_dump':
           query = `
             SELECT id, domain, raw_html as content, meta_tags, page_metadata, created_at
@@ -223,19 +223,19 @@ export class CleaningService {
             WHERE id = $1 AND status = 'completed'
           `;
           break;
-          
+
         default:
           throw new Error(`Unknown source type: ${sourceType}`);
       }
 
       const result = await executeBetaV2Query(query, [sourceId]);
-      
+
       if (result.rows.length === 0) {
         return null;
       }
 
       const row = result.rows[0];
-      
+
       // Parse JSON content if it's a string
       if (typeof row.content === 'string' && row.content.trim().startsWith('{')) {
         try {
@@ -244,14 +244,14 @@ export class CleaningService {
           console.error('[CleaningService] Failed to parse JSON content:', e);
         }
       }
-      
+
       // Extract enhanced metadata based on source type
       let enhancedMetadata: any = {};
-      
+
       // For cleaning, we want to preserve the original structure
       // The adapters will handle extraction properly
       let contentForCleaning = row.content;
-      
+
       if (sourceType === 'crawlee_dump' && row.content?.pages) {
         // Extract enhanced metadata from pages (aggregate from all pages)
         if (row.content.pages.length > 0) {
@@ -307,7 +307,7 @@ export class CleaningService {
    */
   async processWithModels(request: CleaningRequest): Promise<CleaningResult[]> {
     const { sourceType, sourceId, modelName, compareModels } = request;
-    
+
     // Get raw data
     const rawData = await this.getRawData(sourceType, sourceId);
     if (!rawData) {
@@ -333,7 +333,7 @@ export class CleaningService {
 
     // Process with each model
     const results: CleaningResult[] = [];
-    
+
     for (const model of modelsToUse) {
       const adapter = this.modelAdapters.get(model);
       if (!adapter) {
@@ -343,16 +343,16 @@ export class CleaningService {
 
       try {
         console.log(`[CleaningService] Processing ${rawData.domain} with ${model}`);
-        
+
         // Create enhanced system prompt if metadata is available
         let systemPrompt: string | undefined;
         if (rawData.enhancedMetadata) {
           systemPrompt = this.createEnhancedSystemPrompt(rawData.enhancedMetadata);
         }
-        
+
         // Clean the data with optional enhanced metadata context
         const result = await adapter.clean(rawData.content, systemPrompt);
-        
+
         // Save the result
         const savedResult = await this.saveCleaningResult(
           sourceType,
@@ -360,7 +360,7 @@ export class CleaningService {
           model,
           result
         );
-        
+
         // Track performance
         await this.recordModelPerformance({
           modelName: model,
@@ -368,11 +368,11 @@ export class CleaningService {
           processingTimeMs: result.metadata.processingTimeMs,
           success: true
         });
-        
+
         results.push({ ...result, id: savedResult.id });
       } catch (error) {
         console.error(`[CleaningService] Error processing with ${model}:`, error);
-        
+
         // Track failure
         await this.recordModelPerformance({
           modelName: model,
@@ -391,7 +391,7 @@ export class CleaningService {
    */
   private createEnhancedSystemPrompt(metadata: any): string {
     let contextParts: string[] = [];
-    
+
     // Add language context
     if (metadata.language) {
       const lang = metadata.language;
@@ -402,7 +402,7 @@ export class CleaningService {
         contextParts.push(`Multiple languages detected: ${lang.detectedLanguages.join(', ')}`);
       }
     }
-    
+
     // Add location context
     if (metadata.location) {
       const loc = metadata.location;
@@ -413,7 +413,7 @@ export class CleaningService {
         contextParts.push(`Legal jurisdiction: ${loc.legalJurisdiction}`);
       }
     }
-    
+
     // Add currency context
     if (metadata.currency) {
       const curr = metadata.currency;
@@ -424,7 +424,7 @@ export class CleaningService {
         contextParts.push(`Multiple currencies: ${curr.allCurrencies.join(', ')}`);
       }
     }
-    
+
     // Add content pattern context
     if (metadata.contentPatterns) {
       const patterns = metadata.contentPatterns;
@@ -438,7 +438,7 @@ export class CleaningService {
         contextParts.push(`Industry: ${patterns.industrySector}`);
       }
     }
-    
+
     // Build enhanced prompt
     let prompt = `Extract legal entity information from the following content.
 
@@ -450,11 +450,11 @@ EXTRACTION GUIDELINES:
    - Japanese/Asian sites may have less prominent legal entity display
    - EU sites may obscure ownership due to GDPR
    - US sites typically have clearer entity disclosure
-   
+
 2. Consider multi-language scenarios:
    - Entity names may appear in different languages
    - Look for transliterations and romanized versions
-   
+
 3. Currency/location mismatches may indicate:
    - International subsidiaries
    - Regional branches
@@ -483,12 +483,12 @@ Extract the following information, adjusting for the regional and language conte
       SELECT id FROM cleaned_data 
       WHERE source_type = $1 AND source_id = $2 AND model_name = $3
     `;
-    
+
     const existingResult = await executeBetaV2Query(checkQuery, [sourceType, sourceId, modelName]);
-    
+
     if (existingResult.rows.length > 0) {
       console.log(`[CleaningService] Result already exists for ${sourceType}:${sourceId} with ${modelName}, updating...`);
-      
+
       // Update existing record
       const updateQuery = `
         UPDATE cleaned_data 
@@ -497,7 +497,7 @@ Extract the following information, adjusting for the regional and language conte
         WHERE source_type = $6 AND source_id = $7 AND model_name = $8
         RETURNING id
       `;
-      
+
       const updateValues = [
         result.extractedData,
         result.metadata.processingTimeMs,
@@ -508,7 +508,7 @@ Extract the following information, adjusting for the regional and language conte
         sourceId,
         modelName
       ];
-      
+
       const dbResult = await executeBetaV2Query(updateQuery, updateValues);
       return { id: dbResult.rows[0].id };
     } else {
@@ -553,7 +553,7 @@ Extract the following information, adjusting for the regional and language conte
     `;
 
     const result = await executeBetaV2Query(query, [sourceType, sourceId]);
-    
+
     return result.rows.map((row: any) => ({
       id: row.id,
       extractedData: row.cleaned_data,
@@ -622,7 +622,7 @@ Extract the following information, adjusting for the regional and language conte
    */
   getAvailableModels() {
     const models = [];
-    
+
     for (const [name, adapter] of this.modelAdapters) {
       models.push(adapter.getModelInfo());
     }

@@ -82,6 +82,28 @@ export const CLEANING_MODELS: Record<string, ModelConfig> = {
   },
   
   // Mistral Models
+  'mistral-7b': {
+    modelId: 'mistralai/mistral-7b-instruct:free',
+    provider: 'openrouter',
+    isFree: true,
+    costPer1kTokens: 0,
+    maxTokens: 4000,
+    temperature: 0.3,
+    enabled: true
+  },
+  
+  // Google Models
+  'gemma-7b': {
+    modelId: 'google/gemma-7b-it:free',
+    provider: 'openrouter',
+    isFree: true,
+    costPer1kTokens: 0,
+    maxTokens: 4000,
+    temperature: 0.3,
+    enabled: true
+  },
+  
+  // Additional Models
   'mixtral-8x7b': {
     modelId: 'mistralai/mixtral-8x7b-instruct:free',
     provider: 'openrouter',

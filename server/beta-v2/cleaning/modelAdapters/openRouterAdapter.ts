@@ -3,6 +3,7 @@
 import axios from 'axios';
 import { BaseModelAdapter } from './baseAdapter';
 import { CleaningResult, ModelInfo, ExtractedData } from '../types';
+import { CLEANING_MODELS } from '../config';
 
 export class OpenRouterAdapter extends BaseModelAdapter {
   private baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
@@ -10,11 +11,21 @@ export class OpenRouterAdapter extends BaseModelAdapter {
   private isFree: boolean;
   private costPer1kTokens: number;
 
-  constructor(apiKey: string, modelName: string, modelId: string, isFree: boolean = true, costPer1kTokens: number = 0) {
+  constructor(apiKey: string, modelName: string, modelId?: string, isFree?: boolean, costPer1kTokens?: number) {
     super(apiKey, modelName, 'openrouter');
-    this.modelId = modelId;
-    this.isFree = isFree;
-    this.costPer1kTokens = costPer1kTokens;
+    
+    // Get model config from CLEANING_MODELS
+    const modelConfig = CLEANING_MODELS[modelName];
+    if (modelConfig) {
+      this.modelId = modelConfig.modelId;
+      this.isFree = modelConfig.isFree;
+      this.costPer1kTokens = modelConfig.costPer1kTokens;
+    } else {
+      // Fallback to provided values or defaults
+      this.modelId = modelId || 'deepseek/deepseek-chat';
+      this.isFree = isFree !== undefined ? isFree : true;
+      this.costPer1kTokens = costPer1kTokens || 0;
+    }
   }
 
   async clean(rawData: any, systemPrompt?: string): Promise<CleaningResult> {
