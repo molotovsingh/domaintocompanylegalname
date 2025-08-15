@@ -188,6 +188,17 @@ export class ClaimsGenerationService {
         confidenceScore = 0.5;
       }
       
+      // Map claim types to valid database values
+      let mappedClaimType = claim.claimType;
+      if (claim.claimType === 'extracted' || claim.claimType === 'llm_extracted') {
+        mappedClaimType = 'llm_extracted';
+      } else if (claim.claimType === 'gleif_verified' || claim.claimType === 'gleif_candidate' || claim.claimType === 'gleif_relationship') {
+        mappedClaimType = 'gleif_candidate';
+      } else {
+        // Default to llm_extracted for any other types
+        mappedClaimType = 'llm_extracted';
+      }
+      
       await db.query(`
         INSERT INTO arbitration_claims (
           request_id, claim_number, claim_type, entity_name, 
@@ -196,7 +207,7 @@ export class ClaimsGenerationService {
       `, [
         requestId,
         claim.claimNumber,
-        claim.claimType,
+        mappedClaimType,
         claim.entityName,
         claim.leiCode,
         confidenceScore,
