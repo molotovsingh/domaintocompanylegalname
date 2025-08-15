@@ -5,7 +5,7 @@ import { queryClient } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, RefreshCw, PlayCircle, CheckCircle, Clock, AlertCircle, Database, Brain, Search, ChevronDown, ChevronUp, FileSearch, Award, Settings } from 'lucide-react';
+import { ArrowLeft, RefreshCw, PlayCircle, CheckCircle, Clock, AlertCircle, Database, Brain, Search, ChevronDown, ChevronUp, FileSearch, Award, Settings, Info, ChevronRight, FileText } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -977,40 +977,221 @@ export default function BetaV2DataProcessingPage() {
                         </CardHeader>
                         <CardContent>
                           <div className="space-y-3">
-                            {/* Display arbitration results if available */}
+                            {/* Enhanced Arbitration Results Display */}
                             {arbitrationResultsData?.status === 'completed' && 
                              arbitrationResultsData?.rankedEntities && 
                              result.arbitrationRequestId === selectedArbitrationRequest && (
-                              <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-                                <h4 className="text-sm font-semibold mb-2">Arbitration Results ({arbitrationResultsData.arbitratorModel || 'Perplexity Sonar Pro'})</h4>
-                                <div className="space-y-2">
-                                  {arbitrationResultsData.rankedEntities.slice(0, 5).map((entity: any, idx: number) => (
-                                    <div key={`entity-${idx}-${entity.leiCode || entity.legalName}`} className="bg-white p-2 rounded">
-                                      <div className="flex justify-between items-center">
-                                        <div>
-                                          <span className="font-medium">#{idx + 1}: {entity.legalName}</span>
-                                          {entity.leiCode && (
-                                            <span className="text-xs ml-2 text-gray-600">LEI: {entity.leiCode}</span>
-                                          )}
+                              <div className="mb-4 space-y-4">
+                                {/* Primary Recommendation Card */}
+                                {arbitrationResultsData.rankedEntities[0] && (
+                                  <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg">
+                                    <div className="flex items-start justify-between mb-3">
+                                      <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <Award className="h-5 w-5 text-green-600" />
+                                          <h4 className="text-sm font-bold text-green-800">PRIMARY RECOMMENDATION</h4>
                                         </div>
-                                        <Badge variant="outline" className="text-xs">
-                                          Score: {entity.confidence || entity.score}
+                                        <h3 className="text-lg font-semibold text-gray-900">
+                                          {arbitrationResultsData.rankedEntities[0].legalName}
+                                        </h3>
+                                        {arbitrationResultsData.rankedEntities[0].leiCode && (
+                                          <code className="text-xs bg-white px-2 py-1 rounded mt-1 inline-block">
+                                            LEI: {arbitrationResultsData.rankedEntities[0].leiCode}
+                                          </code>
+                                        )}
+                                      </div>
+                                      <div className="text-right">
+                                        <div className="text-2xl font-bold text-green-600">
+                                          {((arbitrationResultsData.rankedEntities[0].confidence || arbitrationResultsData.rankedEntities[0].score || 0) * 100).toFixed(0)}%
+                                        </div>
+                                        <Badge className="bg-green-600 text-white">
+                                          Recommended
                                         </Badge>
                                       </div>
-                                      {entity.reasoning && (
-                                        <p className="text-xs text-gray-600 mt-1">{entity.reasoning}</p>
-                                      )}
                                     </div>
-                                  ))}
-                                </div>
-                                {arbitrationResultsData.reasoning && (
-                                  <div className="mt-3 p-3 bg-gray-100 rounded">
-                                    <p className="text-xs font-medium mb-1">Overall Reasoning:</p>
-                                    <p className="text-xs">{arbitrationResultsData.reasoning.slice(0, 500)}...</p>
+                                    
+                                    {/* Confidence Level Indicator */}
+                                    <div className="mb-3">
+                                      <div className="flex items-center justify-between text-xs mb-1">
+                                        <span>Confidence Level</span>
+                                        <span className="font-medium">
+                                          {(arbitrationResultsData.rankedEntities[0].confidence || arbitrationResultsData.rankedEntities[0].score || 0) >= 0.8 ? 'HIGH' :
+                                           (arbitrationResultsData.rankedEntities[0].confidence || arbitrationResultsData.rankedEntities[0].score || 0) >= 0.5 ? 'MEDIUM' : 'LOW'}
+                                        </span>
+                                      </div>
+                                      <div className="w-full bg-gray-200 rounded-full h-2">
+                                        <div 
+                                          className="bg-green-600 h-2 rounded-full transition-all"
+                                          style={{width: `${((arbitrationResultsData.rankedEntities[0].confidence || arbitrationResultsData.rankedEntities[0].score || 0) * 100)}%`}}
+                                        />
+                                      </div>
+                                    </div>
+                                    
+                                    {arbitrationResultsData.rankedEntities[0].reasoning && (
+                                      <p className="text-sm text-gray-700 bg-white p-2 rounded">
+                                        {arbitrationResultsData.rankedEntities[0].reasoning}
+                                      </p>
+                                    )}
                                   </div>
                                 )}
-                                <div className="mt-2 text-xs text-gray-500">
-                                  Processing time: {arbitrationResultsData.processingTimeMs}ms • Model: {arbitrationResultsData.arbitratorModel}
+                                
+                                {/* Comparative Analysis Table */}
+                                {arbitrationResultsData.rankedEntities.length > 1 && (
+                                  <div className="bg-white border rounded-lg overflow-hidden">
+                                    <div className="bg-gray-50 px-4 py-2 border-b">
+                                      <h4 className="text-sm font-semibold flex items-center gap-2">
+                                        <FileText className="h-4 w-4" />
+                                        Comparative Analysis
+                                      </h4>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                      <table className="w-full text-sm">
+                                        <thead className="bg-gray-50 border-b">
+                                          <tr>
+                                            <th className="text-left px-4 py-2">Rank</th>
+                                            <th className="text-left px-4 py-2">Entity Name</th>
+                                            <th className="text-left px-4 py-2">LEI Code</th>
+                                            <th className="text-left px-4 py-2">Confidence</th>
+                                            <th className="text-left px-4 py-2">Status</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {arbitrationResultsData.rankedEntities.slice(0, 5).map((entity: any, idx: number) => (
+                                            <tr key={`comp-${idx}`} className={idx === 0 ? 'bg-green-50' : 'hover:bg-gray-50'}>
+                                              <td className="px-4 py-2">
+                                                <div className={`flex items-center justify-center w-6 h-6 rounded-full ${
+                                                  idx === 0 ? 'bg-green-600 text-white' : 
+                                                  idx === 1 ? 'bg-blue-500 text-white' :
+                                                  'bg-gray-400 text-white'
+                                                } text-xs font-bold`}>
+                                                  {idx + 1}
+                                                </div>
+                                              </td>
+                                              <td className="px-4 py-2 font-medium">{entity.legalName}</td>
+                                              <td className="px-4 py-2">
+                                                {entity.leiCode ? (
+                                                  <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">
+                                                    {entity.leiCode}
+                                                  </code>
+                                                ) : (
+                                                  <span className="text-gray-400">—</span>
+                                                )}
+                                              </td>
+                                              <td className="px-4 py-2">
+                                                <div className="flex items-center gap-2">
+                                                  <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                                                    <div 
+                                                      className={`h-1.5 rounded-full ${
+                                                        idx === 0 ? 'bg-green-600' : 
+                                                        idx === 1 ? 'bg-blue-500' : 
+                                                        'bg-gray-400'
+                                                      }`}
+                                                      style={{width: `${((entity.confidence || entity.score || 0) * 100)}%`}}
+                                                    />
+                                                  </div>
+                                                  <span className="text-xs">
+                                                    {((entity.confidence || entity.score || 0) * 100).toFixed(0)}%
+                                                  </span>
+                                                </div>
+                                              </td>
+                                              <td className="px-4 py-2">
+                                                <Badge 
+                                                  variant={idx === 0 ? 'default' : 'outline'} 
+                                                  className={`text-xs ${
+                                                    idx === 0 ? 'bg-green-600 text-white' : ''
+                                                  }`}
+                                                >
+                                                  {idx === 0 ? 'Recommended' : idx === 1 ? 'Alternative' : 'Consider'}
+                                                </Badge>
+                                              </td>
+                                            </tr>
+                                          ))}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {/* Decision Criteria & Reasoning */}
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                  <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                                    <Info className="h-4 w-4 text-blue-600" />
+                                    Arbitration Analysis
+                                  </h4>
+                                  
+                                  {/* Overall Reasoning */}
+                                  {arbitrationResultsData.reasoning && (
+                                    <div className="mb-3">
+                                      <details className="group">
+                                        <summary className="cursor-pointer text-sm font-medium text-blue-800 hover:text-blue-900">
+                                          View Full Reasoning
+                                        </summary>
+                                        <div className="mt-2 p-3 bg-white rounded text-sm text-gray-700">
+                                          {arbitrationResultsData.reasoning}
+                                        </div>
+                                      </details>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Citations if available */}
+                                  {arbitrationResultsData.citations && arbitrationResultsData.citations.length > 0 && (
+                                    <div className="mt-3">
+                                      <p className="text-xs font-medium text-gray-600 mb-2">Evidence Sources:</p>
+                                      <div className="space-y-1">
+                                        {arbitrationResultsData.citations.slice(0, 5).map((citation: string, idx: number) => (
+                                          <div key={`cite-${idx}`} className="flex items-start gap-2">
+                                            <span className="text-xs bg-blue-600 text-white px-1 rounded">
+                                              [{idx + 1}]
+                                            </span>
+                                            <a 
+                                              href={citation} 
+                                              target="_blank" 
+                                              rel="noopener noreferrer"
+                                              className="text-xs text-blue-600 hover:underline truncate flex-1"
+                                            >
+                                              {citation}
+                                            </a>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Metadata */}
+                                  <div className="mt-3 pt-3 border-t border-blue-200 flex items-center justify-between text-xs text-gray-600">
+                                    <span>Model: {arbitrationResultsData.arbitratorModel || 'Perplexity Sonar Pro'}</span>
+                                    <span>Processing: {arbitrationResultsData.processingTimeMs}ms</span>
+                                  </div>
+                                </div>
+                                
+                                {/* Actionable Summary */}
+                                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                                    <ChevronRight className="h-4 w-4 text-amber-600" />
+                                    Recommended Action
+                                  </h4>
+                                  <p className="text-sm text-gray-700">
+                                    {arbitrationResultsData.rankedEntities[0] && (
+                                      <>
+                                        {(arbitrationResultsData.rankedEntities[0].confidence || arbitrationResultsData.rankedEntities[0].score || 0) >= 0.8 ? (
+                                          <span className="font-medium text-green-700">
+                                            ✓ Proceed with due diligence on {arbitrationResultsData.rankedEntities[0].legalName}. 
+                                            High confidence match with verified LEI.
+                                          </span>
+                                        ) : (arbitrationResultsData.rankedEntities[0].confidence || arbitrationResultsData.rankedEntities[0].score || 0) >= 0.5 ? (
+                                          <span className="font-medium text-amber-700">
+                                            ⚠ Verify {arbitrationResultsData.rankedEntities[0].legalName} with additional research. 
+                                            Medium confidence - consider reviewing alternative entities.
+                                          </span>
+                                        ) : (
+                                          <span className="font-medium text-red-700">
+                                            ⚡ Manual review required. Low confidence in all matches. 
+                                            Consider additional data sources or domain verification.
+                                          </span>
+                                        )}
+                                      </>
+                                    )}
+                                  </p>
                                 </div>
                               </div>
                             )}
