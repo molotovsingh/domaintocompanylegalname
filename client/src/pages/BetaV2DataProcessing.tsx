@@ -914,7 +914,7 @@ export default function BetaV2DataProcessingPage() {
                   <div className="space-y-4">
                     <h3 className="text-sm font-semibold">Generated Claims</h3>
                     {claimsResults.map((result, idx) => (
-                      <Card key={idx}>
+                      <Card key={`claims-result-${result.dumpId}-${idx}`}>
                         <CardHeader>
                           <div className="flex justify-between items-start">
                             <div>

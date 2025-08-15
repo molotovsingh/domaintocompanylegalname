@@ -197,22 +197,22 @@ export class ClaimsGenerationService {
       
       if (dump.collectionType === 'playwright_dump') {
         const result = await db.query(
-          'SELECT pages FROM playwright_dumps WHERE id = $1',
+          'SELECT dump_data FROM playwright_dumps WHERE id = $1',
           [dump.id]
         );
-        if (result.rows[0]?.pages?.[0]) {
-          rawContent = result.rows[0].pages[0].title || '';
-          if (result.rows[0].pages[0].metaTags?.['og:site_name']) {
-            rawContent = result.rows[0].pages[0].metaTags['og:site_name'];
+        if (result.rows[0]?.dump_data?.pages?.[0]) {
+          rawContent = result.rows[0].dump_data.pages[0].title || '';
+          if (result.rows[0].dump_data.pages[0].metaTags?.['og:site_name']) {
+            rawContent = result.rows[0].dump_data.pages[0].metaTags['og:site_name'];
           }
         }
       } else if (dump.collectionType === 'crawlee_dump') {
         const result = await db.query(
-          'SELECT pages FROM crawlee_dumps WHERE id = $1',
+          'SELECT dump_data FROM crawlee_dumps WHERE id = $1',
           [dump.id]
         );
-        if (result.rows[0]?.pages?.[0]) {
-          rawContent = result.rows[0].pages[0].title || '';
+        if (result.rows[0]?.dump_data?.pages?.[0]) {
+          rawContent = result.rows[0].dump_data.pages[0].title || '';
         }
       }
 

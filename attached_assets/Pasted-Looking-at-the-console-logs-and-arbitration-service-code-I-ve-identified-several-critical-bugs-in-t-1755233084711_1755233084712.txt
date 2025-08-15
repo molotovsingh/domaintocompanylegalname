@@ -1,0 +1,67 @@
+Looking at the console logs and arbitration service code, I've identified several critical bugs in the arbitration system:
+
+Critical Database Schema Issues
+1. Column "pages" Does Not Exist Error
+Location: claimsGenerationService.ts and arbitrationRoutes.ts
+Problem: The code is trying to query SELECT pages FROM crawlee_dumps but this column doesn't exist in the database schema.
+
+Current Code Issues:
+
+// In claimsGenerationService.ts line ~210
+const result = await db.query(
+  'SELECT pages FROM crawlee_dumps WHERE id = $1',
+  [dump.id]
+);
+// In arbitrationRoutes.ts line ~396
+const dumpResult = await db.query(
+  `SELECT pages FROM ${tableName} WHERE id = $1`,
+  [dumpId]
+);
+2. Missing React Key Props
+Location: Frontend components in BetaV2DataProcessing.tsx
+Problem: Console shows warnings about missing unique "key" props in list rendering.
+
+3. Incorrect Domain Processing
+Problem: The arbitration is trying to process https://www.indiatoday.in/ as an entity name instead of extracting the actual company name.
+
+System Status Analysis
+✅ Working Systems:
+
+Beta V2 server (port 3001)
+Database connections
+Perplexity API integration
+GLEIF claims generation (3 claims found for India Today)
+Arbitration request creation and completion
+🔧 Active Issues:
+
+Database Schema Mismatch:
+
+crawlee_dumps table missing pages column
+Arbitration fails to extract entity data from dumps
+Entity Extraction Failure:
+
+Fallback to domain name instead of company name
+Results in poor GLEIF matching (0 candidates found)
+Frontend Warning Spam:
+
+React key prop warnings flooding console
+Vite HMR connection instability
+Current Arbitration Flow Issues
+From the logs, I can see:
+
+✅ GLEIF claims generation works (found 3 India Today entities)
+✅ Arbitration request created (ID: 14)
+❌ Entity extraction fails due to missing pages column
+❌ Falls back to domain URL as entity name
+✅ Perplexity arbitration completes but with no ranked entities
+✅ Results stored successfully
+Immediate Impact
+The arbitration system is functionally broken for entity extraction but the infrastructure works. The main issue is that it can't extract meaningful company names from dumps, leading to poor arbitration results.
+
+Next Steps Needed:
+
+Fix the database schema mismatch for crawlee_dumps table
+Implement proper entity extraction fallbacks
+Add missing React keys to eliminate console warnings
+Improve error handling for missing data scenarios
+The system shows good infrastructure (all services running, APIs responding, database connected) but needs schema alignment and better data extraction logic.

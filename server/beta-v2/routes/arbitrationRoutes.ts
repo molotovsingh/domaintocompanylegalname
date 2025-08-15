@@ -394,17 +394,19 @@ async function getCleanedData(dumpId: number, collectionType: string): Promise<a
     }
 
     const dumpResult = await db.query(
-      `SELECT pages FROM ${tableName} WHERE id = $1`,
+      `SELECT dump_data FROM ${tableName} WHERE id = $1`,
       [dumpId]
     );
 
     if (dumpResult.rows.length > 0) {
-      const pages = dumpResult.rows[0].pages;
-      return {
-        companyName: pages[0]?.title?.replace(/\s*\|.*$/, '').trim(),
-        title: pages[0]?.title,
-        metaTags: pages[0]?.metaTags
-      };
+      const pages = dumpResult.rows[0].dump_data?.pages;
+      if (pages && pages.length > 0) {
+        return {
+          companyName: pages[0]?.title?.replace(/\s*\|.*$/, '').trim() || pages[0]?.metaTags?.['og:site_name'],
+          title: pages[0]?.title,
+          metaTags: pages[0]?.metaTags
+        };
+      }
     }
 
     return null;
