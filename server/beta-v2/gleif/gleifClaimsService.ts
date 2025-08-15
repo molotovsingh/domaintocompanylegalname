@@ -27,6 +27,18 @@ interface EntityClaim {
     parent?: string;
   };
   reasoning?: string;
+  gleifData?: {
+    legalName: string;
+    legalForm?: string;
+    entityStatus?: string;
+    jurisdiction?: string;
+    entityCategory?: string;
+    legalAddress?: any;
+    headquarters?: any;
+    registrationStatus?: string;
+    initialRegistrationDate?: string;
+    lastUpdateDate?: string;
+  };
 }
 
 interface GleifClaimsResult {
@@ -62,47 +74,78 @@ export class GleifClaimsService {
       for (const entity of extractedEntities) {
         // Check if entity contains excluded terms
         const nameLower = entity.name.toLowerCase();
-        const shouldSkip = [...excludeSet].some(term => nameLower.includes(term));
+        const shouldSkip = [...excludeSet].some(term => nameLower.includes(term as string));
         
         let leiCode: string | undefined;
         
         // Search GLEIF for LEI code if entity is valid
-        let gleifData: any = undefined;
         if (!shouldSkip) {
           try {
             const gleifResult = await this.gleifSearchService.searchGLEIF(entity.name, domain);
             if (gleifResult.entities && gleifResult.entities.length > 0) {
-              // Take the first match and capture all its data
-              const gleifEntity = gleifResult.entities[0];
-              leiCode = gleifEntity.leiCode;
-              gleifData = {
-                legalName: gleifEntity.legalName,  // Add primary legal name from GLEIF
-                legalForm: gleifEntity.legalForm,
-                entityStatus: gleifEntity.entityStatus,
-                jurisdiction: gleifEntity.jurisdiction,
-                entityCategory: gleifEntity.entityCategory,
-                legalAddress: gleifEntity.legalAddress,
-                headquarters: gleifEntity.headquarters,
-                registrationStatus: gleifEntity.registrationStatus,
-                initialRegistrationDate: gleifEntity.initialRegistrationDate,
-                lastUpdateDate: gleifEntity.lastUpdateDate
-              };
-              console.log(`[GleifClaimsService] Found LEI for ${entity.name}: ${leiCode}`);
+              console.log(`[GleifClaimsService] Found ${gleifResult.entities.length} GLEIF matches for ${entity.name}`);
+              
+              // Process ALL matching entities from GLEIF, not just the first one
+              for (const gleifEntity of gleifResult.entities) {
+                const gleifData = {
+                  legalName: gleifEntity.legalName,  // Add primary legal name from GLEIF
+                  legalForm: gleifEntity.legalForm,
+                  entityStatus: gleifEntity.entityStatus,
+                  jurisdiction: gleifEntity.jurisdiction,
+                  entityCategory: gleifEntity.entityCategory,
+                  legalAddress: gleifEntity.legalAddress,
+                  headquarters: gleifEntity.headquarters,
+                  registrationStatus: gleifEntity.registrationStatus,
+                  initialRegistrationDate: gleifEntity.initialRegistrationDate,
+                  lastUpdateDate: gleifEntity.lastUpdateDate
+                };
+                
+                // Add a claim for each GLEIF entity found
+                claims.push({
+                  claimType: 'extracted',
+                  entityName: gleifEntity.legalName,  // Use GLEIF's legal name
+                  confidence: entity.confidence,
+                  source: entity.source + '_gleif_match',
+                  leiCode: gleifEntity.leiCode,
+                  gleifData: gleifData
+                });
+                
+                console.log(`[GleifClaimsService] Added claim for: ${gleifEntity.legalName} (LEI: ${gleifEntity.leiCode})`);
+              }
+            } else {
+              // No GLEIF matches found - add claim without LEI
+              claims.push({
+                claimType: 'extracted',
+                entityName: entity.name,
+                confidence: entity.confidence,
+                source: entity.source,
+                leiCode: undefined,
+                gleifData: undefined
+              });
             }
           } catch (error) {
             console.log(`[GleifClaimsService] Could not search GLEIF for ${entity.name}:`, error);
+            // Add claim without LEI on error
+            claims.push({
+              claimType: 'extracted',
+              entityName: entity.name,
+              confidence: entity.confidence,
+              source: entity.source,
+              leiCode: undefined,
+              gleifData: undefined
+            });
           }
+        } else {
+          // Skipped due to exclusion terms
+          claims.push({
+            claimType: 'extracted',
+            entityName: entity.name,
+            confidence: entity.confidence,
+            source: entity.source,
+            leiCode: undefined,
+            gleifData: undefined
+          });
         }
-        
-        // Add claim with LEI code and additional GLEIF data if found
-        claims.push({
-          claimType: 'extracted',
-          entityName: entity.name,
-          confidence: entity.confidence,
-          source: entity.source,
-          leiCode: leiCode,
-          gleifData: gleifData
-        });
       }
 
       // Step 3: Generate search patterns with wildcards (excluding marketing terms)
