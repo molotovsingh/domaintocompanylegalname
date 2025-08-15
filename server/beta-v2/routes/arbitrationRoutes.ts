@@ -191,31 +191,48 @@ router.post('/bias/configure', async (req, res) => {
       industryFocus
     } = req.body;
 
-    const result = await db.query(
-      `INSERT INTO user_bias_profiles (
+    // Use direct Neon SQL execution with proper array handling
+    const { sql } = await import('@neondatabase/serverless');
+    const { betaV2Db } = await import('../../betaDb');
+    
+    // Ensure jurisdictionSecondary is an array
+    const jurisdictionArray = Array.isArray(jurisdictionSecondary) ? jurisdictionSecondary : [];
+    
+    // Handle empty array case for PostgreSQL
+    const arrayValue = jurisdictionArray.length > 0 
+      ? `ARRAY[${jurisdictionArray.map(j => `'${j.replace(/'/g, "''")}'`).join(',')}]::text[]`
+      : `'{}'::text[]`;
+    
+    // Use raw SQL with proper PostgreSQL array syntax
+    const query = sql.raw(`
+      INSERT INTO user_bias_profiles (
         profile_name, jurisdiction_primary, jurisdiction_secondary,
         prefer_parent, parent_weight, jurisdiction_weight,
         entity_status_weight, legal_form_weight, recency_weight,
         industry_focus
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb)
-      RETURNING id`,
-      [
-        profileName || 'Custom Profile',
-        jurisdictionPrimary || 'US',
-        jurisdictionSecondary || [],
-        preferParent !== false,
-        parentWeight || 0.4,
-        jurisdictionWeight || 0.3,
-        entityStatusWeight || 0.1,
-        legalFormWeight || 0.05,
-        recencyWeight || 0.05,
-        JSON.stringify(industryFocus || {})
-      ]
-    );
+      ) VALUES (
+        '${(profileName || 'Custom Profile').replace(/'/g, "''")}',
+        '${(jurisdictionPrimary || 'US').replace(/'/g, "''")}',
+        ${arrayValue},
+        ${preferParent !== false},
+        ${parentWeight || 0.4},
+        ${jurisdictionWeight || 0.3},
+        ${entityStatusWeight || 0.1},
+        ${legalFormWeight || 0.05},
+        ${recencyWeight || 0.05},
+        '${JSON.stringify(industryFocus || {}).replace(/'/g, "''")}'::jsonb
+      )
+      RETURNING id
+    `);
+    
+    const result = await betaV2Db.execute(query);
+    const rows = Array.isArray(result) ? result : (result as any).rows || [];
+
+    console.log('[Arbitration Routes] Profile saved successfully:', rows[0]?.id);
 
     res.json({
       success: true,
-      profileId: result.rows[0].id
+      profileId: rows[0]?.id
     });
 
   } catch (error) {
