@@ -87,7 +87,7 @@ export function UserBiasConfig() {
   // Save profile mutation
   const saveMutation = useMutation({
     mutationFn: async (biasData: UserBias) => {
-      return apiRequest('/api/beta/arbitration/bias/configure', 'POST', biasData);
+      return apiRequest('POST', '/api/beta/arbitration/bias/configure', biasData);
     },
     onSuccess: () => {
       toast({
