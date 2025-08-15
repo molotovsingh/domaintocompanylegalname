@@ -77,7 +77,30 @@ export default function BetaTestingV2() {
       const response = await fetch('/api/beta/dumps');
       if (response.ok) {
         const data = await response.json();
-        setDumps(data);
+        // API returns { dumps: [...] }, organize by type
+        const organized = {
+          crawlee: [],
+          scrapy: [],
+          playwright: [],
+          axiosCheerio: []
+        };
+        
+        if (data.dumps && Array.isArray(data.dumps)) {
+          data.dumps.forEach((dump: any) => {
+            // Organize dumps by their source type
+            if (dump.source === 'crawlee') {
+              organized.crawlee.push(dump);
+            } else if (dump.source === 'scrapy') {
+              organized.scrapy.push(dump);
+            } else if (dump.source === 'playwright') {
+              organized.playwright.push(dump);
+            } else if (dump.source === 'axios-cheerio') {
+              organized.axiosCheerio.push(dump);
+            }
+          });
+        }
+        
+        setDumps(organized);
       }
     } catch (error) {
       console.error('Error fetching dumps:', error);
@@ -149,7 +172,7 @@ export default function BetaTestingV2() {
     }
   };
 
-  const getModelIcon = (modelId) => {
+  const getModelIcon = (modelId: string) => {
     if (modelId.includes('deepseek')) return '🔥';
     if (modelId.includes('qwen')) return '🎯';
     if (modelId.includes('llama')) return '🦙';
@@ -158,7 +181,7 @@ export default function BetaTestingV2() {
     return '🤖';
   };
 
-  const getModelDisplayName = (modelId) => {
+  const getModelDisplayName = (modelId: string) => {
     const names = {
       'deepseek-chat': 'DeepSeek Chat',
       'deepseek-v3': 'DeepSeek V3',
@@ -329,7 +352,7 @@ export default function BetaTestingV2() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {dumps.crawlee.slice(0, 6).map((dump) => (
+                {dumps.crawlee && dumps.crawlee.slice(0, 6).map((dump: any) => (
                   <div key={`crawlee-${dump.id}`} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div>
