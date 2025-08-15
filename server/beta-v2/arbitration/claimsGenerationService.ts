@@ -169,6 +169,25 @@ export class ClaimsGenerationService {
    */
   async storeClaims(requestId: number, claims: Claim[]): Promise<void> {
     for (const claim of claims) {
+      // Convert string confidence to numeric value
+      let confidenceScore: number = 0.5; // Default medium confidence
+      if (typeof claim.confidence === 'number') {
+        confidenceScore = claim.confidence;
+      } else if (typeof claim.confidence === 'string') {
+        // Convert string confidence to numeric
+        const confidenceMap: { [key: string]: number } = {
+          'high': 0.9,
+          'medium': 0.5,
+          'low': 0.3
+        };
+        confidenceScore = confidenceMap[claim.confidence.toLowerCase()] || 0.5;
+      }
+      
+      // Ensure confidence is a valid number (not NaN)
+      if (isNaN(confidenceScore)) {
+        confidenceScore = 0.5;
+      }
+      
       await db.query(`
         INSERT INTO arbitration_claims (
           request_id, claim_number, claim_type, entity_name, 
@@ -180,7 +199,7 @@ export class ClaimsGenerationService {
         claim.claimType,
         claim.entityName,
         claim.leiCode,
-        claim.confidence,
+        confidenceScore,
         claim.source,
         JSON.stringify(claim.metadata || {})
       ]);
