@@ -67,7 +67,56 @@ export class GleifClaimsService {
       // Step 1: Extract entities from cleaned content
       const extractedEntities = this.extractEntities(cleanedContent);
       
-      // Step 2: Search GLEIF for each extracted entity to get LEI codes
+      // IMPORTANT: Create Claim 0 from the cleaned dump's primary entity
+      // This represents what the website claims to be after LLM cleaning
+      if (cleanedContent.primaryEntityName || cleanedContent.companyName || extractedEntities.length > 0) {
+        const primaryEntity = cleanedContent.primaryEntityName || 
+                              cleanedContent.companyName || 
+                              extractedEntities[0]?.name;
+        
+        if (primaryEntity) {
+          console.log(`[GleifClaimsService] Creating Claim 0 from cleaned dump: ${primaryEntity}`);
+          
+          // Try to get LEI for the primary entity
+          let primaryLeiCode: string | undefined;
+          let primaryGleifData: any = undefined;
+          
+          try {
+            const gleifResult = await this.gleifSearchService.searchGLEIF(primaryEntity, domain);
+            if (gleifResult.entities && gleifResult.entities.length > 0) {
+              const gleifEntity = gleifResult.entities[0];
+              primaryLeiCode = gleifEntity.leiCode;
+              primaryGleifData = {
+                legalName: gleifEntity.legalName,
+                legalForm: gleifEntity.legalForm,
+                entityStatus: gleifEntity.entityStatus,
+                jurisdiction: gleifEntity.jurisdiction,
+                entityCategory: gleifEntity.entityCategory,
+                legalAddress: gleifEntity.legalAddress,
+                headquarters: gleifEntity.headquarters,
+                registrationStatus: gleifEntity.registrationStatus,
+                initialRegistrationDate: gleifEntity.initialRegistrationDate,
+                lastUpdateDate: gleifEntity.lastUpdateDate
+              };
+            }
+          } catch (error) {
+            console.log(`[GleifClaimsService] Could not find LEI for primary entity: ${primaryEntity}`);
+          }
+          
+          // Add Claim 0 - the cleaned dump entity (with or without LEI)
+          claims.push({
+            claimType: 'extracted',
+            entityName: primaryEntity,
+            confidence: 'high',
+            source: 'cleaned_dump_primary',
+            leiCode: primaryLeiCode,
+            gleifData: primaryGleifData,
+            reasoning: 'Primary entity extracted from LLM-cleaned website data'
+          });
+        }
+      }
+      
+      // Step 2: Search GLEIF for each extracted entity to get additional LEI codes
       const excludedTerms = cleanedContent.excludeTerms || [];
       const excludeSet = new Set(excludedTerms.map((t: string) => t.toLowerCase()));
       

@@ -304,15 +304,23 @@ async function processArbitrationAsync(
       console.log(`[Arbitration] Using ${providedClaims.length} provided claims from frontend`);
       
       // Transform frontend claims to internal format and store them
-      claims = providedClaims.map((claim, index) => ({
-        claimNumber: index,
-        claimType: claim.claimType || claim.type || (index === 0 ? 'extracted' : 'gleif_verified'),
-        entityName: claim.entityName || claim.legalName,
-        leiCode: claim.leiCode || claim.leiCode,
-        confidence: typeof claim.confidence === 'string' ? parseFloat(claim.confidence) : claim.confidence,
-        source: claim.source || 'gleif_claims',
-        metadata: claim.gleifData || claim.metadata || {}
-      }));
+      // Ensure claim 0 is always the cleaned dump entity
+      claims = providedClaims.map((claim, index) => {
+        // First claim (index 0) should be from cleaned dump with source 'cleaned_dump_primary'
+        const isCleanedDumpClaim = claim.source === 'cleaned_dump_primary' || index === 0;
+        
+        return {
+          claimNumber: index,
+          claimType: isCleanedDumpClaim ? 'llm_extracted' : 'gleif_candidate',
+          entityName: claim.entityName || claim.legalName,
+          leiCode: claim.leiCode || claim.leiCode,
+          confidence: typeof claim.confidence === 'string' ? 
+                      (claim.confidence === 'high' ? 0.9 : claim.confidence === 'medium' ? 0.6 : 0.3) : 
+                      claim.confidence || 0.5,
+          source: claim.source || 'gleif_claims',
+          metadata: claim.gleifData || claim.metadata || {}
+        };
+      });
       
       // Store provided claims
       await claimsGenerationService.storeClaims(requestId, claims);
