@@ -1,9 +1,9 @@
 {
-  "usableSessionsCount": 1,
+  "usableSessionsCount": 2,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_x8qZW0Jq7k",
+      "id": "session_jfLxbwPNQQ",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -11,54 +11,33 @@
         "enableLooseMode": false,
         "allowSpecialUseDomain": true,
         "prefixSecurity": "silent",
-        "cookies": [
-          {
-            "key": "OriginalReferer",
-            "value": "Direct",
-            "expires": "2025-08-15T04:01:35.000Z",
-            "domain": "ft.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-15T03:31:35.540Z",
-            "lastAccessed": "2025-08-15T03:31:35.540Z"
-          },
-          {
-            "key": "FtComEntryPoint",
-            "value": "/",
-            "expires": "2025-08-15T04:01:35.000Z",
-            "domain": "ft.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-15T03:31:35.545Z",
-            "lastAccessed": "2025-08-15T03:31:35.545Z"
-          },
-          {
-            "key": "FTClientSessionId",
-            "value": "e826d9ab-ea72-4736-8848-15bc9ee8c64d",
-            "expires": "2026-09-19T03:31:35.000Z",
-            "domain": "ft.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-15T03:31:35.546Z",
-            "lastAccessed": "2025-08-15T03:31:35.546Z"
-          },
-          {
-            "key": "spoor-id",
-            "value": "e826d9ab-ea72-4736-8848-15bc9ee8c64d",
-            "expires": "2026-08-15T03:31:35.000Z",
-            "domain": "ft.com",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2025-08-15T03:31:35.546Z",
-            "lastAccessed": "2025-08-15T03:31:35.546Z"
-          }
-        ]
+        "cookies": []
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-15T04:21:33.640Z",
-      "createdAt": "2025-08-15T03:31:33.640Z",
+      "expiresAt": "2025-08-15T07:15:39.118Z",
+      "createdAt": "2025-08-15T06:25:39.118Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_J0Q6OdCcEf",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": []
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-15T07:17:09.101Z",
+      "createdAt": "2025-08-15T06:27:09.101Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
