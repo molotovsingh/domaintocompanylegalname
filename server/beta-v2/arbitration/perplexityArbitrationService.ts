@@ -280,7 +280,9 @@ You are an entity arbitrator. Your task is to match the domain "${domain}" to th
 - Entity Extracted from Website (Claim 0): ${claim0?.entityName || 'Unknown'}
 
 ## GLEIF Verified Entities (${gleifClaims.length} candidates):
-${gleifClaims.map(c => `
+${gleifClaims.length === 0 ? 
+  'NO GLEIF ENTITIES FOUND - Only website extraction (Claim 0) is available' :
+  gleifClaims.map(c => `
 Claim ${c.claimNumber}:
 - Legal Name: ${c.entityName}
 - LEI Code: ${c.leiCode}
@@ -289,7 +291,17 @@ Claim ${c.claimNumber}:
 - Location: ${c.metadata?.headquarters?.city || 'Unknown'}, ${c.metadata?.headquarters?.country || 'Unknown'}
 `).join('\n')}
 
-## Matching Rules (Apply in Order):
+## Decision Process:
+
+### CASE 1: Only Claim 0 exists (No GLEIF entities)
+1. Acknowledge that Claim 0 (website extraction) is present
+2. Analyze the extracted entity name against the domain
+3. If it reasonably matches the domain, return it as rank 1
+4. Set confidence to 0.6 (unverified but plausible)
+5. Add reasoning: "Website extraction only - no GLEIF verification available"
+
+### CASE 2: Multiple claims exist (Claim 0 + GLEIF entities)
+Apply matching rules in order:
 
 1. **Domain Match (70% weight)**: 
    - Does the entity name/brand match the website domain and content?
@@ -306,7 +318,7 @@ Claim ${c.claimNumber}:
 ## Sanity Check Requirements:
 - ✓ Entity name must reasonably match domain/website content
 - ✓ If website is "Accenture", don't select "U.S. Bancorp" 
-- ✓ If no match exists, return empty rankedEntities array
+- ✓ If only Claim 0 exists and matches, return it
 - ✓ Confidence < 30% means no real match
 
 ## Required Output Format:
@@ -318,28 +330,29 @@ Return EXACTLY this JSON structure:
   "rankedEntities": [
     {
       "rank": 1,
-      "claimNumber": 3,
-      "entityName": "Entity Legal Name",
-      "leiCode": "20-character LEI",
-      "confidence": 0.85,
-      "reasoning": "Matches domain 'example.com', website title confirms this entity, ultimate parent",
-      "acquisitionGrade": "A"
+      "claimNumber": 0,
+      "entityName": "Entity Name from Website",
+      "leiCode": null,
+      "confidence": 0.6,
+      "reasoning": "Website extraction: 'Entity Name' matches domain. No GLEIF verification available.",
+      "acquisitionGrade": "U"
     }
   ],
-  "overallReasoning": "Entity X matches the website based on [specific evidence]. OR: No entities match the domain - website appears to be [description] but none of the GLEIF entities correspond to this business."
+  "overallReasoning": "Only website extraction available. Entity 'X' appears to match the domain but lacks GLEIF verification."
 }
 \`\`\`
 
 ## Examples:
+- Domain: cbonds.com, Claim 0: "Cbonds.com Limited", No GLEIF → Return Claim 0 with note
 - Domain: apple.com → Match: "Apple Inc." ✓
 - Domain: accenture.com → Match: "Accenture plc" ✓  
 - Domain: accenture.com → Match: "U.S. Bancorp" ✗ (no relation)
 
-If no entities match, return:
+If no entities match (including Claim 0), return:
 \`\`\`json
 {
   "rankedEntities": [],
-  "overallReasoning": "No GLEIF entities match the domain ${domain}. The website appears to be [what you observed] but none of the candidate entities correspond to this business."
+  "overallReasoning": "No entities match the domain ${domain}. The website appears to be [what you observed] but neither the extraction nor GLEIF entities correspond to this business."
 }
 \`\`\`
 `;
