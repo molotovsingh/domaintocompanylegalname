@@ -153,7 +153,6 @@ export default function BetaV2DataProcessingPage() {
   const [candidatesData, setCandidatesData] = useState<Record<number, GLEIFCandidate[]>>({});
   const [selectedDumpForClaims, setSelectedDumpForClaims] = useState<AvailableDump | null>(null);
   const [claimsResults, setClaimsResults] = useState<ClaimsResult[]>([]);
-  const [arbitrationResults, setArbitrationResults] = useState<any>(null);
   const [arbitrationLoading, setArbitrationLoading] = useState(false);
   const [selectedArbitrationRequest, setSelectedArbitrationRequest] = useState<number | null>(null);
   const [processingStates, setProcessingStates] = useState<Record<string, boolean>>({});
@@ -395,7 +394,7 @@ export default function BetaV2DataProcessingPage() {
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="dumps">
             <Database className="mr-2 h-4 w-4" />
             Available Dumps
@@ -407,10 +406,6 @@ export default function BetaV2DataProcessingPage() {
           <TabsTrigger value="claims">
             <Brain className="mr-2 h-4 w-4" />
             Entity Claims
-          </TabsTrigger>
-          <TabsTrigger value="arbitration">
-            <Award className="mr-2 h-4 w-4" />
-            Arbitration
           </TabsTrigger>
           <TabsTrigger value="preferences">
             <Settings className="mr-2 h-4 w-4" />
@@ -1476,252 +1471,6 @@ export default function BetaV2DataProcessingPage() {
           </Card>
         </TabsContent>
 
-        {/* Arbitration Tab */}
-        <TabsContent value="arbitration" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Entity Arbitration System</CardTitle>
-              <CardDescription>
-                Uses Perplexity Sonar to intelligently rank and select the best legal entity from multiple claims. 
-                The system applies jurisdiction bias, parent entity preference, and multi-tier ranking for acquisition research.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {/* Test Arbitration Section */}
-                <div className="border rounded-lg p-4">
-                  <h3 className="text-sm font-semibold mb-3">Test Arbitration with Sample Data</h3>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={async () => {
-                        try {
-                          setArbitrationLoading(true);
-                          setArbitrationResults(null);
-                          
-                          const response = await apiRequest('POST', '/api/beta/arbitration/test-sample', {
-                            domain: 'apple.com',
-                            entityName: 'Apple'
-                          });
-                          
-                          const data = await response.json();
-                          setArbitrationResults(data.data);
-                          
-                          toast({
-                            title: "Arbitration Complete",
-                            description: `Generated ${data.data.totalClaims} claims and ranked entities for Apple Inc.`
-                          });
-                        } catch (error) {
-                          toast({
-                            title: "Error",
-                            description: error instanceof Error ? error.message : "Failed to start arbitration test",
-                            variant: "destructive"
-                          });
-                        } finally {
-                          setArbitrationLoading(false);
-                        }
-                      }}
-                      disabled={arbitrationLoading}
-                    >
-                      {arbitrationLoading ? "Processing..." : "Test with Apple Inc."}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={async () => {
-                        try {
-                          setArbitrationLoading(true);
-                          setArbitrationResults(null);
-                          
-                          const response = await apiRequest('POST', '/api/beta/arbitration/test-sample', {
-                            domain: 'microsoft.com',
-                            entityName: 'Microsoft'
-                          });
-                          
-                          const data = await response.json();
-                          setArbitrationResults(data.data);
-                          
-                          toast({
-                            title: "Arbitration Complete",
-                            description: `Generated ${data.data.totalClaims} claims and ranked entities for Microsoft Corp.`
-                          });
-                        } catch (error) {
-                          toast({
-                            title: "Error",
-                            description: error instanceof Error ? error.message : "Failed to start arbitration test",
-                            variant: "destructive"
-                          });
-                        } finally {
-                          setArbitrationLoading(false);
-                        }
-                      }}
-                      disabled={arbitrationLoading}
-                    >
-                      {arbitrationLoading ? "Processing..." : "Test with Microsoft Corp."}
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Display Arbitration Results */}
-                {arbitrationResults && (
-                  <div className="border rounded-lg p-4 space-y-4">
-                    <h3 className="text-sm font-semibold">Arbitration Results</h3>
-                    
-                    {/* Summary */}
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-600">Domain:</span>
-                        <p className="font-medium">{arbitrationResults.domain}</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Total Claims:</span>
-                        <p className="font-medium">{arbitrationResults.totalClaims}</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Processing Time:</span>
-                        <p className="font-medium">{arbitrationResults.processingTime}</p>
-                      </div>
-                    </div>
-
-                    {/* Ranked Entities */}
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">Ranked Entities (Best Match First)</h4>
-                      <div className="space-y-2">
-                        {arbitrationResults.rankedEntities?.map((entity: any, index: number) => (
-                          <div key={index} className="bg-gray-50 p-3 rounded-lg">
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <p className="font-medium">
-                                  #{index + 1}: {entity.legalName || entity.entityName}
-                                </p>
-                                {entity.leiCode && (
-                                  <p className="text-sm text-gray-600">LEI: {entity.leiCode}</p>
-                                )}
-                                <p className="text-sm text-gray-600">
-                                  Confidence: {typeof entity.confidence === 'number' 
-                                    ? (entity.confidence * 100).toFixed(1) + '%' 
-                                    : entity.confidence}
-                                </p>
-                                {entity.acquisitionGrade && (
-                                  <p className="text-sm font-medium text-blue-600">
-                                    Acquisition Grade: {entity.acquisitionGrade}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="text-right">
-                                <span className={`text-xs px-2 py-1 rounded ${
-                                  entity.acquisitionGrade === 'A+' ? 'bg-green-100 text-green-800' :
-                                  entity.acquisitionGrade === 'A' ? 'bg-green-50 text-green-700' :
-                                  entity.acquisitionGrade === 'B+' ? 'bg-yellow-100 text-yellow-800' :
-                                  entity.acquisitionGrade === 'B' ? 'bg-yellow-50 text-yellow-700' :
-                                  'bg-gray-100 text-gray-800'
-                                }`}>
-                                  {entity.acquisitionGrade || 'C'}
-                                </span>
-                              </div>
-                            </div>
-                            {entity.reasoning && (
-                              <div className="mt-2 p-2 bg-blue-50 rounded">
-                                <p className="text-xs font-medium text-blue-900 mb-1">Arbitrator's Reasoning:</p>
-                                <p className="text-sm text-blue-800">{entity.reasoning}</p>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Overall Reasoning */}
-                    {arbitrationResults.overallReasoning && (
-                      <div className="p-3 bg-indigo-50 rounded-lg">
-                        <p className="text-sm font-medium text-indigo-900 mb-1">Overall Arbitration Logic:</p>
-                        <p className="text-sm text-indigo-800">{arbitrationResults.overallReasoning}</p>
-                      </div>
-                    )}
-
-                    {/* Raw Claims - By Claim Number */}
-                    <details className="text-sm">
-                      <summary className="cursor-pointer font-medium">View All Claims by Number ({arbitrationResults.claims?.length || 0})</summary>
-                      <div className="mt-2 space-y-2">
-                        {arbitrationResults.claims?.map((claim: any, index: number) => (
-                          <div key={index} className="bg-gray-50 p-2 rounded">
-                            <p className="font-medium">Claim {claim.claimNumber}: {claim.entityName}</p>
-                            <p className="text-xs text-gray-600">Type: {claim.claimType} | Confidence: {claim.confidence}</p>
-                            {claim.leiCode && <p className="text-xs">LEI: {claim.leiCode}</p>}
-                          </div>
-                        ))}
-                      </div>
-                    </details>
-
-                    {/* Raw Claims - By Confidence Level */}
-                    <details className="text-sm">
-                      <summary className="cursor-pointer font-medium">View Claims by Confidence (Highest First)</summary>
-                      <div className="mt-2 space-y-2">
-                        {arbitrationResults.claims
-                          ?.slice()
-                          .sort((a: any, b: any) => {
-                            // Convert confidence to numeric for sorting
-                            const getConfidenceValue = (conf: any) => {
-                              if (typeof conf === 'number') return conf;
-                              if (conf === 'high') return 0.9;
-                              if (conf === 'medium') return 0.5;
-                              if (conf === 'low') return 0.3;
-                              return parseFloat(conf) || 0;
-                            };
-                            return getConfidenceValue(b.confidence) - getConfidenceValue(a.confidence);
-                          })
-                          .map((claim: any, index: number) => (
-                            <div key={index} className={`p-2 rounded ${
-                              index === 0 ? 'bg-green-50 border border-green-200' : 'bg-gray-50'
-                            }`}>
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <p className="font-medium">
-                                    {claim.entityName}
-                                    {index === 0 && <span className="ml-2 text-xs text-green-600">Highest Confidence</span>}
-                                  </p>
-                                  <p className="text-xs text-gray-600">
-                                    Claim #{claim.claimNumber} | Type: {claim.claimType}
-                                  </p>
-                                  {claim.leiCode && <p className="text-xs">LEI: {claim.leiCode}</p>}
-                                </div>
-                                <span className={`text-xs px-2 py-1 rounded font-medium ${
-                                  claim.confidence === 'high' || claim.confidence >= 0.8 ? 'bg-green-100 text-green-800' :
-                                  claim.confidence === 'medium' || claim.confidence >= 0.5 ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-gray-100 text-gray-800'
-                                }`}>
-                                  {claim.confidence}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                      </div>
-                    </details>
-
-                    {/* Perplexity Response */}
-                    {arbitrationResults.perplexityResponse && (
-                      <details className="text-sm">
-                        <summary className="cursor-pointer font-medium">Perplexity Analysis</summary>
-                        <div className="mt-2 p-3 bg-gray-50 rounded">
-                          <p className="whitespace-pre-wrap">{arbitrationResults.perplexityResponse}</p>
-                        </div>
-                      </details>
-                    )}
-                  </div>
-                )}
-
-                {/* Arbitration Results Component */}
-                <ArbitrationResults 
-                  domain={selectedDump?.domain}
-                  onProcessDomain={(domain) => {
-                    toast({
-                      title: "Arbitration Process",
-                      description: `Starting arbitration for ${domain}`
-                    });
-                  }}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         {/* Preferences Tab */}
         <TabsContent value="preferences" className="space-y-4">
