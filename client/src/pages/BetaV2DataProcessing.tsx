@@ -1220,7 +1220,15 @@ export default function BetaV2DataProcessingPage() {
                               <div key={`claim-${result.dumpId}-${claimIdx}`} className="border rounded-lg p-4 space-y-2">
                                 <div className="flex items-start justify-between">
                                   <div className="w-full">
-                                    <p className="font-medium">{claim.entityName || claim.legalName}</p>
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <Badge variant={claimIdx === 0 ? "default" : "outline"}>
+                                        {claimIdx === 0 ? "Website Entity" : `GLEIF Entity ${claimIdx}`}
+                                      </Badge>
+                                      <span className="text-xs text-muted-foreground">
+                                        (Claim #{claimIdx})
+                                      </span>
+                                    </div>
+                                    <p className="font-medium text-lg">{claim.entityName || claim.legalName || "Unknown Entity"}</p>
                                     {claim.leiCode && (
                                       <p className="text-sm text-muted-foreground mt-0.5">
                                         LEI: <code className="text-xs bg-muted px-1 py-0.5 rounded">{claim.leiCode}</code>
