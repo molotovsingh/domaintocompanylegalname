@@ -305,12 +305,14 @@ async function processArbitrationAsync(
   try {
     console.log(`[Arbitration] Processing request ${requestId}`);
 
-    // Get the dump data
+    // Get the dump data - need to fetch the full dump for website context
+    const dumpData = await getDumpData(dumpId, collectionType);
     const dump = {
       id: dumpId,
       domain,
       collectionType,
-      cleanedData: await getCleanedData(dumpId, collectionType)
+      cleanedData: await getCleanedData(dumpId, collectionType),
+      rawDumpData: dumpData  // Include raw dump for website context
     };
 
     // Check if claims were provided from frontend
@@ -448,6 +450,45 @@ async function processArbitrationAsync(
        WHERE id = $1`,
       [requestId, error instanceof Error ? error.message : 'Unknown error']
     );
+  }
+}
+
+/**
+ * Get raw dump data for website context
+ */
+async function getDumpData(dumpId: number, collectionType: string): Promise<any> {
+  try {
+    let tableName = '';
+    switch (collectionType) {
+      case 'playwright_dump':
+        tableName = 'playwright_dumps';
+        break;
+      case 'crawlee_dump':
+        tableName = 'crawlee_dumps';
+        break;
+      case 'scrapy_crawl':
+        tableName = 'scrapy_crawls';
+        break;
+      case 'axios_cheerio_dump':
+        tableName = 'axios_cheerio_dumps';
+        break;
+      default:
+        return null;
+    }
+
+    const dumpResult = await db.query(
+      `SELECT dump_data FROM ${tableName} WHERE id = $1`,
+      [dumpId]
+    );
+
+    if (dumpResult.rows.length > 0) {
+      return dumpResult.rows[0].dump_data;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('[Arbitration] Error getting dump data:', error);
+    return null;
   }
 }
 

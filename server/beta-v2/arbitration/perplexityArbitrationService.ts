@@ -188,6 +188,24 @@ export class PerplexityArbitrationService {
     const claim0 = claims.find(c => c.claimNumber === 0);
     const gleifClaims = claims.filter(c => c.claimNumber > 0);
 
+    // Extract website context from claim 0's dump data
+    let websiteTitle = 'Unknown';
+    let websiteContent = 'No content available';
+    
+    if (claim0?.metadata?.dumpData) {
+      const dumpData = claim0.metadata.dumpData;
+      websiteTitle = dumpData.title || dumpData.pageTitle || 'Unknown';
+      
+      // Get content snippet from text or meta description
+      if (dumpData.text) {
+        websiteContent = dumpData.text.substring(0, 800).replace(/\s+/g, ' ').trim();
+      } else if (dumpData.metaTags?.description) {
+        websiteContent = dumpData.metaTags.description;
+      } else if (dumpData.structuredData?.length > 0) {
+        websiteContent = `Structured data found: ${JSON.stringify(dumpData.structuredData[0]).substring(0, 500)}`;
+      }
+    }
+
     // Enrich GLEIF claims with relationship data
     for (const claim of gleifClaims) {
       if (claim.leiCode) {
@@ -251,64 +269,49 @@ Return a JSON object with:
     }
 
     const prompt = `
-You are an entity arbitrator for acquisition research. Your task is to rank corporate entities based on their relevance for acquisition targeting.
+You are an entity arbitrator. Your task is to match the domain "${domain}" to the correct legal entity.
 
-Domain being analyzed: ${domain}
+## CRITICAL RULE: The entity MUST relate to the website. If no entities match, return empty results.
 
-## Claims to Arbitrate
+## Website Context
+- Domain: ${domain}
+- Title: ${websiteTitle}
+- Content Sample: ${websiteContent}
+- Entity Extracted from Website (Claim 0): ${claim0?.entityName || 'Unknown'}
 
-Claim 0 (Website claims to be): 
-- Entity: ${claim0?.entityName || 'Unknown'}
-- Source: ${claim0?.source || 'website extraction'}
-- Confidence: ${claim0?.confidence || 0}
-
-GLEIF Claims (${gleifClaims.length} verified entities):
+## GLEIF Verified Entities (${gleifClaims.length} candidates):
 ${gleifClaims.map(c => `
 Claim ${c.claimNumber}:
 - Legal Name: ${c.entityName}
 - LEI Code: ${c.leiCode}
-- Jurisdiction: ${c.metadata?.jurisdiction || 'Unknown'}
-- Entity Status: ${c.metadata?.entityStatus || 'Unknown'}
-- Legal Form: ${c.metadata?.legalForm || 'Unknown'}
-- Hierarchy: ${c.metadata?.hierarchyLevel || 'Unknown'}
-- Has Parent: ${c.metadata?.hasParent || false}
-- Headquarters: ${c.metadata?.headquarters?.city || 'Unknown'}, ${c.metadata?.headquarters?.country || 'Unknown'}
-- Last Updated: ${c.metadata?.lastUpdateDate || 'Unknown'}
+- Status: ${c.metadata?.entityStatus || 'Unknown'}
+- Hierarchy: ${c.metadata?.hierarchyLevel || 'Unknown'} ${c.metadata?.hasParent ? '(Has Parent)' : '(No Parent)'}
+- Location: ${c.metadata?.headquarters?.city || 'Unknown'}, ${c.metadata?.headquarters?.country || 'Unknown'}
 `).join('\n')}
 
-## Ranking Rules (Apply Strictly in This Order)
+## Matching Rules (Apply in Order):
 
-1. **Parent Entity Priority** (Weight: ${userBias.parentWeight * 100}%)
-   - Ultimate parent entities rank highest
-   - Direct parent entities rank second
-   - Subsidiaries rank lower
-   - Use GLEIF hierarchy data to determine relationships
+1. **Domain Match (70% weight)**: 
+   - Does the entity name/brand match the website domain and content?
+   - Check: entity name vs domain, website title, content
+   - If NO entities match the website, STOP and return empty results
 
-2. **Entity Status** (Weight: ${userBias.entityStatusWeight * 100}%)
-   - ACTIVE entities only for top 5
-   - INACTIVE or MERGED entities should be excluded
+2. **Parent Priority (20% weight)**: 
+   - ONLY applies if multiple entities match the domain
+   - Prefer ultimate parent > direct parent > subsidiary
 
-3. **Legal Form Relevance** (Weight: ${userBias.legalFormWeight * 100}%)
-   - Corporations (Inc, Corp, Ltd): preferred
-   - LLCs: acceptable
-   - Other forms: lower priority
+3. **Active Status (10% weight)**:
+   - Prefer ACTIVE entities over INACTIVE/MERGED
 
-4. **Registration Recency** (Weight: ${userBias.recencyWeight * 100}%)
-   - Updated within 1 year: +5% boost
-   - Updated within 3 years: +2% boost
-   - Older updates: no boost
+## Sanity Check Requirements:
+- ✓ Entity name must reasonably match domain/website content
+- ✓ If website is "Accenture", don't select "U.S. Bancorp" 
+- ✓ If no match exists, return empty rankedEntities array
+- ✓ Confidence < 30% means no real match
 
-5. **Jurisdiction Discovery** (From Domain Data)
-   - Discover the most relevant jurisdiction based on:
-     * Domain TLD (.co.uk → UK, .de → Germany)
-     * Website language and content
-     * Entity metadata (headquarters location)
-     * Legal entity registration country
-   - No preset preference - let the data guide the jurisdiction
+## Required Output Format:
 
-## Required Output Format
-
-Return EXACTLY this JSON structure with your top 5 ranked entities:
+Return EXACTLY this JSON structure:
 
 \`\`\`json
 {
@@ -316,34 +319,29 @@ Return EXACTLY this JSON structure with your top 5 ranked entities:
     {
       "rank": 1,
       "claimNumber": 3,
-      "entityName": "Full Legal Name from GLEIF",
-      "leiCode": "20-character LEI code",
-      "confidence": 0.95,
-      "reasoning": "Ultimate parent entity, US jurisdiction, active status, recently updated",
-      "acquisitionGrade": "A+"
-    },
-    {
-      "rank": 2,
-      "claimNumber": 1,
-      "entityName": "Second Entity Name",
-      "leiCode": "LEI code",
+      "entityName": "Entity Legal Name",
+      "leiCode": "20-character LEI",
       "confidence": 0.85,
-      "reasoning": "Direct subsidiary of parent, operational entity",
+      "reasoning": "Matches domain 'example.com', website title confirms this entity, ultimate parent",
       "acquisitionGrade": "A"
     }
   ],
-  "overallReasoning": "The primary acquisition target is [Entity 1] because it is the ultimate parent with decision-making authority. The operational subsidiaries are less relevant for acquisition purposes."
+  "overallReasoning": "Entity X matches the website based on [specific evidence]. OR: No entities match the domain - website appears to be [description] but none of the GLEIF entities correspond to this business."
 }
 \`\`\`
 
-## Acquisition Grades:
-- A+: Ultimate parent, perfect jurisdiction match, active
-- A: Parent entity or key operating company
-- B+: Important subsidiary with strategic value
-- B: Regional subsidiary or specialized unit
-- C: Lower-tier subsidiary or non-strategic entity
+## Examples:
+- Domain: apple.com → Match: "Apple Inc." ✓
+- Domain: accenture.com → Match: "Accenture plc" ✓  
+- Domain: accenture.com → Match: "U.S. Bancorp" ✗ (no relation)
 
-Focus on identifying the ultimate decision-making entity for acquisition purposes. If no ultimate parent exists in the claims, identify the highest-level entity available.
+If no entities match, return:
+\`\`\`json
+{
+  "rankedEntities": [],
+  "overallReasoning": "No GLEIF entities match the domain ${domain}. The website appears to be [what you observed] but none of the candidate entities correspond to this business."
+}
+\`\`\`
 `;
 
     return prompt;
