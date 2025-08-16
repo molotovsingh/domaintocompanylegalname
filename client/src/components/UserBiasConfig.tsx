@@ -15,11 +15,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface UserBias {
   profileName: string;
-  jurisdictionPrimary: string;
-  jurisdictionSecondary: string[];
   preferParent: boolean;
   parentWeight: number;
-  jurisdictionWeight: number;
   entityStatusWeight: number;
   legalFormWeight: number;
   recencyWeight: number;
@@ -34,14 +31,11 @@ interface UserBias {
 
 const defaultBias: UserBias = {
   profileName: 'Default Profile',
-  jurisdictionPrimary: 'US',
-  jurisdictionSecondary: ['GB', 'DE'],
   preferParent: true,
-  parentWeight: 0.4,
-  jurisdictionWeight: 0.3,
-  entityStatusWeight: 0.1,
-  legalFormWeight: 0.05,
-  recencyWeight: 0.05,
+  parentWeight: 0.5,  // Increased to compensate for removed jurisdiction weight
+  entityStatusWeight: 0.2,
+  legalFormWeight: 0.15,
+  recencyWeight: 0.15,
   industryFocus: {
     technology: true,
     finance: false,
@@ -51,34 +45,12 @@ const defaultBias: UserBias = {
   }
 };
 
-const jurisdictions = [
-  { value: 'US', label: 'United States' },
-  { value: 'GB', label: 'United Kingdom' },
-  { value: 'DE', label: 'Germany' },
-  { value: 'FR', label: 'France' },
-  { value: 'JP', label: 'Japan' },
-  { value: 'CN', label: 'China' },
-  { value: 'IN', label: 'India' },
-  { value: 'SG', label: 'Singapore' },
-  { value: 'HK', label: 'Hong Kong' },
-  { value: 'AU', label: 'Australia' },
-  { value: 'CA', label: 'Canada' },
-  { value: 'NL', label: 'Netherlands' },
-  { value: 'IE', label: 'Ireland' },
-  { value: 'CH', label: 'Switzerland' }
-];
-
 // Ranking criteria descriptions for each weight
 const rankingCriteria = {
   parentWeight: {
     title: 'Parent Entity Priority',
     description: 'Prioritizes parent companies and holding entities over subsidiaries. Higher weight means stronger preference for ultimate parent entities.',
     examples: ['QIAGEN N.V. (parent) ranked above QIAGEN GmbH (subsidiary)', 'Alphabet Inc. ranked above Google LLC']
-  },
-  jurisdictionWeight: {
-    title: 'Jurisdiction Matching',
-    description: 'Favors entities registered in your preferred jurisdictions. Matches are scored based on primary and secondary jurisdiction preferences.',
-    examples: ['US entities prioritized for US-focused research', 'EU entities for GDPR-compliant operations']
   },
   entityStatusWeight: {
     title: 'Entity Status',
@@ -141,31 +113,17 @@ export function UserBiasConfig() {
   const handleLoadProfile = (profile: any) => {
     setBias({
       profileName: profile.profile_name,
-      jurisdictionPrimary: profile.jurisdiction_primary,
-      jurisdictionSecondary: profile.jurisdiction_secondary || [],
       preferParent: profile.prefer_parent,
       parentWeight: profile.parent_weight,
-      jurisdictionWeight: profile.jurisdiction_weight,
-      entityStatusWeight: profile.entity_status_weight || 0.1,
-      legalFormWeight: profile.legal_form_weight || 0.05,
-      recencyWeight: profile.recency_weight || 0.05,
+      entityStatusWeight: profile.entity_status_weight || 0.2,
+      legalFormWeight: profile.legal_form_weight || 0.15,
+      recencyWeight: profile.recency_weight || 0.15,
       industryFocus: profile.industry_focus || defaultBias.industryFocus
     });
     setSelectedProfile(profile.id);
   };
 
-  const handleSecondaryJurisdiction = (value: string, add: boolean) => {
-    if (add && !bias.jurisdictionSecondary.includes(value)) {
-      setBias({ ...bias, jurisdictionSecondary: [...bias.jurisdictionSecondary, value] });
-    } else if (!add) {
-      setBias({ 
-        ...bias, 
-        jurisdictionSecondary: bias.jurisdictionSecondary.filter(j => j !== value) 
-      });
-    }
-  };
-
-  const totalWeight = bias.parentWeight + bias.jurisdictionWeight + 
+  const totalWeight = bias.parentWeight + 
                       bias.entityStatusWeight + bias.legalFormWeight + bias.recencyWeight;
 
   return (
@@ -223,48 +181,7 @@ export function UserBiasConfig() {
                 />
               </div>
 
-              {/* Primary Jurisdiction */}
-              <div className="space-y-2">
-                <Label htmlFor="primaryJurisdiction">
-                  <Globe className="inline h-4 w-4 mr-1" />
-                  Primary Jurisdiction
-                </Label>
-                <Select 
-                  value={bias.jurisdictionPrimary}
-                  onValueChange={(value) => setBias({ ...bias, jurisdictionPrimary: value })}
-                >
-                  <SelectTrigger id="primaryJurisdiction">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {jurisdictions.map(j => (
-                      <SelectItem key={j.value} value={j.value}>
-                        {j.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
 
-              {/* Secondary Jurisdictions */}
-              <div className="space-y-2">
-                <Label>Secondary Jurisdictions</Label>
-                <div className="flex flex-wrap gap-2">
-                  {jurisdictions.map(j => (
-                    <Badge
-                      key={j.value}
-                      variant={bias.jurisdictionSecondary.includes(j.value) ? 'default' : 'outline'}
-                      className="cursor-pointer"
-                      onClick={() => handleSecondaryJurisdiction(
-                        j.value, 
-                        !bias.jurisdictionSecondary.includes(j.value)
-                      )}
-                    >
-                      {j.value}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
 
               {/* Prefer Parent Entities */}
               <div className="flex items-center justify-between">
@@ -323,33 +240,7 @@ export function UserBiasConfig() {
             </CardContent>
           </Card>
 
-          {/* Jurisdiction Weight */}
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-lg">{rankingCriteria.jurisdictionWeight.title}</h3>
-                <Badge variant="secondary">{(bias.jurisdictionWeight * 100).toFixed(0)}%</Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">{rankingCriteria.jurisdictionWeight.description}</p>
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground">Examples:</p>
-                <ul className="text-xs text-muted-foreground space-y-1">
-                  {rankingCriteria.jurisdictionWeight.examples.map((ex, i) => (
-                    <li key={i} className="ml-4">• {ex}</li>
-                  ))}
-                </ul>
-              </div>
-              <Slider
-                value={[bias.jurisdictionWeight * 100]}
-                onValueChange={([value]) => setBias({ ...bias, jurisdictionWeight: value / 100 })}
-                max={100}
-                step={5}
-                className="w-full"
-              />
-            </CardContent>
-          </Card>
+
 
           {/* Entity Status Weight */}
           <Card>

@@ -3,11 +3,8 @@ import { perplexityAdapter } from './perplexityAdapter';
 import { GleifRelationshipsService } from '../gleif/gleifRelationshipsService';
 
 interface UserBias {
-  jurisdictionPrimary: string;
-  jurisdictionSecondary: string[];
   preferParent: boolean;
   parentWeight: number;
-  jurisdictionWeight: number;
   entityStatusWeight: number;
   legalFormWeight: number;
   recencyWeight: number;
@@ -252,24 +249,27 @@ Claim ${c.claimNumber}:
    - Subsidiaries rank lower
    - Use GLEIF hierarchy data to determine relationships
 
-2. **Jurisdiction Alignment** (Weight: ${userBias.jurisdictionWeight * 100}%)
-   - Primary jurisdiction (${userBias.jurisdictionPrimary}): +30% boost
-   - Secondary jurisdictions (${userBias.jurisdictionSecondary.join(', ')}): +15% boost
-   - Other jurisdictions: no boost
-
-3. **Entity Status** (Weight: ${userBias.entityStatusWeight * 100}%)
+2. **Entity Status** (Weight: ${userBias.entityStatusWeight * 100}%)
    - ACTIVE entities only for top 5
    - INACTIVE or MERGED entities should be excluded
 
-4. **Legal Form Relevance** (Weight: ${userBias.legalFormWeight * 100}%)
+3. **Legal Form Relevance** (Weight: ${userBias.legalFormWeight * 100}%)
    - Corporations (Inc, Corp, Ltd): preferred
    - LLCs: acceptable
    - Other forms: lower priority
 
-5. **Registration Recency** (Weight: ${userBias.recencyWeight * 100}%)
+4. **Registration Recency** (Weight: ${userBias.recencyWeight * 100}%)
    - Updated within 1 year: +5% boost
    - Updated within 3 years: +2% boost
    - Older updates: no boost
+
+5. **Jurisdiction Discovery** (From Domain Data)
+   - Discover the most relevant jurisdiction based on:
+     * Domain TLD (.co.uk → UK, .de → Germany)
+     * Website language and content
+     * Entity metadata (headquarters location)
+     * Legal entity registration country
+   - No preset preference - let the data guide the jurisdiction
 
 ## Required Output Format
 
@@ -362,12 +362,7 @@ Focus on identifying the ultimate decision-making entity for acquisition purpose
             score += userBias.parentWeight * 0.7;
           }
 
-          // Jurisdiction bonus
-          if (claim.metadata?.jurisdiction === userBias.jurisdictionPrimary) {
-            score += userBias.jurisdictionWeight;
-          } else if (userBias.jurisdictionSecondary.includes(claim.metadata?.jurisdiction)) {
-            score += userBias.jurisdictionWeight * 0.5;
-          }
+          // No jurisdiction bonus - let the data guide jurisdiction discovery
 
           // Active status bonus
           if (claim.metadata?.entityStatus === 'ACTIVE') {
@@ -418,25 +413,24 @@ ${rankedEntities.length} entities ranked based on acquisition suitability using 
    - Ultimate parents ranked highest for acquisition control
    - Subsidiaries demoted as they require parent approval
    
-2. JURISDICTION BIAS (${(userBias.jurisdictionWeight * 100).toFixed(0)}% weight):
-   - Primary: ${userBias.jurisdictionPrimary} (+30% boost)
-   - Secondary: ${userBias.jurisdictionSecondary.join(', ')} (+15% boost)
-   - Other jurisdictions receive no boost
-   
-3. ENTITY STATUS (${(userBias.entityStatusWeight * 100).toFixed(0)}% weight):
+2. ENTITY STATUS (${(userBias.entityStatusWeight * 100).toFixed(0)}% weight):
    - Only ACTIVE entities considered viable for acquisition
    
-4. LEGAL FORM (${(userBias.legalFormWeight * 100).toFixed(0)}% weight):
+3. LEGAL FORM (${(userBias.legalFormWeight * 100).toFixed(0)}% weight):
    - Corporate structures (Inc, Corp, Ltd) preferred
    
-5. DATA RECENCY (${(userBias.recencyWeight * 100).toFixed(0)}% weight):
+4. DATA RECENCY (${(userBias.recencyWeight * 100).toFixed(0)}% weight):
    - Recent updates indicate active regulatory compliance
+   
+5. JURISDICTION DISCOVERY (Data-Driven):
+   - Jurisdiction determined from entity metadata and domain TLD
+   - No preset preferences - data guides jurisdiction relevance
 
 Top ranked entity: ${rankedEntities[0]?.entityName || 'None'} 
 Acquisition Grade: ${rankedEntities[0]?.acquisitionGrade || 'N/A'}
 Key Factor: ${rankedEntities[0]?.metadata?.hierarchyLevel === 'ultimate_parent' ? 'Ultimate parent with full control' : 
               rankedEntities[0]?.metadata?.hierarchyLevel === 'parent' ? 'Parent entity with subsidiaries' : 
-              'Entity prioritized based on jurisdiction and status'}
+              'Entity prioritized based on status and legal form'}
     `.trim();
 
     return {
@@ -465,16 +459,10 @@ Key Factor: ${rankedEntities[0]?.metadata?.hierarchyLevel === 'ultimate_parent' 
       reasons.push('INDEPENDENT ENTITY - No parent/subsidiary relationships found');
     }
     
-    // Jurisdiction Analysis
-    if (claim.metadata?.jurisdiction === userBias.jurisdictionPrimary) {
-      reasons.push(`PRIMARY JURISDICTION (${userBias.jurisdictionPrimary}) - Matches preferred acquisition market`);
-      scoreBreakdown.push(`+${(userBias.jurisdictionWeight * 100).toFixed(0)}% for primary jurisdiction`);
-    } else if (userBias.jurisdictionSecondary?.includes(claim.metadata?.jurisdiction)) {
-      reasons.push(`SECONDARY JURISDICTION (${claim.metadata?.jurisdiction}) - Acceptable but not primary target`);
-      scoreBreakdown.push(`+${(userBias.jurisdictionWeight * 0.5 * 100).toFixed(0)}% for secondary jurisdiction`);
-    } else if (claim.metadata?.jurisdiction) {
-      reasons.push(`OTHER JURISDICTION (${claim.metadata?.jurisdiction}) - Outside preferred markets`);
-      scoreBreakdown.push('No jurisdiction bonus');
+    // Jurisdiction Discovery
+    if (claim.metadata?.jurisdiction) {
+      reasons.push(`JURISDICTION: ${claim.metadata.jurisdiction} - Discovered from entity registration data`);
+      // No scoring bonus - jurisdiction is informational only, not a ranking factor
     }
     
     // Entity Status
@@ -542,24 +530,18 @@ Key Factor: ${rankedEntities[0]?.metadata?.hierarchyLevel === 'ultimate_parent' 
     if (result.rows.length === 0) {
       // Return hardcoded default if no profile exists
       return {
-        jurisdictionPrimary: 'US',
-        jurisdictionSecondary: ['GB', 'CA'],
         preferParent: true,
-        parentWeight: 0.4,
-        jurisdictionWeight: 0.3,
-        entityStatusWeight: 0.1,
-        legalFormWeight: 0.05,
-        recencyWeight: 0.05
+        parentWeight: 0.5,
+        entityStatusWeight: 0.2,
+        legalFormWeight: 0.15,
+        recencyWeight: 0.15
       };
     }
     
     const profile = result.rows[0];
     return {
-      jurisdictionPrimary: profile.jurisdiction_primary,
-      jurisdictionSecondary: profile.jurisdiction_secondary || [],
       preferParent: profile.prefer_parent,
       parentWeight: profile.parent_weight,
-      jurisdictionWeight: profile.jurisdiction_weight,
       entityStatusWeight: profile.entity_status_weight,
       legalFormWeight: profile.legal_form_weight,
       recencyWeight: profile.recency_weight,

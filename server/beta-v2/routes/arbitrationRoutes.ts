@@ -180,21 +180,15 @@ router.post('/bias/configure', async (req, res) => {
   try {
     const {
       profileName,
-      jurisdictionPrimary,
-      jurisdictionSecondary,
       preferParent,
       parentWeight,
-      jurisdictionWeight,
       entityStatusWeight,
       legalFormWeight,
       recencyWeight,
       industryFocus
     } = req.body;
-
-    // Ensure jurisdictionSecondary is an array
-    const jurisdictionArray = Array.isArray(jurisdictionSecondary) ? jurisdictionSecondary : [];
     
-    // Build the SQL query string properly
+    // Build the SQL query string properly without jurisdiction fields
     const result = await db.query(
       `INSERT INTO user_bias_profiles (
         profile_name, jurisdiction_primary, jurisdiction_secondary,
@@ -205,14 +199,14 @@ router.post('/bias/configure', async (req, res) => {
       RETURNING id`,
       [
         profileName || 'Custom Profile',
-        jurisdictionPrimary || 'US',
-        jurisdictionArray,  // PostgreSQL driver should handle array properly
+        'AUTO',  // Default value to indicate auto-discovery
+        [],      // Empty array for secondary jurisdictions
         preferParent !== false,
-        parentWeight || 0.4,
-        jurisdictionWeight || 0.3,
-        entityStatusWeight || 0.1,
-        legalFormWeight || 0.05,
-        recencyWeight || 0.05,
+        parentWeight || 0.5,
+        0,       // Zero weight for jurisdiction since it's auto-discovered
+        entityStatusWeight || 0.2,
+        legalFormWeight || 0.15,
+        recencyWeight || 0.15,
         JSON.stringify(industryFocus || {})
       ]
     );
