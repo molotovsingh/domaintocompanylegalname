@@ -1,10 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Globe, User, BarChart3, Trash2, Settings, ChevronDown, Clock, Zap } from "lucide-react";
+import { Globe, User, BarChart3, Trash2, Settings, ChevronDown, Clock, Zap, Cpu, Archive, FileCode, Network, History } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator 
+} from "@/components/ui/dropdown-menu";
 import StatsCards from "@/components/stats-cards";
 import FileUpload from "@/components/file-upload";
 import ProcessingStatus from "@/components/processing-status";
@@ -102,19 +109,16 @@ export default function Dashboard() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="flex items-center gap-2">
                     <Settings className="h-4 w-4" />
-                    Settings
+                    Tools & Config
                     <ChevronDown className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>Testing & Development</DropdownMenuLabel>
                   <DropdownMenuItem asChild>
-                    <Link href="/beta-testing" className="w-full">
-                      Beta Testing
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/beta-testing-v2" className="w-full">
-                      Beta Testing v2
+                    <Link href="/beta-testing-v2" className="w-full flex items-center gap-2">
+                      <Cpu className="h-3 w-3" />
+                      Beta Testing Hub
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -124,27 +128,44 @@ export default function Dashboard() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/knowledge-graph" className="w-full">
-                      Knowledge Graph
+                    <Link href="/beta-testing" className="w-full flex items-center gap-2 text-muted-foreground">
+                      <Archive className="h-3 w-3" />
+                      Legacy Beta Testing
                     </Link>
                   </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel>Configuration</DropdownMenuLabel>
                   <DropdownMenuItem asChild>
-                    <Link href="/parsing-rules" className="w-full">
+                    <Link href="/parsing-rules" className="w-full flex items-center gap-2">
+                      <FileCode className="h-3 w-3" />
                       Parsing Rules
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/jurisdictional-guide" className="w-full">
+                    <Link href="/jurisdictional-guide" className="w-full flex items-center gap-2">
+                      <Globe className="h-3 w-3" />
                       Jurisdictions
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/openrouter-settings" className="w-full">
+                    <Link href="/openrouter-settings" className="w-full flex items-center gap-2">
+                      <Cpu className="h-3 w-3" />
                       OpenRouter Settings
                     </Link>
                   </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel>Documentation</DropdownMenuLabel>
                   <DropdownMenuItem asChild>
-                    <Link href="/recent-changes" className="w-full">
+                    <Link href="/knowledge-graph" className="w-full flex items-center gap-2">
+                      <Network className="h-3 w-3" />
+                      Knowledge Graph
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/recent-changes" className="w-full flex items-center gap-2">
+                      <History className="h-3 w-3" />
                       Recent Changes
                     </Link>
                   </DropdownMenuItem>
