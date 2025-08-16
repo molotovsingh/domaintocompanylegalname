@@ -389,6 +389,14 @@ async function processArbitrationAsync(
     
     // Use normalized claims for arbitration
     const normalizedClaims = normalizationResult.normalizedClaims || claims;
+    
+    // IMPORTANT: Attach dump data to claim 0's metadata for website context
+    if (normalizedClaims.length > 0 && normalizedClaims[0].claimNumber === 0) {
+      normalizedClaims[0].metadata = normalizedClaims[0].metadata || {};
+      normalizedClaims[0].metadata.dumpData = dump.rawDumpData;
+      normalizedClaims[0].metadata.domain = domain;
+      console.log(`[Arbitration] Attached dump data to claim 0 for website context`);
+    }
 
     // Get user bias
     const userBias = await perplexityArbitrationService.getDefaultUserBias();
