@@ -34,13 +34,13 @@ interface ArbitrationResult {
 }
 
 export class PerplexityArbitrationService {
-  private perplexityAdapter: PerplexityAdapter;
+  private perplexityAdapter: any;
   private relationshipsService: GleifRelationshipsService;
   // EVALUATOR: Service architecture follows dependency injection pattern
   // Consider making adapters configurable for different LLM providers
 
   constructor() {
-    this.perplexityAdapter = new PerplexityAdapter();
+    this.perplexityAdapter = perplexityAdapter;
     this.relationshipsService = new GleifRelationshipsService();
   }
 
@@ -60,7 +60,7 @@ export class PerplexityArbitrationService {
 
       // Call Perplexity API with the pro model for better reasoning
       console.log('[Perplexity Arbitration] Calling Perplexity API with sonar-pro model');
-      const response = await perplexityAdapter.callPerplexity(
+      const response = await this.perplexityAdapter.callPerplexity(
         prompt,
         'sonar-pro',
         0.2
