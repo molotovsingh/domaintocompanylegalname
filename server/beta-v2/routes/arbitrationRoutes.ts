@@ -618,7 +618,7 @@ async function getCleanedData(dumpId: number, collectionType: string): Promise<a
       `);
       
       if (result.rows.length > 0) {
-        const dump = result.rows[0].dump_data;
+        const dump = result.rows[0].dump_data as any;
         const metaTags = dump?.meta_tags || {};
         return {
           companyName: metaTags['og:site_name'] || metaTags['twitter:title'] || '',
