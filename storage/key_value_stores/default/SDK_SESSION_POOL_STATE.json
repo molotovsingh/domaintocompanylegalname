@@ -1,189 +1,9 @@
 {
-  "usableSessionsCount": 13,
+  "usableSessionsCount": 5,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_5AEx4impNb",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-16T03:03:53.241Z",
-      "createdAt": "2025-08-16T02:13:53.241Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_CDJTsIcMog",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-16T03:03:56.254Z",
-      "createdAt": "2025-08-16T02:13:56.254Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_wbWOXjxGFh",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-16T03:03:56.255Z",
-      "createdAt": "2025-08-16T02:13:56.255Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_nNvE1Fc2lL",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-16T03:03:57.474Z",
-      "createdAt": "2025-08-16T02:13:57.474Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_pSPdaxwPsO",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-16T03:03:57.904Z",
-      "createdAt": "2025-08-16T02:13:57.904Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_CnKcZmQR0J",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-16T03:03:58.662Z",
-      "createdAt": "2025-08-16T02:13:58.662Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_8Ofv5SbvBt",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-16T03:03:59.086Z",
-      "createdAt": "2025-08-16T02:13:59.086Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_dJDerlYzpb",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-16T03:03:59.843Z",
-      "createdAt": "2025-08-16T02:13:59.843Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_BbPuBkkSfL",
-      "cookieJar": {
-        "version": "tough-cookie@5.1.2",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-16T03:04:00.268Z",
-      "createdAt": "2025-08-16T02:14:00.268Z",
-      "usageCount": 1,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_rQii4kpfCH",
+      "id": "session_fOvsefTuro",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -193,29 +13,29 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "affinity",
-            "value": "\"98ab562fe5c32757\"",
-            "domain": "www.ey.com",
+            "key": "CBONDSSESSID",
+            "value": "hm7hiuv54ueqmlte2b72od2nv2",
+            "domain": "cbonds.com",
             "path": "/",
             "secure": true,
-            "httpOnly": true,
             "hostOnly": true,
-            "creation": "2025-08-16T02:28:58.703Z",
-            "lastAccessed": "2025-08-16T02:28:58.703Z"
+            "creation": "2025-08-16T02:45:12.751Z",
+            "lastAccessed": "2025-08-16T02:45:12.751Z",
+            "sameSite": "none"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-16T03:18:57.232Z",
-      "createdAt": "2025-08-16T02:28:57.232Z",
+      "expiresAt": "2025-08-16T03:35:10.519Z",
+      "createdAt": "2025-08-16T02:45:10.519Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_aNWpbuxGV5",
+      "id": "session_WAZEEZp7h8",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -223,19 +43,31 @@
         "enableLooseMode": false,
         "allowSpecialUseDomain": true,
         "prefixSecurity": "silent",
-        "cookies": []
+        "cookies": [
+          {
+            "key": "CBONDSSESSID",
+            "value": "48s5bfm99on6kmtjaugrqro1rb",
+            "domain": "cbonds.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-08-16T02:45:14.253Z",
+            "lastAccessed": "2025-08-16T02:45:14.253Z",
+            "sameSite": "none"
+          }
+        ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-16T03:18:58.960Z",
-      "createdAt": "2025-08-16T02:28:58.960Z",
+      "expiresAt": "2025-08-16T03:35:12.850Z",
+      "createdAt": "2025-08-16T02:45:12.850Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_CZ6oA2LGKv",
+      "id": "session_vfJiDOL65x",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -243,19 +75,31 @@
         "enableLooseMode": false,
         "allowSpecialUseDomain": true,
         "prefixSecurity": "silent",
-        "cookies": []
+        "cookies": [
+          {
+            "key": "CBONDSSESSID",
+            "value": "88tep195lo0qjkb8l9h54gntsu",
+            "domain": "cbonds.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-08-16T02:45:14.701Z",
+            "lastAccessed": "2025-08-16T02:45:14.701Z",
+            "sameSite": "none"
+          }
+        ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-16T03:18:58.961Z",
-      "createdAt": "2025-08-16T02:28:58.961Z",
+      "expiresAt": "2025-08-16T03:35:12.852Z",
+      "createdAt": "2025-08-16T02:45:12.852Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_LzuLpkXm6b",
+      "id": "session_vehUkDa0gZ",
       "cookieJar": {
         "version": "tough-cookie@5.1.2",
         "storeType": "MemoryCookieStore",
@@ -263,13 +107,57 @@
         "enableLooseMode": false,
         "allowSpecialUseDomain": true,
         "prefixSecurity": "silent",
-        "cookies": []
+        "cookies": [
+          {
+            "key": "CBONDSSESSID",
+            "value": "85o0pooiqpdb6lqob7omtiqptp",
+            "domain": "cbonds.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-08-16T02:45:16.230Z",
+            "lastAccessed": "2025-08-16T02:45:16.230Z",
+            "sameSite": "none"
+          }
+        ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-08-16T03:19:00.181Z",
-      "createdAt": "2025-08-16T02:29:00.181Z",
+      "expiresAt": "2025-08-16T03:35:14.302Z",
+      "createdAt": "2025-08-16T02:45:14.302Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_ie17C6ceC9",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "CBONDSSESSID",
+            "value": "gmaqp7u0shul1tcr8b2dpbfden",
+            "domain": "cbonds.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-08-16T02:45:16.158Z",
+            "lastAccessed": "2025-08-16T02:45:16.158Z",
+            "sameSite": "none"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-08-16T03:35:14.731Z",
+      "createdAt": "2025-08-16T02:45:14.731Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
