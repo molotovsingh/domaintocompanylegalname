@@ -131,7 +131,9 @@ export class ProcessingPipelineService {
         modelUsed: 'fast_extractor',
         processingTime: 25,
         reasoning: `Fast extraction from ${extractionResult.metadata.sources.join(', ')}`,
-        alternativeNames: extractionResult.entities.filter(e => e !== extractionResult.primaryEntity)
+        alternativeNames: extractionResult.entities.filter(e => e !== extractionResult.primaryEntity),
+        // Add evidence trail to stage 3 result
+        evidenceTrail: extractionResult.evidenceTrail
       };
       await processingStorage.updateStage3(processingId, stage3Result);
 

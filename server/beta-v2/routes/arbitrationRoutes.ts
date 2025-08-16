@@ -390,12 +390,19 @@ async function processArbitrationAsync(
     // Use normalized claims for arbitration
     const normalizedClaims = normalizationResult.normalizedClaims || claims;
     
-    // IMPORTANT: Attach dump data to claim 0's metadata for website context
+    // IMPORTANT: Attach dump data and evidence trail to claim 0's metadata for website context
     if (normalizedClaims.length > 0 && normalizedClaims[0].claimNumber === 0) {
       normalizedClaims[0].metadata = normalizedClaims[0].metadata || {};
       normalizedClaims[0].metadata.dumpData = dump.rawDumpData;
       normalizedClaims[0].metadata.domain = domain;
-      console.log(`[Arbitration] Attached dump data to claim 0 for website context`);
+      
+      // Attach evidence trail from cleanedData if available
+      if (dump.cleanedData?.evidenceTrail) {
+        normalizedClaims[0].metadata.evidenceTrail = dump.cleanedData.evidenceTrail;
+        console.log(`[Arbitration] Attached evidence trail with ${dump.cleanedData.evidenceTrail.entitiesFound?.length || 0} entities to claim 0`);
+      }
+      
+      console.log(`[Arbitration] Attached dump data and evidence to claim 0 for website context`);
     }
 
     // Get user bias
@@ -506,14 +513,20 @@ async function getDumpData(dumpId: number, collectionType: string): Promise<any>
 async function getCleanedData(dumpId: number, collectionType: string): Promise<any> {
   try {
     // Try to get from beta_v2_processing_results first
+    // Now also fetch stage3 data for evidence trail
     const result = await db.query(
-      `SELECT stage2_extracted_data FROM beta_v2_processing_results 
+      `SELECT stage2_extracted_data, stage3_entity_name, stage3_evidence_trail 
+       FROM beta_v2_processing_results 
        WHERE source_id = $1 AND source_type = $2`,
       [dumpId, collectionType]
     );
 
     if (result.rows.length > 0 && result.rows[0].stage2_extracted_data) {
-      return result.rows[0].stage2_extracted_data;
+      const cleanedData = result.rows[0].stage2_extracted_data;
+      // Attach stage3 data including evidence trail
+      cleanedData.primaryEntityName = result.rows[0].stage3_entity_name;
+      cleanedData.evidenceTrail = result.rows[0].stage3_evidence_trail;
+      return cleanedData;
     }
 
     // Fallback to raw dump data

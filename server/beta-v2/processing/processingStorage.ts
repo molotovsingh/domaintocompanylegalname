@@ -97,6 +97,7 @@ class ProcessingStorage {
     processingTime: number;
     reasoning: string;
     alternativeNames: string[];
+    evidenceTrail?: any;  // Add evidence trail support
   }): Promise<void> {
     try {
       await betaV2Db.execute(sql`
@@ -107,9 +108,14 @@ class ProcessingStorage {
             stage3_processing_time_ms = ${result.processingTime},
             stage3_reasoning = ${result.reasoning},
             stage3_alternative_names = ${JSON.stringify(result.alternativeNames)}::jsonb,
+            stage3_evidence_trail = ${result.evidenceTrail ? JSON.stringify(result.evidenceTrail) : null}::jsonb,
             updated_at = NOW()
         WHERE id = ${id}
       `);
+      
+      if (result.evidenceTrail) {
+        console.log(`[ProcessingStorage] Saved evidence trail with ${result.evidenceTrail.entitiesFound?.length || 0} entities`);
+      }
     } catch (error) {
       console.error('[ProcessingStorage] Error updating stage 3:', error);
       throw error;

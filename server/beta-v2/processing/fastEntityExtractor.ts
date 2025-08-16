@@ -18,8 +18,25 @@ export class FastEntityExtractor {
     entities: string[];
     confidence: number;
     metadata: any;
+    evidenceTrail?: {
+      entitiesFound: Array<{
+        name: string;
+        source: string;
+        rawValue: any;
+        confidence: number;
+      }>;
+      structuredDataSummary?: any;
+      extractionMethod: string;
+      extractionTimestamp: string;
+    };
   }> {
     const entities: string[] = [];
+    const entitiesWithEvidence: Array<{
+      name: string;
+      source: string;
+      rawValue: any;
+      confidence: number;
+    }> = [];
     let primaryEntity: string | null = null;
     let confidence = 0;
     
@@ -32,33 +49,33 @@ export class FastEntityExtractor {
     if (dumpData.pages?.[0]) {
       // Crawlee dump structure
       const page = dumpData.pages[0];
-      this.extractFromPage(page, entities, metadata);
+      this.extractFromPageWithEvidence(page, entities, metadata, entitiesWithEvidence);
       
       // Check for structured data in the page
       if (page.structuredData) {
         console.log('[FastExtractor] Found structured data with', Array.isArray(page.structuredData) ? page.structuredData.length : 1, 'items');
-        this.extractFromStructuredData(page.structuredData, entities, metadata);
+        this.extractFromStructuredDataWithEvidence(page.structuredData, entities, metadata, entitiesWithEvidence);
       } else {
         console.log('[FastExtractor] No structured data found in page');
       }
     } else if (dumpData.html || dumpData.text) {
       // Playwright/Axios dump structure
-      this.extractFromContent(dumpData, entities, metadata);
+      this.extractFromContentWithEvidence(dumpData, entities, metadata, entitiesWithEvidence);
       
       // Check for structured data at top level
       if (dumpData.structuredData || dumpData.structured_data) {
         const structured = dumpData.structuredData || dumpData.structured_data;
-        this.extractFromStructuredData(structured, entities, metadata);
+        this.extractFromStructuredDataWithEvidence(structured, entities, metadata, entitiesWithEvidence);
       }
     } else if (dumpData.content) {
       // Scrapy dump structure
-      this.extractFromScrapyContent(dumpData, entities, metadata);
+      this.extractFromScrapyContentWithEvidence(dumpData, entities, metadata, entitiesWithEvidence);
     }
 
     // Process meta tags
     if (dumpData.metaTags || dumpData.meta || dumpData.meta_tags) {
       const metaTags = dumpData.metaTags || dumpData.meta || dumpData.meta_tags;
-      this.extractFromMetaTags(metaTags, entities, metadata);
+      this.extractFromMetaTagsWithEvidence(metaTags, entities, metadata, entitiesWithEvidence);
     }
 
     // Deduplicate and prioritize entities
@@ -70,21 +87,40 @@ export class FastEntityExtractor {
     // Calculate confidence based on sources and entity quality
     confidence = this.calculateConfidence(primaryEntity, metadata.sources);
 
+    // Build evidence trail
+    const evidenceTrail = {
+      entitiesFound: entitiesWithEvidence,
+      extractionMethod: 'fast_extractor',
+      extractionTimestamp: new Date().toISOString()
+    };
+
     return {
       primaryEntity,
       entities: uniqueEntities,
       confidence,
-      metadata
+      metadata,
+      evidenceTrail
     };
   }
 
-  private extractFromPage(page: any, entities: string[], metadata: any): void {
+  private extractFromPageWithEvidence(
+    page: any, 
+    entities: string[], 
+    metadata: any,
+    entitiesWithEvidence: Array<{name: string; source: string; rawValue: any; confidence: number}>
+  ): void {
     // Extract from title
     if (page.title) {
       const titleEntity = this.cleanTitleEntity(page.title);
       if (titleEntity) {
         entities.push(titleEntity);
         metadata.sources.push('page_title');
+        entitiesWithEvidence.push({
+          name: titleEntity,
+          source: 'page_title',
+          rawValue: page.title,
+          confidence: 0.7
+        });
       }
     }
 
@@ -96,6 +132,12 @@ export class FastEntityExtractor {
           if (entity) {
             entities.push(entity);
             metadata.sources.push('og:site_name');
+            entitiesWithEvidence.push({
+              name: entity,
+              source: 'og:site_name',
+              rawValue: value,
+              confidence: 0.85
+            });
           }
         }
       });
@@ -107,17 +149,44 @@ export class FastEntityExtractor {
       entities.push(...copyrightEntities);
       if (copyrightEntities.length > 0) {
         metadata.sources.push('copyright');
+        // Find the copyright text for evidence
+        const copyrightMatch = page.text.match(/©\s*\d{4}\s+([^,\n]+)/);
+        copyrightEntities.forEach(entity => {
+          entitiesWithEvidence.push({
+            name: entity,
+            source: 'copyright',
+            rawValue: copyrightMatch ? copyrightMatch[0] : `© ${entity}`,
+            confidence: 0.75
+          });
+        });
       }
     }
   }
 
-  private extractFromContent(data: any, entities: string[], metadata: any): void {
+  // Keep the original method for backward compatibility
+  private extractFromPage(page: any, entities: string[], metadata: any): void {
+    const dummyEvidence: any[] = [];
+    this.extractFromPageWithEvidence(page, entities, metadata, dummyEvidence);
+  }
+
+  private extractFromContentWithEvidence(
+    data: any, 
+    entities: string[], 
+    metadata: any,
+    entitiesWithEvidence: Array<{name: string; source: string; rawValue: any; confidence: number}>
+  ): void {
     // Extract from title
     if (data.title) {
       const titleEntity = this.cleanTitleEntity(data.title);
       if (titleEntity) {
         entities.push(titleEntity);
         metadata.sources.push('title');
+        entitiesWithEvidence.push({
+          name: titleEntity,
+          source: 'title',
+          rawValue: data.title,
+          confidence: 0.7
+        });
       }
     }
 
@@ -127,17 +196,42 @@ export class FastEntityExtractor {
       entities.push(...copyrightEntities);
       if (copyrightEntities.length > 0) {
         metadata.sources.push('copyright');
+        const copyrightMatch = data.text.match(/©\s*\d{4}\s+([^,\n]+)/);
+        copyrightEntities.forEach(entity => {
+          entitiesWithEvidence.push({
+            name: entity,
+            source: 'copyright',
+            rawValue: copyrightMatch ? copyrightMatch[0] : `© ${entity}`,
+            confidence: 0.75
+          });
+        });
       }
     }
   }
 
-  private extractFromScrapyContent(data: any, entities: string[], metadata: any): void {
+  private extractFromContent(data: any, entities: string[], metadata: any): void {
+    const dummyEvidence: any[] = [];
+    this.extractFromContentWithEvidence(data, entities, metadata, dummyEvidence);
+  }
+
+  private extractFromScrapyContentWithEvidence(
+    data: any, 
+    entities: string[], 
+    metadata: any,
+    entitiesWithEvidence: Array<{name: string; source: string; rawValue: any; confidence: number}>
+  ): void {
     // Scrapy specific extraction
     if (data.company_name) {
       const entity = this.cleanEntityName(data.company_name);
       if (entity) {
         entities.push(entity);
         metadata.sources.push('scrapy_company_name');
+        entitiesWithEvidence.push({
+          name: entity,
+          source: 'scrapy_company_name',
+          rawValue: data.company_name,
+          confidence: 0.9
+        });
       }
     }
 
@@ -146,8 +240,19 @@ export class FastEntityExtractor {
       if (titleEntity) {
         entities.push(titleEntity);
         metadata.sources.push('scrapy_title');
+        entitiesWithEvidence.push({
+          name: titleEntity,
+          source: 'scrapy_title',
+          rawValue: data.title,
+          confidence: 0.7
+        });
       }
     }
+  }
+
+  private extractFromScrapyContent(data: any, entities: string[], metadata: any): void {
+    const dummyEvidence: any[] = [];
+    this.extractFromScrapyContentWithEvidence(data, entities, metadata, dummyEvidence);
   }
 
   private extractFromStructuredData(structured: any, entities: string[], metadata: any): void {
@@ -232,6 +337,29 @@ export class FastEntityExtractor {
         }
       }
     });
+  }
+
+  // Stub methods for enhanced extraction with evidence
+  private extractFromStructuredDataWithEvidence(
+    structured: any,
+    entities: string[],
+    metadata: any,
+    entitiesWithEvidence: Array<{name: string; source: string; rawValue: any; confidence: number}>
+  ): void {
+    // For now, just call the regular extraction
+    this.extractFromStructuredData(structured, entities, metadata);
+    // TODO: Enhance to collect evidence from structured data
+  }
+
+  private extractFromMetaTagsWithEvidence(
+    metaTags: any,
+    entities: string[],
+    metadata: any,
+    entitiesWithEvidence: Array<{name: string; source: string; rawValue: any; confidence: number}>
+  ): void {
+    // For now, just call the regular extraction
+    this.extractFromMetaTags(metaTags, entities, metadata);
+    // TODO: Enhance to collect evidence from meta tags
   }
 
   private extractFromMetaTags(metaTags: any, entities: string[], metadata: any): void {
