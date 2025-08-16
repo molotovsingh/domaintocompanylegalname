@@ -1,0 +1,109 @@
+Excellent choice! Option 2 will solve our immediate issues while setting us up for clean data flow. Here's the implementation plan:
+
+Claims Normalization Service - Implementation Plan
+Phase 1: Create the Service Architecture
+Location: server/beta-v2/arbitration/claimsNormalizationService.ts
+
+Core Responsibilities:
+
+Input Validation - Ensure all claims have required fields
+Format Normalization - Convert snake_case to camelCase consistently
+Data Enrichment - Fill missing fields from available data
+Entity Name Standardization - Clean up entity names (trim, proper casing, standardize suffixes)
+Duplicate Detection - Identify and merge duplicate entities
+Phase 2: Integration Points
+Step 1: Pre-Arbitration Hook
+
+Insert normalization before arbitration starts
+Location: server/beta-v2/routes/arbitrationRoutes.ts
+Flow: Raw Claims → Normalize → Store → Arbitrate
+Step 2: Post-GLEIF Claims Hook
+
+Normalize GLEIF claims immediately after generation
+Location: server/beta-v2/gleif/gleifClaimsService.ts
+Ensures GLEIF data is clean before storage
+Step 3: Frontend Display Hook
+
+Normalize data before sending to frontend
+Location: Where we assemble the response
+Guarantees consistent display format
+Phase 3: Normalization Rules
+Data Structure Rules:
+
+interface NormalizedClaim {
+  claimNumber: number;        // Required
+  claimType: string;          // Required: 'llm_extracted' | 'gleif_candidate'
+  entityName: string;         // Required, standardized
+  leiCode?: string;           // Optional but validated if present
+  confidence: number;         // Required, 0-1 range
+  source: string;            // Required
+  metadata: {                // Standardized structure
+    legalName?: string;
+    jurisdiction?: string;
+    entityStatus?: string;
+    // ... other fields
+  };
+}
+Transformation Rules:
+
+Snake → Camel: claim_number → claimNumber
+Missing Entity Names: Use metadata.legalName as fallback
+Confidence Normalization: Ensure 0-1 range (not 0-100)
+LEI Validation: 20 chars, uppercase
+Entity Name Cleaning:
+Remove extra spaces
+Standardize suffixes (INC → INC.)
+Preserve legal punctuation
+Phase 4: Error Handling
+Validation Failures:
+
+Log specific field issues
+Return error with details
+Don't proceed to arbitration
+Partial Data:
+
+Use intelligent defaults
+Mark claims as "incomplete" if critical data missing
+Still allow processing with warnings
+Phase 5: Testing Strategy
+Unit Tests: Each normalization rule
+Integration Tests: Full pipeline with various data formats
+Edge Cases:
+Missing entity names
+Duplicate LEI codes
+Conflicting confidence scores
+Mixed format data (snake_case + camelCase)
+Phase 6: Monitoring & Logging
+Metrics to Track:
+
+Claims processed vs rejected
+Most common validation failures
+Format conversion statistics
+Processing time impact
+Logging Levels:
+
+INFO: Successful normalizations
+WARN: Data corrections applied
+ERROR: Validation failures
+Implementation Order
+Create the service with basic validation
+Add format normalization (snake_case → camelCase)
+Implement entity name standardization
+Add enrichment logic (fill missing fields)
+Integrate with arbitration pipeline
+Update frontend to expect normalized data
+Add comprehensive logging
+Test with real data (netflix.com, indiatoday.in)
+Expected Outcomes
+✅ Immediate Fixes:
+
+Entity names always display
+Consistent data format
+No more missing claim numbers
+✅ Long-term Benefits:
+
+Cleaner arbitration logic
+Easier debugging
+Foundation for data quality metrics
+Reduced frontend complexity
+Would you like me to proceed with implementing this plan? Should we start with the core service or would you prefer to see the validation rules first?
