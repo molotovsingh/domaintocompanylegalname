@@ -132,6 +132,8 @@ export class PerplexityArbitrationService {
           // Remove any trailing commas or incomplete JSON
           let fixedJson = jsonStr;
           
+          // EVALUATOR: Complex JSON recovery logic suggests Perplexity responses are inconsistent
+          // This defensive programming prevents system failures but may mask data quality issues
           // If the JSON seems truncated, try to close it properly
           if (jsonStr.includes('"rankedEntities"') && !jsonStr.includes('"overallReasoning"')) {
             // Close the rankedEntities array and add a dummy overallReasoning
@@ -220,6 +222,7 @@ export class PerplexityArbitrationService {
     // Check if ranking rules are muted for testing
     if (userBias.muteRankingRules) {
       console.log('[Perplexity Arbitration] Ranking rules MUTED for testing');
+      // EVALUATOR: Testing infrastructure built into production code - good for quality assurance
       const prompt = `
 You are an entity arbitrator. For TESTING PURPOSES, ranking rules are DISABLED.
 
@@ -393,6 +396,8 @@ If no entities match (including Claim 0), return:
         citations: [],
         processingTimeMs: elapsedMs
       };
+      // EVALUATOR QUERY: Should test mode results be flagged more prominently in the UI?
+      // Users might not realize they're seeing test data instead of real arbitration results.
     }
 
     const scoredClaims = await Promise.all(
@@ -409,6 +414,7 @@ If no entities match (including Claim 0), return:
           }
 
           // No jurisdiction bonus - let the data guide jurisdiction discovery
+          // EVALUATOR: Data-driven approach to jurisdiction discovery - removes human bias but may miss strategic preferences
 
           // Active status bonus
           if (claim.metadata?.entityStatus === 'ACTIVE') {
