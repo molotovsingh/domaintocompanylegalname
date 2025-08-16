@@ -1038,7 +1038,17 @@ export default function BetaV2DataProcessingPage() {
                                           <h4 className="text-sm font-bold text-green-800">PRIMARY RECOMMENDATION</h4>
                                         </div>
                                         <h3 className="text-lg font-semibold text-gray-900">
-                                          {arbitrationResultsData.rankedEntities[0].legalName}
+                                          {arbitrationResultsData.rankedEntities[0].entityName || 
+                                           arbitrationResultsData.rankedEntities[0].legalName || 
+                                           arbitrationResultsData.rankedEntities[0].metadata?.legalName || 
+                                           'Unknown Entity'}
+                                          {arbitrationResultsData.rankedEntities[0].claimNumber !== undefined && (
+                                            <span className="text-sm font-normal text-gray-600 ml-2">
+                                              {arbitrationResultsData.rankedEntities[0].claimNumber === 0 
+                                                ? '(Claim 0 - Website Extracted)' 
+                                                : `(GLEIF Claim ${arbitrationResultsData.rankedEntities[0].claimNumber})`}
+                                            </span>
+                                          )}
                                         </h3>
                                         {arbitrationResultsData.rankedEntities[0].leiCode && (
                                           <code className="text-xs bg-white px-2 py-1 rounded mt-1 inline-block">
@@ -1113,7 +1123,16 @@ export default function BetaV2DataProcessingPage() {
                                                   {idx + 1}
                                                 </div>
                                               </td>
-                                              <td className="px-4 py-2 font-medium">{entity.legalName}</td>
+                                              <td className="px-4 py-2">
+                                                <div>
+                                                  <span className="font-medium">{entity.entityName || entity.legalName || entity.metadata?.legalName || 'Unknown Entity'}</span>
+                                                  {entity.claimNumber !== undefined && (
+                                                    <span className="text-xs text-gray-500 ml-2">
+                                                      {entity.claimNumber === 0 ? '(Claim 0 - Website)' : `(Claim ${entity.claimNumber})`}
+                                                    </span>
+                                                  )}
+                                                </div>
+                                              </td>
                                               <td className="px-4 py-2">
                                                 {entity.leiCode ? (
                                                   <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">
