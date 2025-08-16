@@ -64,9 +64,9 @@ const RawClaimSchema = z.object({
   entity_name: z.string().optional(),
   entityName: z.string().optional(),
   
-  lei_code: z.string().optional(),
-  leiCode: z.string().optional(),
-  LEICode: z.string().optional(), // Handle various capitalizations
+  lei_code: z.string().nullable().optional(),
+  leiCode: z.string().nullable().optional(),
+  LEICode: z.string().nullable().optional(), // Handle various capitalizations
   
   confidence_score: z.number().optional(),
   confidence: z.number().optional(),
@@ -195,15 +195,49 @@ export class ClaimsNormalizationService {
       // Parse with raw schema first
       const parsed = RawClaimSchema.parse(rawClaim);
       
+      // Debug logging for claim 0
+      if (parsed.claim_number === 0 || parsed.claimNumber === 0) {
+        console.log('[ClaimsNormalization] Processing Claim 0:', {
+          claim_number: parsed.claim_number,
+          claimNumber: parsed.claimNumber,
+          entity_name: parsed.entity_name,
+          entityName: parsed.entityName,
+          source: parsed.source
+        });
+      }
+      
       // Transform to normalized format
       const normalized = this.transformClaim(parsed, index);
       
-      // Validate with strict schema
+      // CRITICAL: Always preserve Claim 0 (website extraction baseline)
+      // Even if it doesn't have perfect data, it's essential for quality assessment
+      const claimNumber = normalized.claimNumber;
+      if (claimNumber === 0) {
+        console.log('[ClaimsNormalization] PRESERVING CLAIM 0 as website extraction baseline');
+        console.log('[ClaimsNormalization] Claim 0 data:', normalized);
+        
+        // For claim 0, use relaxed validation - ensure it has minimal required fields
+        if (!normalized.entityName || normalized.entityName.trim() === '') {
+          normalized.entityName = 'Unknown Entity (Website Extraction Failed)';
+        }
+        normalized.claimType = 'website_claim';
+        normalized.confidence = normalized.confidence || 0.5;
+        normalized.source = 'website_extraction'; // Always override source for claim 0
+        
+        // Skip strict validation for claim 0
+        this.stats.transformationsApplied++;
+        return normalized as NormalizedClaim;
+      }
+      
+      // Validate other claims with strict schema
       const validated = NormalizedClaimSchema.parse(normalized);
       
       this.stats.transformationsApplied++;
       return validated;
     } catch (error) {
+      // Log which claim is being rejected and why
+      console.log('[ClaimsNormalization] Rejecting claim at index', index, ':', error instanceof z.ZodError ? error.errors : error);
+      
       if (error instanceof z.ZodError) {
         error.errors.forEach(err => {
           this.validationErrors.push({
@@ -278,14 +312,15 @@ export class ClaimsNormalizationService {
    * Infer claim type from available data
    */
   private inferClaimType(claim: any): string {
+    // CRITICAL: Claim 0 is ALWAYS the website extraction baseline
+    if (claim.claim_number === 0 || claim.claimNumber === 0) {
+      return 'website_claim';
+    }
     if (claim.source?.includes('gleif')) {
       return 'gleif_candidate';
     }
     if (claim.source?.includes('llm') || claim.source?.includes('extraction')) {
       return 'llm_extracted';
-    }
-    if (claim.claim_number === 0 || claim.claimNumber === 0) {
-      return 'website_claim';
     }
     return 'gleif_candidate'; // Default assumption
   }
