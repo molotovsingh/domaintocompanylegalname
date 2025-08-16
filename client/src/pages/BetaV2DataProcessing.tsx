@@ -5,7 +5,7 @@ import { queryClient } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, RefreshCw, PlayCircle, CheckCircle, Clock, AlertCircle, Database, Brain, Search, ChevronDown, ChevronUp, FileSearch, Award, Settings, Info, ChevronRight, FileText } from 'lucide-react';
+import { ArrowLeft, RefreshCw, PlayCircle, CheckCircle, Clock, AlertCircle, Database, Brain, Search, ChevronDown, ChevronUp, FileSearch, Award, Settings, Info, ChevronRight, FileText, Check, Globe } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -878,13 +878,15 @@ export default function BetaV2DataProcessingPage() {
                                 domain: selectedDumpForClaims.domain,
                                 dumpId: selectedDumpForClaims.id,
                                 collectionType: selectedDumpForClaims.sourceType,
-                                claims: data.claims,
+                                websiteEntity: data.websiteEntity,  // NEW: Store website entity separately
+                                gleifEntities: data.gleifEntities,  // NEW: Store GLEIF entities
+                                claims: data.claims || data.gleifEntities, // Backward compatibility
                                 processedAt: new Date().toISOString()
                               }, ...prev]);
                               
                               toast({
                                 title: "Claims Generated",
-                                description: `Found ${data.claims.length} entity claims for ${selectedDumpForClaims.domain}`,
+                                description: `Found ${data.gleifEntities?.length || 0} GLEIF entities for ${selectedDumpForClaims.domain}`,
                               });
                             } else {
                               toast({
@@ -921,7 +923,7 @@ export default function BetaV2DataProcessingPage() {
                             <div>
                               <CardTitle className="text-lg">{result.domain}</CardTitle>
                               <CardDescription>
-                                {result.claims.length} claims • Generated {formatTimestamp(result.processedAt)}
+                                {result.gleifEntities?.length || result.claims?.length || 0} GLEIF entities • Generated {formatTimestamp(result.processedAt)}
                               </CardDescription>
                             </div>
                             <div className="flex items-center gap-2">
@@ -953,12 +955,36 @@ export default function BetaV2DataProcessingPage() {
                                   try {
                                     setArbitrationLoading(true);
                                     
-                                    // Start arbitration request with existing claims
+                                    // Reconstruct full claims array for arbitration
+                                    // Combine website entity (as Claim 0) with GLEIF entities
+                                    const fullClaims = [];
+                                    
+                                    // Add website entity as Claim 0 if it exists
+                                    if (result.websiteEntity) {
+                                      fullClaims.push({
+                                        claimNumber: 0,
+                                        claimType: 'extracted',
+                                        entityName: result.websiteEntity.entityName,
+                                        source: result.websiteEntity.source,
+                                        confidence: result.websiteEntity.confidence
+                                      });
+                                    }
+                                    
+                                    // Add GLEIF entities as Claims 1, 2, 3...
+                                    const gleifEntities = result.gleifEntities || result.claims || [];
+                                    gleifEntities.forEach((entity, idx) => {
+                                      fullClaims.push({
+                                        ...entity,
+                                        claimNumber: idx + 1
+                                      });
+                                    });
+                                    
+                                    // Start arbitration request with reconstructed claims
                                     const response = await apiRequest('POST', '/api/beta/arbitration/request', {
                                       domain: result.domain,
                                       dumpId: result.dumpId,
                                       collectionType: result.collectionType,
-                                      existingClaims: result.claims, // Pass the already generated claims
+                                      existingClaims: fullClaims, // Pass the reconstructed full claims array
                                       muteRankingRules: muteRankingRules // Pass the mute flag
                                     });
                                     
@@ -1216,17 +1242,30 @@ export default function BetaV2DataProcessingPage() {
                               </div>
                             )}
                             
-                            {result.claims.map((claim, claimIdx) => (
+                            {/* Show website entity context if available */}
+                            {result.websiteEntity && (
+                              <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Globe className="h-4 w-4 text-amber-600" />
+                                  <span className="text-sm font-medium text-amber-800">Website Claims To Be:</span>
+                                </div>
+                                <p className="text-lg font-semibold">{result.websiteEntity.entityName}</p>
+                                <p className="text-xs text-gray-600 mt-1">
+                                  Source: {result.websiteEntity.source} • Confidence: {result.websiteEntity.confidence}
+                                </p>
+                              </div>
+                            )}
+                            
+                            {/* Display only GLEIF entities */}
+                            {(result.gleifEntities || result.claims || []).map((claim, claimIdx) => (
                               <div key={`claim-${result.dumpId}-${claimIdx}`} className="border rounded-lg p-4 space-y-2">
                                 <div className="flex items-start justify-between">
                                   <div className="w-full">
                                     <div className="flex items-center gap-2 mb-1">
-                                      <Badge variant={claimIdx === 0 ? "default" : "outline"}>
-                                        {claimIdx === 0 ? "Website Entity" : `GLEIF Entity ${claimIdx}`}
+                                      <Badge variant="default">
+                                        GLEIF Match {claimIdx + 1}
                                       </Badge>
-                                      <span className="text-xs text-muted-foreground">
-                                        (Claim #{claimIdx})
-                                      </span>
+                                      <Check className="h-4 w-4 text-green-600" />
                                     </div>
                                     <p className="font-medium text-lg">{claim.entityName || claim.legalName || "Unknown Entity"}</p>
                                     {claim.leiCode && (

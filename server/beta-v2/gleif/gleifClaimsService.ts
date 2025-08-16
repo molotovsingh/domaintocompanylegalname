@@ -41,9 +41,39 @@ interface EntityClaim {
   };
 }
 
+interface WebsiteEntity {
+  entityName: string;
+  source: string;
+  confidence: 'high' | 'medium' | 'low';
+  extractionMethod?: string;
+}
+
+interface GleifEntity {
+  entityName: string;
+  leiCode: string;
+  confidence: 'high' | 'medium' | 'low';
+  gleifData?: {
+    legalName: string;
+    legalForm?: string;
+    entityStatus?: string;
+    jurisdiction?: string;
+    entityCategory?: string;
+    legalAddress?: any;
+    headquarters?: any;
+    registrationStatus?: string;
+    initialRegistrationDate?: string;
+    lastUpdateDate?: string;
+  };
+  source?: string;
+  evidence?: any;
+  reasoning?: string;
+}
+
 interface GleifClaimsResult {
   domain: string;
-  entityClaims: EntityClaim[];
+  websiteEntity: WebsiteEntity | null;
+  gleifEntities: GleifEntity[];
+  entityClaims: EntityClaim[];  // Keep for backward compatibility
   searchPatternsUsed: string[];
   processingTime: number;
 }
@@ -241,14 +271,49 @@ export class GleifClaimsService {
       const suffixSuggestions = this.generateSuffixSuggestions(extractedEntities, cleanedContent);
       claims.push(...suffixSuggestions);
 
-      // Filter to only include claims with LEI codes - claims without LEI are not useful
+      // Separate website entity (Claim 0) from GLEIF entities
+      let websiteEntity: WebsiteEntity | null = null;
+      const gleifEntities: GleifEntity[] = [];
+      
+      // Find the website entity (extracted from cleaned dump, no LEI)
+      const websiteClaim = claims.find(c => c.source === 'cleaned_dump_primary' && c.claimType === 'extracted');
+      if (websiteClaim && !websiteClaim.leiCode) {
+        websiteEntity = {
+          entityName: websiteClaim.entityName,
+          source: websiteClaim.source || 'website_extraction',
+          confidence: websiteClaim.confidence || 'medium',
+          extractionMethod: websiteClaim.source
+        };
+      }
+      
+      // Collect all GLEIF entities (claims with LEI codes)
+      for (const claim of claims) {
+        if (claim.leiCode && claim.leiCode.length > 0) {
+          // Skip the website entity if it somehow got an LEI
+          if (claim.source === 'cleaned_dump_primary') continue;
+          
+          gleifEntities.push({
+            entityName: claim.entityName,
+            leiCode: claim.leiCode,
+            confidence: claim.confidence || 'medium',
+            gleifData: claim.gleifData,
+            source: claim.source,
+            evidence: claim.evidence,
+            reasoning: claim.reasoning
+          });
+        }
+      }
+      
+      // Filter to only include claims with LEI codes for backward compatibility
       const verifiedClaims = claims.filter(claim => claim.leiCode && claim.leiCode.length > 0);
       
-      console.log(`[GleifClaimsService] Filtering claims: ${claims.length} total, ${verifiedClaims.length} with LEI codes`);
+      console.log(`[GleifClaimsService] Results: websiteEntity=${websiteEntity?.entityName}, gleifEntities=${gleifEntities.length}, totalClaims=${claims.length}`);
 
       return {
         domain,
-        entityClaims: verifiedClaims,  // Only return verified claims with LEI codes
+        websiteEntity,  // NEW: Separated website extraction
+        gleifEntities,  // NEW: Only GLEIF entities with LEI codes
+        entityClaims: verifiedClaims,  // Keep for backward compatibility
         searchPatternsUsed: searchPatterns,
         processingTime: Date.now() - startTime
       };

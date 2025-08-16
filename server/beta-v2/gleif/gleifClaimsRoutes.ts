@@ -337,15 +337,24 @@ router.post('/generate-claims', async (req, res) => {
     console.log('[Beta] [GleifClaimsRoutes] Generating GLEIF claims');
     const claims = await gleifClaimsService.generateClaims(domain, cleanedContent);
 
-    console.log(`[Beta] [GleifClaimsRoutes] Generated ${claims.entityClaims.length} claims in ${claims.processingTime}ms`);
+    console.log(`[Beta] [GleifClaimsRoutes] Generated results: websiteEntity=${claims.websiteEntity?.entityName}, ${claims.gleifEntities.length} GLEIF entities in ${claims.processingTime}ms`);
     
+    // Create the new response structure
     const response = {
       success: true,
+      websiteEntity: claims.websiteEntity,  // NEW: Separated website extraction
+      gleifEntities: claims.gleifEntities,   // NEW: Only GLEIF entities with LEI codes
+      totalGleifEntities: claims.gleifEntities.length,
+      // Keep backward compatibility
       claims: claims.entityClaims,
       processingTime: claims.processingTime
     };
     
-    console.log('[Beta] [GleifClaimsRoutes] Sending response:', JSON.stringify(response, null, 2));
+    console.log('[Beta] [GleifClaimsRoutes] Sending response with separated entities:', {
+      websiteEntity: response.websiteEntity?.entityName,
+      gleifEntitiesCount: response.gleifEntities.length,
+      firstGleifEntity: response.gleifEntities[0]?.entityName
+    });
     
     res.json(response);
 
