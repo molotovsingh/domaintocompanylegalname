@@ -17,11 +17,13 @@ interface ArbitrationResultsProps {
 interface RankedEntity {
   rank: number;
   claimNumber?: number;
-  entityName: string;
+  entityName?: string;
+  entity?: string; // Old format compatibility
   leiCode?: string;
+  LEICode?: string; // Old format compatibility
   confidence: number;
   reasoning: string;
-  acquisitionGrade: string;
+  acquisitionGrade?: string;
   metadata?: {
     jurisdiction?: string;
     entityStatus?: string;
@@ -69,9 +71,9 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
       return response.json();
     },
     enabled: !!requestId,
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
       // Keep polling if still processing
-      if (data?.status === 'processing' || data?.status === 'pending') {
+      if (query?.data?.status === 'processing' || query?.data?.status === 'pending') {
         return 2000; // Poll every 2 seconds
       }
       return false; // Stop polling when completed
@@ -157,6 +159,9 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
   const claims = results?.claims || [];
   const citations = results?.citations || [];
 
+  // Find the website claim (Claim 0) if it exists
+  const websiteClaim = claims.find((c: Claim) => c.claimNumber === 0);
+
   return (
     <div className="space-y-6">
       {/* Domain Header */}
@@ -173,6 +178,36 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
               </Badge>
             </div>
           </CardHeader>
+        </Card>
+      )}
+
+      {/* Website Context - What the website claims to be */}
+      {websiteClaim && (
+        <Card className="bg-amber-50 border-amber-200">
+          <CardHeader className="pb-3">
+            <div className="flex items-center space-x-2">
+              <Globe className="h-4 w-4 text-amber-600" />
+              <CardTitle className="text-sm text-amber-800">Website Claims To Be</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="text-lg font-semibold text-amber-900">
+                {websiteClaim.entityName || 'Unknown Entity'}
+              </div>
+              <div className="flex items-center space-x-3 text-sm">
+                <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300">
+                  {websiteClaim.source || 'Website Extraction'}
+                </Badge>
+                <span className="text-amber-700">
+                  Confidence: {(websiteClaim.confidence * 100).toFixed(0)}%
+                </span>
+              </div>
+              <p className="text-xs text-amber-600 mt-2">
+                This is what the website identifies itself as. GLEIF entities below are verified matches.
+              </p>
+            </div>
+          </CardContent>
         </Card>
       )}
 
@@ -194,7 +229,7 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold">{rankedEntities[0].entityName}</h2>
+                  <h2 className="text-2xl font-bold">{rankedEntities[0].entityName || rankedEntities[0].entity || 'Unknown Entity'}</h2>
                   {rankedEntities[0].claimNumber !== undefined && (
                     <span className="text-sm text-gray-500">
                       {rankedEntities[0].claimNumber === 0 
@@ -204,9 +239,9 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
                     </span>
                   )}
                 </div>
-                {rankedEntities[0].leiCode && (
+                {(rankedEntities[0].leiCode || rankedEntities[0].LEICode) && (
                   <code className="text-sm bg-gray-100 px-2 py-1 rounded">
-                    LEI: {rankedEntities[0].leiCode}
+                    LEI: {rankedEntities[0].leiCode || rankedEntities[0].LEICode}
                   </code>
                 )}
               </div>
@@ -266,15 +301,15 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
                       <span className="font-bold">#{entity.rank}</span>
                     </div>
                     <div>
-                      <h3 className="font-semibold">{entity.entityName}</h3>
+                      <h3 className="font-semibold">{entity.entityName || entity.entity || 'Unknown Entity'}</h3>
                       <div className="flex items-center space-x-2 mt-1">
                         {entity.claimNumber !== undefined && (
                           <span className="text-xs text-gray-500">
                             {entity.claimNumber === 0 ? 'From website extraction' : `GLEIF verified entity #${entity.claimNumber}`}
                           </span>
                         )}
-                        {entity.leiCode && (
-                          <span className="text-xs text-gray-500">LEI: {entity.leiCode}</span>
+                        {(entity.leiCode || entity.LEICode) && (
+                          <span className="text-xs text-gray-500">LEI: {entity.leiCode || entity.LEICode}</span>
                         )}
                         {entity.metadata?.jurisdiction && (
                           <Badge variant="outline" className="text-xs">

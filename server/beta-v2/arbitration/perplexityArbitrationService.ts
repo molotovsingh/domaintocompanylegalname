@@ -90,11 +90,32 @@ export class PerplexityArbitrationService {
 
         const result = JSON.parse(jsonStr);
         
+        // Merge Perplexity rankings with original claim data to preserve all entity information
+        const mergedRankedEntities = (result.rankedEntities || []).map((rankedEntity: any) => {
+          // Find the original claim that matches this ranked entity
+          const originalClaim = claims.find(c => c.claimNumber === rankedEntity.claimNumber);
+          
+          // Merge the Perplexity ranking data with the original claim data
+          return {
+            ...rankedEntity,
+            // Ensure we have the entity name and LEI from the original claim
+            entityName: rankedEntity.entityName || originalClaim?.entityName || 'Unknown Entity',
+            leiCode: rankedEntity.leiCode || originalClaim?.leiCode || '',
+            // Preserve all metadata from the original claim
+            metadata: originalClaim?.metadata || {},
+            // Use Perplexity's confidence if provided, otherwise calculate
+            confidence: rankedEntity.confidence || (1.0 - (rankedEntity.rank - 1) * 0.15),
+            // Keep Perplexity's reasoning and acquisition grade
+            reasoning: rankedEntity.reasoning || 'No reasoning provided',
+            acquisitionGrade: rankedEntity.acquisitionGrade || 'N/A'
+          };
+        });
+        
         // Add citations from Perplexity response
         const citations = response.citations || [];
         
         return {
-          rankedEntities: result.rankedEntities || [],
+          rankedEntities: mergedRankedEntities,
           overallReasoning: result.overallReasoning || 'Perplexity analysis completed',
           citations,
           processingTimeMs: Date.now() - startTime
@@ -124,8 +145,22 @@ export class PerplexityArbitrationService {
           const result = JSON.parse(fixedJson);
           console.log('[Perplexity Arbitration] Successfully parsed after fixing JSON');
           
+          // Merge with original claims data even in the fixed JSON path
+          const mergedRankedEntities = (result.rankedEntities || []).map((rankedEntity: any) => {
+            const originalClaim = claims.find(c => c.claimNumber === rankedEntity.claimNumber);
+            return {
+              ...rankedEntity,
+              entityName: rankedEntity.entityName || originalClaim?.entityName || 'Unknown Entity',
+              leiCode: rankedEntity.leiCode || originalClaim?.leiCode || '',
+              metadata: originalClaim?.metadata || {},
+              confidence: rankedEntity.confidence || (1.0 - (rankedEntity.rank - 1) * 0.15),
+              reasoning: rankedEntity.reasoning || 'No reasoning provided',
+              acquisitionGrade: rankedEntity.acquisitionGrade || 'N/A'
+            };
+          });
+          
           return {
-            rankedEntities: result.rankedEntities || [],
+            rankedEntities: mergedRankedEntities,
             overallReasoning: result.overallReasoning || 'Perplexity analysis completed',
             citations: response.citations || [],
             processingTimeMs: Date.now() - startTime
