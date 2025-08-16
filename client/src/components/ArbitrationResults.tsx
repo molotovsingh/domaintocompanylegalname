@@ -196,7 +196,12 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
                 <div>
                   <h2 className="text-2xl font-bold">{rankedEntities[0].entityName}</h2>
                   {rankedEntities[0].claimNumber !== undefined && (
-                    <span className="text-sm text-gray-500">From Claim #{rankedEntities[0].claimNumber}</span>
+                    <span className="text-sm text-gray-500">
+                      {rankedEntities[0].claimNumber === 0 
+                        ? 'Extracted from website' 
+                        : `GLEIF verified entity (Claim ${rankedEntities[0].claimNumber})`
+                      }
+                    </span>
                   )}
                 </div>
                 {rankedEntities[0].leiCode && (
@@ -264,7 +269,9 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
                       <h3 className="font-semibold">{entity.entityName}</h3>
                       <div className="flex items-center space-x-2 mt-1">
                         {entity.claimNumber !== undefined && (
-                          <span className="text-xs text-gray-500">Claim #{entity.claimNumber}</span>
+                          <span className="text-xs text-gray-500">
+                            {entity.claimNumber === 0 ? 'From website extraction' : `GLEIF verified entity #${entity.claimNumber}`}
+                          </span>
                         )}
                         {entity.leiCode && (
                           <span className="text-xs text-gray-500">LEI: {entity.leiCode}</span>
@@ -301,7 +308,7 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <Badge variant={claim.claimType === 'llm_extracted' ? 'default' : 'outline'}>
-                        Claim {claim.claimNumber}
+                        {claim.claimNumber === 0 ? 'Website Entity' : `GLEIF Entity ${claim.claimNumber}`}
                       </Badge>
                       <span className="font-medium">{claim.entityName}</span>
                       {claim.leiCode && (
