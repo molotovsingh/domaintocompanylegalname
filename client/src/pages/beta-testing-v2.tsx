@@ -108,7 +108,7 @@ export default function BetaTestingV2() {
           </p>
 
           <div className="space-y-4">
-            <h2 className="text-lg font-medium">Select a Collection Method</h2>
+            <h2 className="text-lg font-medium">🕷️ Step 1: Collect Data</h2>
             <div className="grid gap-4">
               {methods.map((method) => (
                 <button
@@ -152,47 +152,50 @@ export default function BetaTestingV2() {
 
           {/* Data Processing Section */}
           <div className="mt-8 space-y-4">
-            <h2 className="text-lg font-medium">Data Processing</h2>
+            <h2 className="text-lg font-medium">⚙️ Step 2: Process Data</h2>
+            <p className="text-sm text-muted-foreground">
+              Choose your processing pipeline. We recommend the Production Pipeline for best results.
+            </p>
 
-            {/* Data Processing Stage 1 */}
+            {/* Legacy Processing */}
             <div
               onClick={() => setLocation('/beta-data-processing')}
-              className="p-4 rounded-lg border hover:border-primary hover:shadow-md cursor-pointer transition-all"
+              className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 cursor-pointer transition-all opacity-75"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                  <div className="p-2 rounded-lg bg-gray-100 text-gray-600">
                     <Cpu className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Data Processing Stage 1</h3>
+                    <h3 className="font-medium">Legacy Processing (V1)</h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Apply LLM models to extract entities from raw dumps
+                      Original entity extraction system - Basic LLM-only approach
                     </p>
                   </div>
                 </div>
-                <span className="text-sm text-green-600 font-medium">Available</span>
+                <Badge variant="secondary">Legacy</Badge>
               </div>
             </div>
 
-            {/* Data Processing Stage 2 */}
+            {/* Production Pipeline */}
             <div
               onClick={() => setLocation('/beta-v2/data-processing')}
-              className="p-4 rounded-lg border hover:border-primary hover:shadow-md cursor-pointer transition-all"
+              className="p-4 rounded-lg border-2 border-primary hover:shadow-lg cursor-pointer transition-all bg-primary/5"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                  <div className="p-2 rounded-lg bg-primary text-white">
                     <Cpu className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Data Processing Stage 2</h3>
+                    <h3 className="font-medium text-primary">Production Pipeline ⭐</h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Process collected dumps through the three-stage pipeline: Collection → Entity Extraction → GLEIF Verification
+                      Advanced 4-stage system: Fast extraction → LLM enhancement → GLEIF verification → Perplexity arbitration
                     </p>
                   </div>
                 </div>
-                <span className="text-sm text-green-600 font-medium">Available</span>
+                <Badge className="bg-green-600 text-white">Recommended</Badge>
               </div>
             </div>
           </div>
