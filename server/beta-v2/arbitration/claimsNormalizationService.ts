@@ -1,6 +1,9 @@
 import { z } from 'zod';
-import lodash from 'lodash';
-const { mapKeys, camelCase, get, uniqBy, groupBy } = lodash;
+import mapKeys from 'lodash/mapKeys.js';
+import camelCase from 'lodash/camelCase.js';
+import get from 'lodash/get.js';
+import uniqBy from 'lodash/uniqBy.js';
+import groupBy from 'lodash/groupBy.js';
 
 // ============================================================================
 // PHASE 1: CLAIMS NORMALIZATION SERVICE
@@ -354,7 +357,7 @@ export class ClaimsNormalizationService {
         deduped.push(...uniqueByName);
       } else {
         // For claims with same LEI, keep the one with highest confidence
-        const best = group.reduce((prev, curr) => 
+        const best = (group as NormalizedClaim[]).reduce((prev, curr) => 
           curr.confidence > prev.confidence ? curr : prev
         );
         deduped.push(best);
