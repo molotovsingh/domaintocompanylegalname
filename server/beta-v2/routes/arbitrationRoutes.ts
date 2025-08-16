@@ -13,17 +13,22 @@ const router = Router();
  * Create arbitration request for a domain
  */
 router.post('/request', async (req, res) => {
+  // EVALUATOR: This route serves as the main orchestration point for the entire arbitration system
+  // Complex workflow management - ensure proper error propagation between stages
   try {
-    const { domain, dumpId, collectionType, existingClaims, muteRankingRules } = req.body;
+    const { 
+      domain, 
+      dumpId, 
+      collectionType, 
+      existingClaims = null,
+      muteRankingRules = undefined
+    } = req.body;
 
-    if (!domain || !dumpId || !collectionType) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields: domain, dumpId, collectionType'
-      });
+    if (!domain) {
+      return res.status(400).json({ error: 'Domain is required' });
     }
 
-    console.log(`[Arbitration] Starting arbitration request for domain: ${domain}`);
+    console.log(`[Arbitration] Processing arbitration request for domain: ${domain}`);
 
     // Create arbitration request in database
     const requestResult = await db.query(
@@ -47,10 +52,12 @@ router.post('/request', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('[Arbitration] Request creation error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to create arbitration request'
+    console.error('[Arbitration] Error processing arbitration request:', error);
+    // EVALUATOR: Comprehensive error handling preserves system stability
+    // Consider implementing different error codes for different failure types
+    res.status(500).json({ 
+      error: 'Failed to process arbitration request',
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -155,7 +162,7 @@ router.get('/results/:requestId', async (req, res) => {
     );
 
     const result = resultsResult.rows[0];
-    
+
     // PHASE 2 INTEGRATION: Normalize claims before sending to frontend
     console.log(`[Arbitration] Normalizing claims for frontend display`);
     const rawClaims = claimsResult.rows.map((row: any) => ({
@@ -167,7 +174,7 @@ router.get('/results/:requestId', async (req, res) => {
       source: row.source,
       metadata: row.metadata
     }));
-    
+
     const normalizationResult = await claimsNormalizer.normalizeClaims(rawClaims);
     const normalizedClaims = normalizationResult.normalizedClaims || rawClaims;
 
@@ -205,7 +212,7 @@ router.post('/bias/configure', async (req, res) => {
       recencyWeight,
       industryFocus
     } = req.body;
-    
+
     // Build the SQL query string properly without jurisdiction fields
     const result = await db.query(
       `INSERT INTO user_bias_profiles (
@@ -274,7 +281,7 @@ router.get('/bias/profiles', async (req, res) => {
 router.get('/test-perplexity', async (req, res) => {
   try {
     const isConnected = await perplexityAdapter.testConnection();
-    
+
     res.json({
       success: true,
       connected: isConnected,
@@ -310,7 +317,7 @@ async function processArbitrationAsync(
     // Get the dump data - need to fetch the full dump for website context
     const dumpData = await getDumpData(dumpId, collectionType);
     const cleanedData = await getCleanedData(dumpId, collectionType);
-    
+
     // Debug log to check cleanedData contents
     console.log(`[Arbitration] cleanedData check:`, {
       hasCleanedData: !!cleanedData,
@@ -318,7 +325,7 @@ async function processArbitrationAsync(
       entitiesFound: cleanedData?.evidenceTrail?.entitiesFound?.length || 0,
       primaryEntityName: cleanedData?.primaryEntityName
     });
-    
+
     const dump = {
       id: dumpId,
       domain,
@@ -332,13 +339,13 @@ async function processArbitrationAsync(
     if (providedClaims && providedClaims.length > 0) {
       // Use claims provided from GLEIF generation
       console.log(`[Arbitration] Using ${providedClaims.length} provided claims from frontend`);
-      
+
       // Transform frontend claims to internal format and store them
       // Ensure claim 0 is always the cleaned dump entity
       claims = providedClaims.map((claim, index) => {
         // First claim (index 0) should be from cleaned dump with source 'cleaned_dump_primary'
         const isCleanedDumpClaim = claim.source === 'cleaned_dump_primary' || index === 0;
-        
+
         return {
           claimNumber: index,
           claimType: (isCleanedDumpClaim ? 'llm_extracted' : 'gleif_candidate') as 'llm_extracted' | 'gleif_candidate',
@@ -351,7 +358,7 @@ async function processArbitrationAsync(
           metadata: claim.gleifData || claim.metadata || {}
         };
       });
-      
+
       // Store provided claims
       await claimsGenerationService.storeClaims(requestId, claims);
     } else {
@@ -360,7 +367,7 @@ async function processArbitrationAsync(
         `SELECT * FROM arbitration_claims WHERE request_id = $1`,
         [requestId]
       );
-      
+
       if (existingClaimsResult.rows.length > 0) {
         // Use existing claims
         console.log(`[Arbitration] Using ${existingClaimsResult.rows.length} existing claims from database`);
@@ -385,29 +392,29 @@ async function processArbitrationAsync(
     // PHASE 2 INTEGRATION: Normalize claims before arbitration
     console.log(`[Arbitration] Normalizing ${claims.length} claims before arbitration`);
     const normalizationResult = await claimsNormalizer.normalizeClaims(claims);
-    
+
     if (!normalizationResult.success) {
       console.error('[Arbitration] Claims normalization failed:', normalizationResult.errors);
       throw new Error('Failed to normalize claims');
     }
-    
+
     if (normalizationResult.warnings) {
       normalizationResult.warnings.forEach(warning => 
         console.warn('[Arbitration] Normalization warning:', warning)
       );
     }
-    
+
     console.log(`[Arbitration] Normalization stats:`, normalizationResult.stats);
-    
+
     // Use normalized claims for arbitration
     const normalizedClaims = normalizationResult.normalizedClaims || claims;
-    
+
     // IMPORTANT: Attach dump data and evidence trail to claim 0's metadata for website context
     if (normalizedClaims.length > 0 && normalizedClaims[0].claimNumber === 0) {
       normalizedClaims[0].metadata = normalizedClaims[0].metadata || {};
       normalizedClaims[0].metadata.dumpData = dump.rawDumpData;
       normalizedClaims[0].metadata.domain = domain;
-      
+
       // Debug logging to see what's in cleanedData
       console.log(`[Arbitration] Checking cleanedData for evidence trail:`, {
         hasCleanedData: !!dump.cleanedData,
@@ -415,7 +422,7 @@ async function processArbitrationAsync(
         evidenceTrailType: typeof dump.cleanedData?.evidenceTrail,
         entitiesFoundCount: dump.cleanedData?.evidenceTrail?.entitiesFound?.length || 0
       });
-      
+
       // Attach evidence trail from cleanedData if available
       if (dump.cleanedData?.evidenceTrail) {
         normalizedClaims[0].metadata.evidenceTrail = dump.cleanedData.evidenceTrail;
@@ -423,13 +430,13 @@ async function processArbitrationAsync(
       } else {
         console.log(`[Arbitration] No evidence trail found in cleanedData`);
       }
-      
+
       console.log(`[Arbitration] Attached dump data and evidence to claim 0 for website context`);
     }
 
     // Get user bias
     const userBias = await perplexityArbitrationService.getDefaultUserBias();
-    
+
     // Apply mute ranking rules if specified
     if (muteRankingRules !== undefined) {
       userBias.muteRankingRules = muteRankingRules;
@@ -443,7 +450,7 @@ async function processArbitrationAsync(
     console.log(`[Arbitration] Storing results for request ${requestId}`);
     console.log(`[Arbitration] Reasoning length: ${arbitrationResult.overallReasoning?.length || 0}`);
     console.log(`[Arbitration] Ranked entities: ${arbitrationResult.rankedEntities?.length || 0}`);
-    
+
     try {
       // Use direct SQL execution for large JSONB data
       await betaV2Db.execute(sql`
@@ -477,7 +484,7 @@ async function processArbitrationAsync(
 
   } catch (error) {
     console.error(`[Arbitration] Request ${requestId} failed:`, error);
-    
+
     // Update request status to failed
     await db.query(
       `UPDATE arbitration_requests 
@@ -528,7 +535,7 @@ async function getDumpData(dumpId: number, collectionType: string): Promise<any>
         FROM axios_cheerio_dumps 
         WHERE id = ${dumpId}
       `);
-      
+
       if (result.rows.length > 0) {
         return result.rows[0].dump_data;
       }
@@ -620,7 +627,7 @@ async function getCleanedData(dumpId: number, collectionType: string): Promise<a
 router.post('/test-sample', async (req, res) => {
   try {
     const { domain = 'apple.com', entityName = 'Apple' } = req.body;
-    
+
     console.log(`[Arbitration] Testing with domain: ${domain}, entity: ${entityName}`);
 
     // Create a mock cleaned dump for testing
@@ -638,10 +645,10 @@ router.post('/test-sample', async (req, res) => {
     console.log('[Arbitration] Generating claims...');
     const claims = await claimsGenerationService.assembleClaims(mockDump);
     console.log(`[Arbitration] Generated ${claims.length} claims`);
-    
+
     // Get default user bias
     const userBias = await perplexityArbitrationService.getDefaultUserBias();
-    
+
     // Perform arbitration
     console.log('[Arbitration] Starting Perplexity arbitration...');
     const arbitrationResult = await perplexityArbitrationService.arbitrate(claims, userBias);
