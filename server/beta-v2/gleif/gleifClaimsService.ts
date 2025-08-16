@@ -13,6 +13,7 @@ import { gleifEntities, entityRelationships } from '../../../shared/schema';
 import { eq, like, or, and } from 'drizzle-orm';
 import { JURISDICTIONS, getJurisdictionByTLD, getJurisdictionSuffixes } from '../../../shared/jurisdictions';
 import { GLEIFSearchService } from '../gleif-search/gleifSearchService';
+import { claimsNormalizer } from '../arbitration/claimsNormalizationService';
 
 interface EntityClaim {
   claimType: 'extracted' | 'gleif_verified' | 'suffix_suggestion' | 'gleif_relationship';

@@ -3,6 +3,7 @@ import { db } from '../arbitration/database-wrapper';
 import { claimsGenerationService } from '../arbitration/claimsGenerationService';
 import { perplexityArbitrationService } from '../arbitration/perplexityArbitrationService';
 import { perplexityAdapter } from '../arbitration/perplexityAdapter';
+import { claimsNormalizer } from '../arbitration/claimsNormalizationService';
 
 const router = Router();
 
@@ -152,11 +153,26 @@ router.get('/results/:requestId', async (req, res) => {
     );
 
     const result = resultsResult.rows[0];
+    
+    // PHASE 2 INTEGRATION: Normalize claims before sending to frontend
+    console.log(`[Arbitration] Normalizing claims for frontend display`);
+    const rawClaims = claimsResult.rows.map(row => ({
+      claim_number: row.claim_number,
+      claim_type: row.claim_type,
+      entity_name: row.entity_name,
+      lei_code: row.lei_code,
+      confidence_score: row.confidence_score,
+      source: row.source,
+      metadata: row.metadata
+    }));
+    
+    const normalizationResult = await claimsNormalizer.normalizeClaims(rawClaims);
+    const normalizedClaims = normalizationResult.normalizedClaims || rawClaims;
 
     res.json({
       success: true,
       status: 'completed',
-      claims: claimsResult.rows,
+      claims: normalizedClaims,  // Send normalized claims to frontend
       rankedEntities: result?.ranked_entities || [],
       reasoning: result?.arbitration_reasoning || '',
       citations: result?.perplexity_citations || [],
@@ -352,6 +368,26 @@ async function processArbitrationAsync(
       }
     }
 
+    // PHASE 2 INTEGRATION: Normalize claims before arbitration
+    console.log(`[Arbitration] Normalizing ${claims.length} claims before arbitration`);
+    const normalizationResult = await claimsNormalizer.normalizeClaims(claims);
+    
+    if (!normalizationResult.success) {
+      console.error('[Arbitration] Claims normalization failed:', normalizationResult.errors);
+      throw new Error('Failed to normalize claims');
+    }
+    
+    if (normalizationResult.warnings) {
+      normalizationResult.warnings.forEach(warning => 
+        console.warn('[Arbitration] Normalization warning:', warning)
+      );
+    }
+    
+    console.log(`[Arbitration] Normalization stats:`, normalizationResult.stats);
+    
+    // Use normalized claims for arbitration
+    const normalizedClaims = normalizationResult.normalizedClaims || claims;
+
     // Get user bias
     const userBias = await perplexityArbitrationService.getDefaultUserBias();
     
@@ -361,8 +397,8 @@ async function processArbitrationAsync(
       console.log(`[Arbitration] Ranking rules ${muteRankingRules ? 'MUTED' : 'ACTIVE'} for testing`);
     }
 
-    // Perform arbitration using Perplexity
-    const arbitrationResult = await perplexityArbitrationService.arbitrate(claims, userBias);
+    // Perform arbitration using Perplexity with normalized claims
+    const arbitrationResult = await perplexityArbitrationService.arbitrate(normalizedClaims, userBias);
 
     // Store results
     console.log(`[Arbitration] Storing results for request ${requestId}`);
