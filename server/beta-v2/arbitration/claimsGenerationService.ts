@@ -28,6 +28,7 @@ export class ClaimsGenerationService {
     this.initializeAdapter();
     // EVALUATOR: Claims generation is the foundation of arbitration accuracy
     // Poor quality claims will cascade errors through the entire ranking system
+    // This service determines what gets arbitrated - quality here affects everything downstream
   }
 
   private initializeAdapter(): void {
@@ -126,6 +127,7 @@ export class ClaimsGenerationService {
       console.log(`[Claims Generation] No GLEIF candidates found for: ${entityName}`);
       // EVALUATOR: Empty GLEIF results limit arbitration to unverified website extraction
       // Consider fuzzy matching or alternative search strategies for better coverage
+      // This creates "single-claim arbitrations" that can't validate website accuracy
       return claims;
     }
 
@@ -279,6 +281,7 @@ export class ClaimsGenerationService {
       ];
       // EVALUATOR QUERY: Are these confidence scores validated against real-world accuracy?
       // Structured data might not always be more reliable than clean title extraction.
+      // Without A/B testing or validation data, these confidence levels are theoretical
 
       let bestEntity: string | null = null;
       let highestConfidence = 0;
@@ -382,6 +385,7 @@ export class ClaimsGenerationService {
       // Return minimal claim set on error to prevent arbitration failure
       // EVALUATOR: Graceful degradation preserves system availability but may produce low-quality results
       // Consider alerting mechanisms for claim generation failures in production
+      // "Unknown Entity" claims could mislead users about data quality
       await this.storeClaims(requestId, [{
         claimNumber: 0,
         claimType: 'llm_extracted',
