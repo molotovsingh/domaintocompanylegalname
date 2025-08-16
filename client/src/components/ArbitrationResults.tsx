@@ -16,6 +16,7 @@ interface ArbitrationResultsProps {
 
 interface RankedEntity {
   rank: number;
+  claimNumber?: number;
   entityName: string;
   leiCode?: string;
   confidence: number;
@@ -192,7 +193,12 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">{rankedEntities[0].entityName}</h2>
+                <div>
+                  <h2 className="text-2xl font-bold">{rankedEntities[0].entityName}</h2>
+                  {rankedEntities[0].claimNumber !== undefined && (
+                    <span className="text-sm text-gray-500">From Claim #{rankedEntities[0].claimNumber}</span>
+                  )}
+                </div>
                 {rankedEntities[0].leiCode && (
                   <code className="text-sm bg-gray-100 px-2 py-1 rounded">
                     LEI: {rankedEntities[0].leiCode}
@@ -257,6 +263,9 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
                     <div>
                       <h3 className="font-semibold">{entity.entityName}</h3>
                       <div className="flex items-center space-x-2 mt-1">
+                        {entity.claimNumber !== undefined && (
+                          <span className="text-xs text-gray-500">Claim #{entity.claimNumber}</span>
+                        )}
                         {entity.leiCode && (
                           <span className="text-xs text-gray-500">LEI: {entity.leiCode}</span>
                         )}

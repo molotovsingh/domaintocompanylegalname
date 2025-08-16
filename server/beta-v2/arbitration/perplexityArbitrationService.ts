@@ -20,6 +20,7 @@ interface UserBias {
 
 interface RankedEntity {
   rank: number;
+  claimNumber?: number;
   entityName: string;
   leiCode?: string;
   confidence: number;
@@ -69,10 +70,11 @@ export class PerplexityArbitrationService {
       const content = response.choices[0].message.content;
       console.log('[Perplexity Arbitration] Received response from Perplexity');
 
+      // Extract JSON from the response (it might be wrapped in markdown code blocks)
+      let jsonStr = content;
+      
       // Try to parse the JSON response
       try {
-        // Extract JSON from the response (it might be wrapped in markdown code blocks)
-        let jsonStr = content;
         
         // Try to find JSON in code blocks first
         const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -278,6 +280,7 @@ Return EXACTLY this JSON structure with your top 5 ranked entities:
   "rankedEntities": [
     {
       "rank": 1,
+      "claimNumber": 3,
       "entityName": "Full Legal Name from GLEIF",
       "leiCode": "20-character LEI code",
       "confidence": 0.95,
@@ -286,6 +289,7 @@ Return EXACTLY this JSON structure with your top 5 ranked entities:
     },
     {
       "rank": 2,
+      "claimNumber": 1,
       "entityName": "Second Entity Name",
       "leiCode": "LEI code",
       "confidence": 0.85,
@@ -328,6 +332,7 @@ Focus on identifying the ultimate decision-making entity for acquisition purpose
       const gleifClaims = claims.filter(c => c.claimNumber > 0);
       const rankedEntities: RankedEntity[] = gleifClaims.map((claim, index) => ({
         rank: index + 1,
+        claimNumber: claim.claimNumber,
         entityName: claim.entityName,
         leiCode: claim.leiCode,
         confidence: 0.5, // Equal confidence for all
@@ -395,6 +400,7 @@ Focus on identifying the ultimate decision-making entity for acquisition purpose
     // Take top 5
     const rankedEntities: RankedEntity[] = scoredClaims.slice(0, 5).map((item, index) => ({
       rank: index + 1,
+      claimNumber: item.claim.claimNumber,
       entityName: item.claim.entityName,
       leiCode: item.claim.leiCode,
       confidence: Math.min(item.score, 1.0),
