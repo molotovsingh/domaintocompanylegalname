@@ -131,6 +131,12 @@ export default function Dashboard() {
                   <DropdownMenuSeparator />
                   <DropdownMenuLabel>Demo Tools</DropdownMenuLabel>
                   <DropdownMenuItem asChild>
+                    <Link href="/knowledge-graph" className="w-full flex items-center gap-2">
+                      <Network className="h-3 w-3" />
+                      Knowledge Graph
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link href="/beta-v2/gleif-search" className="w-full flex items-center gap-2">
                       <Globe className="h-3 w-3" />
                       GLEIF Search Demo
@@ -166,12 +172,6 @@ export default function Dashboard() {
                   
                   <DropdownMenuSeparator />
                   <DropdownMenuLabel>Documentation</DropdownMenuLabel>
-                  <DropdownMenuItem asChild>
-                    <Link href="/knowledge-graph" className="w-full flex items-center gap-2">
-                      <Network className="h-3 w-3" />
-                      Knowledge Graph
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/recent-changes" className="w-full flex items-center gap-2">
                       <History className="h-3 w-3" />
