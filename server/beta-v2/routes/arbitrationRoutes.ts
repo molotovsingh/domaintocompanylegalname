@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { db } from '../arbitration/database-wrapper';
+import { betaV2Db } from '../database';
+import { sql } from 'drizzle-orm';
 import { claimsGenerationService } from '../arbitration/claimsGenerationService';
 import { perplexityArbitrationService } from '../arbitration/perplexityArbitrationService';
 import { perplexityAdapter } from '../arbitration/perplexityAdapter';
@@ -307,11 +309,21 @@ async function processArbitrationAsync(
 
     // Get the dump data - need to fetch the full dump for website context
     const dumpData = await getDumpData(dumpId, collectionType);
+    const cleanedData = await getCleanedData(dumpId, collectionType);
+    
+    // Debug log to check cleanedData contents
+    console.log(`[Arbitration] cleanedData check:`, {
+      hasCleanedData: !!cleanedData,
+      hasEvidenceTrail: !!cleanedData?.evidenceTrail,
+      entitiesFound: cleanedData?.evidenceTrail?.entitiesFound?.length || 0,
+      primaryEntityName: cleanedData?.primaryEntityName
+    });
+    
     const dump = {
       id: dumpId,
       domain,
       collectionType,
-      cleanedData: await getCleanedData(dumpId, collectionType),
+      cleanedData: cleanedData,
       rawDumpData: dumpData  // Include raw dump for website context
     };
 
@@ -396,10 +408,20 @@ async function processArbitrationAsync(
       normalizedClaims[0].metadata.dumpData = dump.rawDumpData;
       normalizedClaims[0].metadata.domain = domain;
       
+      // Debug logging to see what's in cleanedData
+      console.log(`[Arbitration] Checking cleanedData for evidence trail:`, {
+        hasCleanedData: !!dump.cleanedData,
+        hasEvidenceTrail: !!dump.cleanedData?.evidenceTrail,
+        evidenceTrailType: typeof dump.cleanedData?.evidenceTrail,
+        entitiesFoundCount: dump.cleanedData?.evidenceTrail?.entitiesFound?.length || 0
+      });
+      
       // Attach evidence trail from cleanedData if available
       if (dump.cleanedData?.evidenceTrail) {
         normalizedClaims[0].metadata.evidenceTrail = dump.cleanedData.evidenceTrail;
         console.log(`[Arbitration] Attached evidence trail with ${dump.cleanedData.evidenceTrail.entitiesFound?.length || 0} entities to claim 0`);
+      } else {
+        console.log(`[Arbitration] No evidence trail found in cleanedData`);
       }
       
       console.log(`[Arbitration] Attached dump data and evidence to claim 0 for website context`);
@@ -423,19 +445,19 @@ async function processArbitrationAsync(
     console.log(`[Arbitration] Ranked entities: ${arbitrationResult.rankedEntities?.length || 0}`);
     
     try {
-      await db.query(
-        `INSERT INTO arbitration_results (
+      // Use direct SQL execution for large JSONB data
+      await betaV2Db.execute(sql`
+        INSERT INTO arbitration_results (
           request_id, ranked_entities, arbitrator_model,
           arbitration_reasoning, processing_time_ms, perplexity_citations
-        ) VALUES ($1, $2::jsonb, $3, $4, $5, $6::jsonb)`,
-        [
-          requestId,
-          JSON.stringify(arbitrationResult.rankedEntities || []),
-          'perplexity-sonar-pro',
-          arbitrationResult.overallReasoning || '',
-          arbitrationResult.processingTimeMs,
-          JSON.stringify(arbitrationResult.citations || [])
-        ]
+        ) VALUES (
+          ${requestId}, 
+          ${JSON.stringify(arbitrationResult.rankedEntities || [])}::jsonb,
+          ${'perplexity-sonar-pro'},
+          ${arbitrationResult.overallReasoning || ''},
+          ${arbitrationResult.processingTimeMs},
+          ${JSON.stringify(arbitrationResult.citations || [])}::jsonb
+        )`
       );
       console.log(`[Arbitration] Results stored successfully`);
     } catch (saveError) {
@@ -491,13 +513,34 @@ async function getDumpData(dumpId: number, collectionType: string): Promise<any>
         return null;
     }
 
-    const dumpResult = await db.query(
-      `SELECT dump_data FROM ${tableName} WHERE id = $1`,
-      [dumpId]
-    );
+    // Special handling for axios_cheerio_dumps which doesn't have dump_data column
+    if (collectionType === 'axios_cheerio_dump') {
+      const result = await betaV2Db.execute(sql`
+        SELECT id, domain, status, 
+               JSONB_BUILD_OBJECT(
+                 'html', raw_html,
+                 'headers', headers,
+                 'meta_tags', meta_tags,
+                 'extraction_strategies', extraction_strategies,
+                 'page_metadata', page_metadata
+               ) AS dump_data, 
+               created_at 
+        FROM axios_cheerio_dumps 
+        WHERE id = ${dumpId}
+      `);
+      
+      if (result.rows.length > 0) {
+        return result.rows[0].dump_data;
+      }
+    } else {
+      const dumpResult = await db.query(
+        `SELECT dump_data FROM ${tableName} WHERE id = $1`,
+        [dumpId]
+      );
 
-    if (dumpResult.rows.length > 0) {
-      return dumpResult.rows[0].dump_data;
+      if (dumpResult.rows.length > 0) {
+        return dumpResult.rows[0].dump_data;
+      }
     }
 
     return null;

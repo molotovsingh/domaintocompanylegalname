@@ -346,9 +346,98 @@ export class FastEntityExtractor {
     metadata: any,
     entitiesWithEvidence: Array<{name: string; source: string; rawValue: any; confidence: number}>
   ): void {
-    // For now, just call the regular extraction
-    this.extractFromStructuredData(structured, entities, metadata);
-    // TODO: Enhance to collect evidence from structured data
+    if (!structured) return;
+
+    const structuredArray = Array.isArray(structured) ? structured : [structured];
+    
+    structuredArray.forEach((item: any) => {
+      // Handle nested arrays
+      if (Array.isArray(item) && !item['@type']) {
+        item.forEach((subItem: any) => {
+          this.extractFromStructuredDataWithEvidence(subItem, entities, metadata, entitiesWithEvidence);
+        });
+        return;
+      }
+      
+      // Handle nested @graph structures
+      if (item['@graph']) {
+        this.extractFromStructuredDataWithEvidence(item['@graph'], entities, metadata, entitiesWithEvidence);
+        return;
+      }
+      
+      const itemTypes = Array.isArray(item['@type']) ? item['@type'] : [item['@type']];
+      
+      // Extract Organization entities (highest confidence)
+      if (itemTypes.includes('Organization') && item.name) {
+        let entity = this.cleanEntityName(item.name);
+        if (entity) {
+          // Add suffix if needed
+          if (!this.hasCorporateSuffix(entity) && entity.match(/^[A-Z0-9]/)) {
+            entity = entity + ' Inc.';
+          }
+          entities.push(entity);
+          metadata.sources.push('json_ld_organization');
+          entitiesWithEvidence.push({
+            name: entity,
+            source: 'json-ld_organization',
+            rawValue: item,
+            confidence: 0.95
+          });
+          console.log('[FastExtractor] Found Organization entity:', entity);
+        }
+      }
+      
+      // Extract LocalBusiness entities (high confidence)
+      if (itemTypes.includes('LocalBusiness') && item.name) {
+        let entity = this.cleanEntityName(item.name);
+        if (entity) {
+          if (!this.hasCorporateSuffix(entity) && entity.match(/^[A-Z0-9]/)) {
+            entity = entity + ' Inc.';
+          }
+          entities.push(entity);
+          metadata.sources.push('json_ld_local_business');
+          entitiesWithEvidence.push({
+            name: entity,
+            source: 'json-ld_local_business',
+            rawValue: item,
+            confidence: 0.90
+          });
+        }
+      }
+      
+      // Extract from brand
+      if (item.brand?.name) {
+        let entity = this.cleanEntityName(item.brand.name);
+        if (entity) {
+          if (!this.hasCorporateSuffix(entity) && entity.match(/^[A-Z0-9]/)) {
+            entity = entity + ' Inc.';
+          }
+          entities.push(entity);
+          metadata.sources.push('json_ld_brand');
+          entitiesWithEvidence.push({
+            name: entity,
+            source: 'json-ld_brand',
+            rawValue: item.brand,
+            confidence: 0.85
+          });
+        }
+      }
+      
+      // Extract from publisher
+      if (item.publisher?.name) {
+        const entity = this.cleanEntityName(item.publisher.name);
+        if (entity) {
+          entities.push(entity);
+          metadata.sources.push('json_ld_publisher');
+          entitiesWithEvidence.push({
+            name: entity,
+            source: 'json-ld_publisher',
+            rawValue: item.publisher,
+            confidence: 0.80
+          });
+        }
+      }
+    });
   }
 
   private extractFromMetaTagsWithEvidence(
@@ -357,9 +446,78 @@ export class FastEntityExtractor {
     metadata: any,
     entitiesWithEvidence: Array<{name: string; source: string; rawValue: any; confidence: number}>
   ): void {
-    // For now, just call the regular extraction
-    this.extractFromMetaTags(metaTags, entities, metadata);
-    // TODO: Enhance to collect evidence from meta tags
+    if (!metaTags) return;
+
+    // Handle array of meta tags (common structure)
+    if (Array.isArray(metaTags)) {
+      // Look for og:site_name (high confidence)
+      const ogSiteName = metaTags.find((tag: any) => 
+        tag.property === 'og:site_name' || tag.name === 'og:site_name'
+      );
+      if (ogSiteName?.content) {
+        const entity = this.cleanEntityName(ogSiteName.content);
+        if (entity) {
+          entities.push(entity);
+          metadata.sources.push('og:site_name');
+          entitiesWithEvidence.push({
+            name: entity,
+            source: 'meta_og:site_name',
+            rawValue: ogSiteName,
+            confidence: 0.90
+          });
+          console.log('[FastExtractor] Found entity from og:site_name:', entity);
+        }
+      }
+
+      // Look for application-name (medium confidence)
+      const appName = metaTags.find((tag: any) => tag.name === 'application-name');
+      if (appName?.content) {
+        const entity = this.cleanEntityName(appName.content);
+        if (entity) {
+          entities.push(entity);
+          metadata.sources.push('application-name');
+          entitiesWithEvidence.push({
+            name: entity,
+            source: 'meta_application-name',
+            rawValue: appName,
+            confidence: 0.85
+          });
+        }
+      }
+
+      // Look for og:title as fallback (lower confidence)
+      const ogTitle = metaTags.find((tag: any) => 
+        tag.property === 'og:title' || tag.name === 'og:title'
+      );
+      if (ogTitle?.content) {
+        const titleEntity = this.cleanTitleEntity(ogTitle.content);
+        if (titleEntity) {
+          entities.push(titleEntity);
+          metadata.sources.push('og:title');
+          entitiesWithEvidence.push({
+            name: titleEntity,
+            source: 'meta_og:title',
+            rawValue: ogTitle,
+            confidence: 0.70
+          });
+        }
+      }
+    } else if (typeof metaTags === 'object') {
+      // Handle object format meta tags
+      if (metaTags['og:site_name']) {
+        const entity = this.cleanEntityName(metaTags['og:site_name']);
+        if (entity) {
+          entities.push(entity);
+          metadata.sources.push('og:site_name');
+          entitiesWithEvidence.push({
+            name: entity,
+            source: 'meta_og:site_name',
+            rawValue: metaTags['og:site_name'],
+            confidence: 0.90
+          });
+        }
+      }
+    }
   }
 
   private extractFromMetaTags(metaTags: any, entities: string[], metadata: any): void {

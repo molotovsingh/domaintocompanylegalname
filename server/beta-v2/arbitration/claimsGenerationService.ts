@@ -92,11 +92,20 @@ export class ClaimsGenerationService {
         domain: dump.domain,
         collectionType: dump.collectionType,
         dumpId: dump.id,
-        extractionMethod: source
+        extractionMethod: source,
+        // Include evidence trail if available from cleaned data
+        ...(dump.cleanedData?.evidenceTrail && { evidenceTrail: dump.cleanedData.evidenceTrail })
       }
     };
 
     console.log(`[Arbitration] Claim 0 generated: ${claim.entityName} (confidence: ${claim.confidence})`);
+    
+    // Log evidence trail attachment
+    if (dump.cleanedData?.evidenceTrail) {
+      const entitiesCount = dump.cleanedData.evidenceTrail.entitiesFound?.length || 0;
+      console.log(`[Arbitration] Attached evidence trail with ${entitiesCount} entities to Claim 0`);
+    }
+    
     return claim;
   }
 
