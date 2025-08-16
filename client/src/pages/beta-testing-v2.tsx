@@ -49,7 +49,7 @@ export default function BetaTestingV2() {
   const demoTools = [
     {
       id: 'gleif-search',
-      name: 'GLEIF Search',
+      name: 'GLEIF Search Demo',
       description: 'Search Global Legal Entity Identifier database for verified company information',
       path: '/beta-v2/gleif-search',
       status: 'available'
@@ -57,7 +57,7 @@ export default function BetaTestingV2() {
     {
       id: 'langextract',
       name: 'LangExtract Demo',
-      description: 'Extract structured data from unstructured text using AI',
+      description: 'Extract structured data from unstructured text using AI (also available in main menu)',
       path: '/langextract-demo',
       status: 'available'
     }
