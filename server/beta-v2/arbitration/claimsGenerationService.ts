@@ -1,10 +1,11 @@
 import { db } from './database-wrapper';
 import { GLEIFSearchService } from '../gleif-search/gleifSearchService';
 import { OpenRouterAdapter } from '../cleaning/modelAdapters/openRouterAdapter';
+import { PerplexityEntitySearchService } from './perplexityEntitySearchService';
 
 interface Claim {
   claimNumber: number;
-  claimType: 'llm_extracted' | 'gleif_candidate';
+  claimType: 'llm_extracted' | 'gleif_candidate' | 'perplexity_search';
   entityName: string;
   leiCode?: string;
   confidence: number;
@@ -21,10 +22,12 @@ interface CleanedDump {
 
 export class ClaimsGenerationService {
   private gleifService: GLEIFSearchService;
+  private perplexitySearchService: PerplexityEntitySearchService;
   private modelAdapter: OpenRouterAdapter | null = null;
 
   constructor() {
     this.gleifService = new GLEIFSearchService();
+    this.perplexitySearchService = new PerplexityEntitySearchService();
     this.initializeAdapter();
     // Poor quality claims will cascade errors through the entire ranking system
     // This service determines what gets arbitrated - quality here affects everything downstream
@@ -170,10 +173,25 @@ export class ClaimsGenerationService {
     // Generate GLEIF claims based on Claim 0's entity name
     const gleifClaims = await this.generateGleifClaims(baseClaim.entityName, dump.domain);
 
-    // Combine all claims
-    const allClaims = [baseClaim, ...gleifClaims];
+    // If GLEIF returns no matches, use Perplexity search as fallback
+    let perplexityClaims: Claim[] = [];
+    if (this.perplexitySearchService.shouldUsePerplexitySearch(gleifClaims)) {
+      console.log(`[Arbitration] GLEIF returned ${gleifClaims.length} matches, using Perplexity search as fallback`);
+      perplexityClaims = await this.perplexitySearchService.searchForEntity(
+        dump.domain, 
+        baseClaim.entityName
+      );
+      
+      // Renumber Perplexity claims if they exist
+      perplexityClaims.forEach((claim, index) => {
+        claim.claimNumber = gleifClaims.length + index + 1;
+      });
+    }
 
-    console.log(`[Arbitration] Total claims assembled: ${allClaims.length}`);
+    // Combine all claims
+    const allClaims = [baseClaim, ...gleifClaims, ...perplexityClaims];
+
+    console.log(`[Arbitration] Total claims assembled: ${allClaims.length} (Base: 1, GLEIF: ${gleifClaims.length}, Perplexity: ${perplexityClaims.length})`);
     return allClaims;
   }
 
@@ -206,6 +224,9 @@ export class ClaimsGenerationService {
       if (claim.claimType === 'extracted' || claim.claimType === 'llm_extracted') {
         mappedClaimType = 'llm_extracted';
       } else if (claim.claimType === 'gleif_verified' || claim.claimType === 'gleif_candidate' || claim.claimType === 'gleif_relationship') {
+        mappedClaimType = 'gleif_candidate';
+      } else if (claim.claimType === 'perplexity_search') {
+        // Store as gleif_candidate type in DB but preserve metadata indicating it's from Perplexity
         mappedClaimType = 'gleif_candidate';
       } else {
         // Default to llm_extracted for any other types
