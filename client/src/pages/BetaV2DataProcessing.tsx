@@ -1112,6 +1112,68 @@ export default function BetaV2DataProcessingPage() {
                                           </tr>
                                         </thead>
                                         <tbody>
+                                          {/* Always show Claim 0 first - Website Extraction Baseline */}
+                                          {(() => {
+                                            const claim0 = arbitrationResultsData.claims?.find((c: any) => c.claimNumber === 0);
+                                            const claim0Rank = arbitrationResultsData.rankedEntities.findIndex((e: any) => e.claimNumber === 0) + 1;
+                                            
+                                            return claim0 ? (
+                                              <>
+                                                <tr className="bg-amber-50 border-b-2 border-amber-200">
+                                                  <td className="px-4 py-2">
+                                                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-500 text-white text-xs font-bold">
+                                                      {claim0Rank > 0 ? claim0Rank : '—'}
+                                                    </div>
+                                                  </td>
+                                                  <td className="px-4 py-2">
+                                                    <div>
+                                                      <span className="font-medium">{claim0.entityName || 'Unknown Entity'}</span>
+                                                      <span className="text-xs text-amber-700 ml-2 font-semibold">
+                                                        (Claim 0 - Website Extraction)
+                                                      </span>
+                                                    </div>
+                                                  </td>
+                                                  <td className="px-4 py-2">
+                                                    {claim0.leiCode ? (
+                                                      <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">
+                                                        {claim0.leiCode}
+                                                      </code>
+                                                    ) : (
+                                                      <span className="text-gray-400">—</span>
+                                                    )}
+                                                  </td>
+                                                  <td className="px-4 py-2">
+                                                    <div className="flex items-center gap-2">
+                                                      <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                                                        <div 
+                                                          className="h-1.5 rounded-full bg-amber-500"
+                                                          style={{width: `${((claim0.confidence || 0) * 100)}%`}}
+                                                        />
+                                                      </div>
+                                                      <span className="text-xs">
+                                                        {((claim0.confidence || 0) * 100).toFixed(0)}%
+                                                      </span>
+                                                    </div>
+                                                  </td>
+                                                  <td className="px-4 py-2">
+                                                    <Badge 
+                                                      variant="outline" 
+                                                      className="text-xs bg-amber-100 text-amber-700 border-amber-300"
+                                                    >
+                                                      {claim0Rank === 1 ? 'Recommended' : claim0Rank > 0 && claim0Rank <= 5 ? `Rank ${claim0Rank}` : 'Not Ranked'}
+                                                    </Badge>
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td colSpan={5} className="px-4 py-1 bg-gray-100 text-center text-xs text-gray-500 font-medium">
+                                                    Top 5 Arbitration Results
+                                                  </td>
+                                                </tr>
+                                              </>
+                                            ) : null;
+                                          })()}
+                                          
+                                          {/* Top 5 Ranked Entities */}
                                           {arbitrationResultsData.rankedEntities.slice(0, 5).map((entity: any, idx: number) => (
                                             <tr key={`comp-${idx}`} className={idx === 0 ? 'bg-green-50' : 'hover:bg-gray-50'}>
                                               <td className="px-4 py-2">
