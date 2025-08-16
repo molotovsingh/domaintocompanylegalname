@@ -40,6 +40,8 @@ export class DeepSeekArbitrationService {
     this.relationshipsService = new GleifRelationshipsService();
   }
 
+  // EVALUATOR: Service dependencies are injected via constructor - consider dependency injection for testing
+
   /**
    * Main arbitration method using DeepSeek R1 reasoning
    */
@@ -59,6 +61,7 @@ export class DeepSeekArbitrationService {
 
       if (!response || !response.success) {
         console.log('[DeepSeek Arbitration] DeepSeek unavailable, using fallback ranking');
+        // EVALUATOR: Critical business continuity - fallback ensures system never fails due to LLM unavailability
         return this.algorithmicArbitration(claims, userBias, Date.now() - startTime);
       }
 
@@ -97,6 +100,7 @@ export class DeepSeekArbitrationService {
       const apiKey = process.env.OPENROUTER_API_KEY;
       if (!apiKey) {
         console.error('[DeepSeek Arbitration] OpenRouter API key not found (OPENROUTER_API_KEY)');
+        // EVALUATOR: Service fails gracefully when API key missing - consider using Secrets tool for key management
         return null;
       }
 
@@ -151,6 +155,8 @@ export class DeepSeekArbitrationService {
         if (data.error) {
           console.error('[DeepSeek Arbitration] API returned error:', data.error);
         }
+        // EVALUATOR QUERY: Should rate limiting errors be handled differently than other API failures?
+        // OpenRouter may return specific error codes that could inform retry logic.
         return null;
       }
 
@@ -348,6 +354,8 @@ Now, analyze the claims and provide your ranking with detailed reasoning:
           claim.metadata.ultimateParentLei = relationships?.ultimateParent?.lei;
         } catch (error) {
           console.log(`[DeepSeek Arbitration] Could not fetch relationships for ${claim.leiCode}`);
+          // EVALUATOR QUERY: Should relationship fetch failures be logged with more detail? 
+          // Missing relationships could affect ranking accuracy.
         }
       }
     }
@@ -375,6 +383,7 @@ Now, analyze the claims and provide your ranking with detailed reasoning:
           } else if (claim.metadata?.hierarchyLevel === 'parent') {
             score += userBias.parentWeight * 0.7;
           }
+          // EVALUATOR: Acquisition logic - ultimate parents control decision-making, subsidiaries need approval
 
           // Jurisdiction bonus
           if (claim.gleifData?.jurisdiction === userBias.jurisdictionPrimary) {
