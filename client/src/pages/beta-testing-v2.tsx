@@ -159,45 +159,9 @@ export default function BetaTestingV2() {
             </div>
           </div>
 
-          {/* Demo Tools Section */}
-          <div className="mt-8 space-y-4">
-            <h2 className="text-lg font-medium">🧪 Demo Tools</h2>
-            <p className="text-sm text-muted-foreground">
-              Experimental tools and standalone utilities for testing
-            </p>
-            <div className="grid gap-4">
-              {demoTools.map((tool) => (
-                <button
-                  key={tool.id}
-                  onClick={() => handleMethodSelect(tool.id)}
-                  className="p-4 rounded-lg border border-dashed border-gray-300 hover:border-primary hover:shadow-md cursor-pointer transition-all text-left"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-purple-100 text-purple-600">
-                        {tool.id === 'gleif-search' ? (
-                          <Shield className="h-5 w-5" />
-                        ) : (
-                          <FlaskConical className="h-5 w-5" />
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="font-medium">{tool.name}</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {tool.description}
-                        </p>
-                      </div>
-                    </div>
-                    <Badge variant="outline">Demo</Badge>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Data Processing Section */}
           <div className="mt-8 space-y-4">
-            <h2 className="text-lg font-medium">⚙️ Step 3: Process Data</h2>
+            <h2 className="text-lg font-medium">⚙️ Step 2: Process Data</h2>
             <p className="text-sm text-muted-foreground">
               Choose your processing pipeline. We recommend the Production Pipeline for best results.
             </p>
@@ -245,7 +209,48 @@ export default function BetaTestingV2() {
             </div>
           </div>
 
-
+          {/* Demo Corner Section */}
+          <div className="mt-12 p-6 bg-purple-50 dark:bg-purple-950/20 rounded-lg border-2 border-dashed border-purple-200 dark:border-purple-800">
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-lg font-medium flex items-center gap-2">
+                  <FlaskConical className="h-5 w-5 text-purple-600" />
+                  Demo Corner (Optional)
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Experimental tools and standalone utilities for testing. These can be used independently of the main workflow.
+                </p>
+              </div>
+              <div className="grid gap-4">
+                {demoTools.map((tool) => (
+                  <button
+                    key={tool.id}
+                    onClick={() => handleMethodSelect(tool.id)}
+                    className="p-4 rounded-lg bg-white dark:bg-gray-900 border border-purple-200 dark:border-purple-700 hover:border-purple-400 hover:shadow-md cursor-pointer transition-all text-left"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400">
+                          {tool.id === 'gleif-search' ? (
+                            <Shield className="h-5 w-5" />
+                          ) : (
+                            <FlaskConical className="h-5 w-5" />
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="font-medium">{tool.name}</h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {tool.description}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">Experimental</Badge>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
 
           <div className="mt-8 p-4 bg-secondary/20 rounded-lg">
             <h3 className="font-medium mb-2">Architecture Notes</h3>
