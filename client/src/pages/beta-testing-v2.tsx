@@ -301,39 +301,13 @@ export default function BetaTestingV2() {
               <p className="text-sm text-gray-600 mb-4">
                 Clean raw HTML data using Large Language Models to extract structured business information.
               </p>
-
-              {/* Model Selection */}
-              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  LLM Cleaning Model
-                </label>
-                <Select value={selectedCleaningModel} onValueChange={setSelectedCleaningModel}>
-                  <SelectTrigger className="w-full max-w-md">
-                    <SelectValue placeholder="Select cleaning model..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableModels.length > 0 ? (
-                      availableModels.map((model) => (
-                        <SelectItem key={model.id} value={model.id}>
-                          {getModelIcon(model.id)} {getModelDisplayName(model.id)} {model.isFree ? '(Free)' : ''}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <>
-                        <SelectItem value="deepseek-chat">🔥 DeepSeek Chat (Free)</SelectItem>
-                        <SelectItem value="deepseek-v3">⚡ DeepSeek V3 (Free)</SelectItem>
-                        <SelectItem value="deepseek-r1">🧠 DeepSeek R1 Reasoning (Free)</SelectItem>
-                        <SelectItem value="qwen-2.5">🎯 Qwen 2.5 72B (Free)</SelectItem>
-                        <SelectItem value="qwen3-coder">💻 Qwen3 Coder (Free)</SelectItem>
-                        <SelectItem value="llama-3-8b">🦙 Llama 3 8B (Free)</SelectItem>
-                        <SelectItem value="mistral-7b">🌟 Mistral 7B (Free)</SelectItem>
-                        <SelectItem value="gemma-7b">🔷 Gemma 7B (Free)</SelectItem>
-                      </>
-                    )}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-gray-500 mt-1">
-                  Selected model: <span className="font-mono">{selectedCleaningModel || 'deepseek-chat'}</span>
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  ℹ️ Looking for model selection? Go to the{' '}
+                  <Link href="/beta-v2/data-processing" className="font-medium underline hover:text-blue-900">
+                    Data Processing Stage 2
+                  </Link>{' '}
+                  page where all AI model configuration is centralized.
                 </p>
               </div>
 

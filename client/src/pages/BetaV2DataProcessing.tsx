@@ -381,6 +381,54 @@ export default function BetaV2DataProcessingPage() {
         </Link>
       </div>
 
+      {/* Unified Model Selection Card */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            Global LLM Model Selection
+          </CardTitle>
+          <CardDescription>
+            Select the AI model to use for all entity extraction and processing operations
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <Select value={selectedCleaningModel} onValueChange={setSelectedCleaningModel}>
+              <SelectTrigger className="w-[300px]">
+                <SelectValue placeholder="Select AI model..." />
+              </SelectTrigger>
+              <SelectContent>
+                {availableModels.length > 0 ? (
+                  availableModels.map((model: any) => (
+                    <SelectItem key={model.id || model.name} value={model.id || model.name}>
+                      {model.name} {model.isFree ? '(Free)' : ''}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <>
+                    <SelectItem value="deepseek-chat">🔥 DeepSeek Chat (Free)</SelectItem>
+                    <SelectItem value="deepseek-v3">⚡ DeepSeek V3 (Free)</SelectItem>
+                    <SelectItem value="deepseek-r1">🧠 DeepSeek R1 Reasoning (Free)</SelectItem>
+                    <SelectItem value="qwen-2.5">🎯 Qwen 2.5 72B (Free)</SelectItem>
+                    <SelectItem value="qwen3-coder">💻 Qwen3 Coder (Free)</SelectItem>
+                    <SelectItem value="llama-3-8b">🦙 Llama 3 8B (Free)</SelectItem>
+                    <SelectItem value="mistral-7b">🌟 Mistral 7B (Free)</SelectItem>
+                    <SelectItem value="gemma-7b">🔷 Gemma 7B (Free)</SelectItem>
+                  </>
+                )}
+              </SelectContent>
+            </Select>
+            <Badge variant="secondary" className="text-sm">
+              Current: {selectedCleaningModel}
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            This model will be used for entity extraction, cleaning, and all AI-powered operations
+          </p>
+        </CardContent>
+      </Card>
+
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -706,41 +754,6 @@ export default function BetaV2DataProcessingPage() {
                   
                   {selectedDumpForClaims && (
                     <div className="space-y-4 mt-4">
-                      {/* Model Selection */}
-                      <div className="border rounded-lg p-3 bg-muted/30">
-                        <label className="block text-sm font-medium mb-2">
-                          Select LLM Cleaning Model
-                        </label>
-                        <Select value={selectedCleaningModel} onValueChange={setSelectedCleaningModel}>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select cleaning model..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {availableModels.length > 0 ? (
-                              availableModels.map((model: any) => (
-                                <SelectItem key={model.id || model.name} value={model.id || model.name}>
-                                  {model.name} {model.isFree ? '(Free)' : ''}
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <>
-                                <SelectItem value="deepseek-chat">DeepSeek Chat (Free)</SelectItem>
-                                <SelectItem value="deepseek-v3">DeepSeek V3 (Free)</SelectItem>
-                                <SelectItem value="deepseek-r1">DeepSeek R1 Reasoning (Free)</SelectItem>
-                                <SelectItem value="qwen-2.5">Qwen 2.5 72B (Free)</SelectItem>
-                                <SelectItem value="qwen3-coder">Qwen3 Coder (Free)</SelectItem>
-                                <SelectItem value="llama-3-8b">Llama 3 8B (Free)</SelectItem>
-                                <SelectItem value="mistral-7b">Mistral 7B (Free)</SelectItem>
-                                <SelectItem value="gemma-7b">Gemma 7B (Free)</SelectItem>
-                              </>
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Selected: <span className="font-mono">{selectedCleaningModel}</span>
-                        </p>
-                      </div>
-                      
                       {/* Action Buttons */}
                       <div className="flex gap-2">
                         <Button
