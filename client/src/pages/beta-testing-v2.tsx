@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'wouter';
-import { ArrowLeft, Database, Cpu, Shield } from 'lucide-react';
+import { ArrowLeft, Database, Cpu, Shield, Beaker, FlaskConical } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -15,7 +15,7 @@ export default function BetaTestingV2() {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  const methods = [
+  const collectionMethods = [
     {
       id: 'playwright-dump',
       name: 'Playwright Dump',
@@ -43,18 +43,29 @@ export default function BetaTestingV2() {
       description: 'Lightning-fast extraction for static websites (100-500ms)',
       path: '/axios-cheerio-ui',
       status: 'available'
-    },
+    }
+  ];
+
+  const demoTools = [
     {
       id: 'gleif-search',
       name: 'GLEIF Search',
       description: 'Search Global Legal Entity Identifier database for verified company information',
       path: '/beta-v2/gleif-search',
       status: 'available'
+    },
+    {
+      id: 'langextract',
+      name: 'LangExtract Demo',
+      description: 'Extract structured data from unstructured text using AI',
+      path: '/langextract-demo',
+      status: 'available'
     }
   ];
 
   const handleMethodSelect = (methodId: string) => {
-    const method = methods.find(m => m.id === methodId);
+    const allMethods = [...collectionMethods, ...demoTools];
+    const method = allMethods.find(m => m.id === methodId);
     if (method && method.status === 'available') {
       // Use the full URL to bypass React router
       window.location.href = `${window.location.origin}${method.path}`;
@@ -110,7 +121,7 @@ export default function BetaTestingV2() {
           <div className="space-y-4">
             <h2 className="text-lg font-medium">🕷️ Step 1: Collect Data</h2>
             <div className="grid gap-4">
-              {methods.map((method) => (
+              {collectionMethods.map((method) => (
                 <button
                   key={method.id}
                   onClick={() => handleMethodSelect(method.id)}
@@ -125,11 +136,9 @@ export default function BetaTestingV2() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      {method.id === 'gleif-search' && (
-                        <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                          <Shield className="h-5 w-5" />
-                        </div>
-                      )}
+                      <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                        <Database className="h-5 w-5" />
+                      </div>
                       <div>
                         <h3 className="font-medium">{method.name}</h3>
                         <p className="text-sm text-muted-foreground mt-1">
@@ -150,9 +159,45 @@ export default function BetaTestingV2() {
             </div>
           </div>
 
+          {/* Demo Tools Section */}
+          <div className="mt-8 space-y-4">
+            <h2 className="text-lg font-medium">🧪 Demo Tools</h2>
+            <p className="text-sm text-muted-foreground">
+              Experimental tools and standalone utilities for testing
+            </p>
+            <div className="grid gap-4">
+              {demoTools.map((tool) => (
+                <button
+                  key={tool.id}
+                  onClick={() => handleMethodSelect(tool.id)}
+                  className="p-4 rounded-lg border border-dashed border-gray-300 hover:border-primary hover:shadow-md cursor-pointer transition-all text-left"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-purple-100 text-purple-600">
+                        {tool.id === 'gleif-search' ? (
+                          <Shield className="h-5 w-5" />
+                        ) : (
+                          <FlaskConical className="h-5 w-5" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-medium">{tool.name}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {tool.description}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="outline">Demo</Badge>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Data Processing Section */}
           <div className="mt-8 space-y-4">
-            <h2 className="text-lg font-medium">⚙️ Step 2: Process Data</h2>
+            <h2 className="text-lg font-medium">⚙️ Step 3: Process Data</h2>
             <p className="text-sm text-muted-foreground">
               Choose your processing pipeline. We recommend the Production Pipeline for best results.
             </p>
