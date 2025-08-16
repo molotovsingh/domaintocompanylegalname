@@ -1,9 +1,49 @@
 import { z } from 'zod';
-import mapKeys from 'lodash/mapKeys.js';
-import camelCase from 'lodash/camelCase.js';
-import get from 'lodash/get.js';
-import uniqBy from 'lodash/uniqBy.js';
-import groupBy from 'lodash/groupBy.js';
+
+// Simple implementations to avoid lodash import issues
+const camelCase = (str: string): string => {
+  return str.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+};
+
+const mapKeys = (obj: any, iteratee: (value: any, key: string) => string): any => {
+  const result: any = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const newKey = iteratee(obj[key], key);
+      result[newKey] = obj[key];
+    }
+  }
+  return result;
+};
+
+const groupBy = <T>(array: T[], key: string | ((item: T) => string)): Record<string, T[]> => {
+  return array.reduce((result: any, item: any) => {
+    const groupKey = typeof key === 'function' ? key(item) : item[key];
+    if (!result[groupKey]) result[groupKey] = [];
+    result[groupKey].push(item);
+    return result;
+  }, {});
+};
+
+const uniqBy = <T>(array: T[], key: string): T[] => {
+  const seen = new Set();
+  return array.filter((item: any) => {
+    const k = item[key];
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+};
+
+const get = (obj: any, path: string, defaultValue?: any): any => {
+  const keys = path.split('.');
+  let result = obj;
+  for (const key of keys) {
+    result = result?.[key];
+    if (result === undefined) return defaultValue;
+  }
+  return result;
+};
 
 // ============================================================================
 // PHASE 1: CLAIMS NORMALIZATION SERVICE

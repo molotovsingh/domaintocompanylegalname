@@ -1,0 +1,104 @@
+The error `ReferenceError: require is not defined in ES module scope, you can use import instead` occurs because you're using the CommonJS `require()` function in a Node.js project configured to use ES Modules (ESM). In Node.js, ESM is the default when a file has a `.mjs` extension or when the nearest `package.json` file includes `"type": "module"`. Here's how to resolve it:
+
+### Solution
+
+1. **Switch to `import` syntax**:
+   Replace `require()` with `import` in your `claimsNormalizationService.ts` file. For example:
+
+   ```javascript
+   // Instead of:
+   const module = require('module');
+
+   // Use:
+   import module from 'module';
+   ```
+
+   If you're importing a CommonJS module, you may need to use dynamic import or specify the default export:
+
+   ```javascript
+   import { default as module } from 'module';
+   // OR
+   const module = await import('module');
+   ```
+
+2. **Check `package.json`**:
+   Ensure your `package.json` has `"type": "module"` if you want to use ESM. If it's missing or set to `"type": "commonjs"`, Node.js treats files as CommonJS, and `import` might not work as expected. Example:
+
+   ```json
+   {
+     "type": "module"
+   }
+   ```
+
+3. **Use `.mjs` extension** (optional):
+   If you want to explicitly use ESM without modifying `package.json`, rename your file to `claimsNormalizationService.mjs`. This tells Node.js to treat it as an ES Module.
+
+4. **Switch to CommonJS** (alternative):
+   If you prefer using `require()`, remove `"type": "module"` from `package.json` or set it to `"type": "commonjs"`. Then, ensure your file uses `.js` (or `.cjs`) and continue using `require()`.
+
+   ```json
+   {
+     "type": "commonjs"
+   }
+   ```
+
+5. **Check for mixed usage**:
+   Ensure you're not mixing `require()` and `import` in the same file unless necessary. If you need to use a CommonJS module in an ESM file, use dynamic `import()`:
+
+   ```javascript
+   const module = await import('module');
+   ```
+
+6. **Verify Node.js version**:
+   You're using Node.js v20.19.3, which supports ESM fully. Ensure all dependencies in your project are compatible with ESM if you're using `"type": "module"`.
+
+### Steps to Fix
+
+- **Open `claimsNormalizationService.ts`** and check line 2, where the error occurs. Replace any `require()` with `import`.
+- **Review `package.json`** to confirm the module type.
+- **Test the file** after making changes:
+
+   ```bash
+   node claimsNormalizationService.ts
+   ```
+
+- If the module you're importing doesn't support ESM, consider using a CommonJS setup or dynamic imports.
+
+### Example Fix
+
+If line 2 looks like:
+
+```javascript
+const fs = require('fs');
+```
+
+Change it to:
+
+```javascript
+import fs from 'fs';
+```
+
+Or, if using a CommonJS module like `fs` in an ESM context, you can use:
+
+```javascript
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const fs = require('fs');
+```
+
+### Additional Notes
+
+- If you're using TypeScript, ensure your `tsconfig.json` is configured for ESM. Set `"module": "ESNext"` or `"module": "Node16"`:
+
+  ```json
+  {
+    "compilerOptions": {
+      "module": "ESNext",
+      "moduleResolution": "node"
+    }
+  }
+  ```
+
+- If the error persists, check for third-party dependencies that might not support ESM. You may need to use dynamic imports or check for ESM-compatible versions of those packages.
+
+If you share the code around line 2 of `claimsNormalizationService.ts` or your `package.json`, I can provide a more specific fix!
