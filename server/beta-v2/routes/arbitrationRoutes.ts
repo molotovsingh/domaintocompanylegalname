@@ -13,7 +13,6 @@ const router = Router();
  * Create arbitration request for a domain
  */
 router.post('/request', async (req, res) => {
-  // EVALUATOR: This route serves as the main orchestration point for the entire arbitration system
   // Complex workflow management - ensure proper error propagation between stages
   // Single point of failure risk - if this route fails, the entire arbitration system is unavailable
   try {
@@ -43,7 +42,6 @@ router.post('/request', async (req, res) => {
     console.log(`[Arbitration] Created request ${requestId} for ${domain}`);
 
     // Process asynchronously with existing claims if provided
-    // EVALUATOR: Async processing prevents timeout issues but requires polling mechanism
     // Good UX design - immediate response with status tracking capability
     processArbitrationAsync(requestId, domain, dumpId, collectionType, undefined, existingClaims, muteRankingRules);
 
@@ -56,7 +54,6 @@ router.post('/request', async (req, res) => {
 
   } catch (error) {
     console.error('[Arbitration] Error processing arbitration request:', error);
-    // EVALUATOR: Comprehensive error handling preserves system stability
     // Consider implementing different error codes for different failure types
     res.status(500).json({ 
       error: 'Failed to process arbitration request',
@@ -341,7 +338,6 @@ async function processArbitrationAsync(
     let claims;
     if (providedClaims && providedClaims.length > 0) {
       // Use claims provided from GLEIF generation
-      // EVALUATOR: Claims flexibility enables both automated and manual entity curation workflows
       // Frontend-provided claims bypass generation but still undergo normalization
       console.log(`[Arbitration] Using ${providedClaims.length} provided claims from frontend`);
 
@@ -400,7 +396,6 @@ async function processArbitrationAsync(
 
     if (!normalizationResult.success) {
       console.error('[Arbitration] Claims normalization failed:', normalizationResult.errors);
-      // EVALUATOR: Hard failure on normalization prevents arbitration with inconsistent data
       // Consider graceful degradation if normalization is non-critical
       throw new Error('Failed to normalize claims');
     }
@@ -421,7 +416,6 @@ async function processArbitrationAsync(
       normalizedClaims[0].metadata = normalizedClaims[0].metadata || {};
       normalizedClaims[0].metadata.dumpData = dump.rawDumpData;
       normalizedClaims[0].metadata.domain = domain;
-      // EVALUATOR: Metadata attachment provides arbitration context but increases payload size
       // Consider moving large dump data to separate context parameter
 
       // Debug logging to see what's in cleanedData

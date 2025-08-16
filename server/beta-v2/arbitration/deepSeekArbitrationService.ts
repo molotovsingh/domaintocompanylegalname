@@ -40,7 +40,6 @@ export class DeepSeekArbitrationService {
     this.relationshipsService = new GleifRelationshipsService();
   }
 
-  // EVALUATOR: Service dependencies are injected via constructor - consider dependency injection for testing
 
   /**
    * Main arbitration method using DeepSeek R1 reasoning
@@ -61,7 +60,6 @@ export class DeepSeekArbitrationService {
 
       if (!response || !response.success) {
         console.log('[DeepSeek Arbitration] DeepSeek unavailable, using fallback ranking');
-        // EVALUATOR: Critical business continuity - fallback ensures system never fails due to LLM unavailability
         return this.algorithmicArbitration(claims, userBias, Date.now() - startTime);
       }
 
@@ -100,7 +98,6 @@ export class DeepSeekArbitrationService {
       const apiKey = process.env.OPENROUTER_API_KEY;
       if (!apiKey) {
         console.error('[DeepSeek Arbitration] OpenRouter API key not found (OPENROUTER_API_KEY)');
-        // EVALUATOR: Service fails gracefully when API key missing - consider using Secrets tool for key management
         return null;
       }
 
@@ -383,7 +380,6 @@ Now, analyze the claims and provide your ranking with detailed reasoning:
           } else if (claim.metadata?.hierarchyLevel === 'parent') {
             score += userBias.parentWeight * 0.7;
           }
-          // EVALUATOR: Acquisition logic - ultimate parents control decision-making, subsidiaries need approval
 
           // Jurisdiction bonus
           if (claim.gleifData?.jurisdiction === userBias.jurisdictionPrimary) {

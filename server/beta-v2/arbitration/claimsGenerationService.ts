@@ -26,7 +26,6 @@ export class ClaimsGenerationService {
   constructor() {
     this.gleifService = new GLEIFSearchService();
     this.initializeAdapter();
-    // EVALUATOR: Claims generation is the foundation of arbitration accuracy
     // Poor quality claims will cascade errors through the entire ranking system
     // This service determines what gets arbitrated - quality here affects everything downstream
   }
@@ -121,11 +120,11 @@ export class ClaimsGenerationService {
     const claims: Claim[] = [];
 
     // Search GLEIF with the extracted entity name
-    const gleifCandidates = await this.gleifService.searchEntities(entityName);
+    const gleifSearchResult = await this.gleifService.searchGLEIF(entityName, domain);
+    const gleifCandidates = gleifSearchResult.entities;
 
     if (gleifCandidates.length === 0) {
       console.log(`[Claims Generation] No GLEIF candidates found for: ${entityName}`);
-      // EVALUATOR: Empty GLEIF results limit arbitration to unverified website extraction
       // Consider fuzzy matching or alternative search strategies for better coverage
       // This creates "single-claim arbitrations" that can't validate website accuracy
       return claims;
@@ -383,7 +382,6 @@ export class ClaimsGenerationService {
       console.error('[Claims Generation] Error generating claims:', error);
 
       // Return minimal claim set on error to prevent arbitration failure
-      // EVALUATOR: Graceful degradation preserves system availability but may produce low-quality results
       // Consider alerting mechanisms for claim generation failures in production
       // "Unknown Entity" claims could mislead users about data quality
       await this.storeClaims(requestId, [{

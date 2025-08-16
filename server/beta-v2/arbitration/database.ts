@@ -1,14 +1,11 @@
 import { db } from './database-wrapper';
 
-// EVALUATOR: Database initialization class handles arbitration schema setup
 // Centralized table creation ensures consistent database structure across deployments
 export class ArbitrationDatabase {
-  // EVALUATOR: Table initialization method creates all arbitration-related tables
   // Consider adding migration versioning and rollback capabilities for production
   async initializeTables(): Promise<void> {
     console.log('[Beta v2] [Arbitration] Initializing arbitration tables...');
 
-    // EVALUATOR: Arbitration requests table tracks the lifecycle of each arbitration process
     // Domain-centric design enables efficient querying by website
     // Status tracking provides visibility into processing pipeline
     await db.query(`
@@ -24,7 +21,6 @@ export class ArbitrationDatabase {
       )
     `);
 
-    // EVALUATOR: Claims table stores individual entity candidates for arbitration
     // Foreign key relationship ensures data integrity with cascade deletion
     // JSONB metadata field provides flexible storage for varying claim attributes
     await db.query(`
@@ -42,7 +38,6 @@ export class ArbitrationDatabase {
       )
     `);
 
-    // EVALUATOR: Results table stores final arbitration outcomes with full audit trail
     // JSONB array for ranked entities enables flexible result structures
     // Processing time tracking enables performance optimization analysis
     await db.query(`
@@ -58,7 +53,6 @@ export class ArbitrationDatabase {
       )
     `);
 
-    // EVALUATOR: User bias profiles enable customizable arbitration preferences
     // Weighted scoring system allows fine-tuning of ranking algorithms
     // Default profile system ensures consistent behavior across users
     await db.query(`

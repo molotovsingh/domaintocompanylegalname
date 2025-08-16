@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle, Globe, FileText, Award } from 'lucide-react';
+import { AlertCircle, Globe, FileText, Award, FileSearch } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -220,6 +220,46 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
               <p className="text-xs text-amber-600 mt-2">
                 This is what the website identifies itself as. GLEIF entities below are verified matches.
               </p>
+              
+              {/* Evidence Trail Display */}
+              {normalizedWebsiteClaim.metadata?.evidenceTrail && (
+                <div className="mt-4 pt-4 border-t border-amber-200">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <FileSearch className="h-4 w-4 text-amber-600" />
+                    <span className="text-sm font-semibold text-amber-800">Evidence Trail</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {normalizedWebsiteClaim.metadata.evidenceTrail.entitiesFound?.length || 0} entities found
+                    </Badge>
+                  </div>
+                  
+                  {normalizedWebsiteClaim.metadata.evidenceTrail.entitiesFound?.map((entity: any, idx: number) => (
+                    <div key={idx} className="mb-3 p-3 bg-white rounded-lg border border-amber-100">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-medium text-sm">{entity.name}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {(entity.confidence * 100).toFixed(0)}% confidence
+                            </Badge>
+                          </div>
+                          <div className="mt-1 text-xs text-gray-600">
+                            <span className="font-medium">Source:</span> {entity.source}
+                          </div>
+                          {entity.rawValue && entity.rawValue !== entity.name && (
+                            <div className="mt-1 text-xs text-gray-500">
+                              <span className="font-medium">Raw:</span> "{entity.rawValue}"
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <div className="text-xs text-amber-600 mt-2">
+                    Extraction method: {normalizedWebsiteClaim.metadata.evidenceTrail.extractionMethod || 'unknown'}
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

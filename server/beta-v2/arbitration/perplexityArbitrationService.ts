@@ -36,7 +36,6 @@ interface ArbitrationResult {
 export class PerplexityArbitrationService {
   private perplexityAdapter: any;
   private relationshipsService: GleifRelationshipsService;
-  // EVALUATOR: Service architecture follows dependency injection pattern
   // Consider making adapters configurable for different LLM providers
 
   constructor() {
@@ -52,7 +51,6 @@ export class PerplexityArbitrationService {
     console.log(`[Perplexity Arbitration] Starting arbitration for ${claims.length} claims with Perplexity API`);
 
     try {
-      // EVALUATOR: Core arbitration method orchestrates the entire ranking process
       // Single responsibility principle - handles prompt building, LLM calling, and result parsing
 
       // Build the arbitration prompt
@@ -98,7 +96,6 @@ export class PerplexityArbitrationService {
         const result = JSON.parse(jsonStr);
 
         // Merge Perplexity rankings with original claim data to preserve all entity information
-        // EVALUATOR: Merging LLM output with original claim data ensures data integrity and context preservation
         const mergedRankedEntities = (result.rankedEntities || []).map((rankedEntity: any) => {
           // Find the original claim that matches this ranked entity
           const originalClaim = claims.find(c => c.claimNumber === rankedEntity.claimNumber);
@@ -123,7 +120,6 @@ export class PerplexityArbitrationService {
         const citations = this.extractCitations(content); // Use content for citation extraction
 
         // Apply user bias to ranking if not muted
-        // EVALUATOR: Bias application is optional - enables A/B testing of pure LLM vs biased rankings
         // Good separation of concerns between LLM ranking and business rule application
         let rankedEntities;
         if (userBias.muteRankingRules) {
@@ -152,7 +148,6 @@ export class PerplexityArbitrationService {
           // Remove any trailing commas or incomplete JSON
           let fixedJson = jsonStr;
 
-          // EVALUATOR: Complex JSON recovery logic suggests Perplexity responses are inconsistent
           // This defensive programming prevents system failures but may mask data quality issues
           // If the JSON seems truncated, try to close it properly
           if (jsonStr.includes('"rankedEntities"') && !jsonStr.includes('"overallReasoning"')) {
@@ -182,7 +177,6 @@ export class PerplexityArbitrationService {
           });
 
           // Apply user bias to ranking if not muted
-          // EVALUATOR: Bias application is optional - enables A/B testing of pure LLM vs biased rankings
           // Good separation of concerns between LLM ranking and business rule application
           let rankedEntities;
           if (userBias.muteRankingRules) {
@@ -210,7 +204,6 @@ export class PerplexityArbitrationService {
     } catch (error) {
       console.error('[Perplexity Arbitration] Failed:', error);
 
-      // EVALUATOR: Graceful degradation ensures system availability during LLM failures
       // Fallback to first claim provides reasonable default behavior
       // Consider implementing multiple fallback strategies based on error type
 
@@ -270,7 +263,6 @@ export class PerplexityArbitrationService {
     // Check if ranking rules are muted for testing
     if (userBias.muteRankingRules) {
       console.log('[Perplexity Arbitration] Ranking rules MUTED for testing');
-      // EVALUATOR: Testing infrastructure built into production code - good for quality assurance
       const prompt = `
 You are an entity arbitrator. For TESTING PURPOSES, ranking rules are DISABLED.
 
@@ -462,7 +454,6 @@ If no entities match (including Claim 0), return:
           }
 
           // No jurisdiction bonus - let the data guide jurisdiction discovery
-          // EVALUATOR: Data-driven approach to jurisdiction discovery - removes human bias but may miss strategic preferences
 
           // Active status bonus
           if (claim.metadata?.entityStatus === 'ACTIVE') {
@@ -581,7 +572,6 @@ Key Factor: ${rankedEntities[0]?.metadata?.hierarchyLevel === 'ultimate_parent' 
     // Check if ranking rules are muted for testing
     if (userBias.muteRankingRules) {
       console.log('[Perplexity Arbitration] Ranking rules MUTED for testing');
-      // EVALUATOR: Testing infrastructure built into production code - good for quality assurance
       const prompt = `
 You are an entity arbitrator. For TESTING PURPOSES, ranking rules are DISABLED.
 
@@ -773,7 +763,6 @@ If no entities match (including Claim 0), return:
           }
 
           // No jurisdiction bonus - let the data guide jurisdiction discovery
-          // EVALUATOR: Data-driven approach to jurisdiction discovery - removes human bias but may miss strategic preferences
 
           // Active status bonus
           if (claim.metadata?.entityStatus === 'ACTIVE') {
@@ -892,7 +881,6 @@ Key Factor: ${rankedEntities[0]?.metadata?.hierarchyLevel === 'ultimate_parent' 
     // Check if ranking rules are muted for testing
     if (userBias.muteRankingRules) {
       console.log('[Perplexity Arbitration] Ranking rules MUTED for testing');
-      // EVALUATOR: Testing infrastructure built into production code - good for quality assurance
       const prompt = `
 You are an entity arbitrator. For TESTING PURPOSES, ranking rules are DISABLED.
 
@@ -1084,7 +1072,6 @@ If no entities match (including Claim 0), return:
           }
 
           // No jurisdiction bonus - let the data guide jurisdiction discovery
-          // EVALUATOR: Data-driven approach to jurisdiction discovery - removes human bias but may miss strategic preferences
 
           // Active status bonus
           if (claim.metadata?.entityStatus === 'ACTIVE') {
@@ -1203,7 +1190,6 @@ Key Factor: ${rankedEntities[0]?.metadata?.hierarchyLevel === 'ultimate_parent' 
     // Check if ranking rules are muted for testing
     if (userBias.muteRankingRules) {
       console.log('[Perplexity Arbitration] Ranking rules MUTED for testing');
-      // EVALUATOR: Testing infrastructure built into production code - good for quality assurance
       const prompt = `
 You are an entity arbitrator. For TESTING PURPOSES, ranking rules are DISABLED.
 
@@ -1395,7 +1381,6 @@ If no entities match (including Claim 0), return:
           }
 
           // No jurisdiction bonus - let the data guide jurisdiction discovery
-          // EVALUATOR: Data-driven approach to jurisdiction discovery - removes human bias but may miss strategic preferences
 
           // Active status bonus
           if (claim.metadata?.entityStatus === 'ACTIVE') {
@@ -1514,7 +1499,6 @@ Key Factor: ${rankedEntities[0]?.metadata?.hierarchyLevel === 'ultimate_parent' 
     // Check if ranking rules are muted for testing
     if (userBias.muteRankingRules) {
       console.log('[Perplexity Arbitration] Ranking rules MUTED for testing');
-      // EVALUATOR: Testing infrastructure built into production code - good for quality assurance
       const prompt = `
 You are an entity arbitrator. For TESTING PURPOSES, ranking rules are DISABLED.
 
@@ -1706,7 +1690,6 @@ If no entities match (including Claim 0), return:
           }
 
           // No jurisdiction bonus - let the data guide jurisdiction discovery
-          // EVALUATOR: Data-driven approach to jurisdiction discovery - removes human bias but may miss strategic preferences
 
           // Active status bonus
           if (claim.metadata?.entityStatus === 'ACTIVE') {
@@ -1788,7 +1771,6 @@ Key Factor: ${rankedEntities[0]?.metadata?.hierarchyLevel === 'ultimate_parent' 
   private applyUserBiasToRanking(entities: RankedEntity[], userBias: UserBias): RankedEntity[] {
     console.log(`[Perplexity Arbitration] Applying bias to ${entities.length} entities`);
 
-    // EVALUATOR: Bias scoring algorithm applies weighted preferences to LLM rankings
     // Transparent scoring system allows for audit and adjustment of business rules
 
     // Apply bias scoring
@@ -1862,7 +1844,6 @@ Key Factor: ${rankedEntities[0]?.metadata?.hierarchyLevel === 'ultimate_parent' 
    * Extract citations from the Perplexity response
    */
   private extractCitations(response: string): string[] {
-    // EVALUATOR: Citation extraction provides source traceability for arbitration decisions
     // Simple regex approach may miss complex citation formats - consider more robust parsing
 
     // Extract citations in Perplexity format: [1], [2], etc.

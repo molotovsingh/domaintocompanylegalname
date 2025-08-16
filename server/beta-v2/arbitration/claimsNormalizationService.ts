@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// EVALUATOR: Claims normalization service - critical data quality gateway
 // This service ensures consistent data format across the arbitration pipeline
 
 // Simple implementations to avoid lodash import issues
@@ -114,10 +113,7 @@ const NormalizedClaimSchema = z.object({
 
 // Normalized result types
 export type NormalizedClaim = z.infer<typeof NormalizedClaimSchema>;
-// EVALUATOR: Normalized to 0-1 range - prevents percentage confusion
-// EVALUATOR: Flexible metadata storage - consider type safety improvements
 
-// EVALUATOR: Comprehensive result structure enables quality monitoring and debugging
 // Stats tracking helps identify data quality trends across different sources
 export type NormalizationResult = {
   success: boolean;
@@ -269,32 +265,29 @@ export class ClaimsNormalizationService {
    * Transform raw claim data to normalized format
    */
   private transformClaim(raw: any, index: number): any {
-    // EVALUATOR: Batch processing approach enables comprehensive error tracking
     // Consider implementing parallel processing for large claim sets
 
     // Normalize claim number
-    // EVALUATOR: Flexible field mapping handles both snake_case and camelCase formats
     // This dual-format support is essential for integrating different data sources
     let claimNumber: number;
-    if (rawClaim.claim_number !== undefined) {
-      claimNumber = rawClaim.claim_number;
-    } else if (rawClaim.claimNumber !== undefined) {
-      claimNumber = rawClaim.claimNumber;
+    if (raw.claim_number !== undefined) {
+      claimNumber = raw.claim_number;
+    } else if (raw.claimNumber !== undefined) {
+      claimNumber = raw.claimNumber;
     } else {
       this.validationErrors.push({
         claimIndex: index,
         field: 'claimNumber',
         issue: 'Missing claim number',
-        value: rawClaim
+        value: raw
       });
-      return null; // EVALUATOR: Claim number is mandatory - appropriate to fail fast
+      return null; // Claim number is mandatory - appropriate to fail fast
     }
 
     // Infer claim type
     const claimType = this.inferClaimType(raw);
 
     // Normalize entity name with fallback to metadata
-    // EVALUATOR: Intelligent fallback strategy prevents data loss from inconsistent field naming
     // The metadata.legalName fallback is particularly valuable for GLEIF integration
     let entityName: string;
     if (raw.entity_name) {
@@ -304,7 +297,6 @@ export class ClaimsNormalizationService {
     } else if (raw.metadata?.legalName) {
       entityName = raw.metadata.legalName.trim();
       this.warnings.push(`Claim ${claimNumber}: Entity name retrieved from metadata.legalName`);
-      // EVALUATOR: Warning system provides audit trail for data source decisions
     } else {
       this.validationErrors.push({
         claimIndex: index,
@@ -321,7 +313,6 @@ export class ClaimsNormalizationService {
     );
 
     // Normalize confidence to 0-1 range
-    // EVALUATOR: Confidence normalization prevents scoring inconsistencies in arbitration
     // The 0.5 default is reasonable but consider making this configurable per claim type
     let confidence: number;
     if (raw.confidence_score !== undefined) {
@@ -426,7 +417,6 @@ export class ClaimsNormalizationService {
    * Normalize confidence scores to 0-1 range
    */
   private normalizeConfidence(value: any): number {
-    // EVALUATOR: Robust confidence normalization handles multiple input formats
     // The percentage detection (>1) is clever but may fail for confidence > 100%
     if (typeof value === 'number') {
       // If value > 1, assume it's a percentage and convert to 0-1
