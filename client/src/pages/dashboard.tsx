@@ -114,7 +114,7 @@ export default function Dashboard() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>Testing & Development</DropdownMenuLabel>
+                  <DropdownMenuLabel>Testing Platform</DropdownMenuLabel>
                   <DropdownMenuItem asChild>
                     <Link href="/beta-testing-v2" className="w-full flex items-center gap-2">
                       <Cpu className="h-3 w-3" />
@@ -122,15 +122,24 @@ export default function Dashboard() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/langextract-demo" className="w-full flex items-center gap-2">
-                      <Zap className="h-3 w-3" />
-                      LangExtract Demo
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
                     <Link href="/beta-testing" className="w-full flex items-center gap-2 text-muted-foreground">
                       <Archive className="h-3 w-3" />
                       Legacy Beta Testing
+                    </Link>
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel>Demo Tools</DropdownMenuLabel>
+                  <DropdownMenuItem asChild>
+                    <Link href="/beta-v2/gleif-search" className="w-full flex items-center gap-2">
+                      <Globe className="h-3 w-3" />
+                      GLEIF Search Demo
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/langextract-demo" className="w-full flex items-center gap-2">
+                      <Zap className="h-3 w-3" />
+                      LangExtract Demo
                     </Link>
                   </DropdownMenuItem>
                   
