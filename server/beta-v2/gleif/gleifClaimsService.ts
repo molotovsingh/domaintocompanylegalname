@@ -308,13 +308,41 @@ export class GleifClaimsService {
       // Filter to only include claims with LEI codes for backward compatibility
       const verifiedClaims = claims.filter(claim => claim.leiCode && claim.leiCode.length > 0);
       
+      // PHASE 2 INTEGRATION: Normalize GLEIF claims before returning
+      console.log(`[GleifClaimsService] Normalizing ${verifiedClaims.length} GLEIF claims`);
+      
+      // Prepare claims for normalization (convert to expected format)
+      const claimsToNormalize = verifiedClaims.map((claim, index) => ({
+        claim_number: index,
+        claim_type: claim.claimType,
+        entity_name: claim.entityName,
+        lei_code: claim.leiCode,
+        confidence_score: claim.confidence === 'high' ? 0.9 : claim.confidence === 'medium' ? 0.6 : 0.3,
+        source: claim.source || 'gleif_api',
+        metadata: claim.gleifData || {}
+      }));
+      
+      const normalizationResult = await claimsNormalizer.normalizeClaims(claimsToNormalize);
+      
+      // Convert normalized claims back to entity claims format
+      const normalizedEntityClaims = normalizationResult.normalizedClaims?.map(nc => ({
+        claimType: nc.claimType as 'extracted' | 'gleif_verified' | 'suffix_suggestion' | 'gleif_relationship',
+        entityName: nc.entityName,
+        confidence: nc.confidence > 0.7 ? 'high' as const : nc.confidence > 0.4 ? 'medium' as const : 'low' as const,
+        source: nc.source,
+        leiCode: nc.leiCode || undefined,
+        gleifData: nc.metadata,
+        evidence: claims[nc.claimNumber]?.evidence,
+        reasoning: claims[nc.claimNumber]?.reasoning
+      })) || verifiedClaims;
+      
       console.log(`[GleifClaimsService] Results: websiteEntity=${websiteEntity?.entityName}, gleifEntities=${gleifEntities.length}, totalClaims=${claims.length}`);
 
       return {
         domain,
         websiteEntity,  // NEW: Separated website extraction
         gleifEntities,  // NEW: Only GLEIF entities with LEI codes
-        entityClaims: verifiedClaims,  // Keep for backward compatibility
+        entityClaims: normalizedEntityClaims as EntityClaim[],  // Normalized claims for backward compatibility
         searchPatternsUsed: searchPatterns,
         processingTime: Date.now() - startTime
       };

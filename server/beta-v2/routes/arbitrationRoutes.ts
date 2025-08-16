@@ -156,7 +156,7 @@ router.get('/results/:requestId', async (req, res) => {
     
     // PHASE 2 INTEGRATION: Normalize claims before sending to frontend
     console.log(`[Arbitration] Normalizing claims for frontend display`);
-    const rawClaims = claimsResult.rows.map(row => ({
+    const rawClaims = claimsResult.rows.map((row: any) => ({
       claim_number: row.claim_number,
       claim_type: row.claim_type,
       entity_name: row.entity_name,
@@ -327,7 +327,7 @@ async function processArbitrationAsync(
         
         return {
           claimNumber: index,
-          claimType: isCleanedDumpClaim ? 'llm_extracted' : 'gleif_candidate',
+          claimType: (isCleanedDumpClaim ? 'llm_extracted' : 'gleif_candidate') as 'llm_extracted' | 'gleif_candidate',
           entityName: claim.entityName || claim.legalName,
           leiCode: claim.leiCode || claim.leiCode,
           confidence: typeof claim.confidence === 'string' ? 
@@ -350,7 +350,7 @@ async function processArbitrationAsync(
       if (existingClaimsResult.rows.length > 0) {
         // Use existing claims
         console.log(`[Arbitration] Using ${existingClaimsResult.rows.length} existing claims from database`);
-        claims = existingClaimsResult.rows.map(row => ({
+        claims = existingClaimsResult.rows.map((row: any) => ({
           claimNumber: row.claim_number,
           claimType: row.claim_type,
           entityName: row.entity_name,
