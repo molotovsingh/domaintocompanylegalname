@@ -601,19 +601,46 @@ async function getCleanedData(dumpId: number, collectionType: string): Promise<a
         return null;
     }
 
-    const dumpResult = await db.query(
-      `SELECT dump_data FROM ${tableName} WHERE id = $1`,
-      [dumpId]
-    );
-
-    if (dumpResult.rows.length > 0) {
-      const pages = dumpResult.rows[0].dump_data?.pages;
-      if (pages && pages.length > 0) {
+    // Special handling for axios_cheerio_dumps which doesn't have dump_data column
+    if (collectionType === 'axios_cheerio_dump') {
+      const result = await betaV2Db.execute(sql`
+        SELECT id, domain, status, 
+               JSONB_BUILD_OBJECT(
+                 'html', raw_html,
+                 'headers', headers,
+                 'meta_tags', meta_tags,
+                 'extraction_strategies', extraction_strategies,
+                 'page_metadata', page_metadata
+               ) AS dump_data, 
+               created_at 
+        FROM axios_cheerio_dumps 
+        WHERE id = ${dumpId}
+      `);
+      
+      if (result.rows.length > 0) {
+        const dump = result.rows[0].dump_data;
+        const metaTags = dump?.meta_tags || {};
         return {
-          companyName: pages[0]?.title?.replace(/\s*\|.*$/, '').trim() || pages[0]?.metaTags?.['og:site_name'],
-          title: pages[0]?.title,
-          metaTags: pages[0]?.metaTags
+          companyName: metaTags['og:site_name'] || metaTags['twitter:title'] || '',
+          title: dump?.page_metadata?.title || '',
+          metaTags: metaTags
         };
+      }
+    } else {
+      const dumpResult = await db.query(
+        `SELECT dump_data FROM ${tableName} WHERE id = $1`,
+        [dumpId]
+      );
+
+      if (dumpResult.rows.length > 0) {
+        const pages = dumpResult.rows[0].dump_data?.pages;
+        if (pages && pages.length > 0) {
+          return {
+            companyName: pages[0]?.title?.replace(/\s*\|.*$/, '').trim() || pages[0]?.metaTags?.['og:site_name'],
+            title: pages[0]?.title,
+            metaTags: pages[0]?.metaTags
+          };
+        }
       }
     }
 
