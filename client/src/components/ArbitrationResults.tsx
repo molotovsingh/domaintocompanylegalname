@@ -73,7 +73,8 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
     enabled: !!requestId,
     refetchInterval: (query) => {
       // Keep polling if still processing
-      if (query?.data?.status === 'processing' || query?.data?.status === 'pending') {
+      const status = query.state.data?.status;
+      if (status === 'processing' || status === 'pending') {
         return 2000; // Poll every 2 seconds
       }
       return false; // Stop polling when completed
@@ -98,7 +99,7 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
     }
   };
 
-  const getGradeBadgeColor = (grade: string) => {
+  const getGradeBadgeColor = (grade?: string) => {
     if (grade?.startsWith('A')) return 'bg-green-500';
     if (grade?.startsWith('B')) return 'bg-blue-500';
     if (grade?.startsWith('C')) return 'bg-yellow-500';
@@ -159,8 +160,21 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
   const claims = results?.claims || [];
   const citations = results?.citations || [];
 
-  // Find the website claim (Claim 0) if it exists
-  const websiteClaim = claims.find((c: Claim) => c.claimNumber === 0);
+
+
+  // Find the website claim (Claim 0) if it exists - handle snake_case from backend
+  const websiteClaim = claims.find((c: any) => c.claim_number === 0 || c.claimNumber === 0);
+  
+  // Transform snake_case to camelCase for website claim
+  const normalizedWebsiteClaim = websiteClaim ? {
+    claimNumber: (websiteClaim as any).claim_number || (websiteClaim as any).claimNumber,
+    claimType: (websiteClaim as any).claim_type || (websiteClaim as any).claimType,
+    entityName: (websiteClaim as any).entity_name || (websiteClaim as any).entityName,
+    leiCode: (websiteClaim as any).lei_code || (websiteClaim as any).leiCode,
+    confidence: (websiteClaim as any).confidence_score || (websiteClaim as any).confidence || 0,
+    source: (websiteClaim as any).source,
+    metadata: (websiteClaim as any).metadata
+  } : null;
 
   return (
     <div className="space-y-6">
@@ -182,7 +196,7 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
       )}
 
       {/* Website Context - What the website claims to be */}
-      {websiteClaim && (
+      {normalizedWebsiteClaim && (
         <Card className="bg-amber-50 border-amber-200">
           <CardHeader className="pb-3">
             <div className="flex items-center space-x-2">
@@ -193,14 +207,14 @@ export function ArbitrationResults({ requestId, domain, onProcessDomain }: Arbit
           <CardContent>
             <div className="space-y-2">
               <div className="text-lg font-semibold text-amber-900">
-                {websiteClaim.entityName || 'Unknown Entity'}
+                {normalizedWebsiteClaim.entityName || 'Unknown Entity'}
               </div>
               <div className="flex items-center space-x-3 text-sm">
                 <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300">
-                  {websiteClaim.source || 'Website Extraction'}
+                  {normalizedWebsiteClaim.source || 'Website Extraction'}
                 </Badge>
                 <span className="text-amber-700">
-                  Confidence: {(websiteClaim.confidence * 100).toFixed(0)}%
+                  Confidence: {(normalizedWebsiteClaim.confidence * 100).toFixed(0)}%
                 </span>
               </div>
               <p className="text-xs text-amber-600 mt-2">

@@ -1,0 +1,84 @@
+Arbitration Result Row Structure
+Here's how the arbitration result should look with the new separated structure:
+
+Sample Arbitration Result for domain: indiatoday.in
+{
+  // Request metadata
+  domain: "indiatoday.in",
+  requestId: 29,
+  status: "completed",
+  
+  // What the website claims (for context)
+  websiteClaim: {
+    entityName: "India Today",
+    source: "website_extraction",
+    confidence: "high"
+    // Note: No LEI - websites can't have LEI by definition
+  },
+  
+  // Arbitration results - ranking GLEIF entities against website claim
+  rankedEntities: [
+    {
+      rank: 1,
+      entityName: "TV TODAY NETWORK LIMITED",
+      leiCode: "335800CBJHTFQR5FCM79",
+      matchScore: 0.85,  // How well this matches the website claim
+      reasoning: "Parent company of India Today brand. Exact domain ownership match.",
+      matchType: "parent_company",
+      jurisdiction: "IN",
+      entityStatus: "ACTIVE"
+    },
+    {
+      rank: 2,
+      entityName: "INDIA TODAY FASHIONS",
+      leiCode: "335800YFGFE3XNC3WI85",
+      matchScore: 0.45,
+      reasoning: "Subsidiary brand but different business line (fashion vs news)",
+      matchType: "related_entity",
+      jurisdiction: "IN",
+      entityStatus: "ACTIVE"
+    },
+    {
+      rank: 3,
+      entityName: "M/S INDIA EXPORTS TODAY",
+      leiCode: "3358005FYEZYFS51CT54",
+      matchScore: 0.20,
+      reasoning: "Name similarity only, unrelated business",
+      matchType: "name_match_only",
+      jurisdiction: "IN",
+      entityStatus: "ACTIVE"
+    }
+  ],
+  
+  // Primary recommendation
+  recommendedEntity: {
+    leiCode: "335800CBJHTFQR5FCM79",
+    legalName: "TV TODAY NETWORK LIMITED",
+    confidence: 0.85,
+    actionableInsight: "✓ High confidence match. TV TODAY NETWORK LIMITED is the verified parent company operating indiatoday.in"
+  },
+  
+  // Arbitration metadata
+  arbitrationDetails: {
+    totalClaimsEvaluated: 4,  // 1 website + 3 GLEIF
+    model: "perplexity-sonar-pro",
+    processingTimeMs: 4530,
+    perplexityReasoning: "Based on web search and corporate filings, TV TODAY NETWORK LIMITED is the registered entity that owns and operates the India Today media brand including the indiatoday.in website.",
+    citations: [
+      "https://www.sec.gov/Archives/edgar/...",
+      "https://www.tvtoday.in/investors/..."
+    ]
+  }
+}
+Key Changes from Current Structure:
+Separated Website Context: The website's claim is shown separately as websiteClaim - not mixed with GLEIF entities
+GLEIF-Only Rankings: rankedEntities only contains GLEIF-verified entities with LEI codes
+Match Scoring: Each GLEIF entity has a matchScore showing how well it matches the website's claim
+Clear Recommendation: A single recommendedEntity field with actionable business insight
+No "Claim 0" in Rankings: The website entity is context, not a rankable claim
+UI Display Flow:
+Top Section: "Website claims to be: India Today" (amber info box)
+Results Section: "Best GLEIF Match: TV TODAY NETWORK LIMITED (85% confidence)"
+Alternatives Table: Other GLEIF entities ranked by match score
+Action Box: Clear recommendation for acquisition research
+Does this structure align with what you're looking for? The key insight is that we're not ranking the website's claim against GLEIF entities - we're finding which GLEIF entity best represents what the website claims to be.
